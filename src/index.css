@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap');
+
 * {
   margin: 0;
   padding: 0;
-  font-family: 'Helvetica Textbook Roman';
   box-sizing: border-box;
   color: #171212;
+  font-family: 'Rubik', sans-serif;
 }
 
 html {
@@ -12,19 +15,16 @@ html {
   font-size: 14px;
  }
 
-
 body {
   margin: 0;
   overflow-x: hidden;
 }
-
 
 hr {
   box-sizing: content-box; /* 1 */
   height: 0; /* 1 */
   overflow: visible; /* 2 */
 }
-
 
 pre {
   font-family: monospace; /* 1 */
