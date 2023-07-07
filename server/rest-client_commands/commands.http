@@ -1,0 +1,11 @@
+### Start payment
+GET http://localhost:8000/payment_terminal
+
+### Start payment
+POST http://localhost:8000/payment_terminal/123/payment
+Content-Type: application/json
+
+{
+   "terminalId":"123",
+   "amount":100
+}
