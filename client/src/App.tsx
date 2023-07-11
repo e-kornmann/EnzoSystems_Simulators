@@ -28,25 +28,19 @@ function App() {
   };
   
   return (
-    <>
+     <>
        <DndContext>
-       
-      <Button onClick={() => showSimulatorHandler('paymentDevice')}>Open payment modal</Button>
-      <Button onClick={() => showSimulatorHandler('otherDevice')}>Other Device</Button>
-      
-      <DraggableModal
-        isShown={isShown}
-        hide={toggle}
-        headerText={simulators.paymentDevice ? "Payment Device" : "Other Device"}
-        modalContent={simulators.paymentDevice ? <PaymentDevice /> :  <OtherDevice /> }
-        identifier={simulators.paymentDevice ? "Payment Device" : "Other Device"}
+         <Button onClick={() => showSimulatorHandler('paymentDevice')}>Open payment modal</Button>
+         <Button onClick={() => showSimulatorHandler('otherDevice')}>Other Device</Button>
+       <DraggableModal
+         isShown={isShown}
+         hide={toggle}
+         headerText={simulators.paymentDevice ? "Payment Device" : "Other Device"}
+         modalContent={simulators.paymentDevice ? <PaymentDevice /> :  <OtherDevice /> }
+         identifier={simulators.paymentDevice ? "Payment Device" : "Other Device"}
         />
-
-    </DndContext>
-
-   
- 
-    </>
+       </DndContext>
+     </>
   );
 }
 

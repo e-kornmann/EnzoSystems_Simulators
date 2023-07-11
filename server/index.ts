@@ -1,10 +1,10 @@
-import express, { Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import payment_terminal from './routes/payment_terminal';
 import other_device from './routes/other_device';
 import cors from 'cors';
 
-const app = express();
-const port = 8000;
+const app: Application = express();
+const port = 8080;
 
 app.use(express.json());
 app.use(cors({

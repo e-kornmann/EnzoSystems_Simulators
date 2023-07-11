@@ -50,7 +50,7 @@ import DeadEntry from './displays/DeadEntry';
   }, []);
   
   useEffect(() => {
-    let waitTime;
+    let waitTime: number | undefined = undefined;
     let intervalId: NodeJS.Timer | null = null;
   
     switch (status) {
@@ -75,16 +75,16 @@ import DeadEntry from './displays/DeadEntry';
         waitTime = 2000;
         break;
       case 6:
-        waitTime = 2500;
         setDisplay(<OneMoment />);
+        waitTime = 2500;
         break;
       case 7:
-        waitTime = 5000;
         setDisplay(<Success />);
+        waitTime = 5000;
         break;
       case 8:
-        waitTime = 500;
         setDisplay(<DeadEntry />);
+        waitTime = 500;
         break;
     }
   
