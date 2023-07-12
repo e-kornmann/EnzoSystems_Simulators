@@ -15,7 +15,7 @@ payment_terminal.get(
   async (_req: Request, res: Response): Promise<Response> =>
     res
       .status(200)
-      .send('This payment_terminal endpoint is ready to receive requests')
+      .json({ message: 'This payment_terminal endpoint is ready to receive requests' })
 );
 
 payment_terminal.post(
@@ -28,7 +28,7 @@ payment_terminal.post(
       res.status(200).json({ transactionId: PaymentData.transactionId });
     } catch (error) {
       console.error(error);
-      res.status(500).send('An error occurred');
+      res.status(500).json({ error: 'An error occurred' });
     }
   }
 );

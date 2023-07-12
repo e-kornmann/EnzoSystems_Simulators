@@ -10,4 +10,4 @@ Content-Type: application/json
 }
 
 ### Get status
-GET http://localhost:8003/payment_terminal/123/payment/85ac307036e0c76d
+GET http://localhost:8003/payment_terminal/123/payment/asd211r

@@ -34,7 +34,7 @@ const resetPaymentState = async () => {
         receipt: null,
       });
       resolve();
-    }, 5000);
+    }, 3500);
   });
 };
 
@@ -46,14 +46,16 @@ const checkPaymentStatus = async () => {
   intervalId = setInterval(async () => {
     switch (PaymentData.nextState) {
       case 'running':
+        
         if (Date.now() - startTime >= timeout) {
           clearInterval(intervalId);
           Object.assign(PaymentData, {
             nextState: 'timedout',
             currentState: 'Timed out',
             receipt: 'Transaction timed-out.',
-          });
+          })
           await resetPaymentState();
+        
         } else if (Date.now() - startTime >= 5000) {
           if (PaymentData.amount === 100) {
             PaymentData.nextState = 'finished';
@@ -92,7 +94,9 @@ const checkPaymentStatus = async () => {
 const isIdle = (req: Request, res: Response, next: NextFunction) => {
   if (PaymentData.currentState !== 'idle') {
     resetPaymentState().then(() => {
-      res.status(409).send('Another payment is already in progress.');
+      res
+        .status(409)
+        .json({ message: 'Another payment is already in progress.' });
     });
   } else {
     next();
@@ -109,13 +113,13 @@ const validatePaymentPostRequest = (
     resetPaymentState().then(() => {
       res
         .status(400)
-        .send('Please provide a valid numeric amount for the payment.');
+        .json({ message: 'Please provide a valid numeric amount for the payment.' });
     });
   } else if (amount === 0) {
     resetPaymentState().then(() => {
       res
         .status(400)
-        .send('Please provide a non-zero amount for the payment.');
+        .json({ message: 'Please provide a non-zero amount for the payment.' });
     });
   } else {
     next();
@@ -145,15 +149,13 @@ const validatePaymentGetRequest = (
   next: NextFunction
 ) => {
   const { terminalId, transactionId } = req.params;
-
-  if (
-    transactionId !== PaymentData.transactionId ||
-    terminalId !== PaymentData.terminalId
-  ) {
-    res.status(404).send('Transaction not found');
-  } else {
-    next();
-  }
+  if ( PaymentData.currentState !== 'idle' && transactionId !== PaymentData.transactionId)
+    res.status(404).json({ receipt: 'TransactionId not found' });
+  if ( PaymentData.currentState !== 'idle' && terminalId !== PaymentData.terminalId)
+    res.status(404).json({ receipt: 'TerminalId not found' });
+  if ( PaymentData.currentState === 'idle' && PaymentData.terminalId === '' )
+    res.status(404).json({ receipt: 'Please start another payment' });
+   next();
 };
 
 export {
