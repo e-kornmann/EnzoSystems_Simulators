@@ -1,7 +1,7 @@
 
 import * as S from './styles';
 import { useEffect, useState } from 'react';
-
+import api from "../../../api";
 import Amount from './displays/Amount';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
@@ -9,14 +9,22 @@ import OneMoment from './displays/OneMoment';
 import Success from './displays/Success';
 import Cancel from './displays/Cancel';
 import DeadEntry from './displays/DeadEntry';
+import React from 'react';
+import ServerError from './displays/ServerError';
+import { Loading } from './displays/Loading';
 
 
-  const PaymentDevice = () => {
-  const [terminalId, setTerminalId] = useState('');
-  const [transaction, setTransaction] = useState({
-    transactionId: '',
-    amount: 0,
-  });
+type Post = {
+  terminalId: string;
+  amount: number | undefined;
+}
+
+const postDataInitialState = 
+{ terminalId: '', amount: undefined }
+
+  const PaymentDevice = () => { 
+  const [postData, setPostData] = useState<Post>(postDataInitialState);
+  const [transactionId, setTransactionId] = useState('');
   const [display, setDisplay] = useState(<Welcome />);
   const [currentDate, setCurrentDate] = useState(
     new Date().toLocaleDateString()
@@ -24,6 +32,24 @@ import DeadEntry from './displays/DeadEntry';
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString()
   );
+
+  const startPayment = React.useCallback(async () => {
+    try {
+      setDisplay(<Loading />);
+      const response = await api.post(`/payment_terminal/${postData.terminalId}/payment`, {
+        amount : postData.amount,
+      });
+      setTransactionId(response.data.transactionId);
+      setTimeout(()=>  setDisplay(<Amount amount={postData.amount} />), 1000)
+     
+    } catch (error) {
+      console.error('Unable to make payment.', error);
+      if ((error as { response?: { status?: number } }).response?.status) {
+        const statusCode = (error as { response: { status: number } }).response.status;
+        setDisplay(<ServerError statusCode={statusCode} />);
+      }
+    }
+  }, [postData.amount, postData.terminalId]);
 
   enum Status {
     IDLE,
@@ -54,35 +80,30 @@ import DeadEntry from './displays/DeadEntry';
     let intervalId: NodeJS.Timer | null = null;
   
     switch (status) {
-      case 0:
+      case Status.IDLE:
         setDisplay(<Welcome />);
-        setTransaction({
-          transactionId: '',
-          amount: 0,
-        });
-        setTerminalId('');
         break;
-      case 1:
-        setDisplay(<Amount amount={1000} />);
+      case Status.START:
+        startPayment();
         waitTime = 7000;
         break;
-      case 3:
+      case Status.STOP:
         setDisplay(<Cancel />);
         waitTime = 4500;
         break;
-      case 4:
+      case Status.TIMED_OUT:
         setDisplay(<TimedOut />);
         waitTime = 2000;
         break;
-      case 6:
+      case Status.PAY:
         setDisplay(<OneMoment />);
         waitTime = 2500;
         break;
-      case 7:
+      case Status.SUCCESS:
         setDisplay(<Success />);
         waitTime = 5000;
         break;
-      case 8:
+      case Status.DEAD_ENTRY:
         setDisplay(<DeadEntry />);
         waitTime = 500;
         break;
@@ -95,25 +116,27 @@ import DeadEntry from './displays/DeadEntry';
     if (waitTime) {
       intervalId = setInterval(() => {
         switch (status) {
-          case 0:
-            break;
           case 1:
             setStatus(Status.TIMED_OUT);
             break;
           case 3:
             setStatus(Status.IDLE);
+     
             break;
           case 4:
             setStatus(Status.IDLE);
+            setPostData(postDataInitialState);
             break;
           case 6:
             setStatus(Status.SUCCESS);
             break;
           case 7:
+       
             setStatus(Status.IDLE);
             break;
           case 8:
-            setStatus(Status.IDLE);
+
+            setStatus(Status.IDLE);   
             break;
         }
       }, waitTime);
@@ -126,17 +149,17 @@ import DeadEntry from './displays/DeadEntry';
         clearInterval(intervalId);
       }
     };
-  }, [Status.IDLE, Status.SUCCESS, Status.TIMED_OUT, status]);
+  }, [Status.IDLE, Status.SUCCESS, Status.TIMED_OUT, status, postData.amount, startPayment, Status.START, Status.STOP, Status.PAY, Status.DEAD_ENTRY]);
+
+
 
   const startSequence = () => {
-    setTerminalId('123');
-    setTransaction({
-      transactionId: '123456',
-      amount: 1000,
-    });
+    setPostData({ terminalId: '123', amount: 1000 } );
     setStatus(Status.START);
   };
-
+  
+  
+  
   const payHandler = () => {
     if (status !== Status.START) {
       setStatus(Status.DEAD_ENTRY);
@@ -153,8 +176,8 @@ import DeadEntry from './displays/DeadEntry';
     }
   };
 
-  terminalId ? 
-   console.log('pay request received from terminal:' + terminalId + 'with \nTransacion IDnr:' + transaction.transactionId) : 
+  postData.terminalId ? 
+   console.log('pay request received from terminal: ' + postData.terminalId + ' \n with Transaction IDnr: ' + transactionId) : 
    console.log('start a payment') 
    ;
 

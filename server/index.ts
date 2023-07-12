@@ -4,7 +4,7 @@ import other_device from './routes/other_device';
 import cors from 'cors';
 
 const app: Application = express();
-const port = 8080;
+const port = 8003;
 
 app.use(express.json());
 app.use(cors({

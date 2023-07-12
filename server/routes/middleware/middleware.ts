@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from 'express';
 import crypto from 'crypto';
 
 type PaymentState = {
-  setState: string;
+  nextState: string;
   currentState: string;
   amount: number;
   terminalId: string;
@@ -12,7 +12,7 @@ type PaymentState = {
 };
 
 const PaymentData: PaymentState = {
-  setState: '',
+  nextState: '',
   currentState: 'idle',
   amount: 0,
   terminalId: '',
@@ -21,46 +21,44 @@ const PaymentData: PaymentState = {
   receipt: null,
 };
 
-const resetPaymentState = () => {
-  console.log('Resetting payment state');
-  console.log(PaymentData.currentState);
-  setTimeout(()=>{
-    Object.assign(PaymentData, {
-      setState: '',
-      currentState: 'idle',
-      amount: 0,
-      terminalId: '',
-      amountPaid: 0,
-      transactionId: '',
-      receipt: null
-    });
-  }, 5000)
+const resetPaymentState = async () => {
+  await new Promise<void>((resolve) => {
+    setTimeout(() => {
+      Object.assign(PaymentData, {
+        nextState: '',
+        currentState: 'idle',
+        amount: 0,
+        terminalId: '',
+        amountPaid: 0,
+        transactionId: '',
+        receipt: null,
+      });
+      resolve();
+    }, 5000);
+  });
 };
 
-const checkPaymentStatus = () => {
+const checkPaymentStatus = async () => {
   const timeout = 20000;
   const startTime = Date.now();
   let intervalId: NodeJS.Timeout;
 
-  intervalId = setInterval(() => {
-    console.log(PaymentData.currentState);
-    switch (PaymentData.setState) {
+  intervalId = setInterval(async () => {
+    switch (PaymentData.nextState) {
       case 'running':
-        console.log('Payment state: running');
-        PaymentData.currentState = 'Running';
         if (Date.now() - startTime >= timeout) {
           clearInterval(intervalId);
           Object.assign(PaymentData, {
-            setState: 'timedout',
+            nextState: 'timedout',
             currentState: 'Timed out',
             receipt: 'Transaction timed-out.',
           });
-          resetPaymentState();
+          await resetPaymentState();
         } else if (Date.now() - startTime >= 5000) {
           if (PaymentData.amount === 100) {
-            PaymentData.setState = 'finished';
+            PaymentData.nextState = 'finished';
           } else if (PaymentData.amount === 200) {
-            PaymentData.setState = 'stopped';
+            PaymentData.nextState = 'stopped';
           }
         }
         break;
@@ -70,9 +68,9 @@ const checkPaymentStatus = () => {
           currentState: 'Finished',
           receipt: 'You have paid.',
           amountPaid: PaymentData.amount,
-          setState: ''
+          nextState: '',
         });
-        resetPaymentState();
+        await resetPaymentState();
         break;
       case 'stopped':
         clearInterval(intervalId);
@@ -80,24 +78,25 @@ const checkPaymentStatus = () => {
           currentState: 'Stopped',
           receipt: 'Transaction stopped.',
           amountPaid: 0,
-          setState: ''
+          nextState: '',
         });
-        resetPaymentState();
+        await resetPaymentState();
         break;
       default:
-        console.log('Unknown payment state');
-        resetPaymentState();
+        await resetPaymentState();
         break;
     }
   }, 1000);
 };
 
-
 const isIdle = (req: Request, res: Response, next: NextFunction) => {
   if (PaymentData.currentState !== 'idle') {
-    return res.status(409).send('Another payment is already in progress.');
+    resetPaymentState().then(() => {
+      res.status(409).send('Another payment is already in progress.');
+    });
+  } else {
+    next();
   }
-  next();
 };
 
 const validatePaymentPostRequest = (
@@ -107,16 +106,20 @@ const validatePaymentPostRequest = (
 ) => {
   const { amount } = req.body;
   if (amount === undefined || amount === null || isNaN(amount)) {
-    return res
-      .status(400)
-      .send('Please provide a valid numeric amount for the payment.');
+    resetPaymentState().then(() => {
+      res
+        .status(400)
+        .send('Please provide a valid numeric amount for the payment.');
+    });
+  } else if (amount === 0) {
+    resetPaymentState().then(() => {
+      res
+        .status(400)
+        .send('Please provide a non-zero amount for the payment.');
+    });
+  } else {
+    next();
   }
-  if (amount === 0) {
-    return res
-      .status(400)
-      .send('Please provide a non-zero amount for the payment.');
-  }
-  next();
 };
 
 const startPaymentSequence = (
@@ -129,9 +132,11 @@ const startPaymentSequence = (
   PaymentData.terminalId = terminalId;
   PaymentData.amount = amount;
   PaymentData.transactionId = crypto.randomBytes(8).toString('hex');
-  PaymentData.setState = 'running';
-  checkPaymentStatus();
-  next();
+  PaymentData.nextState = 'running';
+  PaymentData.currentState = 'Running';
+  checkPaymentStatus().then(() => {
+    next();
+  });
 };
 
 const validatePaymentGetRequest = (
@@ -143,12 +148,12 @@ const validatePaymentGetRequest = (
 
   if (
     transactionId !== PaymentData.transactionId ||
-    // deze nog even in een andere if statement zitten.
     terminalId !== PaymentData.terminalId
   ) {
-    return res.status(404).send('Transaction not found');
+    res.status(404).send('Transaction not found');
+  } else {
+    next();
   }
-  next();
 };
 
 export {

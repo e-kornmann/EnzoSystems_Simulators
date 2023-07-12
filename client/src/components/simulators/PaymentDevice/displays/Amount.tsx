@@ -3,7 +3,7 @@ import PriceFormatter from '../../../shared/priceformatter'
 import { Container, Mainline, Subline } from './styles'
 
 type Props = {
-    amount: number
+    amount: number | undefined;
 }
 
 const Amount = ({ amount }: Props) => {
@@ -16,4 +16,4 @@ const Amount = ({ amount }: Props) => {
   )
 }
 
-export default Amount
+export default Amount;

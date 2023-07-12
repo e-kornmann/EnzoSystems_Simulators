@@ -1,5 +1,4 @@
 import Router, { Response, Request } from 'express';
-import crypto from 'crypto';
 
 import {
   validatePaymentPostRequest,
@@ -7,7 +6,7 @@ import {
   isIdle,
   startPaymentSequence,
   PaymentData,
-} from './middleware/middleware';
+} from './middleware/middleware'; 
 
 const payment_terminal = Router();
 
@@ -20,7 +19,7 @@ payment_terminal.get(
 );
 
 payment_terminal.post(
-  '/:terminalId/payment',
+  '/:terminalId/payment', 
   isIdle,
   validatePaymentPostRequest, 
   startPaymentSequence,
@@ -34,10 +33,12 @@ payment_terminal.post(
   }
 );
 
+
+
 payment_terminal.get(
   '/:terminalId/payment/:transactionId',
   validatePaymentGetRequest,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response) => {
     res.status(200).json(PaymentData);
   }
 );
