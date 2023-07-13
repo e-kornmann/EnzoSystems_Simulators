@@ -62,16 +62,17 @@ const ButtonContainer = styled.div`
   bottom: 100px;
   display: grid; 
   grid-template-columns: 1fr 1fr 1fr; 
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr; 
-  gap: 50px 20px; 
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr; 
+  gap: 10px 20px; 
   grid-template-areas: 
+    "pin pin pin"
     "one two three"
     "four five six"
     "seven eight nine"
     "bl1 zero bl2"
     "stop correct ok"; 
   width: 360px;
-  height: 500px;
+  height: 420px;
   padding: 30px;
 `;
 
@@ -103,12 +104,12 @@ const CorrectButton = styled(Pads)`
 `;
 
 const NrButton  = styled(Pads)`
-  display: none;
-  grid-area: one; 
   background: ${Sv.enzoOrange};
   font-size: 25px;
 `;
-  
+
+
+
 export { 
  Container,
  Header,

@@ -1,7 +1,6 @@
 
 import * as S from './styles';
 import { useEffect, useState } from 'react';
-import api from "../../../api";
 import Amount from './displays/Amount';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
@@ -12,6 +11,8 @@ import DeadEntry from './displays/DeadEntry';
 import React from 'react';
 import ServerError from './displays/ServerError';
 import { Loading } from './displays/Loading';
+import api from '../../../Api';
+import PinComponent from './PinComponent';
 
 
 type Post = {
@@ -23,6 +24,17 @@ const postDataInitialState =
 { terminalId: '', amount: undefined }
 
   const PaymentDevice = () => { 
+    const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
+
+    const handleButtonClick = (value: string) => {
+      const updatedPinDigits = [...pinDigits];
+      const currentIndex = updatedPinDigits.findIndex((digit) => digit === "");
+  
+      if (currentIndex !== -1) {
+        updatedPinDigits[currentIndex] = value;
+        setPinDigits(updatedPinDigits);
+      }
+    };
   const [postData, setPostData] = useState<Post>(postDataInitialState);
   const [transactionId, setTransactionId] = useState('');
   const [display, setDisplay] = useState(<Welcome />);
@@ -62,11 +74,21 @@ const postDataInitialState =
     SUCCESS,
     DEAD_ENTRY,
   }
-  const [status, setStatus] = useState(Status.IDLE);
+
+      const [status, setStatus] = useState(Status.IDLE);
+
+
 
   useEffect(() => {
+  const currentTimeOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+};
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString());
+      setCurrentTime(
+        new Date().toLocaleTimeString("en-US", currentTimeOptions as Intl.DateTimeFormatOptions)
+      );
       setCurrentDate(new Date().toLocaleDateString());
     }, 1000);
   
@@ -181,6 +203,8 @@ const postDataInitialState =
    console.log('start a payment') 
    ;
 
+   console.log(pinDigits);
+
   return (
     <>
       <S.Container>
@@ -193,14 +217,25 @@ const postDataInitialState =
           <div>{display}</div>
         </S.TextBox>
       <S.ButtonContainer>
-        <S.NrButton>1</S.NrButton>
+        <div style={{ gridArea: 'pin'}}>
+        <PinComponent pinDigits={pinDigits} /></div>
+        <S.NrButton onClick={() => handleButtonClick("1")}>1</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("2")}>2</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("3")}>3</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("4")}>4</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("5")}>5</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("6")}>6</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("7")}>7</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("8")}>8</S.NrButton>
+        <S.NrButton onClick={() => handleButtonClick("9")}>9</S.NrButton>
+        <S.NrButton style={{gridArea: 'zero'}}>0</S.NrButton>
         <S.StopButton onClick={stopHandler}>Stop</S.StopButton>
-        <S.CorrectButton>Correct</S.CorrectButton>
+        <S.CorrectButton onClick={() => setPinDigits(["", "", "", ""])}>Correct</S.CorrectButton>
         <S.OkButton onClick={payHandler}>OK</S.OkButton>
       </S.ButtonContainer>
       </S.Container>
 
-      {status === Status.IDLE ? (
+      { status === Status.IDLE ? (
         <S.StateButton onClick={startSequence}>
           I want to pay my booking from € 1000
         </S.StateButton>
