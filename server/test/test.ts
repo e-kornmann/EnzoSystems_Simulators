@@ -14,7 +14,7 @@ const amount = 1000;
 let retrievedTransactionId: string;
 
 describe('Payment Terminal API', () => {
-  it.only('GET /payment_terminal should return 200', async () => {
+  it('GET /payment_terminal should return 200', async () => {
     const response = await request(app).get('/payment_terminal');
     expect(response.status).toBe(200);
     expect(response.text).toMatch(/This payment_terminal endpoint is ready to receive requests/);

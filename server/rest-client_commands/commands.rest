@@ -1,13 +1,13 @@
 ### Run endpoint
-GET http://localhost:8003/payment_terminal
+GET http://localhost:8000/payment_terminal
 
 ### Start payment
-POST http://localhost:8003/payment_terminal/123/payment
+POST http://localhost:8000/payment_terminal/123/payment
 Content-Type: application/json
 
 {
-   "amount": 1000
+   "amount": 105
 }
 
 ### Get status
-GET http://localhost:8003/payment_terminal/123/payment/asd211r
+GET http://localhost:8000/payment_terminal/123/payment/0095814224240500

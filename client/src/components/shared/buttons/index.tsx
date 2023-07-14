@@ -9,7 +9,8 @@ const Button = styled.button`
   background: transparant;
   border: 2px solid ${Sv.black};
   border-radius: 5px;
-  width: 100%;
+  min-width: 230px;
+  max-width: 400px;
   padding: 10px 0px;
   cursor: pointer;
   transition: all 0, 1s ease-in;

@@ -6,6 +6,16 @@ import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import './style.css'
 import { DndContext } from '@dnd-kit/core';
 import { Button } from './components/shared/buttons';
+import styled from 'styled-components';
+
+
+const ButtonModalContainer = styled.div`
+display: flex;
+flex-direction: column;
+row-gap: 15px;
+padding: 40px;
+`;
+
 
 function App() {
   const { isShown, toggle } = useModal();
@@ -13,6 +23,7 @@ function App() {
     paymentDevice: false,
     otherDevice: false,
   });
+
 
 
   const showSimulatorHandler = (simulator: string) => {
@@ -30,8 +41,10 @@ function App() {
   return (
      <>
        <DndContext>
+        <ButtonModalContainer>
          <Button onClick={() => showSimulatorHandler('paymentDevice')}>Open payment modal</Button>
          <Button onClick={() => showSimulatorHandler('otherDevice')}>Other Device</Button>
+        </ButtonModalContainer>
        <DraggableModal
          isShown={isShown}
          hide={toggle}

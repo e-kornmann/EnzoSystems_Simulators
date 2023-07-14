@@ -46,22 +46,18 @@ const checkPaymentStatus = async () => {
   intervalId = setInterval(async () => {
     switch (PaymentData.nextState) {
       case 'running':
-        
         if (Date.now() - startTime >= timeout) {
           clearInterval(intervalId);
           Object.assign(PaymentData, {
             nextState: 'timedout',
             currentState: 'Timed out',
             receipt: 'Transaction timed-out.',
-          })
-          await resetPaymentState();
-        
-        } else if (Date.now() - startTime >= 5000) {
-          if (PaymentData.amount === 100) {
-            PaymentData.nextState = 'finished';
-          } else if (PaymentData.amount === 200) {
-            PaymentData.nextState = 'stopped';
-          }
+          });
+          await resetPaymentState();   
+        } else if (PaymentData.amount === 100) {
+          PaymentData.nextState = 'finished';
+        } else if (PaymentData.amount === 200) {
+          PaymentData.nextState = 'stopped';
         }
         break;
       case 'finished':

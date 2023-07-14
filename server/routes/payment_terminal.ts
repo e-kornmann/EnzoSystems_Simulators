@@ -33,8 +33,6 @@ payment_terminal.post(
   }
 );
 
-
-
 payment_terminal.get(
   '/:terminalId/payment/:transactionId',
   validatePaymentGetRequest,
