@@ -1,10 +1,10 @@
-import { Mainline } from "./styles"
+import { WelcomeLine } from "./styles"
 
 const Welcome = () => {
     return (
       <>
-      <Mainline>Welcome</Mainline>
-      <div></div>
+      <WelcomeLine>WELCOME</WelcomeLine>
+      
       </>
     )
   }

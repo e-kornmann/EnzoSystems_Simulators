@@ -6,14 +6,14 @@ type Props = {
     amount: number | undefined;
 }
 
-const Amount = ({ amount }: Props) => {
+const AmountPinEntry = ({ amount }: Props) => {
   return (
     <Container>
       <Subline>Amount to pay</Subline>
       <Mainline>EUR {PriceFormatter(amount, 'nl-NL')}</Mainline>
-      <Subline>Present Card</Subline>
+      <Subline>Enter PIN</Subline>
     </Container>
   )
 }
 
-export default Amount;
+export default AmountPinEntry;

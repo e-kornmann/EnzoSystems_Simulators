@@ -2,6 +2,9 @@ import styled from "styled-components";
 import * as Sv from "../../../shared/stylevariables";
 
 
+// type Props = {
+//     $aligntop : boolean;
+// }
 
 export const Container = styled.div`
     align-self: flex-start;
@@ -11,12 +14,16 @@ export const Container = styled.div`
     align-items: center;
     height: 200px;
     line-height: 1.7em;
-`;
+    z-index: 1000;
+  `;
 
 export const Subline = styled.div`
     font-family: 'Inter', sans-serif;
     font-size: 0.85em;
     text-align: center; 
+    line-height: 1.2em;
+    padding: 15px 40px;
+    
 `;
 
 export const Mainline = styled.div`
@@ -27,6 +34,9 @@ export const Mainline = styled.div`
     text-align: center; 
 `;
 
+export const WelcomeLine = styled(Mainline)`
+    font-size: 1.2em;
+`;
 
 export const IconContainer = styled.div`
     width: 100px;

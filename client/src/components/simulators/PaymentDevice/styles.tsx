@@ -10,7 +10,7 @@ const Container = styled.main`
   width: 360px;
   height: 760px;
   column-gap: 10px;
-  grid-template-rows: 60px 25px 500px 45px;
+  grid-template-rows: 60px 25px 620px 5px 30px;
   border-radius: 10px;
 `;
 
@@ -26,12 +26,20 @@ const Header = styled.div`
   border-top-right-radius: 5px;
 `;
 
-const TextBox = styled.div`
+
+type Props = {
+  $aligntop : boolean;
+}
+
+
+
+const TextBox = styled.div<Props>`
+  margin-bottom
   grid-row: 3 / 4;
-  padding: 12px 15px;
+  padding: 12px 15px 100px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: ${(props) => (props.$aligntop ? 'flex start' : 'center')};
   font-size: 25px;
   background-color: #F7F7F7;
   border-bottom-left-radius: 5px;
@@ -46,8 +54,20 @@ const TimeRibbon = styled.div`
   font-variant-numeric: tabular-nums;
   font-size: 13px;
   font-weight: 500;
-  padding: 15px 15px 5px;
+  padding: 15px 20px 5px;
   background-color: #F7F7F7;
+`;
+
+const PayOptions = styled.div`
+  width: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const Footer = styled(TimeRibbon)`
+  grid-row: 5 / 6;
+  padding: 15px 20px 15px 22px;
 `;
 
 const StateButton = styled(Button)`
@@ -57,67 +77,13 @@ const StateButton = styled(Button)`
   width: 200px;
 `;
 
-const ButtonContainer = styled.div`
-  position: absolute; 
-  bottom: 100px;
-  display: grid; 
-  grid-template-columns: 1fr 1fr 1fr; 
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr; 
-  gap: 50px 20px; 
-  grid-template-areas: 
-    "one two three"
-    "four five six"
-    "seven eight nine"
-    "bl1 zero bl2"
-    "stop correct ok"; 
-  width: 360px;
-  height: 500px;
-  padding: 30px;
-`;
-
-const Pads = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: ${Sv.black};
-  border-radius: 150px;
-  font-weight: 600;
-  &:active {
-    border: 5px solid #17121232;
-  }
-`;
-
-const StopButton = styled(Pads)`
-  grid-area: stop; 
-  background: ${Sv.red};
-`;
-
-const OkButton = styled(Pads)`
-  grid-area: ok; 
-  background: ${Sv.green};
-`;
-
-const CorrectButton = styled(Pads)`
-  grid-area: correct; 
-  background: ${Sv.yellow};
-`;
-
-const NrButton  = styled(Pads)`
-  display: none;
-  grid-area: one; 
-  background: ${Sv.enzoOrange};
-  font-size: 25px;
-`;
   
 export { 
  Container,
  Header,
+ Footer,
+ PayOptions,
  TimeRibbon,
  StateButton,
  TextBox,
- ButtonContainer,
- StopButton,
- OkButton,
- CorrectButton,
- NrButton,
  }

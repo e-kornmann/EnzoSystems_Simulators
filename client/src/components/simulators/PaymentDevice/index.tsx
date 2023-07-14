@@ -1,8 +1,7 @@
-
 import * as S from './styles';
 import { useEffect, useState } from 'react';
-import api from "../../../api";
-import Amount from './displays/Amount';
+import api from '../../../api';
+import AmountPresent from './displays/AmountPresent';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
 import OneMoment from './displays/OneMoment';
@@ -12,19 +11,56 @@ import DeadEntry from './displays/DeadEntry';
 import React from 'react';
 import ServerError from './displays/ServerError';
 import { Loading } from './displays/Loading';
-
+import Failure from './displays/Failure';
+import SettingsIcon from '../../shared/svgcomponents/Settings';
+import ExpandIcon from '../../shared/svgcomponents/Expand';
+import { PayOptions } from './styles';
+import CurrentPayProvider from '../../shared/svgcomponents/PayProviders/CurrentPayProvider';
+import Buttons from './buttons';
+import AmountPinEntry from './displays/AmountPinEntry';
+import AmountFail from './displays/AmountFail';
 
 type Post = {
   terminalId: string;
   amount: number | undefined;
+};
+
+const postDataInitialState = { terminalId: '', amount: undefined };
+
+enum Status {
+  IDLE,
+  START,
+  PIN_ENTRY,
+  STOP,
+  TIMED_OUT,
+  WAITING,
+  PAY,
+  FAILURE,
+  SUCCESS,
+  DEAD_ENTRY,
 }
 
-const postDataInitialState = 
-{ terminalId: '', amount: undefined }
 
-  const PaymentDevice = () => { 
+const PaymentDevice = () => {
+  const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
+
+  const currentPin = pinDigits.join("");
+
+  const handleButtonClick = React.useCallback((value: string) => {
+    if (value === 'correct-button') { 
+      setPinDigits(["", "", "", ""]);
+    } else {
+      const updatedPinDigits = [...pinDigits];
+      const currentIndex = updatedPinDigits.findIndex((digit) => digit === "");
+      updatedPinDigits[currentIndex] = value;
+      setPinDigits(updatedPinDigits);
+    }
+  }, [setPinDigits, pinDigits]);
+
   const [postData, setPostData] = useState<Post>(postDataInitialState);
   const [transactionId, setTransactionId] = useState('');
+  const [showPinEntry, setShowPinEntry] = useState(false);
+  const [showBottomButtons, setShowBottomButtons] = useState(false);
   const [display, setDisplay] = useState(<Welcome />);
   const [currentDate, setCurrentDate] = useState(
     new Date().toLocaleDateString()
@@ -33,135 +69,190 @@ const postDataInitialState =
     new Date().toLocaleTimeString()
   );
 
+  
+
+  const [status, setStatus] = useState(Status.IDLE);
+
   const startPayment = React.useCallback(async () => {
-    try {
+      try {
       setDisplay(<Loading />);
-      const response = await api.post(`/payment_terminal/${postData.terminalId}/payment`, {
-        amount : postData.amount,
-      });
+      const response = await api.post(
+        `/payment_terminal/${postData.terminalId}/payment`,
+        {
+          amount: postData.amount,
+        }
+      );
       setTransactionId(response.data.transactionId);
-      setTimeout(()=>  setDisplay(<Amount amount={postData.amount} />), 1000)
-     
+    
     } catch (error) {
       console.error('Unable to make payment.', error);
       if ((error as { response?: { status?: number } }).response?.status) {
-        const statusCode = (error as { response: { status: number } }).response.status;
+        const statusCode = (error as { response: { status: number } }).response
+          .status;
         setDisplay(<ServerError statusCode={statusCode} />);
+      } else {
+        setDisplay(<ServerError statusCode={500} />);
       }
     }
   }, [postData.amount, postData.terminalId]);
 
-  enum Status {
-    IDLE,
-    START,
-    PIN_ENTRY,
-    STOP,
-    TIMED_OUT,
-    FAILURE,
-    PAY,
-    SUCCESS,
-    DEAD_ENTRY,
-  }
-  const [status, setStatus] = useState(Status.IDLE);
+  // React.useEffect(() => {
+  //   if (getReceipt === 'You have paid.') {
+  //     setStatus(Status.SUCCESS);
+  // }}, [Status.SUCCESS, getReceipt]);
+  
+  // const payAmount = React.useCallback(async () => {
+  //   try {
+  //     setDisplay(<OneMoment />);
+  //     const response = await api.get(
+  //       `/payment_terminal/${postData.terminalId}/payment/${transactionId}`
+  //     );
+  //     setGetReceipt(response.data.receipt);
+  //   } catch (error) {
+  //     console.error('Unable to make payment.', error);
+  //     setStatus(Status.FAILURE);
+  //   }
+  // }, [Status.FAILURE, postData.terminalId, transactionId]);
+  
+
+
+  const presentCardHandler = React.useCallback(() => {
+     setShowPinEntry(true);
+     setStatus(Status.PIN_ENTRY)
+  }, []);
+
+
+  
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
       setCurrentDate(new Date().toLocaleDateString());
     }, 1000);
-  
+
     return () => {
       clearInterval(timer);
     };
   }, []);
-  
+
   useEffect(() => {
+    
+    
     let waitTime: number | undefined = undefined;
     let intervalId: NodeJS.Timer | null = null;
-  
+
     switch (status) {
       case Status.IDLE:
         setDisplay(<Welcome />);
+        setPostData(postDataInitialState);
+        setShowBottomButtons(false);
+        setPinDigits(['','','','']);
         break;
       case Status.START:
         startPayment();
-        waitTime = 7000;
+        setShowBottomButtons(true);
+        setStatus(Status.WAITING);
         break;
       case Status.STOP:
         setDisplay(<Cancel />);
         waitTime = 4500;
+        break;
+      case Status.WAITING:
+        setDisplay(<AmountPresent amount={postData.amount} />)
+        waitTime = 7000;
+        break;
+      case Status.PIN_ENTRY:
+        setDisplay(<AmountPinEntry amount={postData.amount} />)
+       
+        
+        
+        waitTime = 7000;
         break;
       case Status.TIMED_OUT:
         setDisplay(<TimedOut />);
         waitTime = 2000;
         break;
       case Status.PAY:
-        setDisplay(<OneMoment />);
+        setDisplay(<OneMoment />); 
+        // if (currentPin === '1322') {
+        //   if (postData.amount && postData.amount <= 500) {
+        //     setStatus(Status.SUCCESS)
+        //   }
+        // } else if (currentPin.length === 4 && currentPin !== '') {
+        //   setDisplay(<AmountFail amount={postData.amount} />)
+        // } else if (currentPin.length === 4) {
+        //   setDisplay(<Loading />);
+        // } 
         waitTime = 2500;
         break;
-      case Status.SUCCESS:
-        setDisplay(<Success />);
+      case Status.FAILURE:
+        setTimeout(()=> setDisplay(<Failure />), 1000);
+        setShowPinEntry(false);
         waitTime = 5000;
+        break;
+      case Status.SUCCESS:
+        setTimeout(()=> setDisplay(<Success />), 1000);
+        waitTime = 4500;
         break;
       case Status.DEAD_ENTRY:
         setDisplay(<DeadEntry />);
         waitTime = 500;
         break;
     }
-  
+
     if (intervalId) {
       clearInterval(intervalId);
     }
-  
+    // when in the specific state specify status after waittime
     if (waitTime) {
       intervalId = setInterval(() => {
         switch (status) {
-          case 1:
+         case Status.STOP:
+            setShowPinEntry(false);
+            setStatus(Status.IDLE);
+            break;
+          case Status.WAITING:
             setStatus(Status.TIMED_OUT);
             break;
-          case 3:
-            setStatus(Status.IDLE);
-     
+          case Status.PIN_ENTRY:
+            setStatus(Status.TIMED_OUT);
             break;
-          case 4:
+          case Status.TIMED_OUT:
+            setShowPinEntry(false);
             setStatus(Status.IDLE);
-            setPostData(postDataInitialState);
             break;
-          case 6:
+          case Status.PAY:
             setStatus(Status.SUCCESS);
             break;
-          case 7:
-       
+          case Status.FAILURE:
+            setShowPinEntry(false);
             setStatus(Status.IDLE);
             break;
-          case 8:
-
-            setStatus(Status.IDLE);   
+          case Status.SUCCESS:
+             setStatus(Status.IDLE);
+             break;
+          case Status.DEAD_ENTRY:
+            setShowPinEntry(false);
+            setStatus(Status.IDLE);
             break;
         }
       }, waitTime);
     }
-  
-    console.log(status);
-  
+
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [Status.IDLE, Status.SUCCESS, Status.TIMED_OUT, status, postData.amount, startPayment, Status.START, Status.STOP, Status.PAY, Status.DEAD_ENTRY]);
-
-
+  }, [status, postData.amount, startPayment, presentCardHandler, showPinEntry, currentPin]);
 
   const startSequence = () => {
-    setPostData({ terminalId: '123', amount: 1000 } );
+    setPostData({ terminalId: '123', amount: 100 });
     setStatus(Status.START);
   };
-  
-  
-  
+
   const payHandler = () => {
-    if (status !== Status.START) {
+    if (status !== Status.PIN_ENTRY) {
       setStatus(Status.DEAD_ENTRY);
     } else {
       setStatus(Status.PAY);
@@ -176,10 +267,15 @@ const postDataInitialState =
     }
   };
 
-  postData.terminalId ? 
-   console.log('pay request received from terminal: ' + postData.terminalId + ' \n with Transaction IDnr: ' + transactionId) : 
-   console.log('start a payment') 
-   ;
+  postData.terminalId
+    ? console.log(
+        'pay request received from terminal: ' +
+          postData.terminalId +
+          ' \n with Transaction IDnr: ' +
+          transactionId
+      )
+    : console.log('start a payment');
+
 
   return (
     <>
@@ -189,21 +285,33 @@ const postDataInitialState =
           <div>{currentDate}</div>
           <div>{currentTime}</div>
         </S.TimeRibbon>
-        <S.TextBox>
+        <S.TextBox $aligntop={showPinEntry}>
           <div>{display}</div>
         </S.TextBox>
-      <S.ButtonContainer>
-        <S.NrButton>1</S.NrButton>
-        <S.StopButton onClick={stopHandler}>Stop</S.StopButton>
-        <S.CorrectButton>Correct</S.CorrectButton>
-        <S.OkButton onClick={payHandler}>OK</S.OkButton>
-      </S.ButtonContainer>
+    
+    
+       <Buttons 
+        handleButtonClick={handleButtonClick} 
+        stopHandler={stopHandler} 
+        payHandler={payHandler} 
+        showBottomButtons={showBottomButtons} 
+        showPinEntry={showPinEntry}  
+        pinDigits={pinDigits} />
+        <S.Footer>
+          <SettingsIcon width={18} height={18} />
+          <PayOptions>
+            <CurrentPayProvider width={48} height={28} provider={'applepay'} />
+            <ExpandIcon width={16} height={13} />
+          </PayOptions>
+        </S.Footer>
       </S.Container>
 
       {status === Status.IDLE ? (
         <S.StateButton onClick={startSequence}>
           I want to pay my booking from € 1000
         </S.StateButton>
+      ) : status === Status.WAITING ? (
+        <S.StateButton onClick={presentCardHandler}>PRESENT</S.StateButton>
       ) : null}
     </>
   );
