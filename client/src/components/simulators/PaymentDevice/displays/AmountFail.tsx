@@ -6,22 +6,29 @@ import { Container, Mainline, Subline } from './styles'
 
 type Props = {
     amount: number | undefined;
+    showPinEntry: boolean;
+    pinAttempts: number;
 }
 
-const IconContainer = styled.div`
+type IconProp = {
+  $show: boolean;
+}
+const IconContainer = styled.div<IconProp>`
+  display: ${(props) => (props.$show ? 'block' : 'none')};
   postion: absolute;
   top: 30px;
 `
 
 
 
-const AmountFail = ({ amount }: Props) => {
+const AmountFail = ({ amount, showPinEntry, pinAttempts  }: Props) => {
   return (
     <Container>
-      <IconContainer><FailureIcon width={30} height={30} /></IconContainer>
+      <IconContainer $show={pinAttempts > 0}><FailureIcon width={30} height={30} /></IconContainer>
       <Subline>Amount to pay</Subline>
       <Mainline>EUR {PriceFormatter(amount, 'nl-NL')}</Mainline>
-      <Subline>Enter PIN</Subline>
+      <Subline> 
+        { showPinEntry ? 'Enter PIN' : 'Present Card'} </Subline>
     </Container>
   )
 }
