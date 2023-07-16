@@ -29,15 +29,14 @@ const postDataInitialState = { terminalId: '', amount: undefined };
 
 enum Status {
   IDLE,
-  START,
+  WAITING,
   PIN_ENTRY,
   STOP,
+  PIN_FAILURE,
+  ONE_MOMENT,
   TIMED_OUT,
-  WAITING,
-  PAY,
   FAILURE,
   SUCCESS,
-  DEAD_ENTRY,
 }
 
 
@@ -116,11 +115,6 @@ const PaymentDevice = () => {
   
 
 
-  const presentCardHandler = React.useCallback(() => {
-     setShowPinEntry(true);
-     setStatus(Status.PIN_ENTRY)
-  }, []);
-
 
   
 
@@ -148,36 +142,28 @@ const PaymentDevice = () => {
         setShowBottomButtons(false);
         setPinDigits(['','','','']);
         break;
-      case Status.START:
+      case Status.WAITING:
         startPayment();
         setShowBottomButtons(true);
         setStatus(Status.WAITING);
+        setDisplay(<AmountPresent amount={postData.amount} />)
+        waitTime = 7000;
         break;
       case Status.STOP:
         setDisplay(<Cancel />);
         waitTime = 4500;
         break;
-      case Status.WAITING:
-        setDisplay(<AmountPresent amount={postData.amount} />)
-        waitTime = 7000;
-        break;
       case Status.PIN_ENTRY:
         setDisplay(<AmountPinEntry amount={postData.amount} />)
-       
-        
-        
-        waitTime = 7000;
+        waitTime = 10000;
         break;
       case Status.TIMED_OUT:
         setDisplay(<TimedOut />);
         waitTime = 2000;
         break;
-      case Status.PAY:
+      case Status.ONE_MOMENT:
         setDisplay(<OneMoment />); 
-        // if (currentPin === '1322') {
-        //   if (postData.amount && postData.amount <= 500) {
-        //     setStatus(Status.SUCCESS)
-        //   }
+       
         // } else if (currentPin.length === 4 && currentPin !== '') {
         //   setDisplay(<AmountFail amount={postData.amount} />)
         // } else if (currentPin.length === 4) {
@@ -186,17 +172,13 @@ const PaymentDevice = () => {
         waitTime = 2500;
         break;
       case Status.FAILURE:
-        setTimeout(()=> setDisplay(<Failure />), 1000);
         setShowPinEntry(false);
+        setDisplay(<Failure />);
         waitTime = 5000;
         break;
       case Status.SUCCESS:
-        setTimeout(()=> setDisplay(<Success />), 1000);
+        setDisplay(<Success />);
         waitTime = 4500;
-        break;
-      case Status.DEAD_ENTRY:
-        setDisplay(<DeadEntry />);
-        waitTime = 500;
         break;
     }
 
@@ -251,21 +233,15 @@ const PaymentDevice = () => {
     setStatus(Status.START);
   };
 
-  const payHandler = () => {
-    if (status !== Status.PIN_ENTRY) {
-      setStatus(Status.DEAD_ENTRY);
-    } else {
-      setStatus(Status.PAY);
-    }
-  };
+  const presentCardHandler = React.useCallback(() => {
+    setShowPinEntry(true);
+    setStatus(Status.PIN_ENTRY)
+ }, []);
 
-  const stopHandler = () => {
-    if (status !== Status.START) {
-      setStatus(Status.DEAD_ENTRY);
-    } else {
-      setStatus(Status.STOP);
-    }
-  };
+  const payHandler = () => (currentPin !== '1322') 
+    ? setStatus(Status.PIN_FAILURE): setStatus(Status.ONE_MOMENT);
+
+  const stopHandler = () => setStatus(Status.STOP);
 
   postData.terminalId
     ? console.log(
