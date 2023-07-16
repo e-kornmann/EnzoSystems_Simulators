@@ -2,7 +2,7 @@
 import styled from 'styled-components';
 import PriceFormatter from '../../../shared/priceformatter'
 import FailureIcon from '../../../shared/svgcomponents/Fail';
-import { Container, Mainline, Subline } from './styles'
+import { Container, Mainline, Subline, SublineBottom } from './styles'
 
 type Props = {
     amount: number | undefined;
@@ -19,18 +19,17 @@ const IconContainer = styled.div<IconProp>`
   top: 30px;
 `
 
+const PinComponent = ({ amount, showPinEntry, pinAttempts  }: Props) => {
 
-
-const AmountFail = ({ amount, showPinEntry, pinAttempts  }: Props) => {
   return (
     <Container>
       <IconContainer $show={pinAttempts > 0}><FailureIcon width={30} height={30} /></IconContainer>
-      <Subline>Amount to pay</Subline>
+      <Subline>{ pinAttempts > 0 ? 'Wrong PIN' : 'Amount to pay'}</Subline>
       <Mainline>EUR {PriceFormatter(amount, 'nl-NL')}</Mainline>
-      <Subline> 
-        { showPinEntry ? 'Enter PIN' : 'Present Card'} </Subline>
+      <SublineBottom> 
+        { showPinEntry ? 'Enter PIN' : 'Present Card'} </SublineBottom>
     </Container>
   )
 }
 
-export default AmountFail;
+export default PinComponent;

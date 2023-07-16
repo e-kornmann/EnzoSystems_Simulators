@@ -4,29 +4,28 @@ import * as Sv from "../../../shared/stylevariables";
 
 
 
-type ContainerProps = {
+type DigitProps = {
   $showPinEntry: boolean;
 };
 
 
-const CodeContainer = styled.div<ContainerProps>`
-  display: ${(props) => (props.$showPinEntry ? 'flex' : 'none')};
+const CodeContainer = styled.div`
+  grid-area: pin;
+  display: flex;
   justify-content: center;
-  margin: 30px;
-  width: 100px;
-  margin: auto;
-`;
+  margin-bottom: 30px;
+  `;
 
-const Digit = styled.input`
+const Digit = styled.input<DigitProps>`
+  display: ${(props) => (props.$showPinEntry ? 'flex' : 'none')};
   border: none;
   background-color: transparent;
   color: ${Sv.asphalt};
   text-align: center;
   padding: 5px;
   font-size: 38px;
-  margin: 8px;
-  width: 40px;
-  height: 40px;
+  margin: 9px;
+  width: 38px;
   border-bottom: 1px solid ${Sv.asphalt};
 `;
 
@@ -63,9 +62,10 @@ const PinComponent = ({pinDigits, $showPinEntry}:Props) => {
 
 
   return (
-    <CodeContainer $showPinEntry={$showPinEntry}>
+    <CodeContainer>
       {pinDigits.map((digit, index) => (
       <Digit
+      $showPinEntry={$showPinEntry}
       key={index}
       type="text"
       value={digit.length > 0 ? "*".repeat(digit.length) : ""}

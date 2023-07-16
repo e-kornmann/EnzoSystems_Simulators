@@ -31,8 +31,6 @@ type Props = {
   $aligntop : boolean;
 }
 
-
-
 const TextBox = styled.div<Props>`
   margin-bottom
   grid-row: 3 / 4;
@@ -68,6 +66,7 @@ const PayOptions = styled.div`
 const Footer = styled(TimeRibbon)`
   grid-row: 5 / 6;
   padding: 15px 20px 15px 22px;
+  background-color: white;
 `;
 
 const StateButton = styled(Button)`

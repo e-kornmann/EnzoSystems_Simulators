@@ -30,8 +30,7 @@ const numpadArray = [
 
      
 
-     <div style={{ gridArea: 'pin'}}>
-        <PinComponent pinDigits={pinDigits} $showPinEntry={showPinEntry}/></div>
+        <PinComponent pinDigits={pinDigits} $showPinEntry={showPinEntry}/>
     {numpadArray.map((num, index) => {
       const padNr = String(index + 1 === 10 ? 0 : index + 1)
       
