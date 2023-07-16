@@ -31,6 +31,7 @@ enum Status {
   IDLE,
   WAITING,
   PIN_ENTRY,
+  CHECK_PIN,
   STOP,
   PIN_FAILURE,
   ONE_MOMENT,
@@ -160,9 +161,13 @@ const PaymentDevice = () => {
         setDisplay(<AmountPinEntry amount={postData.amount} />)
         waitTime = 10000;
         break;
+     case Status.CHECK_PIN:
+          setDisplay(<Loading/>);
+          waitTime = 2500;
+          break;
       case Status.PIN_FAILURE:
         setDisplay(<AmountFail showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
-        waitTime = 10000;
+        waitTime = 5000;
         break;
       case Status.TIMED_OUT:
         setShowPinEntry(false);
@@ -205,6 +210,15 @@ const PaymentDevice = () => {
           case Status.TIMED_OUT:
             setStatus(Status.IDLE);
             break;
+          case Status.PIN_FAILURE:
+            setStatus(Status.TIMED_OUT);
+            break;
+          case Status.CHECK_PIN:
+            if (currentPin.length === 4 && currentPin !== '1322' && pinAttempts < 3) {
+            setStatus(Status.PIN_FAILURE);
+            setPinAttempts(pinAttempts+1)
+            } setStatus(Status.ONE_MOMENT);
+            break;
           case Status.ONE_MOMENT:
             if (currentPin === '1322') {
               if (postData.amount && postData.amount <= 500) 
@@ -239,10 +253,7 @@ const PaymentDevice = () => {
  
 
   const payHandler = () => {
-    if (currentPin.length === 4 && currentPin !== '1322' && pinAttempts < 3) {
-      setStatus(Status.PIN_FAILURE);
-      setPinAttempts(pinAttempts+1)
-    } setStatus(Status.ONE_MOMENT);
+   setStatus(Status.CHECK_PIN);
   }
 
   const stopHandler = () => setStatus(Status.STOP);
