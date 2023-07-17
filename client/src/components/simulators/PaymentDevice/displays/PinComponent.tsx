@@ -2,7 +2,7 @@
 import styled from 'styled-components';
 import PriceFormatter from '../../../shared/priceformatter'
 import FailureIcon from '../../../shared/svgcomponents/Fail';
-import { Container, Mainline, Subline, SublineBottom } from './styles'
+import {  Container, Mainline, Subline, SublineBottom } from './styles'
 
 type Props = {
     amount: number | undefined;

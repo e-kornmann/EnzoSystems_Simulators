@@ -27,7 +27,7 @@ const Pads = styled.button`
   color: ${Sv.black};
   border-radius: 150px;
   font-weight: 600;
-  &:active {
+  &:hover {
     border: 5px solid #17121232;
   }
 `;
@@ -42,6 +42,9 @@ const NrButton = styled(Pads)<PadProps>`
   grid-area: ${(props) => props.$gridarea};
   background: ${Sv.enzoOrange};
   font-size: 25px;
+  &:active {
+    background-color: #CE6100;
+  }
 `;
 
 type Props = {
@@ -64,6 +67,9 @@ const CorrectButton = styled(Pads)<Props>`
   display: ${(props) => (props.$showBottomButtons ? 'flex' : 'none')};
   grid-area: correct;
   background: ${Sv.yellow};
+  &:active {
+    background-color: #CE6100;
+  }
 `;
 
 

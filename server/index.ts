@@ -8,7 +8,7 @@ const port = 8000;
 
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://lorem.ipsum.vite.app'],
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
 }));
 
 app.use('/payment_terminal', payment_terminal);

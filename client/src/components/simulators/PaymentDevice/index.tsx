@@ -1,6 +1,6 @@
 import * as S from './styles';
 import { useEffect, useState } from 'react';
-import api from '../../../Api';
+import api from '../../../api';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
 import OneMoment from './displays/OneMoment';
@@ -15,7 +15,8 @@ import ExpandIcon from '../../shared/svgcomponents/Expand';
 import { PayOptions } from './styles';
 import CurrentPayProvider from '../../shared/svgcomponents/PayProviders/CurrentPayProvider';
 import Buttons from './buttons';
-import AmountFail from './displays/PinComponent';
+import PinComponent from './displays/PinComponent';
+import ChooseMethod from './displays/ChooseMethod';
 
 type Post = {
   terminalId: string;
@@ -26,6 +27,8 @@ const postDataInitialState = { terminalId: '', amount: undefined };
 
 enum Status {
   IDLE,
+  CHOOSE_METHOD,
+  ACTIVE_METHOD,
   WAITING,
   PIN_ENTRY,
   CHECK_PIN,
@@ -37,7 +40,18 @@ enum Status {
   SUCCESS,
 }
 
+export enum PayMethod {
+  NONE,
+  SMARTPHONE,
+  CONTACTLESS,
+  CARD,
+}
+
+
 const PaymentDevice = () => {
+  
+  const [status, setStatus] = useState(Status.IDLE);
+  const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
 
@@ -66,7 +80,6 @@ const PaymentDevice = () => {
     new Date().toLocaleTimeString()
   );
 
-  const [status, setStatus] = useState(Status.IDLE);
 
   const startPayment = React.useCallback(async () => {
       try {
@@ -79,16 +92,16 @@ const PaymentDevice = () => {
       );
       setTransactionId(response.data.transactionId);
     
-    } catch (error) {
-      console.error('Unable to make payment.', error);
-      if ((error as { response?: { status?: number } }).response?.status) {
-        const statusCode = (error as { response: { status: number } }).response
+      } catch (error) {
+        console.error('Unable to make payment.', error);
+        if ((error as { response?: { status?: number } }).response?.status) {
+          const statusCode = (error as { response: { status: number } }).response
           .status;
-        setDisplay(<ServerError statusCode={statusCode} />);
-      } else {
+          setDisplay(<ServerError statusCode={statusCode} />);
+        } else {
         setDisplay(<ServerError statusCode={500} />);
+        }
       }
-    }
   }, [postData.amount, postData.terminalId]);
 
   // React.useEffect(() => {
@@ -111,7 +124,11 @@ const PaymentDevice = () => {
   
 
   
-  const startSequence = () => { setPostData({ terminalId: '123', amount: 100 }); setStatus(Status.WAITING); };
+  const startSequence = () => { setPostData({ terminalId: '123', amount: 100 }); setStatus(Status.CHOOSE_METHOD); };
+  const chooseMethodHandler = (method: PayMethod) => {
+    setStatus(Status.ACTIVE_METHOD);
+    setActivePayMethod(method);
+  }
   const presentCardHandler = React.useCallback(() => setStatus(Status.PIN_ENTRY), [])
   const payHandler = () => { 
     if (currentPin.length === 4) {
@@ -136,19 +153,28 @@ const PaymentDevice = () => {
         setShowBottomButtons(false);
         setPinDigits(['','','','']);
         break;
+      case Status.CHOOSE_METHOD:
+          setShowBottomButtons(true);
+          setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+          waitTime = 7000;  
+          break;
+      case Status.ACTIVE_METHOD:
+          setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+          waitTime = 17000;  
+          break;
       case Status.WAITING:
-        startPayment();
-        setShowBottomButtons(true);
-        setDisplay(<AmountFail showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
-        waitTime = 7000;  
-        break;
+          startPayment();
+          setShowBottomButtons(true);
+          setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+          waitTime = 7000;  
+          break;
       case Status.STOP:
         setDisplay(<Cancel />);
         waitTime = 4500;
         break;
       case Status.PIN_ENTRY:
         setShowPinEntry(true);
-        setDisplay(<AmountFail showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+        setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
         waitTime = 10000;
         break;
      case Status.CHECK_PIN:
@@ -156,7 +182,7 @@ const PaymentDevice = () => {
         waitTime = 1500;
         break;
       case Status.PIN_FAILURE:
-        setDisplay(<AmountFail showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+        setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
         waitTime = 10000;
         break;
       case Status.TIMED_OUT:
@@ -190,6 +216,12 @@ const PaymentDevice = () => {
         switch (status) {
           case Status.STOP:
             setStatus(Status.IDLE);
+            break;
+          case Status.CHOOSE_METHOD:
+            setStatus(Status.TIMED_OUT);
+            break;
+          case Status.ACTIVE_METHOD:
+            setStatus(Status.TIMED_OUT);
             break;
           case Status.WAITING:
             setStatus(Status.TIMED_OUT);
@@ -268,11 +300,15 @@ const PaymentDevice = () => {
           <div>{currentDate}</div>
           <div>{currentTime}</div>
         </S.TimeRibbon>
-        <S.TextBox $aligntop={showPinEntry}>
+        <S.TextBox $aligntop={ showPinEntry || status === Status.CHOOSE_METHOD ||  status === Status.ACTIVE_METHOD}>
           <div>{display}</div>
+          { status === Status.CHOOSE_METHOD || status === Status.ACTIVE_METHOD ? <ChooseMethod chooseMethodHandler={chooseMethodHandler} activePayMethod={activePayMethod} /> : null }
         </S.TextBox>
+
+
+       
     
-    
+
        <Buttons 
         handleButtonClick={handleButtonClick} 
         stopHandler={stopHandler} 
@@ -280,6 +316,7 @@ const PaymentDevice = () => {
         showBottomButtons={showBottomButtons} 
         showPinEntry={showPinEntry}  
         pinDigits={pinDigits} />
+        
         <S.Footer>
           <SettingsIcon width={18} height={18} />
           <PayOptions>
@@ -293,7 +330,7 @@ const PaymentDevice = () => {
         <S.StateButton onClick={startSequence}>
           I want to pay my booking from € 1000
         </S.StateButton>
-      ) : status === Status.WAITING ? (
+      ) : status === Status.ACTIVE_METHOD ? (
         <S.StateButton onClick={presentCardHandler}>PRESENT</S.StateButton>
       ) : null}
     </>
@@ -301,4 +338,3 @@ const PaymentDevice = () => {
 };
 
 export default PaymentDevice;
-

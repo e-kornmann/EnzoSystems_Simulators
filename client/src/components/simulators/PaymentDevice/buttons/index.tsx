@@ -27,13 +27,9 @@ const numpadArray = [
 
   return (
     <ButtonContainer>
-
-     
-
-        <PinComponent pinDigits={pinDigits} $showPinEntry={showPinEntry}/>
-    {numpadArray.map((num, index) => {
-      const padNr = String(index + 1 === 10 ? 0 : index + 1)
-      
+      <PinComponent pinDigits={pinDigits} $showPinEntry={showPinEntry}/>
+        {numpadArray.map((num, index) => {
+        const padNr = String(index + 1 === 10 ? 0 : index + 1)
       return (
         <NrButton
           key={num}
@@ -41,7 +37,7 @@ const numpadArray = [
           $showPinEntry={showPinEntry}
           onClick={() => handleButtonClick(padNr)}
         >
-         {padNr}
+          {padNr}
         </NrButton>
       );
     })}

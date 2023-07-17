@@ -20,8 +20,9 @@ export const Container = styled.div`
 export const Subline = styled.div`
     font-family: 'Inter', sans-serif;
     font-size: 0.7em;
+    font-weight: 500;
     text-align: center; 
-    line-height: 1.1em;
+    line-height: 0.55em;
     padding: 15px 40px;
 `;
 
@@ -31,14 +32,17 @@ export const SublineBottom = styled(Subline)`
 
 export const Mainline = styled.div`
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 1.4em;
+    font-weight: 600;
+    font-size: 1.2em;
     color: ${Sv.enzoOrange};
     text-align: center; 
 `;
 
+
+
+
 export const WelcomeLine = styled(Mainline)`
-    font-size: 1.2em;
+    font-weight: 500;
 `;
 
 export const IconContainer = styled.div`
