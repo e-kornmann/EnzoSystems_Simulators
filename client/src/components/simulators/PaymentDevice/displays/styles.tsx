@@ -2,10 +2,6 @@ import styled from "styled-components";
 import * as Sv from "../../../shared/stylevariables";
 
 
-// type Props = {
-//     $aligntop : boolean;
-// }
-
 export const Container = styled.div`
     align-self: flex-start;
     display: flex;
@@ -37,9 +33,6 @@ export const Mainline = styled.div`
     color: ${Sv.enzoOrange};
     text-align: center; 
 `;
-
-
-
 
 export const WelcomeLine = styled(Mainline)`
     font-weight: 500;

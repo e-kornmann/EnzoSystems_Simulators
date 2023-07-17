@@ -15,8 +15,8 @@ import ExpandIcon from '../../shared/svgcomponents/Expand';
 import { PayOptions } from './styles';
 import CurrentPayProvider from '../../shared/svgcomponents/PayProviders/CurrentPayProvider';
 import Buttons from './buttons';
-import PinComponent from './displays/PinComponent';
-import ChooseMethod from './displays/ChooseMethod';
+import ChoosePayMethod from './displays/ChoosePayMethod';
+import Amount from './displays/Amount';
 
 type Post = {
   terminalId: string;
@@ -25,7 +25,11 @@ type Post = {
 
 const postDataInitialState = { terminalId: '', amount: undefined };
 
-enum Status {
+const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
+const negBalancePin = import.meta.env.VITE_NEGBALANCE;
+
+
+export enum Status {
   IDLE,
   CHOOSE_METHOD,
   ACTIVE_METHOD,
@@ -49,7 +53,6 @@ export enum PayMethod {
 
 
 const PaymentDevice = () => {
-  
   const [status, setStatus] = useState(Status.IDLE);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
@@ -70,7 +73,6 @@ const PaymentDevice = () => {
 
   const [postData, setPostData] = useState<Post>(postDataInitialState);
   const [transactionId, setTransactionId] = useState('');
-  const [showPinEntry, setShowPinEntry] = useState(false);
   const [showBottomButtons, setShowBottomButtons] = useState(false);
   const [display, setDisplay] = useState(<Welcome />);
   const [currentDate, setCurrentDate] = useState(
@@ -148,24 +150,24 @@ const PaymentDevice = () => {
       case Status.IDLE:
         setDisplay(<Welcome />);
         setPinAttempts(0);
+        setActivePayMethod(PayMethod.NONE);
         setPostData(postDataInitialState);
-        setShowPinEntry(false);
         setShowBottomButtons(false);
         setPinDigits(['','','','']);
         break;
       case Status.CHOOSE_METHOD:
           setShowBottomButtons(true);
-          setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+          setDisplay(<Amount currentState={status} amount={postData.amount} />)
           waitTime = 7000;  
           break;
       case Status.ACTIVE_METHOD:
-          setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+          setDisplay(<Amount currentState={status} amount={postData.amount} />)
           waitTime = 17000;  
           break;
       case Status.WAITING:
           startPayment();
           setShowBottomButtons(true);
-          setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+          setDisplay(<Amount currentState={status} amount={postData.amount}  />)
           waitTime = 7000;  
           break;
       case Status.STOP:
@@ -173,8 +175,7 @@ const PaymentDevice = () => {
         waitTime = 4500;
         break;
       case Status.PIN_ENTRY:
-        setShowPinEntry(true);
-        setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+        setDisplay(<Amount currentState={status} amount={postData.amount} />)
         waitTime = 10000;
         break;
      case Status.CHECK_PIN:
@@ -182,17 +183,15 @@ const PaymentDevice = () => {
         waitTime = 1500;
         break;
       case Status.PIN_FAILURE:
-        setDisplay(<PinComponent showPinEntry={showPinEntry} amount={postData.amount} pinAttempts={pinAttempts} />)
+        setDisplay(<Amount currentState={status} amount={postData.amount} />)
         waitTime = 10000;
         break;
       case Status.TIMED_OUT:
-        setShowPinEntry(false);
         setShowBottomButtons(false);
         setDisplay(<TimedOut />);
         waitTime = 2000;
         break;
       case Status.CHECK_AMOUNT:
-        setShowPinEntry(false);
         setShowBottomButtons(false);
         setDisplay(<OneMoment />); 
         waitTime = 1500;
@@ -236,9 +235,11 @@ const PaymentDevice = () => {
             setStatus(Status.TIMED_OUT);
             break;
           case Status.CHECK_PIN:
-            if (currentPin !== '1322' && pinAttempts === 3) {
+            if ((currentPin !== correctPin || currentPin !== negBalancePin) && pinAttempts === 3) {
+              // To many attempts
               setStatus(Status.FAILURE);
-            } else if (currentPin !== '1322') {
+            } else if (currentPin !== correctPin || currentPin !== negBalancePin) {
+              // Try again
               setPinDigits(['', '', '', '']);
               setStatus(Status.PIN_FAILURE);
             } else {
@@ -246,9 +247,10 @@ const PaymentDevice = () => {
             }
             break;
           case Status.CHECK_AMOUNT:
-            if (postData.amount && postData.amount <= 500) {
+            if (currentPin !== negBalancePin) {
               setStatus(Status.SUCCESS);
             } else {
+              // Neg Balance
               setStatus(Status.FAILURE);
             }
             break;
@@ -267,7 +269,7 @@ const PaymentDevice = () => {
         clearInterval(intervalId);
       }
     };
-  }, [status, postData.amount, startPayment, presentCardHandler, showPinEntry, currentPin, pinAttempts]);
+  }, [status, postData.amount, startPayment, presentCardHandler, currentPin, pinAttempts]);
 
   postData.terminalId
     ? console.log(
@@ -300,9 +302,9 @@ const PaymentDevice = () => {
           <div>{currentDate}</div>
           <div>{currentTime}</div>
         </S.TimeRibbon>
-        <S.TextBox $aligntop={ showPinEntry || status === Status.CHOOSE_METHOD ||  status === Status.ACTIVE_METHOD}>
+        <S.TextBox $aligntop={ status === Status.PIN_ENTRY || status === Status.PIN_FAILURE || status === Status.CHOOSE_METHOD ||  status === Status.ACTIVE_METHOD || status === Status.CHECK_PIN }>
           <div>{display}</div>
-          { status === Status.CHOOSE_METHOD || status === Status.ACTIVE_METHOD ? <ChooseMethod chooseMethodHandler={chooseMethodHandler} activePayMethod={activePayMethod} /> : null }
+          { status === Status.CHOOSE_METHOD || status === Status.ACTIVE_METHOD ? <ChoosePayMethod chooseMethodHandler={chooseMethodHandler} activePayMethod={activePayMethod} currentState={status} /> : null }
         </S.TextBox>
 
 
@@ -313,8 +315,8 @@ const PaymentDevice = () => {
         handleButtonClick={handleButtonClick} 
         stopHandler={stopHandler} 
         payHandler={payHandler} 
+        currentState={status}
         showBottomButtons={showBottomButtons} 
-        showPinEntry={showPinEntry}  
         pinDigits={pinDigits} />
         
         <S.Footer>

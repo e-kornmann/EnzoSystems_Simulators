@@ -23,11 +23,17 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   headerText,
 }) => {
 
+ const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [isGrabbing, setIsGrabbing] = useState(false);
 
-  const [translate, setTranslate] = useState({
-    x: 0,
-    y: 0
-  });
+
+  const handleMouseDown = () => {
+    setIsGrabbing(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsGrabbing(false);
+  };
   
   const handleDragMove = (e: { movementX: number; movementY: number; }) => {
     setTranslate({
@@ -66,6 +72,9 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
           aria-labelledby={headerText}
           tabIndex={-1}
           role="dialog"
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          $grabbing={isGrabbing}
         >
       
           

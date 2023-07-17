@@ -1,7 +1,11 @@
 import styled from 'styled-components';
 import * as Sv from '../stylevariables';
 
-export const Wrapper = styled.div`
+type Props = { 
+	$grabbing: boolean;
+}
+
+export const Wrapper = styled.div<Props>`
 	position: absolute;
 	display: flex;
 	justify-content: center;
@@ -12,7 +16,12 @@ export const Wrapper = styled.div`
 	transform: translate(-50%, -50%);
 	z-index: 700;
 	outline: 0;
-	cursor: grab;
+	cursor: ${(props) => (props.$grabbing ? "grabbing" : "grab")};
+	user-select: none;
+	&:active {
+		cursor: grabbing;
+	}
+
 `;
 
 export const Backdrop = styled.div`

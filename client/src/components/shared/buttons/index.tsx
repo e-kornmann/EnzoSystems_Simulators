@@ -16,7 +16,6 @@ const Button = styled.button`
   transition: all 0, 1s ease-in;
   color: ${Sv.black};
   justify-self: flex-end;
-  z-index: 3000;
   box-shadow: ${Sv.black} 3px 3px 0 0;
 
   &: active {

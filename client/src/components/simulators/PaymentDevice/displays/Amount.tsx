@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import PriceFormatter from '../../../shared/priceformatter'
 import FailureIcon from '../../../shared/svgcomponents/Fail';
 import {  Container, Mainline, Subline, SublineBottom } from './styles'
+import { Status } from '..';
 
 type Props = {
     amount: number | undefined;
-    showPinEntry: boolean;
-    pinAttempts: number;
+    currentState: Status;
 }
 
 type IconProp = {
@@ -19,17 +19,30 @@ const IconContainer = styled.div<IconProp>`
   top: 30px;
 `
 
-const PinComponent = ({ amount, showPinEntry, pinAttempts  }: Props) => {
+const Amount = ({ amount, currentState }: Props) => {
+
+  let subline: string; 
+  switch(currentState) {
+    case Status.PIN_ENTRY:
+     subline = 'Enter Pin';
+     break;
+    case Status.PIN_FAILURE:
+      subline = 'Wrong PIN. Try again.';
+      break;
+    default :
+     subline = 'Present Card'; 
+     break;    
+  }
 
   return (
     <Container>
-      <IconContainer $show={pinAttempts > 0}><FailureIcon width={30} height={30} /></IconContainer>
-      <Subline>{ pinAttempts > 0 ? 'Wrong PIN' : 'Amount to pay'}</Subline>
+      <IconContainer $show={currentState === Status.PIN_FAILURE}><FailureIcon width={30} height={30} /></IconContainer>
+      <Subline>Amount:</Subline>
       <Mainline>EUR {PriceFormatter(amount, 'nl-NL')}</Mainline>
       <SublineBottom> 
-        { showPinEntry ? 'Enter PIN' : 'Present Card'} </SublineBottom>
+        {subline} </SublineBottom>
     </Container>
   )
 }
 
-export default PinComponent;
+export default Amount;
