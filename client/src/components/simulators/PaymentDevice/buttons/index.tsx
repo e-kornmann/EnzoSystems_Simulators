@@ -53,7 +53,7 @@ const numpadArray = [
     >
       Stop
     </StopButton>
-    <CorrectButton $showBottomButtons={showBottomButtons}  $hideButtons={hideButton()} onClick={() => handleButtonClick('correct-button')}>
+    <CorrectButton $showBottomButtons={showBottomButtons} $hideButtons={hideButton()} onClick={() => handleButtonClick('correct-button')}>
       Correct
     </CorrectButton>
     <OkButton $showBottomButtons={showBottomButtons} $hideButtons={hideButton()} onClick={payHandler}>

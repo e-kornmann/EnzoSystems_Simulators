@@ -27,6 +27,9 @@ const postDataInitialState = { terminalId: '', amount: undefined };
 
 const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
 const negBalancePin = import.meta.env.VITE_NEGBALANCE;
+const cardlessSecurityPoint = import.meta.env.VITE_CARDLESS_SECURITY_POINT;
+const terminalId = import.meta.env.VITE_TERMINAL_ID;
+const amountToPay = import.meta.env.VITE_AMOUNT_TO_PAY;
 
 
 export enum Status {
@@ -57,9 +60,15 @@ const PaymentDevice = () => {
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
+  const [postData, setPostData] = useState<Post>(postDataInitialState);
+  const [transactionId, setTransactionId] = useState('');
+  const [showBottomButtons, setShowBottomButtons] = useState(false);
+  const [display, setDisplay] = useState(<Welcome />);
+  const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
 
-  const currentPin = pinDigits.join("");
-
+  
+  // handle numpads and correct-button clicks
   const handleButtonClick = React.useCallback((value: string) => {
     if (value === 'correct-button') { 
       setPinDigits(["", "", "", ""]);
@@ -71,17 +80,7 @@ const PaymentDevice = () => {
     }
   }, [setPinDigits, pinDigits]);
 
-  const [postData, setPostData] = useState<Post>(postDataInitialState);
-  const [transactionId, setTransactionId] = useState('');
-  const [showBottomButtons, setShowBottomButtons] = useState(false);
-  const [display, setDisplay] = useState(<Welcome />);
-  const [currentDate, setCurrentDate] = useState(
-    new Date().toLocaleDateString()
-  );
-  const [currentTime, setCurrentTime] = useState(
-    new Date().toLocaleTimeString()
-  );
-
+  const currentPin = pinDigits.join("");
 
   const startPayment = React.useCallback(async () => {
       try {
@@ -126,11 +125,8 @@ const PaymentDevice = () => {
   
 
   
-  const startSequence = () => { setPostData({ terminalId: '123', amount: 100 }); setStatus(Status.CHOOSE_METHOD); };
-  const chooseMethodHandler = (method: PayMethod) => {
-    setStatus(Status.ACTIVE_METHOD);
-    setActivePayMethod(method);
-  }
+  const startSequence = () => { setPostData({ terminalId: terminalId, amount: amountToPay }); setStatus(Status.CHOOSE_METHOD); };
+  const chooseMethodHandler = (method: PayMethod) => { setStatus(Status.ACTIVE_METHOD); setActivePayMethod(method); };
   const presentCardHandler = React.useCallback(() => setStatus(Status.PIN_ENTRY), [])
   const payHandler = () => { 
     if (currentPin.length === 4) {
@@ -141,7 +137,6 @@ const PaymentDevice = () => {
   const stopHandler = () => setStatus(Status.STOP);
 
   useEffect(() => {
-    
     
     let waitTime: number | undefined = undefined;
     let intervalId: NodeJS.Timer | null = null;
@@ -156,20 +151,20 @@ const PaymentDevice = () => {
         setPinDigits(['','','','']);
         break;
       case Status.CHOOSE_METHOD:
-          setShowBottomButtons(true);
-          setDisplay(<Amount currentState={status} amount={postData.amount} />)
-          waitTime = 7000;  
-          break;
+        setShowBottomButtons(true);
+        setDisplay(<Amount currentState={status} amount={postData.amount} />)
+        waitTime = 7000;  
+        break;
       case Status.ACTIVE_METHOD:
-          setDisplay(<Amount currentState={status} amount={postData.amount} />)
-          waitTime = 17000;  
-          break;
+        setDisplay(<Amount currentState={status} amount={postData.amount} />)
+        waitTime = 1000;  
+        break;
       case Status.WAITING:
-          startPayment();
-          setShowBottomButtons(true);
-          setDisplay(<Amount currentState={status} amount={postData.amount}  />)
-          waitTime = 7000;  
-          break;
+        startPayment();
+        setShowBottomButtons(true);
+        setDisplay(<Amount currentState={status} amount={postData.amount}  />)
+        waitTime = 7000;  
+        break;
       case Status.STOP:
         setDisplay(<Cancel />);
         waitTime = 4500;
@@ -220,7 +215,12 @@ const PaymentDevice = () => {
             setStatus(Status.TIMED_OUT);
             break;
           case Status.ACTIVE_METHOD:
-            setStatus(Status.TIMED_OUT);
+            if ((activePayMethod === PayMethod.CONTACTLESS && amountToPay <= cardlessSecurityPoint) || activePayMethod === PayMethod.SMARTPHONE ) {
+              setStatus(Status.CHECK_AMOUNT);
+            } else {
+              setStatus(Status.PIN_ENTRY);
+            }
+
             break;
           case Status.WAITING:
             setStatus(Status.TIMED_OUT);
@@ -234,26 +234,27 @@ const PaymentDevice = () => {
           case Status.PIN_FAILURE:
             setStatus(Status.TIMED_OUT);
             break;
-          case Status.CHECK_PIN:
-            if ((currentPin !== correctPin || currentPin !== negBalancePin) && pinAttempts === 3) {
-              // To many attempts
-              setStatus(Status.FAILURE);
-            } else if (currentPin !== correctPin || currentPin !== negBalancePin) {
-              // Try again
-              setPinDigits(['', '', '', '']);
-              setStatus(Status.PIN_FAILURE);
-            } else {
-              setStatus(Status.CHECK_AMOUNT);
-            }
-            break;
-          case Status.CHECK_AMOUNT:
-            if (currentPin !== negBalancePin) {
-              setStatus(Status.SUCCESS);
-            } else {
-              // Neg Balance
-              setStatus(Status.FAILURE);
-            }
-            break;
+            case Status.CHECK_PIN:
+              if ((currentPin !== correctPin && currentPin !== negBalancePin) && pinAttempts === 3) {
+                // Too many attempts
+                setStatus(Status.FAILURE);
+              } else if (currentPin !== correctPin && currentPin !== negBalancePin) {
+                // Try again (counter is located in the payHandler)
+                setPinDigits(['', '', '', '']);
+                setStatus(Status.PIN_FAILURE);
+              } else {
+                setStatus(Status.CHECK_AMOUNT);
+              }
+              break;
+            case Status.CHECK_AMOUNT:
+              // You do not have enough money!
+              if (currentPin === negBalancePin) {
+                setStatus(Status.FAILURE);
+              } else {
+                // other conditions.. so if pin is correct but also when payMethod = contactless
+                setStatus(Status.SUCCESS);
+              }
+              break;
           case Status.FAILURE:
             setStatus(Status.IDLE);
             break;
@@ -269,7 +270,7 @@ const PaymentDevice = () => {
         clearInterval(intervalId);
       }
     };
-  }, [status, postData.amount, startPayment, presentCardHandler, currentPin, pinAttempts]);
+  }, [status, postData.amount, startPayment, presentCardHandler, currentPin, pinAttempts, activePayMethod]);
 
   postData.terminalId
     ? console.log(
@@ -302,23 +303,35 @@ const PaymentDevice = () => {
           <div>{currentDate}</div>
           <div>{currentTime}</div>
         </S.TimeRibbon>
-        <S.TextBox $aligntop={ status === Status.PIN_ENTRY || status === Status.PIN_FAILURE || status === Status.CHOOSE_METHOD ||  status === Status.ACTIVE_METHOD || status === Status.CHECK_PIN }>
+        <S.TextBox
+          $aligntop={
+            status === Status.PIN_ENTRY ||
+            status === Status.PIN_FAILURE ||
+            status === Status.CHOOSE_METHOD ||
+            status === Status.ACTIVE_METHOD ||
+            status === Status.CHECK_PIN
+          }
+        >
           <div>{display}</div>
-          { status === Status.CHOOSE_METHOD || status === Status.ACTIVE_METHOD ? <ChoosePayMethod chooseMethodHandler={chooseMethodHandler} activePayMethod={activePayMethod} currentState={status} /> : null }
+          {status === Status.CHOOSE_METHOD ||
+          status === Status.ACTIVE_METHOD ? (
+            <ChoosePayMethod
+              chooseMethodHandler={chooseMethodHandler}
+              activePayMethod={activePayMethod}
+              currentState={status}
+            />
+          ) : null}
         </S.TextBox>
 
+        <Buttons
+          handleButtonClick={handleButtonClick}
+          stopHandler={stopHandler}
+          payHandler={payHandler}
+          currentState={status}
+          showBottomButtons={showBottomButtons}
+          pinDigits={pinDigits}
+        />
 
-       
-    
-
-       <Buttons 
-        handleButtonClick={handleButtonClick} 
-        stopHandler={stopHandler} 
-        payHandler={payHandler} 
-        currentState={status}
-        showBottomButtons={showBottomButtons} 
-        pinDigits={pinDigits} />
-        
         <S.Footer>
           <SettingsIcon width={18} height={18} />
           <PayOptions>
@@ -332,8 +345,6 @@ const PaymentDevice = () => {
         <S.StateButton onClick={startSequence}>
           I want to pay my booking from € 1000
         </S.StateButton>
-      ) : status === Status.ACTIVE_METHOD ? (
-        <S.StateButton onClick={presentCardHandler}>PRESENT</S.StateButton>
       ) : null}
     </>
   );
