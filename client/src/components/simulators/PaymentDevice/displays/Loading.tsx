@@ -3,6 +3,7 @@ import styled from "styled-components";
 const LoadingDots = styled.span`
     font-weight: bold;
     display: inline-block;
+    margin-top: 30px;
     color: gray;
     font-family: monospace;
     font-size: 30px;

@@ -19,17 +19,20 @@ export const Container = styled.div`
 
 export const Subline = styled.div`
     font-family: 'Inter', sans-serif;
-    font-size: 0.85em;
+    font-size: 0.7em;
     text-align: center; 
-    line-height: 1.2em;
+    line-height: 1.1em;
     padding: 15px 40px;
-    
+`;
+
+export const SublineBottom = styled(Subline)`
+    font-size: 0.9em;
 `;
 
 export const Mainline = styled.div`
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    font-size: 1.5em;
+    font-size: 1.4em;
     color: ${Sv.enzoOrange};
     text-align: center; 
 `;
@@ -39,6 +42,9 @@ export const WelcomeLine = styled(Mainline)`
 `;
 
 export const IconContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100px;
     margin-bottom: 15px;
 `;

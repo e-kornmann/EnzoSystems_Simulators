@@ -3,11 +3,11 @@ import * as Sv from '../../../shared/stylevariables';
 
 const ButtonContainer = styled.div`
   position: absolute;
-  bottom: 80px;
+  bottom: 65px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-  gap: 15px 20px;
+  grid-template-rows: 80px 1fr 1fr 1fr 1fr 1fr;
+  gap: 12px 20px;
   grid-template-areas:
     'pin pin pin'
     'one two three'
@@ -16,7 +16,7 @@ const ButtonContainer = styled.div`
     'bl1 zero bl2'
     'stop correct ok';
   width: 360px;
-  height: 430px;
+  height: 420px;
   padding: 20px;
 `;
 
