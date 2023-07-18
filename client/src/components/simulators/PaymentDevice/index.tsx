@@ -10,13 +10,14 @@ import React from 'react';
 import ServerError from './displays/ServerError';
 import { Loading } from './displays/Loading';
 import Failure from './displays/Failure';
-import SettingsIcon from '../../shared/svgcomponents/Settings';
+import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
 import { PayOptions } from './styles';
 import CurrentPayProvider from '../../shared/svgcomponents/PayProviders/CurrentPayProvider';
 import Buttons from './buttons';
 import ChoosePayMethod from './displays/ChoosePayMethod';
 import Amount from './displays/Amount';
+import AppSettings from './Personalisation/AppSettings/AppSettings';
 
 type Post = {
   terminalId: string;
@@ -54,7 +55,6 @@ export enum PayMethod {
   CARD,
 }
 
-
 const PaymentDevice = () => {
   const [status, setStatus] = useState(Status.IDLE);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
@@ -66,6 +66,7 @@ const PaymentDevice = () => {
   const [display, setDisplay] = useState(<Welcome />);
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const [hideSettings, setHideSettings] = useState(true);
 
   
   // handle numpads and correct-button clicks
@@ -135,6 +136,7 @@ const PaymentDevice = () => {
     } 
   }
   const stopHandler = () => setStatus(Status.STOP);
+  const settingsButtonHandler = () => setHideSettings(!hideSettings);
 
   useEffect(() => {
     
@@ -157,7 +159,7 @@ const PaymentDevice = () => {
         break;
       case Status.ACTIVE_METHOD:
         setDisplay(<Amount currentState={status} amount={postData.amount} />)
-        waitTime = 1000;  
+        waitTime = 500;  
         break;
       case Status.WAITING:
         startPayment();
@@ -192,7 +194,7 @@ const PaymentDevice = () => {
         waitTime = 1500;
         break;
       case Status.FAILURE:
-        setDisplay(<Failure />);
+        setDisplay(<Failure currentPin={currentPin} />);
         waitTime = 4500;
         break;
       case Status.SUCCESS:
@@ -297,6 +299,7 @@ const PaymentDevice = () => {
 
   return (
     <>
+      <AppSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <S.Container>
         <S.Header>Payment Terminal</S.Header>
         <S.TimeRibbon>
@@ -333,7 +336,12 @@ const PaymentDevice = () => {
         />
 
         <S.Footer>
-          <SettingsIcon width={18} height={18} />
+          <SettingsIcon
+            width={18}
+            height={18}
+            onClick={settingsButtonHandler}
+            style={{ cursor: 'pointer' }}
+          />
           <PayOptions>
             <CurrentPayProvider width={48} height={28} provider={'applepay'} />
             <ExpandIcon width={16} height={13} />
@@ -341,10 +349,8 @@ const PaymentDevice = () => {
         </S.Footer>
       </S.Container>
 
-      {status === Status.IDLE ? (
-        <S.StateButton onClick={startSequence}>
-          I want to pay my booking from € 1000
-        </S.StateButton>
+      {status === Status.IDLE && hideSettings === true ? (
+        <S.StateButton onClick={startSequence}>Pay the bill</S.StateButton>
       ) : null}
     </>
   );

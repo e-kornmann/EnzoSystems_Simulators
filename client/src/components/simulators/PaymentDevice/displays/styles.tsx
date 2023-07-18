@@ -9,7 +9,6 @@ export const Container = styled.div`
     justify-content: center;
     align-items: center;
     height: 200px;
-    line-height: 1.7em;
     z-index: 1000;
   `;
 
@@ -18,8 +17,9 @@ export const Subline = styled.div`
     font-size: 0.7em;
     font-weight: 500;
     text-align: center; 
-    line-height: 0.55em;
+    line-height: 1.3em;
     padding: 15px 40px;
+    white-space: pre-line; 
 `;
 
 export const SublineBottom = styled(Subline)`
@@ -30,6 +30,7 @@ export const Mainline = styled.div`
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 1.2em;
+    line-height: 0.8em;
     color: ${Sv.enzoOrange};
     text-align: center; 
 `;

@@ -38,7 +38,7 @@ export const StyledModal = styled.div`
 	z-index: 100;
 	position: relative;
 	background: ${Sv.black};
-	border-radius: 4px;
+	border-radius: 3px;
 `;
 
 export const Header = styled.div`

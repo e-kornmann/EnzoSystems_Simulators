@@ -1,12 +1,41 @@
-import { Container, IconContainer, Subline } from "./styles"
-import FailureIcon from "../../../shared/svgcomponents/Fail";
+  import { Container, IconContainer, Subline } from "./styles"
+  import FailureIcon from "../../../shared/svgcomponents/Fail";
 
-const Failure = () => 
 
-       <Container>
-        <IconContainer><FailureIcon width={50} height={50} /></IconContainer>
-        <Subline>Payment failed</Subline>
-      </Container>
- 
+
+
+
+  type Props = {
+    currentPin: string;
+  }
+
+
+  const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
+  const negBalancePin = import.meta.env.VITE_NEGBALANCE;
+
   
-  export default Failure;
+  const Failure = ({currentPin}: Props) => {
+
+    let failureMessage; 
+
+    if (currentPin !== correctPin && currentPin !== negBalancePin) {
+      failureMessage = `PIN Limit Exceeded.\nCard Usage Restricted.`;
+
+
+    } else if (currentPin === negBalancePin) {
+      failureMessage = "Unable to Complete\nTransaction: Low Balance";
+    } else {
+      failureMessage = "Payment failed.";
+    }
+
+    return (
+
+        <Container>
+          <IconContainer><FailureIcon width={73} height={73}/></IconContainer>
+          <Subline>{ failureMessage }</Subline>
+        </Container>
+
+    )};
+  
+    
+    export default Failure;

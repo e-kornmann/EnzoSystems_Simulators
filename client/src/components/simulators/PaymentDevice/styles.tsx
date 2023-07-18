@@ -11,10 +11,11 @@ const Container = styled.main`
   height: 760px;
   column-gap: 10px;
   grid-template-rows: 60px 25px 620px 5px 30px;
-  border-radius: 10px;
+  border-radius: 5px;
 `;
 
 const Header = styled.div`
+  fill: black;
   grid-row: 1 / 2;
   display: flex;
   justify-content: center;
@@ -71,12 +72,21 @@ const Footer = styled(TimeRibbon)`
 
 const StateButton = styled(Button)`
   position: absolute;
-  left: -250px;
+  left: -300px;
   bottom: 130px;
   width: 200px;
 `;
 
-  
+const SettingsButton = styled.div`
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 23px;
+  height: 23px;
+  `;
+
+
 export { 
  Container,
  Header,
@@ -85,4 +95,6 @@ export {
  TimeRibbon,
  StateButton,
  TextBox,
+ SettingsButton
  }
+ 
