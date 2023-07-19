@@ -1,13 +1,11 @@
 import * as S from './styles';
 import { useEffect, useState } from 'react';
-import api from '../../../api';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
 import OneMoment from './displays/OneMoment';
 import Success from './displays/Success';
 import Cancel from './displays/Cancel';
 import React from 'react';
-import ServerError from './displays/ServerError';
 import { Loading } from './displays/Loading';
 import Failure from './displays/Failure';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
@@ -18,6 +16,9 @@ import Buttons from './buttons';
 import ChoosePayMethod from './displays/ChoosePayMethod';
 import Amount from './displays/Amount';
 import AppSettings from './Personalisation/AppSettings/AppSettings';
+import useLogOnTerminal from '../../../hooks/terminal/useLogOnTerminal';
+import useThisTransaction from '../../../hooks/terminal/useThisTransaction';
+
 
 type Post = {
   terminalId: string;
@@ -29,10 +30,9 @@ const postDataInitialState = { terminalId: '', amount: undefined };
 const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
 const negBalancePin = import.meta.env.VITE_NEGBALANCE;
 const cardlessSecurityPoint = import.meta.env.VITE_CARDLESS_SECURITY_POINT;
-const terminalId = import.meta.env.VITE_TERMINAL_ID;
 const amountToPay = import.meta.env.VITE_AMOUNT_TO_PAY;
 
-
+// out of order state toevoegen
 export enum Status {
   IDLE,
   CHOOSE_METHOD,
@@ -56,19 +56,37 @@ export enum PayMethod {
 }
 
 const PaymentDevice = () => {
+  const { terminalToken, logOn } = useLogOnTerminal();
+  // check met Erik ff de benaming;
+  const { transactionState, getTransaction } = useThisTransaction(terminalToken);
+  const [init, setInit] = useState(false);
   const [status, setStatus] = useState(Status.IDLE);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
   const [postData, setPostData] = useState<Post>(postDataInitialState);
-  const [transactionId, setTransactionId] = useState('');
   const [showBottomButtons, setShowBottomButtons] = useState(false);
   const [display, setDisplay] = useState(<Welcome />);
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [hideSettings, setHideSettings] = useState(true);
 
-  
+
+
+  useEffect(() => {
+    if (!init) {
+      logOn();
+      setInit(true);
+    } else {
+      // out of order state veranderen
+      setStatus(Status.FAILURE);
+    }
+    
+  }, [logOn, init, getTransaction])
+
+    console.log(terminalToken);
+    console.log(transactionState);
+
   // handle numpads and correct-button clicks
   const handleButtonClick = React.useCallback((value: string) => {
     if (value === 'correct-button') { 
@@ -83,50 +101,7 @@ const PaymentDevice = () => {
 
   const currentPin = pinDigits.join("");
 
-  const startPayment = React.useCallback(async () => {
-      try {
-      setDisplay(<Loading />);
-      const response = await api.post(
-        `/payment_terminal/${postData.terminalId}/payment`,
-        {
-          amount: postData.amount,
-        }
-      );
-      setTransactionId(response.data.transactionId);
-    
-      } catch (error) {
-        console.error('Unable to make payment.', error);
-        if ((error as { response?: { status?: number } }).response?.status) {
-          const statusCode = (error as { response: { status: number } }).response
-          .status;
-          setDisplay(<ServerError statusCode={statusCode} />);
-        } else {
-        setDisplay(<ServerError statusCode={500} />);
-        }
-      }
-  }, [postData.amount, postData.terminalId]);
-
-  // React.useEffect(() => {
-  //   if (getReceipt === 'You have paid.') {
-  //     setStatus(Status.SUCCESS);
-  // }}, [Status.SUCCESS, getReceipt]);
-  
-  // const payAmount = React.useCallback(async () => {
-  //   try {
-  //     setDisplay(<OneMoment />);
-  //     const response = await api.get(
-  //       `/payment_terminal/${postData.terminalId}/payment/${transactionId}`
-  //     );
-  //     setGetReceipt(response.data.receipt);
-  //   } catch (error) {
-  //     console.error('Unable to make payment.', error);
-  //     setStatus(Status.FAILURE);
-  //   }
-  // }, [Status.FAILURE, postData.terminalId, transactionId]);
-  
-
-  
-  const startSequence = () => { setPostData({ terminalId: terminalId, amount: amountToPay }); setStatus(Status.CHOOSE_METHOD); };
+  const startSequence = () => { getTransaction(); setStatus(Status.CHOOSE_METHOD); };
   const chooseMethodHandler = (method: PayMethod) => { setStatus(Status.ACTIVE_METHOD); setActivePayMethod(method); };
   const presentCardHandler = React.useCallback(() => setStatus(Status.PIN_ENTRY), [])
   const payHandler = () => { 
@@ -162,7 +137,7 @@ const PaymentDevice = () => {
         waitTime = 500;  
         break;
       case Status.WAITING:
-        startPayment();
+
         setShowBottomButtons(true);
         setDisplay(<Amount currentState={status} amount={postData.amount}  />)
         waitTime = 7000;  
@@ -249,9 +224,9 @@ const PaymentDevice = () => {
               }
               break;
             case Status.CHECK_AMOUNT:
-              // You do not have enough money!
-              if (currentPin === negBalancePin) {
-                setStatus(Status.FAILURE);
+                // You do not have enough money!
+                if (currentPin === negBalancePin) {
+                  setStatus(Status.FAILURE);
               } else {
                 // other conditions.. so if pin is correct but also when payMethod = contactless
                 setStatus(Status.SUCCESS);
@@ -272,16 +247,9 @@ const PaymentDevice = () => {
         clearInterval(intervalId);
       }
     };
-  }, [status, postData.amount, startPayment, presentCardHandler, currentPin, pinAttempts, activePayMethod]);
+  }, [status, postData.amount, presentCardHandler, currentPin, pinAttempts, activePayMethod]);
 
-  postData.terminalId
-    ? console.log(
-        'pay request received from terminal: ' +
-          postData.terminalId +
-          ' \n with Transaction IDnr: ' +
-          transactionId
-      )
-    : console.log('start a payment');
+
 
 
 
@@ -316,8 +284,8 @@ const PaymentDevice = () => {
           }
         >
           <div>{display}</div>
-          {status === Status.CHOOSE_METHOD ||
-          status === Status.ACTIVE_METHOD ? (
+          { status === Status.CHOOSE_METHOD ||
+            status === Status.ACTIVE_METHOD ? (
             <ChoosePayMethod
               chooseMethodHandler={chooseMethodHandler}
               activePayMethod={activePayMethod}
