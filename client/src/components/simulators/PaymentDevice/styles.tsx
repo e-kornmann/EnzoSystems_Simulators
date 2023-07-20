@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import * as Sv from '../../shared/stylevariables';
-import { Button } from '../../shared/buttons';
 
 
 const Container = styled.main`
@@ -70,13 +69,6 @@ const Footer = styled(TimeRibbon)`
   background-color: white;
 `;
 
-const StateButton = styled(Button)`
-  position: absolute;
-  left: -300px;
-  bottom: 130px;
-  width: 200px;
-`;
-
 const SettingsButton = styled.div`
   cursor: pointer;
   display: flex;
@@ -93,7 +85,6 @@ export {
  Footer,
  PayOptions,
  TimeRibbon,
- StateButton,
  TextBox,
  SettingsButton
  }

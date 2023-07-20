@@ -17,7 +17,9 @@ import ChoosePayMethod from './displays/ChoosePayMethod';
 import Amount from './displays/Amount';
 import AppSettings from './Personalisation/AppSettings/AppSettings';
 import useLogOnTerminal from '../../../hooks/terminal/useLogOnTerminal';
-import useThisTransaction from '../../../hooks/terminal/useThisTransaction';
+import useAcceptTransaction from '../../../hooks/terminal/useAcceptTransaction';
+import NotConnected from './displays/NotConnected';
+
 
 
 type Post = {
@@ -34,6 +36,8 @@ const amountToPay = import.meta.env.VITE_AMOUNT_TO_PAY;
 
 // out of order state toevoegen
 export enum Status {
+  START_UP,
+  OUT_OF_ORDER,
   IDLE,
   CHOOSE_METHOD,
   ACTIVE_METHOD,
@@ -46,6 +50,7 @@ export enum Status {
   TIMED_OUT,
   FAILURE,
   SUCCESS,
+  STOPPED,
 }
 
 export enum PayMethod {
@@ -55,12 +60,15 @@ export enum PayMethod {
   CARD,
 }
 
-const PaymentDevice = () => {
-  const { terminalToken, logOn } = useLogOnTerminal();
-  // check met Erik ff de benaming;
-  const { transactionState, getTransaction } = useThisTransaction(terminalToken);
+type Props = {
+  isClosed: boolean;
+}
+
+const PaymentDevice = ({isClosed}: Props) => {
   const [init, setInit] = useState(false);
-  const [status, setStatus] = useState(Status.IDLE);
+  const [status, setStatus] = useState(Status.START_UP);
+  const { terminalToken, logOn } = useLogOnTerminal(setStatus);
+  const { transactionState, acceptTransaction } = useAcceptTransaction(terminalToken, setStatus);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
@@ -71,22 +79,33 @@ const PaymentDevice = () => {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [hideSettings, setHideSettings] = useState(true);
 
-
-
   useEffect(() => {
-    if (!init) {
-      logOn();
-      setInit(true);
-    } else {
-      // out of order state veranderen
-      setStatus(Status.FAILURE);
+    if (init === false) {
+      if (terminalToken === '') {
+        logOn();
+        } else {
+        setInit(true);
     }
-    
-  }, [logOn, init, getTransaction])
+    if (isClosed === true) {
+      //log off
+      setStatus(Status.STOPPED);
+    }
+  }
+}, [init, isClosed, logOn, terminalToken])
 
+useEffect(() => {
+  if (status === Status.IDLE) {
+    const intervalId = setInterval(acceptTransaction, 1000);
+    return () => clearInterval(intervalId);
+  }
+  
+}, [acceptTransaction, status, transactionState.transactionId]); 
+
+  const logTerminalTokenAndTransactionState = React.useCallback(() => {
     console.log(terminalToken);
     console.log(transactionState);
-
+  }, [terminalToken, transactionState]); 
+  
   // handle numpads and correct-button clicks
   const handleButtonClick = React.useCallback((value: string) => {
     if (value === 'correct-button') { 
@@ -101,9 +120,8 @@ const PaymentDevice = () => {
 
   const currentPin = pinDigits.join("");
 
-  const startSequence = () => { getTransaction(); setStatus(Status.CHOOSE_METHOD); };
   const chooseMethodHandler = (method: PayMethod) => { setStatus(Status.ACTIVE_METHOD); setActivePayMethod(method); };
-  const presentCardHandler = React.useCallback(() => setStatus(Status.PIN_ENTRY), [])
+  // const presentCardHandler = React.useCallback(() => setStatus(Status.PIN_ENTRY), [])
   const payHandler = () => { 
     if (currentPin.length === 4) {
     setPinAttempts(pinAttempts+1); 
@@ -119,6 +137,13 @@ const PaymentDevice = () => {
     let intervalId: NodeJS.Timer | null = null;
 
     switch (status) {
+      case Status.START_UP:
+        setDisplay(<Loading/>);
+        waitTime = 1000;
+        break;
+      case Status.OUT_OF_ORDER:
+        setDisplay(<NotConnected/>);
+        break;
       case Status.IDLE:
         setDisplay(<Welcome />);
         setPinAttempts(0);
@@ -137,7 +162,6 @@ const PaymentDevice = () => {
         waitTime = 500;  
         break;
       case Status.WAITING:
-
         setShowBottomButtons(true);
         setDisplay(<Amount currentState={status} amount={postData.amount}  />)
         waitTime = 7000;  
@@ -176,8 +200,11 @@ const PaymentDevice = () => {
         setDisplay(<Success />);
         waitTime = 3500;
         break;
+      case Status.STOPPED:
+        setInit(false);
+        setStatus(Status.OUT_OF_ORDER);
+        break;
     }
-
     if (intervalId) {
       clearInterval(intervalId);
     }
@@ -185,8 +212,8 @@ const PaymentDevice = () => {
     if (waitTime) {
       intervalId = setInterval(() => {
         switch (status) {
-          case Status.STOP:
-            setStatus(Status.IDLE);
+          case Status.START_UP:
+            init === false ? setStatus(Status.OUT_OF_ORDER) : setStatus(Status.IDLE)
             break;
           case Status.CHOOSE_METHOD:
             setStatus(Status.TIMED_OUT);
@@ -197,8 +224,10 @@ const PaymentDevice = () => {
             } else {
               setStatus(Status.PIN_ENTRY);
             }
-
             break;
+          case Status.STOP:
+             setStatus(Status.IDLE);
+             break;
           case Status.WAITING:
             setStatus(Status.TIMED_OUT);
             break;
@@ -232,12 +261,12 @@ const PaymentDevice = () => {
                 setStatus(Status.SUCCESS);
               }
               break;
-          case Status.FAILURE:
-            setStatus(Status.IDLE);
-            break;
-          case Status.SUCCESS:
-            setStatus(Status.IDLE);
-            break;
+            case Status.FAILURE:
+              setStatus(Status.IDLE);
+              break;
+            case Status.SUCCESS:
+              setStatus(Status.IDLE);
+              break;
         }
       }, waitTime);
     }
@@ -247,11 +276,7 @@ const PaymentDevice = () => {
         clearInterval(intervalId);
       }
     };
-  }, [status, postData.amount, presentCardHandler, currentPin, pinAttempts, activePayMethod]);
-
-
-
-
+  }, [activePayMethod, currentPin, init, pinAttempts, postData.amount, status]);
 
   useEffect(() => {
       const timer = setInterval(() => {
@@ -263,13 +288,12 @@ const PaymentDevice = () => {
         clearInterval(timer);
       };
   }, []);
- 
 
   return (
     <>
       <AppSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <S.Container>
-        <S.Header>Payment Terminal</S.Header>
+        <S.Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</S.Header>
         <S.TimeRibbon>
           <div>{currentDate}</div>
           <div>{currentTime}</div>
@@ -316,10 +340,6 @@ const PaymentDevice = () => {
           </PayOptions>
         </S.Footer>
       </S.Container>
-
-      {status === Status.IDLE && hideSettings === true ? (
-        <S.StateButton onClick={startSequence}>Pay the bill</S.StateButton>
-      ) : null}
     </>
   );
 };

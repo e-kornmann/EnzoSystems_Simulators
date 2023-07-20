@@ -1,39 +1,23 @@
 import { useEffect, useState } from 'react';
 import PaymentDevice from './components/simulators/PaymentDevice';
+import FocusLock from "react-focus-lock";
 import OtherDevice from './components/simulators/OtherDevice';
 import { useModal } from './hooks/terminal/useModal';
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import './style.css'
 import { DndContext } from '@dnd-kit/core';
-import { Button } from './components/shared/buttons';
-import styled from 'styled-components';
 import useLogOnHost  from './hooks/app/useLogOnHost';
-import * as Sv from './components/shared/stylevariables';
 import useCreateTransaction from './hooks/app/useCreateTransaction';
+import * as S from './App.style';
+import PriceFormatter from './components/shared/priceformatter';
 
 
-const ButtonModalContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 15px;
-  padding: 40px;
-`;
-
-
-
-const ConnectMessage = styled.header<{ $init: boolean }>`
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px;
-  background-color: ${(props) => (props.$init ? Sv.green : Sv.red)};
-  color: white;
-  text-align: center;
-`
 
 
 function App() {
   const { isShown, toggle } = useModal();
   const { hostToken, logOn } = useLogOnHost();
+
   const [init, setInit] = useState(false);
   // check met Erik ff de benaming;
   const { transactionIdApp, createTransaction } = useCreateTransaction(hostToken);
@@ -44,28 +28,19 @@ function App() {
   });
 
 
+  const displayCreatedTransaction = transactionIdApp ? 'pending transaction: ' + transactionIdApp : '';
+
+
   useEffect(() => {
-    if (!init) {
-      logOn();
-      setInit(true);
+    if (init === false) {
+      if ( hostToken === '') {
+        logOn();
+        } else {
+        setTimeout(()=>setInit(true), 2000)
     }
-  }, [hostToken, logOn, init]) 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  }
+}, [hostToken, logOn, init]) 
 
 
   const showSimulatorHandler = (simulator: string) => {
@@ -79,24 +54,58 @@ function App() {
     }));
     toggle();
   };
+
   
-  return (
-     <> 
-        <ConnectMessage $init={init}>{import.meta.env.VITE_HOST_ID} { init ? 'is logged in to the Enzo Pay API' : 'has to be loggin to the Enzo Pay API to create a transaction'}</ConnectMessage>
-       <DndContext>
-        <ButtonModalContainer>
-        
-         <Button onClick={() => showSimulatorHandler('paymentDevice')}>Open payment modal</Button>
-         <Button onClick={() => showSimulatorHandler('otherDevice')}>Other Device</Button>
-        </ButtonModalContainer>
-       <DraggableModal
+  const [amountToPay, setAmountToPay] = useState(0);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=> setAmountToPay(Number(e.target.value) / 10) 
+    
+    
+  
+  
+    return (
+
+
+   <>
+        <S.ConnectMessage $init={init}>{import.meta.env.VITE_HOST_ID} { init ? 'is logged in to the Enzo Pay API' : 'has to be loggin to the Enzo Pay API to create a transaction'}{displayCreatedTransaction}</S.ConnectMessage>
+          <DndContext>
+        <S.ButtonModalContainer>
+          <S.Button onClick={() => showSimulatorHandler('paymentDevice')}>Open payment modal</S.Button>
+          <S.Button onClick={() => showSimulatorHandler('otherDevice')}>Other Device</S.Button>
+
+     
+    
+         { 
+          
+          (simulators.paymentDevice && isShown) 
+              && 
+              <S.FocusContainer>
+                  <FocusLock>
+                  <S.PayBillContainer>
+                    <label htmlFor='amount'>Eur</label>
+                    <S.InputAmount id="amount" type="number" onChange={handleChange} />
+                    <S.AmountText>Pay the bill of € {PriceFormatter(amountToPay, 'nl-NL')}</S.AmountText>
+                    <S.StopButton onClick={createTransaction} > Stop</S.StopButton>
+                    <S.OkButton onClick={createTransaction} > OK</S.OkButton>
+                    </S.PayBillContainer> 
+                  </FocusLock>
+                </S.FocusContainer>
+                
+                  
+                
+            }
+         
+        </S.ButtonModalContainer>
+      
+
+        <DraggableModal
          isShown={isShown}
          hide={toggle}
          headerText={simulators.paymentDevice ? "Payment Device" : "Other Device"}
-         modalContent={simulators.paymentDevice ? <PaymentDevice /> :  <OtherDevice /> }
+         modalContent={simulators.paymentDevice ? <PaymentDevice isClosed={!simulators.paymentDevice} /> :  <OtherDevice /> }
          identifier={simulators.paymentDevice ? "Payment Device" : "Other Device"}
         />
        </DndContext>
+       
      </>
   );
 }

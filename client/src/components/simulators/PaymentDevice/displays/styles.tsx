@@ -9,7 +9,7 @@ export const Container = styled.div`
     justify-content: center;
     align-items: center;
     height: 200px;
-    z-index: 1000;
+    z-index: 100;
   `;
 
 export const Subline = styled.div`

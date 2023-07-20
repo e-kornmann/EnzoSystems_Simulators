@@ -19,7 +19,7 @@ export const SettingsWrapper = styled.div<HideProp>`
   display: ${(props) => (props.$hide ? 'none' : 'flex')};
   position: absolute;
   width: 100%;
-  z-index: 4000;
+  z-index: 400;
 `;
 
 export const SettingHeader = styled(Header)`  

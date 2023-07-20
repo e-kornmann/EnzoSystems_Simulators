@@ -5,40 +5,36 @@ type Props = {
 	$grabbing: boolean;
 }
 
-export const Wrapper = styled.div<Props>`
-	position: absolute;
+export const Wrapper = styled.div`
+	position: fixed;
 	display: flex;
 	justify-content: center;
 	aligng-items: flex-start;
-	position: fixed;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	z-index: 700;
-	outline: 0;
-	cursor: ${(props) => (props.$grabbing ? "grabbing" : "grab")};
-	user-select: none;
-	&:active {
-		cursor: grabbing;
-	}
-
+	z-index: 30;
 `;
 
 export const Backdrop = styled.div`
-	position: fixed;
+	position: absolute;
 	width: 100%;
 	height: 100%;
 	top: 0;
 	left: 0;
 	background: rgba(0, 0, 0, 0.3);
-	z-index: 500;
+	z-index: 20;
 `;
 
-export const StyledModal = styled.div`
-	z-index: 100;
-	position: relative;
+export const StyledModal = styled.div<Props>`
 	background: ${Sv.black};
 	border-radius: 3px;
+	z-index: 70;
+	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
+	&:active {
+		cursor: grabbing !important;
+	}
+
 `;
 
 export const Header = styled.div`

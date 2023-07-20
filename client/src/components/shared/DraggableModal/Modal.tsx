@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import FocusLock from "react-focus-lock";
+
 import ReactDOM from "react-dom";
 import * as S from "./style";
 // import { Draggable } from "./Draggable";
@@ -65,7 +65,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
    <>
 
     <S.Backdrop onClick={hide} />
-      <FocusLock>
+ 
       
         <S.Wrapper
           aria-modal
@@ -74,13 +74,13 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
           role="dialog"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
-          $grabbing={isGrabbing}
+          
         >
       
           
           <DragMove onDragMove={handleDragMove}>
      
-            <S.StyledModal  style={{
+            <S.StyledModal $grabbing={isGrabbing} style={{
               transform: `translateX(${translate.x}px) translateY(${translate.y}px)`
             }}>
             <S.Header>
@@ -93,8 +93,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
                       </DragMove>
 
         </S.Wrapper>
-        
-      </FocusLock>
+
   
       </>
 

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import api from '../../api';
+import { Status } from '../../components/simulators/PaymentDevice';
 
-const useLogOnTerminal = () => {
+const useLogOnTerminal = (setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
   const [terminalToken, setToken] = useState('');
 
   const logOn = async () => {
@@ -19,6 +20,7 @@ const useLogOnTerminal = () => {
       )
       setToken(response.data.accessToken);
     } catch (error) {
+      setStatus(Status.OUT_OF_ORDER);
       console.error('Unable to get token:', error);
     }
   };

@@ -37,7 +37,7 @@ const PaymentMethodButton = styled.button`
   font-size: 0.8em;
   border-radius: 4px;
   cursor: pointer;
-  z-index: 3000;
+  z-index: 300;
   &:active {
     background-color: ${Sv.enzoDarkOrange};
   }

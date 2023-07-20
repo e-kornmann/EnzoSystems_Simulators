@@ -1,31 +1,27 @@
 import { useState } from 'react';
 import api from '../../api';
 
-
-
-
-
 const useCreateTransaction = (accessToken: string) => {
 
   const [transactionIdApp, setTransactionIdApp] = useState('');
 
-
   const createTransaction = async () => {
     try {
-       const accessBtoaToken = btoa(accessToken)
-       const config = {
-            headers: {
-              contentType: 'application/json',
-              authorization: `Bearer ${accessBtoaToken}`,
-            }
-          };
-      const response = await api.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`,{ 
-        status: 'RUNNING',
-      }, config
-      )
+            const config = {
+        headers: {
+          contentType: 'application/json',
+          authorization: `Bearer ${accessToken}`,
+        }
+      };
+      const response = await api.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
+        amountToPay: import.meta.env.VITE_AMOUNT_TO_PAY,
+        locale: "nl-NL",
+        currency: "EUR",
+        reference: "abcdefg"
+      }, config);
       setTransactionIdApp(response.data.transactionId);
     } catch (error) {
-      console.error('Unable to get token:', error);
+      console.error('Unable to create transaction:', error);
     }
   };
 
