@@ -1,8 +1,7 @@
+import { TransactionStateType } from "../../../../hooks/terminal/types";
 import { Container, Mainline, Subline } from "./styles"
 
-type Props = {
-  statusCode: number
-}
+type Props = Pick<TransactionStateType, 'statusCode'>;
   
 const ServerError = ({statusCode}: Props) => {
 
@@ -10,7 +9,7 @@ const ServerError = ({statusCode}: Props) => {
   let mainline;
 
   switch (statusCode) {
-    case 409 :
+    case 409:
       mainline = "Conflict"
       subline = "Another payment was already in progres"
       break;

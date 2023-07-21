@@ -9,7 +9,7 @@ import { DndContext } from '@dnd-kit/core';
 import useLogOnHost  from './hooks/app/useLogOnHost';
 import useCreateTransaction from './hooks/app/useCreateTransaction';
 import * as S from './App.style';
-import PriceFormatter from './components/shared/priceformatter';
+import useStopTransaction from './hooks/app/useStopTransaction';
 
 
 
@@ -17,18 +17,26 @@ import PriceFormatter from './components/shared/priceformatter';
 function App() {
   const { isShown, toggle } = useModal();
   const { hostToken, logOn } = useLogOnHost();
+  const [amountToPay, setAmountToPay] = useState(0);
 
+    
   const [init, setInit] = useState(false);
-  // check met Erik ff de benaming;
-  const { transactionIdApp, createTransaction } = useCreateTransaction(hostToken);
+  
+
+  const [isStoppedTransaction, setIsStoppedTransaction] = useState(true);
+    const { transactionIdApp, createTransaction } = useCreateTransaction(hostToken, amountToPay, setIsStoppedTransaction);
+    const { stopTransaction } = useStopTransaction(hostToken, transactionIdApp, setIsStoppedTransaction);
   
   const [simulators, setSimulators] = useState({
     paymentDevice: false,
     otherDevice: false,
   });
 
-
+  
   const displayCreatedTransaction = transactionIdApp ? 'pending transaction: ' + transactionIdApp : '';
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=> setAmountToPay(Number(e.target.value) / 10) 
+
+
 
 
   useEffect(() => {
@@ -38,7 +46,7 @@ function App() {
         } else {
         setTimeout(()=>setInit(true), 2000)
     }
-
+    
   }
 }, [hostToken, logOn, init]) 
 
@@ -56,10 +64,7 @@ function App() {
   };
 
   
-  const [amountToPay, setAmountToPay] = useState(0);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=> setAmountToPay(Number(e.target.value) / 10) 
-    
-    
+   const transIdMessage = isStoppedTransaction ? `${transactionIdApp} is stopped` : `${transactionIdApp} is running`;    
   
   
     return (
@@ -83,8 +88,8 @@ function App() {
                   <S.PayBillContainer>
                     <label htmlFor='amount'>Eur</label>
                     <S.InputAmount id="amount" type="number" onChange={handleChange} />
-                    <S.AmountText>Pay the bill of € {PriceFormatter(amountToPay, 'nl-NL')}</S.AmountText>
-                    <S.StopButton onClick={createTransaction} > Stop</S.StopButton>
+                    <S.AmountText>{ transactionIdApp !== '' ? transIdMessage : null }</S.AmountText>
+                    <S.StopButton onClick={stopTransaction} > Stop</S.StopButton>
                     <S.OkButton onClick={createTransaction} > OK</S.OkButton>
                     </S.PayBillContainer> 
                   </FocusLock>

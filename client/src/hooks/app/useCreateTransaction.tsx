@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import api from '../../api';
 
-const useCreateTransaction = (accessToken: string) => {
+const useCreateTransaction = (accessToken: string, amountToPay: number, setIsStoppedTransaction: React.Dispatch<React.SetStateAction<boolean>>) => {
 
   const [transactionIdApp, setTransactionIdApp] = useState('');
+
+
 
   const createTransaction = async () => {
     try {
@@ -14,12 +16,13 @@ const useCreateTransaction = (accessToken: string) => {
         }
       };
       const response = await api.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
-        amountToPay: import.meta.env.VITE_AMOUNT_TO_PAY,
+        amountToPay: amountToPay,
         locale: "nl-NL",
         currency: "EUR",
         reference: "abcdefg"
       }, config);
       setTransactionIdApp(response.data.transactionId);
+      setIsStoppedTransaction(false);
     } catch (error) {
       console.error('Unable to create transaction:', error);
     }

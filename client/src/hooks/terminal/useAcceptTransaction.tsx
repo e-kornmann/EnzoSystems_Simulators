@@ -2,17 +2,15 @@ import { useState } from 'react';
 
 import api from '../../api';
 import { Status } from '../../components/simulators/PaymentDevice';
+import axios from 'axios';
+import { TransactionStateType } from './types';
 
-
-type transactionStateType = {
-  transactionId: string;
-}
 
 
 
 const useAcceptTransaction = (accessToken: string, setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
 
-  const [transactionState, setTransactionState] = useState<transactionStateType>({ transactionId: ''});
+  const [transactionState, setTransactionState] = useState<TransactionStateType>({ statusCode: undefined, transactionId: '', amountToPay: 0 });
 
   const acceptTransaction = async () => {
     try {
@@ -27,16 +25,18 @@ const useAcceptTransaction = (accessToken: string, setStatus: React.Dispatch<Rea
         action: "RUN"
       }, config
       )
-      setTransactionState(response.data);
-      setStatus(Status.CHOOSE_METHOD);
+      setTransactionState({ statusCode: response.status, transactionId: response.data.transactionId, amountToPay: response.data.amountToPay });
+      response.status === 200 ? setStatus(Status.CHOOSE_METHOD) : null;
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setTransactionState({ ...transactionState, statusCode: error.response?.status });
+      }
       console.error('Unable to accept transaction:', error);
-    }
-  };
+  }
+}
 
   return { transactionState, acceptTransaction };
 };
 
 export default useAcceptTransaction;
-
 
