@@ -15,7 +15,7 @@ type Props = {
 const Buttons = ({ showBottomButtons, stopHandler, payHandler, handleButtonClick, pinDigits, currentState }: Props) => {
 
 
-  const showNumPad = ():boolean => currentState === Status.PIN_ENTRY || currentState === Status.PIN_FAILURE || currentState === Status.WAITING || currentState === Status.CHECK_PIN ;
+  const showNumPad = ():boolean => currentState === Status.PIN_ENTRY || currentState === Status.PIN_ERROR || currentState === Status.WAITING || currentState === Status.CHECK_PIN ;
   const hideButton = ():boolean => currentState === Status.CHOOSE_METHOD || currentState === Status.ACTIVE_METHOD;
 
 const numpadArray = [

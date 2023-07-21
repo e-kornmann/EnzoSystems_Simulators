@@ -7,7 +7,7 @@ import Success from './displays/Success';
 import Cancel from './displays/Cancel';
 import React from 'react';
 import { Loading } from './displays/Loading';
-import Failure from './displays/Failure';
+import PinError from './displays/PinError';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
 import { PayOptions } from './styles';
@@ -19,15 +19,13 @@ import AppSettings from './Personalisation/AppSettings/AppSettings';
 import useLogOnTerminal from '../../../hooks/terminal/useLogOnTerminal';
 import useAcceptTransaction from '../../../hooks/terminal/useAcceptTransaction';
 import NotConnected from './displays/NotConnected';
+import ServerError from './displays/ServerError';
+import useUpdateTransaction from '../../../hooks/terminal/useUpdateTransaction';
 
 
 
-type Post = {
-  terminalId: string;
-  amount: number | undefined;
-};
 
-const postDataInitialState = { terminalId: '', amount: undefined };
+
 
 const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
 const negBalancePin = import.meta.env.VITE_NEGBALANCE;
@@ -39,16 +37,18 @@ export enum Status {
   START_UP,
   OUT_OF_ORDER,
   IDLE,
+  UPDATE_TRANSACTION,
+  SERVER_ERROR,
   CHOOSE_METHOD,
   ACTIVE_METHOD,
   WAITING,
   PIN_ENTRY,
   CHECK_PIN,
   STOP,
-  PIN_FAILURE,
+  WRONG_PIN,
   CHECK_AMOUNT,
   TIMED_OUT,
-  FAILURE,
+  PIN_ERROR,
   SUCCESS,
   STOPPED,
 }
@@ -69,10 +69,10 @@ const PaymentDevice = ({isClosed}: Props) => {
   const [status, setStatus] = useState(Status.START_UP);
   const { terminalToken, logOn } = useLogOnTerminal(setStatus);
   const { transactionState, acceptTransaction } = useAcceptTransaction(terminalToken, setStatus);
+  const { isUpdatedTransaction, updateTransaction } = useUpdateTransaction(terminalToken, transactionState.transactionId, transactionState.amountToPay);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
-  const [postData, setPostData] = useState<Post>(postDataInitialState);
   const [showBottomButtons, setShowBottomButtons] = useState(false);
   const [display, setDisplay] = useState(<Welcome />);
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
@@ -98,8 +98,15 @@ useEffect(() => {
     const intervalId = setInterval(acceptTransaction, 1000);
     return () => clearInterval(intervalId);
   }
-  
 }, [acceptTransaction, status, transactionState.transactionId]); 
+
+useEffect(() => {
+  if (status === Status.UPDATE_TRANSACTION) {
+    updateTransaction();
+    isUpdatedTransaction ? setStatus(Status.SUCCESS) : setStatus(Status.SERVER_ERROR);
+  } 
+}, [isUpdatedTransaction, status, updateTransaction]); 
+
 
   const logTerminalTokenAndTransactionState = React.useCallback(() => {
     console.log(terminalToken);
@@ -148,22 +155,25 @@ useEffect(() => {
         setDisplay(<Welcome />);
         setPinAttempts(0);
         setActivePayMethod(PayMethod.NONE);
-        setPostData(postDataInitialState);
         setShowBottomButtons(false);
         setPinDigits(['','','','']);
         break;
+      case Status.SERVER_ERROR:
+        setDisplay(<ServerError statusCode={transactionState.statusCode}  />);
+        waitTime = 4500;
+        break;
       case Status.CHOOSE_METHOD:
         setShowBottomButtons(true);
-        setDisplay(<Amount currentState={status} amount={postData.amount} />)
-        waitTime = 7000;  
+        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
+        waitTime = 12000;  
         break;
       case Status.ACTIVE_METHOD:
-        setDisplay(<Amount currentState={status} amount={postData.amount} />)
+        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 500;  
         break;
       case Status.WAITING:
         setShowBottomButtons(true);
-        setDisplay(<Amount currentState={status} amount={postData.amount}  />)
+        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay}  />)
         waitTime = 7000;  
         break;
       case Status.STOP:
@@ -171,15 +181,15 @@ useEffect(() => {
         waitTime = 4500;
         break;
       case Status.PIN_ENTRY:
-        setDisplay(<Amount currentState={status} amount={postData.amount} />)
+        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 10000;
         break;
      case Status.CHECK_PIN:
         setDisplay(<Loading/>);
         waitTime = 1500;
         break;
-      case Status.PIN_FAILURE:
-        setDisplay(<Amount currentState={status} amount={postData.amount} />)
+      case Status.WRONG_PIN:
+        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 10000;
         break;
       case Status.TIMED_OUT:
@@ -190,11 +200,14 @@ useEffect(() => {
       case Status.CHECK_AMOUNT:
         setShowBottomButtons(false);
         setDisplay(<OneMoment />); 
-        waitTime = 1500;
+        waitTime = 1000;
         break;
-      case Status.FAILURE:
-        setDisplay(<Failure currentPin={currentPin} />);
+      case Status.PIN_ERROR:
+        setDisplay(<PinError currentPin={currentPin} />);
         waitTime = 4500;
+        break;
+      case Status.UPDATE_TRANSACTION:
+        setDisplay(<OneMoment />); 
         break;
       case Status.SUCCESS:
         setDisplay(<Success />);
@@ -228,6 +241,9 @@ useEffect(() => {
           case Status.STOP:
              setStatus(Status.IDLE);
              break;
+          case Status.SERVER_ERROR:
+              setStatus(Status.IDLE);
+              break;  
           case Status.WAITING:
             setStatus(Status.TIMED_OUT);
             break;
@@ -237,17 +253,17 @@ useEffect(() => {
           case Status.TIMED_OUT:
             setStatus(Status.IDLE);
             break;
-          case Status.PIN_FAILURE:
+          case Status.WRONG_PIN:
             setStatus(Status.TIMED_OUT);
             break;
             case Status.CHECK_PIN:
               if ((currentPin !== correctPin && currentPin !== negBalancePin) && pinAttempts === 3) {
                 // Too many attempts
-                setStatus(Status.FAILURE);
+                setStatus(Status.PIN_ERROR);
               } else if (currentPin !== correctPin && currentPin !== negBalancePin) {
                 // Try again (counter is located in the payHandler)
                 setPinDigits(['', '', '', '']);
-                setStatus(Status.PIN_FAILURE);
+                setStatus(Status.WRONG_PIN);
               } else {
                 setStatus(Status.CHECK_AMOUNT);
               }
@@ -255,14 +271,17 @@ useEffect(() => {
             case Status.CHECK_AMOUNT:
                 // You do not have enough money!
                 if (currentPin === negBalancePin) {
-                  setStatus(Status.FAILURE);
+                  setStatus(Status.PIN_ERROR);
               } else {
                 // other conditions.. so if pin is correct but also when payMethod = contactless
-                setStatus(Status.SUCCESS);
+                setStatus(Status.UPDATE_TRANSACTION);                
               }
               break;
-            case Status.FAILURE:
+            case Status.PIN_ERROR:
               setStatus(Status.IDLE);
+              break;
+            case Status.UPDATE_TRANSACTION:
+              setStatus(Status.SUCCESS); 
               break;
             case Status.SUCCESS:
               setStatus(Status.IDLE);
@@ -276,7 +295,7 @@ useEffect(() => {
         clearInterval(intervalId);
       }
     };
-  }, [activePayMethod, currentPin, init, pinAttempts, postData.amount, status]);
+  }, [activePayMethod, currentPin, init, pinAttempts, status, transactionState.amountToPay, transactionState.statusCode]);
 
   useEffect(() => {
       const timer = setInterval(() => {
@@ -301,7 +320,7 @@ useEffect(() => {
         <S.TextBox
           $aligntop={
             status === Status.PIN_ENTRY ||
-            status === Status.PIN_FAILURE ||
+            status === Status.WRONG_PIN ||
             status === Status.CHOOSE_METHOD ||
             status === Status.ACTIVE_METHOD ||
             status === Status.CHECK_PIN
