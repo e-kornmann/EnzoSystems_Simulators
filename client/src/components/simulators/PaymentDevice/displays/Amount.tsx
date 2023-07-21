@@ -26,7 +26,7 @@ const Amount = ({ amount, currentState }: Props) => {
     case Status.PIN_ENTRY:
      subline = 'Enter Pin';
      break;
-    case Status.PIN_FAILURE:
+    case Status.WRONG_PIN:
       subline = 'Wrong PIN. Try again.';
       break;
     default :
@@ -36,7 +36,7 @@ const Amount = ({ amount, currentState }: Props) => {
 
   return (
     <Container>
-      <IconContainer $show={currentState === Status.PIN_FAILURE}><FailureIcon width={30} height={30} /></IconContainer>
+      <IconContainer $show={currentState === Status.WRONG_PIN}><FailureIcon width={30} height={30} /></IconContainer>
       <Subline>Amount:</Subline>
       <Mainline>EUR {PriceFormatter(amount, 'nl-NL')}</Mainline>
       <SublineBottom> 

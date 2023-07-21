@@ -21,7 +21,7 @@ const useLogOnTerminal = (setStatus: React.Dispatch<React.SetStateAction<Status>
       setToken(response.data.accessToken);
     } catch (error) {
       setStatus(Status.OUT_OF_ORDER);
-      console.error('Unable to get token:', error);
+      console.error(`${import.meta.env.VITE_MERCHANT_ID} is unable to get token:`, error);
     }
   };
 

@@ -14,9 +14,15 @@ type Props = {
 
 const Buttons = ({ showBottomButtons, stopHandler, payHandler, handleButtonClick, pinDigits, currentState }: Props) => {
 
+  const showNumPad: boolean = 
+    currentState === Status.PIN_ENTRY ||
+    currentState === Status.WRONG_PIN ||
+    currentState === Status.WAITING ||
+    currentState === Status.CHECK_PIN;
 
-  const showNumPad = ():boolean => currentState === Status.PIN_ENTRY || currentState === Status.PIN_ERROR || currentState === Status.WAITING || currentState === Status.CHECK_PIN ;
-  const hideButton = ():boolean => currentState === Status.CHOOSE_METHOD || currentState === Status.ACTIVE_METHOD;
+  const hideCorrectAndOkButton: boolean = 
+    currentState === Status.CHOOSE_METHOD || 
+    currentState === Status.ACTIVE_METHOD;
 
 const numpadArray = [
     'one', 
@@ -32,14 +38,14 @@ const numpadArray = [
 
   return (
     <ButtonContainer>
-      <PinComponent pinDigits={pinDigits} $showPinEntry={showNumPad()}/>
+      <PinComponent pinDigits={pinDigits} $showPinEntry={showNumPad}/>
         {numpadArray.map((num, index) => {
         const padNr = String(index + 1 === 10 ? 0 : index + 1)
       return (
         <NrButton
           key={num}
           $gridarea={num}
-          $showNrs={showNumPad()}
+          $showNrs={showNumPad}
           onClick={() => handleButtonClick(padNr)}
         >
           {padNr}
@@ -53,10 +59,10 @@ const numpadArray = [
     >
       Stop
     </StopButton>
-    <CorrectButton $showBottomButtons={showBottomButtons} $hideButtons={hideButton()} onClick={() => handleButtonClick('correct-button')}>
+    <CorrectButton $showBottomButtons={showBottomButtons} $hideButtons={hideCorrectAndOkButton} onClick={() => handleButtonClick('correct-button')}>
       Correct
     </CorrectButton>
-    <OkButton $showBottomButtons={showBottomButtons} $hideButtons={hideButton()} onClick={payHandler}>
+    <OkButton $showBottomButtons={showBottomButtons} $hideButtons={hideCorrectAndOkButton} onClick={payHandler}>
       OK
     </OkButton>
   </ButtonContainer>

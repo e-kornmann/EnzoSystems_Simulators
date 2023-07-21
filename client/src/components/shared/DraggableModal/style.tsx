@@ -22,6 +22,7 @@ export const Backdrop = styled.div`
 	height: 100%;
 	top: 0;
 	left: 0;
+	pointer-events: none;
 	background: rgba(0, 0, 0, 0.3);
 	z-index: 20;
 `;

@@ -7,6 +7,7 @@ import FailureIcon from "../../../shared/svgcomponents/Fail";
 
 type Props = {
   currentPin: string;
+  toggle: (waarde:string)=> void;
 }
 
 
@@ -14,16 +15,17 @@ const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
 const negBalancePin = import.meta.env.VITE_NEGBALANCE;
 
 
-const Failure = ({currentPin}: Props) => {
+const PinError = ({currentPin, toggle}: Props) => {
 
   let failureMessage; 
 
   if (currentPin !== correctPin && currentPin !== negBalancePin) {
     failureMessage = `PIN Limit Exceeded.\nCard Usage Restricted.`;
-
-
+    
+    toggle('FAIL');
   } else if (currentPin === negBalancePin) {
     failureMessage = "Unable to Complete\nTransaction: Low Balance";
+    toggle('DECLINE');
   } else {
     failureMessage = "Payment failed.";
   }
@@ -38,5 +40,5 @@ const Failure = ({currentPin}: Props) => {
   )};
 
   
-  export default Failure;
+  export default PinError;
   

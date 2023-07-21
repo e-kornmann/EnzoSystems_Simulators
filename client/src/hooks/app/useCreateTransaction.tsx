@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import api from '../../api';
 
-const useCreateTransaction = (accessToken: string, amountToPay: number, setIsStoppedTransaction: React.Dispatch<React.SetStateAction<boolean>>) => {
+
+const useCreateTransaction = (accessToken: string, amountToAsk: string, setIsStoppedTransaction: React.Dispatch<React.SetStateAction<boolean>>) => {
 
   const [transactionIdApp, setTransactionIdApp] = useState('');
-
-
-
   const createTransaction = async () => {
     try {
-            const config = {
+      const config = {
         headers: {
           contentType: 'application/json',
           authorization: `Bearer ${accessToken}`,
         }
       };
       const response = await api.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
-        amountToPay: amountToPay,
+        amountToPay: Number(amountToAsk),
         locale: "nl-NL",
         currency: "EUR",
         reference: "abcdefg"

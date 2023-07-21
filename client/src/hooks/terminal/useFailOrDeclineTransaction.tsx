@@ -1,8 +1,6 @@
 import api from '../../api';
-import { Status } from '../../components/simulators/PaymentDevice';
 
-
-  export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
+   export const rejectTransaction = async (accessToken: string, transactionId: string, failOrDecline: string) => {
     try {
       const config = {
         headers: {
@@ -15,21 +13,12 @@ import { Status } from '../../components/simulators/PaymentDevice';
           import.meta.env.VITE_TERMINAL_ID
         }/transactions/${transactionId}`,
         {
-          action: 'FINISH',
-          amountPaid: amountPaid,
-          scheme: 'MASTERCARD',
-          pan: '5678542365654321',
+          action: failOrDecline,
         },
         config
       );
-      setStatus(Status.SUCCESS);
     } catch (error) {
-      setStatus(Status.SERVER_ERROR);
       console.error('Unable to make payment:', error);
     }
   };
-
-
-
-
 

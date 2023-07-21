@@ -9,35 +9,19 @@ import { DndContext } from '@dnd-kit/core';
 import useLogOnHost  from './hooks/app/useLogOnHost';
 import useCreateTransaction from './hooks/app/useCreateTransaction';
 import * as S from './App.style';
-import useStopTransaction from './hooks/app/useStopTransaction';
-
-
-
+import useStopTransactionHost from './hooks/app/useStopTransactionHost';
+import useGetTransaction from './hooks/app/useGetTransaction';
 
 function App() {
   const { isShown, toggle } = useModal();
   const { hostToken, logOn } = useLogOnHost();
-  const [amountToPay, setAmountToPay] = useState(0);
-
-    
-  const [init, setInit] = useState(false);
-  
-
+  const [ amountToAsk, setAmountToAsk ] = useState('0');
   const [isStoppedTransaction, setIsStoppedTransaction] = useState(true);
-    const { transactionIdApp, createTransaction } = useCreateTransaction(hostToken, amountToPay, setIsStoppedTransaction);
-    const { stopTransaction } = useStopTransaction(hostToken, transactionIdApp, setIsStoppedTransaction);
-  
-  const [simulators, setSimulators] = useState({
-    paymentDevice: false,
-    otherDevice: false,
-  });
-
-  
-  const displayCreatedTransaction = transactionIdApp ? 'pending transaction: ' + transactionIdApp : '';
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=> setAmountToPay(Number(e.target.value) / 10) 
-
-
-
+  const { transactionIdApp, createTransaction } = useCreateTransaction(hostToken, amountToAsk, setIsStoppedTransaction);
+  const { stopTransaction } = useStopTransactionHost(hostToken, transactionIdApp, setIsStoppedTransaction);
+  const { transactionDetails, getTransaction } = useGetTransaction(hostToken,  transactionIdApp);
+  // const { terminalId, merchantId, reference, amountToPay, amountPaid, currency, locale, receipt, status } = transactionDetails    
+  const [init, setInit] = useState(false);
 
   useEffect(() => {
     if (init === false) {
@@ -46,10 +30,28 @@ function App() {
         } else {
         setTimeout(()=>setInit(true), 2000)
     }
-    
   }
 }, [hostToken, logOn, init]) 
 
+useEffect(() => {
+  const interval = setInterval(getTransaction, 3000);
+    if (transactionDetails.status !== 'RUNNING') {
+      setIsStoppedTransaction(true);
+    } 
+    console.log('Terminal: ' + transactionDetails.status);
+
+  return () => {
+    clearInterval(interval);
+  };
+}, [getTransaction, transactionDetails, transactionIdApp]);
+
+  const [simulators, setSimulators] = useState({
+    paymentDevice: false,
+    otherDevice: false,
+  });
+  const resetAmount = () => {
+    setAmountToAsk('0');
+  };
 
   const showSimulatorHandler = (simulator: string) => {
     setSimulators((prevSimulators) => ({
@@ -63,41 +65,54 @@ function App() {
     toggle();
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmountToAsk(e.target.value);
+  }
   
    const transIdMessage = isStoppedTransaction ? `${transactionIdApp} is stopped` : `${transactionIdApp} is running`;    
   
-  
-    return (
-
-
+   return (
    <>
-        <S.ConnectMessage $init={init}>{import.meta.env.VITE_HOST_ID} { init ? 'is logged in to the Enzo Pay API' : 'has to be loggin to the Enzo Pay API to create a transaction'}{displayCreatedTransaction}</S.ConnectMessage>
+        <S.ConnectMessage $init={init}>{import.meta.env.VITE_HOST_ID} { init ? 'is logged in to the Enzo Pay API' : 'has to be loggin to the Enzo Pay API to create a transaction'}</S.ConnectMessage>
           <DndContext>
         <S.ButtonModalContainer>
           <S.Button onClick={() => showSimulatorHandler('paymentDevice')}>Open payment modal</S.Button>
           <S.Button onClick={() => showSimulatorHandler('otherDevice')}>Other Device</S.Button>
-
-     
-    
          { 
           
           (simulators.paymentDevice && isShown) 
               && 
+              <>
               <S.FocusContainer>
+                    <S.BlinkingDot $isRunning={!isStoppedTransaction} />
                   <FocusLock>
                   <S.PayBillContainer>
-                    <label htmlFor='amount'>Eur</label>
-                    <S.InputAmount id="amount" type="number" onChange={handleChange} />
+                    <S.StyledLable htmlFor='amount'>€</S.StyledLable>
+                    <S.InputAmount id="amount" value={amountToAsk} type="number" onChange={handleChange} />
                     <S.AmountText>{ transactionIdApp !== '' ? transIdMessage : null }</S.AmountText>
-                    <S.StopButton onClick={stopTransaction} > Stop</S.StopButton>
+                    <S.StopButton onClick={() => { resetAmount(); stopTransaction(); }} > Stop</S.StopButton>
                     <S.OkButton onClick={createTransaction} > OK</S.OkButton>
                     </S.PayBillContainer> 
                   </FocusLock>
-                </S.FocusContainer>
+                </S.FocusContainer>      
                 
-                  
-                
-            }
+
+{/*              
+  <div>
+    <div>terminalId: {terminalId}</div>
+    <div>merchantId: {merchantId}</div>
+    <div>reference: {reference}</div>
+    <div>amountToPay: {amountToPay}</div>
+    <div>amountPaid: {amountPaid}</div>
+    <div>currency: {currency}</div>
+    <div>locale: {locale}</div>
+    <div>receipt: {receipt}</div>
+    <div>status: {status}</div>
+  </div> */}
+
+              </>
+
+          }
          
         </S.ButtonModalContainer>
       

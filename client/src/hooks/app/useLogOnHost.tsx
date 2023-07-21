@@ -19,7 +19,7 @@ const useLogOnHost = () => {
       )
       setToken(response.data.accessToken);
     } catch (error) {
-      console.error('Unable to get token:', error);
+      console.error(`${import.meta.env.VITE_HOST_ID} is unable to get token:`, error);
     }
   };
 

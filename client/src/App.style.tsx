@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import * as Sv from './components/shared/stylevariables';
 
-
 export const Button = styled.button`
   font-family: 'Inter', sans-serif;
   letter-spacing: 0.02em;
@@ -32,9 +31,6 @@ export const Button = styled.button`
   }
 `;
 
-
-
-
 export const ButtonModalContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -51,41 +47,44 @@ export const ConnectMessage = styled.header<{ $init: boolean }>`
   text-align: center;
   z-index: 1000;
 `
-
-
 export const FocusContainer = styled.div`
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
+    justify-content: flex-end;
+    margin-top: 230px;
     width: 350px;
     z-index: 500;
 `
 
 export const PayBillContainer = styled.div`
+    background-color: ${Sv.lightgray};
+    border-radius: 10px;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
     align-items: center;
     padding: 30px;
     width: 300px;
-    border: 1px solid black;
 `
 
 export const InputAmount = styled.input`
     flex: 1;
+    text-align: right;
     margin: 0;
-    padding: 4px;
+    padding: 4px 14px;
     font-size: 23px;
     border-radius: 3px;
-    border: 1px solid black;
+    border: 3px solid ${Sv.gray};
   `
 
   export const AmountText = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: right;
     width: 100%;
-    height: 300px;
+    height: 60px;
     padding: 4px;
-    font-size: 23px;
+    font-size: 13px;
   `
 
  export const OkButton = styled(Button)`
@@ -97,3 +96,27 @@ export const InputAmount = styled.input`
 export const StopButton = styled(OkButton)`
     background-color: ${Sv.red}; 
 `;
+
+export const StyledLable = styled.label`
+    position: relative;
+    top: 35px;
+    left: 15px;
+    font-weight: 500;
+    font-size: 20px;
+    color: ${Sv.black};
+`
+
+export const BlinkingDot = styled.div<{ $isRunning: boolean }>`
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: ${(props) => (props.$isRunning ? Sv.green : Sv.red)};
+  border-radius: 100px;
+  margin: 20px;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
+
+  @keyframes blink {
+  50% {opacity: 0;}
+`
