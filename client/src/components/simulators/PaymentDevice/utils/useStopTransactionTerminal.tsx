@@ -1,8 +1,9 @@
-import api from '../../api';
+import { Status } from '..';
+import api from '../../../../api';
 
-const useStopTransactionHost = (accessToken: string, transactionId: string,  setIsStoppedTransaction: React.Dispatch<React.SetStateAction<boolean>> ) => {
 
 
+const useStopTransactionTerminal = (accessToken: string, transactionId: string | undefined,  setState: React.Dispatch<React.SetStateAction<Status>> ) => {
 
   const stopTransaction = async () => {
     try {
@@ -15,15 +16,14 @@ const useStopTransactionHost = (accessToken: string, transactionId: string,  set
       await api.put(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, {
         action: "STOP"
       }, config);
-      setIsStoppedTransaction(true);
+      setState(Status.STOP_TRANSACTION);
     } catch (error) {
       console.error('Unable to stop transaction:', error);
     }
   };
-
   return { stopTransaction };
 };
 
-export default useStopTransactionHost;
+export default useStopTransactionTerminal;
 
 

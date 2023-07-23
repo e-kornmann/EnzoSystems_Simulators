@@ -1,7 +1,8 @@
-import { TransactionStateType } from "../../../../hooks/terminal/types";
 import { Container, Mainline, Subline } from "./styles"
 
-type Props = Pick<TransactionStateType, 'statusCode'>;
+type Props =  {
+  statusCode: number | undefined
+}
   
 const ServerError = ({statusCode}: Props) => {
 
@@ -14,7 +15,7 @@ const ServerError = ({statusCode}: Props) => {
       subline = "Another payment was already in progres"
       break;
     default :
-      mainline = "Server error"
+      mainline = "OUT OF ORDER"
       subline = "Unable to make payment"
   }
 

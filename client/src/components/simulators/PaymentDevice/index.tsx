@@ -16,22 +16,20 @@ import Buttons from './buttons';
 import ChoosePayMethod from './displays/ChoosePayMethod';
 import Amount from './displays/Amount';
 import AppSettings from './Personalisation/AppSettings/AppSettings';
-import useLogOnTerminal from '../../../hooks/terminal/useLogOnTerminal';
-import useAcceptTransaction from '../../../hooks/terminal/useAcceptTransaction';
 import NotConnected from './displays/NotConnected';
 import ServerError from './displays/ServerError';
-import useStopTransactionTerminal from '../../../hooks/terminal/useStopTransactionTerminal';
-import { updateTransaction } from '../../../hooks/terminal/useUpdateTransaction';
-import { rejectTransaction } from '../../../hooks/terminal/useFailOrDeclineTransaction';
-
-
-
-
-
+import useLogOn from '../../../hooks/useLogOn';
+import { pinTerminalCredentials, reqBody } from './config';
+import useStopTransactionTerminal from './utils/useStopTransactionTerminal';
+import { rejectTransaction } from './utils/rejectTransaction';
+import { updateTransaction } from './utils/updateTransaction';
+import { AcceptTransactionStateType } from './types';
+import acceptTransaction from './utils/acceptTransaction';
 
 const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
 const negBalancePin = import.meta.env.VITE_NEGBALANCE;
 const cardlessSecurityPoint = import.meta.env.VITE_CARDLESS_SECURITY_POINT;
+
 
 export enum Status {
   START_UP,
@@ -49,6 +47,7 @@ export enum Status {
   CHECK_AMOUNT,
   TIMED_OUT,
   PIN_ERROR,
+  AMOUNT_ERROR,
   SUCCESS,
   STOPPED,
 }
@@ -65,14 +64,10 @@ type Props = {
 }
 
 const PaymentDevice = ({isClosed}: Props) => {
-  const [init, setInit] = useState(false);
+  const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
   const [status, setStatus] = useState(Status.START_UP);
-  const { terminalToken, logOn } = useLogOnTerminal(setStatus);
-  const { transactionState, acceptTransaction } = useAcceptTransaction(terminalToken, setStatus);
-  
-  const [ failOrDecline, setFailOrDecline] = useState('');
-
-  const { stopTransaction } = useStopTransactionTerminal(terminalToken, transactionState.transactionId, setStatus);
+  const [ transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
+  const { stopTransaction } = useStopTransactionTerminal(token, transactionState.transactionId, setStatus);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
@@ -81,50 +76,25 @@ const PaymentDevice = ({isClosed}: Props) => {
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [hideSettings, setHideSettings] = useState(true);
+  const [init, setInit] = useState(false);
+
 
   useEffect(() => {
     if (init === false) {
-      if (terminalToken === '') {
-        logOn();
-        } else {
-        setInit(true);
+      setInit(true);
+      const doLogOn = async () => {
+        const logOnSucceeded = await logOn();
+        setInit(logOnSucceeded);
+      };
+      doLogOn();
     }
     if (isClosed === true) {
       //log off
       setStatus(Status.STOPPED);
+      setInit(false);
     }
-  }
-}, [init, isClosed, logOn, terminalToken])
+  }, [init, isClosed, logOn]);
 
-useEffect(() => {
-  if (status === Status.IDLE) {
-    const intervalId = setInterval(acceptTransaction, 1000);
-    return () => clearInterval(intervalId);
-  }
-  
-}, [acceptTransaction, status, transactionState.transactionId]); 
-
-
-
-// const isUpdateTransactionWithErrorRef = useRef(false);
-
-// useEffect(() => {
-//   if (status === Status.PIN_ERROR && !isUpdateTransactionWithErrorRef.current) {
-//     isUpdateTransactionWithErrorRef.current = true;
-//     rejectTransaction();
-//   } 
-// }, [status, rejectTransaction]);
-
-
-const toggle = (waarde: string) => setFailOrDecline(waarde)
-
-
-
-
-  const logTerminalTokenAndTransactionState = React.useCallback(() => {
-    console.log(terminalToken);
-    console.log(transactionState);
-  }, [terminalToken, transactionState]); 
   
   // handle numpads and correct-button clicks
   const handleButtonClick = React.useCallback((value: string) => {
@@ -155,6 +125,8 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
     
     let waitTime: number | undefined = undefined;
     let intervalId: NodeJS.Timer | null = null;
+    let acceptTransactionStatusCode: number | undefined = undefined;
+    let updateTransactionStatusCode: number | undefined = undefined;
 
     switch (status) {
       case Status.START_UP:
@@ -170,9 +142,10 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
         setActivePayMethod(PayMethod.NONE);
         setShowBottomButtons(false);
         setPinDigits(['','','','']);
+        waitTime= 2000;
         break;
       case Status.SERVER_ERROR:
-        setDisplay(<ServerError statusCode={transactionState.statusCode}  />);
+        setDisplay(<ServerError statusCode={updateTransactionStatusCode}  />);
         waitTime = 4500;
         break;
       case Status.CHOOSE_METHOD:
@@ -216,20 +189,24 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
         waitTime = 1000;
         break;
       case Status.PIN_ERROR:
-        rejectTransaction(terminalToken, transactionState.transactionId, failOrDecline) 
-        setDisplay(<PinError currentPin={currentPin} toggle={toggle} />);
+        rejectTransaction(token, transactionState.transactionId, 'FAIL') 
+        setDisplay(<PinError actionFailureType={'FAIL'} />);
+        waitTime = 4500;
+        break;
+      case Status.AMOUNT_ERROR:
+        rejectTransaction(token, transactionState.transactionId, 'DECLINE') 
+        setDisplay(<PinError actionFailureType={'DECLINE'} />);
         waitTime = 4500;
         break;
       case Status.UPDATE_TRANSACTION:
-        updateTransaction(terminalToken, transactionState.transactionId, transactionState.amountToPay, setStatus)
         setDisplay(<OneMoment />); 
+        waitTime = 500;
         break;
       case Status.SUCCESS:
         setDisplay(<Success />);
         waitTime = 3500;
         break;
       case Status.STOPPED:
-        setInit(false);
         setStatus(Status.OUT_OF_ORDER);
         break;
     }
@@ -238,10 +215,14 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
     }
     // when in the specific state, execute this AFTER waittime
     if (waitTime) {
-      intervalId = setInterval(() => {
+      intervalId = setInterval(async () => {
         switch (status) {
           case Status.START_UP:
             init === false ? setStatus(Status.OUT_OF_ORDER) : setStatus(Status.IDLE)
+            break;
+          case Status.IDLE:
+            acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
+            (acceptTransactionStatusCode === 200) ? setStatus(Status.CHOOSE_METHOD) : null;
             break;
           case Status.CHOOSE_METHOD:
             setStatus(Status.TIMED_OUT);
@@ -286,13 +267,20 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
             case Status.CHECK_AMOUNT:
                 // You do not have enough money!
                 if (currentPin === negBalancePin) {
-                  setStatus(Status.PIN_ERROR);
+                  setStatus(Status.AMOUNT_ERROR);
               } else {
                 // other conditions.. so if pin is correct but also when payMethod = contactless
                 setStatus(Status.UPDATE_TRANSACTION);                
               }
               break;
-            case Status.PIN_ERROR:
+              case Status.UPDATE_TRANSACTION:
+              updateTransactionStatusCode = await updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setStatus);
+              (updateTransactionStatusCode === 200) ? setStatus(Status.SUCCESS) : setStatus(Status.SERVER_ERROR);
+              break;
+            case Status.PIN_ERROR || Status.AMOUNT_ERROR :
+              setStatus(Status.IDLE);
+              break;
+            case Status.AMOUNT_ERROR :
               setStatus(Status.IDLE);
               break;
             case Status.SUCCESS:
@@ -307,7 +295,7 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
         clearInterval(intervalId);
       }
     };
-  }, [activePayMethod, currentPin, failOrDecline, init, pinAttempts, status, terminalToken, transactionState.amountToPay, transactionState.statusCode, transactionState.transactionId]);
+  }, [activePayMethod, currentPin, init, pinAttempts, status, token, transactionState.amountToPay, transactionState.transactionId]);
 
   useEffect(() => {
       const timer = setInterval(() => {
@@ -319,6 +307,13 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
         clearInterval(timer);
       };
   }, []);
+
+
+
+  const logTerminalTokenAndTransactionState = React.useCallback(() => {
+    console.log(token);
+    console.log(transactionState);
+  }, [token, transactionState]); 
 
   return (
     <>
@@ -376,3 +371,4 @@ const toggle = (waarde: string) => setFailOrDecline(waarde)
 };
 
 export default PaymentDevice;
+

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import * as Sv from './components/shared/stylevariables';
 
 export const Button = styled.button`
@@ -48,8 +48,6 @@ export const ConnectMessage = styled.header<{ $init: boolean }>`
   z-index: 1000;
 `
 export const FocusContainer = styled.div`
-    display: flex;
-    justify-content: flex-end;
     margin-top: 230px;
     width: 350px;
     z-index: 500;
@@ -106,17 +104,42 @@ export const StyledLable = styled.label`
     color: ${Sv.black};
 `
 
-export const BlinkingDot = styled.div<{ $isRunning: boolean }>`
-  position: absolute;
+const blinkAnimation = keyframes`
+  70%, 100% {
+    opacity: 1;
+
+  }
+  30% {
+    opacity: 0;
+  }
+`;
+
+export const StatusText = styled.div`
+  position: relative;
+  top: 40px;
+  right: 2px;
+  font-size: 0.8em;
+  float: right;
+  width: 100px;
+  height: 20px;
+`
+
+export const BlinkingDot = styled(StatusText)<{ $isActive: boolean }>`
+  position: relative;
+  top: 21px;
+  right: 60px;
   width: 10px;
   height: 10px;
-  background-color: ${(props) => (props.$isRunning ? Sv.green : Sv.red)};
+  background-color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
   border-radius: 100px;
   margin: 20px;
-  animation-name: blink;
+  animation-name: ${blinkAnimation};
   animation-duration: 0.5s;
   animation-iteration-count: infinite;
-
-  @keyframes blink {
-  50% {opacity: 0;}
+  }
 `
+
+
+
+
+

@@ -1,8 +1,8 @@
-import api from '../../api';
-import { Status } from '../../components/simulators/PaymentDevice';
+import axios from "axios";
+import { Status } from "..";
+import api from "../../../../api";
 
-
-  export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
+export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
     try {
       const config = {
         headers: {
@@ -10,7 +10,7 @@ import { Status } from '../../components/simulators/PaymentDevice';
           authorization: `Bearer ${accessToken}`,
         },
       };
-        await api.put(
+        const response = await api.put(
         `/${import.meta.env.VITE_MERCHANT_ID}/${
           import.meta.env.VITE_TERMINAL_ID
         }/transactions/${transactionId}`,
@@ -22,10 +22,16 @@ import { Status } from '../../components/simulators/PaymentDevice';
         },
         config
       );
-      setStatus(Status.SUCCESS);
+      return response.status
     } catch (error) {
       setStatus(Status.SERVER_ERROR);
+
+      if (axios.isAxiosError(error)) {
+        return error.response?.status;
+      }
       console.error('Unable to make payment:', error);
+      return undefined;
+      
     }
   };
 

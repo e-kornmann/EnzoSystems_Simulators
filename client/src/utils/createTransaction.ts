@@ -1,11 +1,7 @@
-import { useState } from 'react';
-import api from '../../api';
 
+import api from '../api';
 
-const useCreateTransaction = (accessToken: string, amountToAsk: string, setIsStoppedTransaction: React.Dispatch<React.SetStateAction<boolean>>) => {
-
-  const [transactionIdApp, setTransactionIdApp] = useState('');
-  const createTransaction = async () => {
+  const createTransaction = async (accessToken: string, amountToAsk: string, setTransactionIdApp: React.Dispatch<React.SetStateAction<string>>) => {
     try {
       const config = {
         headers: {
@@ -20,15 +16,13 @@ const useCreateTransaction = (accessToken: string, amountToAsk: string, setIsSto
         reference: "abcdefg"
       }, config);
       setTransactionIdApp(response.data.transactionId);
-      setIsStoppedTransaction(false);
     } catch (error) {
+      setTransactionIdApp('');
       console.error('Unable to create transaction:', error);
     }
   };
 
-  return { transactionIdApp, createTransaction };
-};
 
-export default useCreateTransaction;
+export default createTransaction;
 
 

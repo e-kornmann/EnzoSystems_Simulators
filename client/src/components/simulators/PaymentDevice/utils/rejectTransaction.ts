@@ -1,4 +1,5 @@
-import api from '../../api';
+import api from "../../../../api";
+
 
    export const rejectTransaction = async (accessToken: string, transactionId: string, failOrDecline: string) => {
     try {
