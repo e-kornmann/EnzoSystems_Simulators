@@ -1,5 +1,5 @@
 import * as S from './styles';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
 import OneMoment from './displays/OneMoment';
@@ -19,17 +19,14 @@ import AppSettings from './Personalisation/AppSettings/AppSettings';
 import NotConnected from './displays/NotConnected';
 import ServerError from './displays/ServerError';
 import useLogOn from '../../../hooks/useLogOn';
-import { pinTerminalCredentials, reqBody } from './config';
+import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './config';
 import useStopTransactionTerminal from './utils/useStopTransactionTerminal';
 import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
 import { AcceptTransactionStateType } from './types';
 import acceptTransaction from './utils/acceptTransaction';
-
-const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
-const negBalancePin = import.meta.env.VITE_NEGBALANCE;
-const cardlessSecurityPoint = import.meta.env.VITE_CARDLESS_SECURITY_POINT;
-
+import useGetTransaction from './utils/useGetTransaction';
+import { intitialSettingState, settingsReducer } from './utils/settingsReducer';
 
 export enum Status {
   START_UP,
@@ -59,15 +56,13 @@ export enum PayMethod {
   CARD,
 }
 
-type Props = {
-  isClosed: boolean;
-}
 
-const PaymentDevice = ({isClosed}: Props) => {
+const PaymentDevice = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
   const [status, setStatus] = useState(Status.START_UP);
   const [ transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
-  const { stopTransaction } = useStopTransactionTerminal(token, transactionState.transactionId, setStatus);
+  const { transactionDetails, getTransaction } = useGetTransaction(token, transactionState.transactionId);
+  const { stopTransaction } = useStopTransactionTerminal(token, transactionState.transactionId);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
@@ -77,7 +72,7 @@ const PaymentDevice = ({isClosed}: Props) => {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [hideSettings, setHideSettings] = useState(true);
   const [init, setInit] = useState(false);
-
+  const [state, dispatch] = useReducer(settingsReducer, intitialSettingState);
 
   useEffect(() => {
     if (init === false) {
@@ -88,14 +83,27 @@ const PaymentDevice = ({isClosed}: Props) => {
       };
       doLogOn();
     }
-    if (isClosed === true) {
-      //log off
-      setStatus(Status.STOPPED);
-      setInit(false);
-    }
-  }, [init, isClosed, logOn]);
+  }, [init, logOn]);
 
-  
+// Fetch transaction details at regular intervals (1 second) if the status is not idle, and
+// check if the transaction status is 'STOPPED' for the following useEffect below;
+  useEffect(() => {
+    if (status !== Status.IDLE) {
+      const interval = setInterval(() => {
+      getTransaction();
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [status, getTransaction]);
+
+  useEffect(() => {
+    if (transactionDetails.status === 'STOPPED') {
+      setStatus(Status.STOP_TRANSACTION);
+    }
+  }, [transactionDetails.status]);
+
   // handle numpads and correct-button clicks
   const handleButtonClick = React.useCallback((value: string) => {
     if (value === 'correct-button') { 
@@ -142,7 +150,7 @@ const PaymentDevice = ({isClosed}: Props) => {
         setActivePayMethod(PayMethod.NONE);
         setShowBottomButtons(false);
         setPinDigits(['','','','']);
-        waitTime= 2000;
+        waitTime= 1000;
         break;
       case Status.SERVER_ERROR:
         setDisplay(<ServerError statusCode={updateTransactionStatusCode}  />);
@@ -151,7 +159,7 @@ const PaymentDevice = ({isClosed}: Props) => {
       case Status.CHOOSE_METHOD:
         setShowBottomButtons(true);
         setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
-        waitTime = 12000;  
+        waitTime = 15000;  
         break;
       case Status.ACTIVE_METHOD:
         setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
@@ -235,11 +243,13 @@ const PaymentDevice = ({isClosed}: Props) => {
             }
             break;
           case Status.STOP_TRANSACTION:
-             setStatus(Status.IDLE);
-             break;
+            stopTransaction();
+            setStatus(Status.IDLE);
+            break;
           case Status.SERVER_ERROR:
-              setStatus(Status.IDLE);
-              break;  
+            stopTransaction();
+            setStatus(Status.IDLE);
+            break;  
           case Status.WAITING:
             setStatus(Status.TIMED_OUT);
             break;
@@ -247,6 +257,7 @@ const PaymentDevice = ({isClosed}: Props) => {
             setStatus(Status.TIMED_OUT);
             break;
           case Status.TIMED_OUT:
+            stopTransaction();
             setStatus(Status.IDLE);
             break;
           case Status.WRONG_PIN:
@@ -273,7 +284,7 @@ const PaymentDevice = ({isClosed}: Props) => {
                 setStatus(Status.UPDATE_TRANSACTION);                
               }
               break;
-              case Status.UPDATE_TRANSACTION:
+            case Status.UPDATE_TRANSACTION:
               updateTransactionStatusCode = await updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setStatus);
               (updateTransactionStatusCode === 200) ? setStatus(Status.SUCCESS) : setStatus(Status.SERVER_ERROR);
               break;
@@ -295,7 +306,7 @@ const PaymentDevice = ({isClosed}: Props) => {
         clearInterval(intervalId);
       }
     };
-  }, [activePayMethod, currentPin, init, pinAttempts, status, token, transactionState.amountToPay, transactionState.transactionId]);
+  }, [activePayMethod, currentPin, init, pinAttempts, status, stopTransaction, token, transactionState.amountToPay, transactionState.transactionId]);
 
   useEffect(() => {
       const timer = setInterval(() => {
@@ -308,8 +319,6 @@ const PaymentDevice = ({isClosed}: Props) => {
       };
   }, []);
 
-
-
   const logTerminalTokenAndTransactionState = React.useCallback(() => {
     console.log(token);
     console.log(transactionState);
@@ -317,7 +326,7 @@ const PaymentDevice = ({isClosed}: Props) => {
 
   return (
     <>
-      <AppSettings hide={hideSettings} onHide={settingsButtonHandler} />
+      <AppSettings hide={hideSettings} onHide={settingsButtonHandler} state={state} dispatch={dispatch}/>
       <S.Container>
         <S.Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</S.Header>
         <S.TimeRibbon>

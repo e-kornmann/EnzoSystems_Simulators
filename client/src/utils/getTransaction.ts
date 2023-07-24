@@ -27,7 +27,8 @@ export const initialReceipt: GetTransactionDetails = {
           authorization: `Bearer ${accessToken}`,
         }
       };
-      const response = await api.get(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionIdApp}`, config);
+      await api.get(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionIdApp}`, config)
+      .then( response => {
        setTransactionDetails({
         terminalId: response.data.terminalId,
         merchantId: response.data.merchantId,
@@ -39,8 +40,7 @@ export const initialReceipt: GetTransactionDetails = {
         receipt: response.data.receipt,
         status: response.data.status}
         );
-      
-
+       })
     } catch (error) {
         console.error('Unable to get transaction:', error);
     }

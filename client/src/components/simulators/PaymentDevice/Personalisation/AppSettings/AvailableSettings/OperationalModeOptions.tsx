@@ -1,33 +1,27 @@
-import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow.svg';
+import { OperationalModeOptionsStates, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 
 
-const OperationalModeOptions = () => {
 
-
+const OperationalModeOptions = ({ state, dispatch }: StateDispatchProps) => {
+  const onChangeEventHandler = (mode: OperationalModeOptionsStates) => {
+    dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: mode });
+  };
 
   return (
     <List>
-      <Button>
-        Normal
-        <Arrow />
-      </Button>
-      <Button>
-        Always succeed
-        <Arrow />
-      </Button>
-      <Button>
-        Always fail
-        <Arrow />
-      </Button>
-      <Button>
-        First fail
-        <Arrow />
-      </Button>
-      <Button>
-        First fail, then succeed
-        <Arrow />
-      </Button>
+      {Object.values(OperationalModeOptionsStates).map((mode) => (
+        <Button key={mode} onClick={() => onChangeEventHandler(mode)}>
+          {mode}
+          <input
+            type="radio"
+            id={mode}
+            name="currencies"
+            checked={state.operationalModeOption === mode}
+            onChange={() => onChangeEventHandler(mode)}
+          />
+        </Button>
+      ))}
     </List>
   );
 };

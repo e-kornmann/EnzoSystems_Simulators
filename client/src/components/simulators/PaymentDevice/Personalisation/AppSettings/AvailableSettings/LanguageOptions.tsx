@@ -1,13 +1,27 @@
-
-import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow.svg';
+import { LanguageOptionsStates, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 
-const LanguageOptions = () => 
+const LanguageOptions = ({ state, dispatch }: StateDispatchProps) => {
+  const onChangeEventHandler = (mode: LanguageOptionsStates) => {
+    dispatch({ type: SettingModes.LANGUAGE, payload: mode });
+  };
 
-<List>
-  <Button>Dutch<Arrow/></Button>
-  <Button>English<Arrow/></Button>
-  <Button>Chalcatongo<Arrow/></Button>
-</List>
+  return (
+    <List>
+      {Object.values(LanguageOptionsStates).map((language) => (
+        <Button key={language} onClick={() => onChangeEventHandler(language)}>
+          {language}
+          <input
+            type="radio"
+            id={language}
+            name="languages"
+            checked={state.language === language}
+            onChange={() => onChangeEventHandler(language)}
+          />
+        </Button>
+      ))}
+    </List>
+  );
+};
 
 export default LanguageOptions;

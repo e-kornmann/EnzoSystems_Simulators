@@ -1,8 +1,9 @@
 
 
 import { ReactComponent as Arrow } from '../../../../../assets/svgs/arrow.svg';
+import { SettingModes } from '../../utils/settingsReducer';
 import { Button, List } from "../style";
-import { SettingModes } from './AppSettings';
+
 
 type Props = {
   menuToggler: (listItem: SettingModes) => void;

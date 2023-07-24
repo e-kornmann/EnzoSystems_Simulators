@@ -10,30 +10,24 @@ import CurrencyOptions from "./AvailableSettings/CurrencyOptions";
 import LanguageOptions from "./AvailableSettings/LanguageOptions";
 import PinOptions from "./AvailableSettings/PinOptions";
 import SchemeOptions from "./AvailableSettings/SchemeOptions";
+import { AllAppSettings, SettingModes, SettingsAction } from "../../utils/settingsReducer";
 
 
-export enum SettingModes {
-  SETTINGS,
-  OPERATIONAL_MODE,
-  CURRENCY,
-  LANGUAGE,
-  ASK_FOR_PIN,
-  SCHEMES,
-}
 
 type Props = {
   hide: boolean;
   onHide: () => void;
+  state: AllAppSettings; 
+  dispatch: React.Dispatch<SettingsAction>
 };
-const AppSettings = ({ hide, onHide }: Props) => {
+
+
+const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
   
   const menuToggler = (listItem: SettingModes) => setSettingMode(listItem);
   const [buttons, setButtons] = useState(<></>);
   const [settingMode, setSettingMode] = useState(SettingModes.SETTINGS);
   const [heading, setHeading] = useState('Settings');  
-  
-  
-
 
   useEffect(() => {
     switch(settingMode) {
@@ -43,19 +37,19 @@ const AppSettings = ({ hide, onHide }: Props) => {
       break;
     case SettingModes.OPERATIONAL_MODE:
       setHeading('Operational Mode');
-      setButtons(<OperationalModeOptions/>)
+      setButtons(<OperationalModeOptions state={state} dispatch={dispatch} />)
       break;
     case SettingModes.CURRENCY:
       setHeading('Currency');
-      setButtons(<CurrencyOptions/>)
+      setButtons(<CurrencyOptions state={state} dispatch={dispatch} />)
       break;
     case SettingModes.LANGUAGE:
       setHeading('Default Language');
-      setButtons(<LanguageOptions/>)
+      setButtons(<LanguageOptions state={state} dispatch={dispatch}/>)
       break;
     case SettingModes.ASK_FOR_PIN:
       setHeading('Ask for PIN');
-      setButtons(<PinOptions/>)
+      setButtons(<PinOptions state={state} dispatch={dispatch}/>)
       break;
     case SettingModes.SCHEMES:
       setHeading('Supported Schemes');
@@ -65,7 +59,7 @@ const AppSettings = ({ hide, onHide }: Props) => {
       null;
     break;
   } 
-  }, [settingMode])
+  }, [dispatch, settingMode, state])
 
 return (
 <>

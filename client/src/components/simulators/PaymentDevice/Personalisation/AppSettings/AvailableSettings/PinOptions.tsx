@@ -1,12 +1,24 @@
 
 import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow.svg';
+import { StateDispatchProps } from '../../../utils/settingsReducer';
+
 import { Button, List } from "../../style";
 
-const PinOptions = () => 
+const PinOptions = ({ state }: StateDispatchProps) => {
+
+
+return (
 
 <List>
-  <Button>YES<Arrow/></Button>
-  <Button>NO<Arrow/></Button>
+  <Button>YES {state.currency}<Arrow/></Button>
+  <Button>NO {state.operationalModeOption}<Arrow/></Button>
 </List>
 
+)
+
+}
 export default PinOptions;
+
+
+
+

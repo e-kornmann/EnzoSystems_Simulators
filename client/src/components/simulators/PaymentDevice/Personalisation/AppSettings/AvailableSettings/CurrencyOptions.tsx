@@ -1,14 +1,36 @@
 
-import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow.svg';
+import { CurrencyCode } from '../../../../../../types/CurrencyTypes';
+import { SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 
-const CurrencyOptions = () => 
+const CurrencyOptions = ({ state, dispatch }: StateDispatchProps) => {
 
-<List>
-  <Button>EUR<Arrow/></Button>
-  <Button>DOLLAR<Arrow/></Button>
-  <Button>YAP<Arrow/></Button>
-  <Button>PASETOS<Arrow/></Button>
-</List>
+  const currencies = [
+    CurrencyCode.EUR, 
+    CurrencyCode.USD,
+    CurrencyCode.GBP,
+    CurrencyCode.CHF
+  ];
 
+  const onChangeEventHandler = (currency: CurrencyCode) => {
+    dispatch({ type: SettingModes.CURRENCY, payload: currency });
+  };
+
+  return (
+    <List>
+      {currencies.map((currency) => (
+        <Button key={currency} onClick={() => onChangeEventHandler(currency)}>
+          {currency}
+          <input
+            type="radio"
+            id={currency}
+            name="currencies"
+            checked={state.currency === currency}
+            onChange={() => onChangeEventHandler(currency)}
+          />
+        </Button>
+      ))}
+    </List>
+  )
+}
 export default CurrencyOptions;

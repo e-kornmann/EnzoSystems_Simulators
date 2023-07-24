@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PaymentDevice from './components/simulators/PaymentDevice';
 import FocusLock from "react-focus-lock";
 import OtherDevice from './components/simulators/OtherDevice';
@@ -15,6 +15,7 @@ import stopTransaction from './utils/stopTransactionHost';
 import { hostCredentials, reqBody } from './config';
 
 function App() {
+  const [init, setInit] = useState(false);
   const { isShown, toggle } = useModal();
   const { token, logOn } = useLogOn(hostCredentials, reqBody);
   const [ amountToAsk, setAmountToAsk ] = useState('0');
@@ -23,11 +24,13 @@ function App() {
   const [transactionDetails, setTransactionDetails] = useState<GetTransactionDetails>(initialReceipt);
   
 
-  // const { terminalId, merchantId, reference, amountToPay, amountPaid, currency, locale, receipt, status } = transactionDetails    
+  
+  const [simulators, setSimulators] = useState({
+    paymentDevice: false,
+    otherDevice: false,
+  });
 
   
-  const [init, setInit] = useState(false);
-
   useEffect(() => {
     if (init === false) {
       const doLogOn = async () => {
@@ -69,14 +72,11 @@ function App() {
     }
   }, [isActive, transactionDetails, transactionIdApp]);
 
-
-
-
-  const [simulators, setSimulators] = useState({
-    paymentDevice: false,
-    otherDevice: false,
-  });
-
+  useEffect(()=> {
+    if  (!simulators.paymentDevice && !isShown) {
+      stopTransaction(token, transactionIdApp, setIsActive, reset)
+    }
+  }, [init, isShown, simulators.paymentDevice, token, transactionIdApp])
 
   const reset = () => {
     setAmountToAsk('');
@@ -85,9 +85,7 @@ function App() {
   };
 
 
-
-
-  const showSimulatorHandler = (simulator: string) => {
+const showSimulatorHandler = useCallback((simulator: string) => {
     setSimulators((prevSimulators) => ({
       ...Object.keys(prevSimulators).reduce((acc, key) => {
         return {
@@ -97,15 +95,22 @@ function App() {
       }, {} as { paymentDevice: boolean; otherDevice: boolean }), // Specify the return type
     }));
     toggle();
-  };
+  }, [toggle]);
+
+
+  const closeModelHandler = useCallback(() => {
+    if (simulators.paymentDevice) { 
+      showSimulatorHandler('paymentDevice'); 
+      stopTransaction(token, transactionIdApp, setIsActive, reset) 
+    } else {
+      showSimulatorHandler('otherDevice')
+    }
+  }, [simulators.paymentDevice, showSimulatorHandler, token, transactionIdApp]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAmountToAsk(e.target.value);
   }
 
-  console.log(isActive);
-   console.log(transactionDetails);
-   console.log(`this is : ${transactionIdApp}`)
    const transIdMessage = isActive ? `${transactionIdApp}` : null;    
   
    return (
@@ -133,22 +138,7 @@ function App() {
                     </S.PayBillContainer> 
                   </FocusLock>
                 </S.FocusContainer>      
-                
-
-{/*              
-  <div>
-    <div>terminalId: {terminalId}</div>
-    <div>merchantId: {merchantId}</div>
-    <div>reference: {reference}</div>
-    <div>amountToPay: {amountToPay}</div>
-    <div>amountPaid: {amountPaid}</div>
-    <div>currency: {currency}</div>
-    <div>locale: {locale}</div>
-    <div>receipt: {receipt}</div>
-    <div>status: {status}</div>
-  </div> */}
-
-              </>
+             </>
 
           }
          
@@ -157,9 +147,9 @@ function App() {
 
         <DraggableModal
          isShown={isShown}
-         hide={toggle}
+         hide={closeModelHandler}
          headerText={simulators.paymentDevice ? "Payment Device" : "Other Device"}
-         modalContent={simulators.paymentDevice ? <PaymentDevice isClosed={!simulators.paymentDevice} /> :  <OtherDevice /> }
+         modalContent={simulators.paymentDevice ? <PaymentDevice /> :  <OtherDevice /> }
          identifier={simulators.paymentDevice ? "Payment Device" : "Other Device"}
         />
        </DndContext>

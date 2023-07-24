@@ -78,11 +78,11 @@ export const InputAmount = styled.input`
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: right;
+    text-align: center;
     width: 100%;
     height: 60px;
     padding: 4px;
-    font-size: 13px;
+    font-size: 11px;
   `
 
  export const OkButton = styled(Button)`

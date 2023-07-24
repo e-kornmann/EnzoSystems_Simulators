@@ -10,12 +10,13 @@ import api from '../api';
           authorization: `Bearer ${accessToken}`,
         }
       };
-      const response = await api.put(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, {
+      await api.put(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, {
         action: "STOP"
-      }, config);
-      console.log(response);
-      reset();
-      setIsActive(false);
+      }, config)
+      .then(() => {
+        reset();
+        setIsActive(false);
+      })
     } catch (error) {
       console.error('Unable to stop transaction:', error);
     }

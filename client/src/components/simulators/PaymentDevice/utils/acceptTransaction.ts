@@ -2,7 +2,7 @@ import api from '../../../../api';
 import axios from 'axios';
 import { AcceptTransactionStateType } from '../types';
 
-const acceptTransaction = async (
+const acceptTransaction = async(
   token: string,
   setTransactionState: React.Dispatch<
     React.SetStateAction<AcceptTransactionStateType>
@@ -36,6 +36,6 @@ const acceptTransaction = async (
     console.error('Unable to accept transaction:', error);
     return undefined;
   }
-};
+}
 
 export default acceptTransaction;
