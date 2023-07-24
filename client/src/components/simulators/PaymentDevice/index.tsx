@@ -76,8 +76,7 @@ const PaymentDevice = () => {
 
   useEffect(() => {
     if (init === false) {
-      setInit(true);
-      const doLogOn = async () => {
+       const doLogOn = async () => {
         const logOnSucceeded = await logOn();
         setInit(logOnSucceeded);
       };
@@ -171,6 +170,7 @@ const PaymentDevice = () => {
         waitTime = 7000;  
         break;
       case Status.STOP_TRANSACTION:
+        setShowBottomButtons(false);
         setDisplay(<Cancel />);
         waitTime = 4500;
         break;

@@ -23,14 +23,11 @@ function App() {
   const [ transactionIdApp, setTransactionIdApp ] = useState('');
   const [transactionDetails, setTransactionDetails] = useState<GetTransactionDetails>(initialReceipt);
   
-
-  
   const [simulators, setSimulators] = useState({
     paymentDevice: false,
     otherDevice: false,
   });
 
-  
   useEffect(() => {
     if (init === false) {
       const doLogOn = async () => {
@@ -41,7 +38,6 @@ function App() {
     }
   }, [logOn, init]);
 
-  
   useEffect(() => {
     if (transactionIdApp !== '' && token !== '') {
       const interval = setInterval(() => {

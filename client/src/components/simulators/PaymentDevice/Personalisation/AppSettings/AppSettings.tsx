@@ -33,15 +33,15 @@ const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
     switch(settingMode) {
     case SettingModes.SETTINGS:
       setHeading('Settings');
-      setButtons(<SettingsList menuToggler={menuToggler} />);
+      setButtons(<SettingsList menuToggler={menuToggler}/>);
       break;
     case SettingModes.OPERATIONAL_MODE:
       setHeading('Operational Mode');
-      setButtons(<OperationalModeOptions state={state} dispatch={dispatch} />)
+      setButtons(<OperationalModeOptions state={state} dispatch={dispatch}/>)
       break;
     case SettingModes.CURRENCY:
       setHeading('Currency');
-      setButtons(<CurrencyOptions state={state} dispatch={dispatch} />)
+      setButtons(<CurrencyOptions state={state} dispatch={dispatch}/>)
       break;
     case SettingModes.LANGUAGE:
       setHeading('Default Language');
@@ -53,7 +53,7 @@ const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
       break;
     case SettingModes.SCHEMES:
       setHeading('Supported Schemes');
-      setButtons(<SchemeOptions/>)
+      setButtons(<SchemeOptions state={state} dispatch={dispatch}/>)
       break;
     default :
       null;

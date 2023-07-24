@@ -1,7 +1,20 @@
-// settingsReducer.ts
-
 import { Reducer } from "react";
 import { CurrencyCode } from "../../../../types/CurrencyTypes";
+
+
+export type StateDispatchProps = {
+  state: AllAppSettings; 
+  dispatch: React.Dispatch<SettingsAction>;
+}
+
+export enum SettingModes {
+  SETTINGS,
+  OPERATIONAL_MODE,
+  CURRENCY,
+  LANGUAGE,
+  ASK_FOR_PIN,
+  SCHEMES,
+}
 
 export enum OperationalModeOptionsStates {
   NORMAL = 'Normal',
@@ -17,30 +30,25 @@ export enum LanguageOptionsStates {
   CHALCATONGO = 'Chalcatongo',
 }
 
-export type StateDispatchProps = {
-  state: AllAppSettings; 
-  dispatch: React.Dispatch<SettingsAction>
-  }
-  
-export enum SettingModes {
-  SETTINGS,
-  OPERATIONAL_MODE,
-  CURRENCY,
-  LANGUAGE,
-  ASK_FOR_PIN,
-  SCHEMES,
+export enum SupportedSchemesType {
+  THIS_SCHEME = 'This scheme',
+  THAT_SCHEME = 'That scheme',
 }
 
 export type AllAppSettings = {
   operationalModeOption: OperationalModeOptionsStates;
   currency: CurrencyCode;
   language: LanguageOptionsStates;
+  askForPin: boolean;
+  supportedSchemes: SupportedSchemesType[];
 };
 
 export const intitialSettingState: AllAppSettings = {
   operationalModeOption: OperationalModeOptionsStates.NORMAL,
   currency: CurrencyCode.EUR,
   language: LanguageOptionsStates.DUTCH,
+  askForPin: true,
+  supportedSchemes: [SupportedSchemesType.THIS_SCHEME],
 };
 
 type OperationaModeActionType = {
@@ -58,12 +66,27 @@ type LanguageActionType = {
   payload: LanguageOptionsStates; 
 };
 
-export type SettingsAction = 
-  OperationaModeActionType | 
-  CurrencyActionType |
-  LanguageActionType;
+type AskForPinActionType = {
+  type: SettingModes.ASK_FOR_PIN;
+  payload: boolean; 
+};
 
-export const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, action) => {
+type SupportedSchemesActionType = {
+  type: SettingModes.SCHEMES;
+  payload: SupportedSchemesType[]; 
+};
+
+export type SettingsAction =
+  | OperationaModeActionType
+  | CurrencyActionType
+  | LanguageActionType
+  | AskForPinActionType
+  | SupportedSchemesActionType;
+
+export const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (
+  state,
+  action
+) => {
   switch (action.type) {
     case SettingModes.OPERATIONAL_MODE:
       return {
@@ -76,10 +99,20 @@ export const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, 
         currency: action.payload,
       };
     case SettingModes.LANGUAGE:
-        return {
-          ...state,
-          language: action.payload,
-        };
+      return {
+        ...state,
+        language: action.payload,
+      };
+    case SettingModes.ASK_FOR_PIN:
+      return {
+        ...state,
+        askForPin: action.payload,
+      };
+    case SettingModes.SCHEMES:
+      return {
+        ...state,
+        supportedSchemes: action.payload,
+      };
     default:
       return state;
   }

@@ -10,7 +10,7 @@ export const Button = styled.button`
   border: 2px solid ${Sv.black};
   border-radius: 5px;
   min-width: 230px;
-  max-width: 400px;
+  max-width: 305px;
   padding: 10px 0px;
   cursor: pointer;
   transition: all 0, 1s ease-in;
