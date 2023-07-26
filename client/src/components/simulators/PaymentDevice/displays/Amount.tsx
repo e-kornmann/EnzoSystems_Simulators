@@ -1,6 +1,6 @@
 
 import styled from 'styled-components';
-import PriceFormatter from '../../../shared/priceformatter'
+import PriceFormatter from '../../../../utils/priceFormatter'
 import FailureIcon from '../../../shared/svgcomponents/Fail';
 import {  Container, Mainline, Subline, SublineBottom } from './styles'
 import { Status } from '..';

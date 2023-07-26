@@ -1,7 +1,8 @@
-
 import { CurrencyCode } from '../../../../../../types/CurrencyTypes';
 import { SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
+import Checkmark from './checkmark';
+
 
 const CurrencyOptions = ({ state, dispatch }: StateDispatchProps) => {
 
@@ -21,13 +22,7 @@ const CurrencyOptions = ({ state, dispatch }: StateDispatchProps) => {
       {currencies.map((currency) => (
         <Button key={currency} onClick={() => onChangeEventHandler(currency)}>
           {currency}
-          <input
-            type="radio"
-            id={currency}
-            name="currencies"
-            checked={state.currency === currency}
-            onChange={() => onChangeEventHandler(currency)}
-          />
+          <Checkmark isDisplayed={state.currency === currency }/> 
         </Button>
       ))}
     </List>

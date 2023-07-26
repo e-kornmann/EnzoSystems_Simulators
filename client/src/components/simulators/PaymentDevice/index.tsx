@@ -27,8 +27,7 @@ import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from './utils/useGetTransaction';
 import { intitialSettingState, settingsReducer } from './utils/settingsReducer';
 import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
-import PayProvider from '../../shared/svgcomponents/PayProviders/PayProvider';
-
+import PayProvider from '../../shared/svgcomponents/PayProvider';
 
 export enum Status {
   START_UP,
@@ -58,7 +57,6 @@ export enum PayMethod {
   CARD,
 }
 
-
 const PaymentDevice = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
   const [status, setStatus] = useState(Status.START_UP);
@@ -87,10 +85,11 @@ const PaymentDevice = () => {
     }
   }, [init, logOn]);
 
-// Fetch transaction details at regular intervals (1 second) if the status is not idle, and
-// check if the transaction status is 'STOPPED' for the following useEffect below;
+
+  // Fetch transaction details at regular intervals (1 second) if the status is not idle, and
+  // check if the transaction status is 'STOPPED' for the following useEffect below;
   useEffect(() => {
-    if (status !== Status.IDLE) {
+    if (status !== Status.IDLE && status !== Status.START_UP) {
       const interval = setInterval(() => {
       getTransaction();
       }, 1000);
@@ -225,7 +224,7 @@ const PaymentDevice = () => {
     if (intervalId) {
       clearInterval(intervalId);
     }
-    // when in the specific state, execute this AFTER waittime
+    // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
     if (waitTime) {
       intervalId = setInterval(async () => {
         switch (status) {

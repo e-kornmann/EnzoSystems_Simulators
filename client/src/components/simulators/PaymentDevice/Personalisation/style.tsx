@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import * as Sv from "../../../shared/stylevariables";
+import * as Sv from "../../../../styles/stylevariables";
 import { Header } from "../styles";
 
 export const IconContainer = styled.div`
@@ -30,7 +30,7 @@ export const SettingHeader = styled(Header)`
 
 export const List = styled.div`
   grid-row: 2 / 7;
-  background-color: #F7F7F7;
+  background-color: ${Sv.lightgray};
   padding: 2px 0;
   display: flex;
   flex-direction: column;
@@ -40,28 +40,21 @@ export const List = styled.div`
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: overlay;
   &::-webkit-scrollbar {
-      width: 1.5rem;
-      -webkit-appearance: none;
+      background: transparent; 
+      width: 0.35rem;
   }
-  
-  
   &::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-    width: 1.2rem;
+    width: 0.35rem;
   }
-   
-  
   &::-webkit-scrollbar-thumb {
-    background: #888; 
+    background: ${Sv.gray}; 
+    border-radius: 5px;
   }
-  
-  
   &::-webkit-scrollbar-thumb:hover {
-    background: #555; 
+    background: ${Sv.asphalt}; 
   };
-  
 `;
 
 export const Button = styled.button`
@@ -80,9 +73,11 @@ export const Button = styled.button`
   }
 `;
 
-
 export const Wrap = styled.div`
     display: flex;
     align-items: center;
     column-gap: 10px;
     `
+
+
+

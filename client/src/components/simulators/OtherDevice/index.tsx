@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import * as Sv from '../../shared/stylevariables';
+import * as Sv from '../../../styles/stylevariables';
 
 const Container = styled.main`
 background-color: white;

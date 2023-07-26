@@ -1,7 +1,7 @@
 
 // import { ReactComponent as SuccessIcon } from '../../../../assets/svgs/success.svg';
 import styled from "styled-components";
-import * as Sv from "../../../shared/stylevariables";
+import * as Sv from "../../../../styles/stylevariables";
 import { PayMethod, Status } from "..";
 import { ReactComponent as PhoneIcon } from '../../../../assets/svgs/phone.svg';
 import { ReactComponent as ChipIcon } from '../../../../assets/svgs/chip.svg';

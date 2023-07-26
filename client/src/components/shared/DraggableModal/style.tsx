@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import * as Sv from '../stylevariables';
+import * as Sv from '../../../styles/stylevariables';
 
 type Props = { 
 	$grabbing: boolean;

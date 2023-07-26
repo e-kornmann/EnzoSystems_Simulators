@@ -1,6 +1,8 @@
-import PayProvider from '../../../../../shared/svgcomponents/PayProviders/PayProvider';
+import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
 import { SettingModes, StateDispatchProps, SupportedSchemesType, } from '../../../utils/settingsReducer';
 import { Button, List, Wrap } from "../../style";
+import '../../customradiobuttons.css'
+import Checkmark from './checkmark';
 
 const SchemeOptions = ({ state, dispatch }: StateDispatchProps) => {
   const isSchemeSelected = (scheme: SupportedSchemesType) => {
@@ -20,18 +22,12 @@ const SchemeOptions = ({ state, dispatch }: StateDispatchProps) => {
 
   return (
     <List>
-       {Object.values(SupportedSchemesType).map(scheme => (
-      <Button key={scheme} onClick={() => toggleScheme(scheme)}>
-         <Wrap><PayProvider width={48} height={28} provider={scheme} />{scheme}</Wrap>
-        <input
-          type="checkbox"
-          id={`${scheme}-supported`}
-          name="supported-schemes"
-          checked={isSchemeSelected(scheme)}
-          onChange={() => toggleScheme(scheme)}
-        />
-      </Button>
-         ))}
+      {Object.values(SupportedSchemesType).map(scheme => (
+        <Button key={scheme} onClick={() => toggleScheme(scheme)}>
+          <Wrap><PayProvider width={48} height={28} provider={scheme} />{scheme}</Wrap>
+          <Checkmark isDisplayed={isSchemeSelected(scheme)}/> 
+        </Button>
+      ))}
     </List>
   );
 };

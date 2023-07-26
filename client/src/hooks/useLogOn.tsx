@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import api from '../api';
 import { CredentialType, ReqLogOnType } from '../types/LogOnTypes';
 
 const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType ) => {
   const [token, setToken] = useState('');
 
-  const logOn = useCallback(async () => {
+  const logOn = async () => {
     try {
        const authCredentials = btoa(`${credentials.userName}:${credentials.passWord}`)
        const config = {
@@ -21,7 +21,7 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType ) => {
       console.error(`${reqBody.hostId ? reqBody.hostId : reqBody.terminalId} is unable to get token:`, error);
       return false;
     }
-  },[credentials.passWord, credentials.userName, reqBody]);
+  }
 
   return { token, logOn };
 };

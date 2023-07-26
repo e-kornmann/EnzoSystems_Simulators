@@ -1,5 +1,6 @@
 import { OperationalModeOptionsStatesType, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
+import Checkmark from './checkmark';
 
 
 
@@ -10,16 +11,10 @@ const OperationalModeOptions = ({ state, dispatch }: StateDispatchProps) => {
 
   return (
     <List>
-      {Object.values(OperationalModeOptionsStatesType).map(mode => (
+      {Object.values(OperationalModeOptionsStatesType).map((mode) => (
         <Button key={mode} onClick={() => onChangeEventHandler(mode)}>
           {mode}
-          <input
-            type="radio"
-            id={mode}
-            name="currencies"
-            checked={state.operationalModeOption === mode}
-            onChange={() => onChangeEventHandler(mode)}
-          />
+          <Checkmark isDisplayed={state.operationalModeOption === mode }/> 
         </Button>
       ))}
     </List>

@@ -4,15 +4,15 @@ import FocusLock from "react-focus-lock";
 import OtherDevice from './components/simulators/OtherDevice';
 import { useModal } from './hooks/useModal';
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
-import './style.css'
+import './styles/style.css'
 import { DndContext } from '@dnd-kit/core';
 import useLogOn  from './hooks/useLogOn';
-import * as S from './App.style';
+import * as S from './styles/App.style';
 import createTransaction from './utils/createTransaction';
 import { GetTransactionDetails } from './components/simulators/PaymentDevice/types';
 import { getTransaction, initialReceipt } from './utils/getTransaction';
 import stopTransaction from './utils/stopTransactionHost';
-import { hostCredentials, reqBody } from './config';
+import { hostCredentials, reqBody } from './App.config';
 
 function App() {
   const [init, setInit] = useState(false);
@@ -30,13 +30,14 @@ function App() {
 
   useEffect(() => {
     if (init === false) {
-      const doLogOn = async () => {
+       const doLogOn = async () => {
         const logOnSucceeded = await logOn();
-        setInit(logOnSucceeded); 
+        setInit(logOnSucceeded);
       };
-      setTimeout(() => doLogOn(), 1500);
+      doLogOn();
     }
-  }, [logOn, init]);
+  }, [init, logOn]);
+
 
   useEffect(() => {
     if (transactionIdApp !== '' && token !== '') {
@@ -149,7 +150,7 @@ const showSimulatorHandler = useCallback((simulator: string) => {
          identifier={simulators.paymentDevice ? "Payment Device" : "Other Device"}
         />
        </DndContext>
-       
+
      </>
   );
 }

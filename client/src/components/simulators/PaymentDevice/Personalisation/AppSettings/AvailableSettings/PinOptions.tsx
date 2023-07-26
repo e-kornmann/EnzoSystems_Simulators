@@ -1,6 +1,7 @@
 import { SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 
 import { Button, List } from '../../style';
+import Checkmark from './checkmark';
 
 const PinOptions = ({ state, dispatch }: StateDispatchProps) => {
   const onChangeEventHandler = (askForPin: boolean) => {
@@ -11,23 +12,11 @@ const PinOptions = ({ state, dispatch }: StateDispatchProps) => {
     <List>
       <Button key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
         YES
-        <input
-          type="radio"
-          id={'PinYes'}
-          name="ask-for-pin"
-          checked={state.askForPin === true}
-          onChange={() => onChangeEventHandler(true)}
-        />
+        <Checkmark isDisplayed={ state.askForPin === true }/> 
       </Button>
       <Button key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
         NO
-        <input
-          type="radio"
-          id={'PinNo'}
-          name="ask-for-pin"
-          checked={state.askForPin === false}
-          onChange={() => onChangeEventHandler(false)}
-        />
+        <Checkmark isDisplayed={ state.askForPin === false }/> 
       </Button>
     </List>
   );

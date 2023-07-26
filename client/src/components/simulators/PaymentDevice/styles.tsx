@@ -1,6 +1,5 @@
 import styled from 'styled-components';
-import * as Sv from '../../shared/stylevariables';
-
+import * as Sv from '../../../styles/stylevariables';
 
 const Container = styled.main`
   background-color: white;
@@ -25,7 +24,6 @@ const Header = styled.div`
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 `;
-
 
 type Props = {
   $aligntop : boolean;
@@ -80,7 +78,6 @@ const SettingsButton = styled.div`
   margin-top: 4px;
   `;
 
-
 const PayProviderBorder = styled.div`
     display: flex;
     justify-content: center;
@@ -92,8 +89,6 @@ const PayProviderBorder = styled.div`
     margin-top: -3px;
     border-top: 1px solid ${Sv.lightgray};
   `
-  
-
 
 export { 
  Container,

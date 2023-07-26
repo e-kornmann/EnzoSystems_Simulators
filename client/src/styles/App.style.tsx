@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import * as Sv from './components/shared/stylevariables';
+import * as Sv from './stylevariables';
 
 export const Button = styled.button`
   font-family: 'Inter', sans-serif;

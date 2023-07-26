@@ -1,13 +1,10 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import * as Sv from "../../../shared/stylevariables";
-
-
+import * as Sv from "../../../../styles/stylevariables";
 
 type DigitProps = {
   $showPinEntry: boolean;
 };
-
 
 const CodeContainer = styled.div`
   grid-area: pin;
@@ -59,7 +56,6 @@ const PinComponent = ({pinDigits, $showPinEntry}:Props) => {
       }
     }
   };
-
 
   return (
     <CodeContainer>

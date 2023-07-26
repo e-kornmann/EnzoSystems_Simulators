@@ -1,5 +1,5 @@
 import { ReactComponent as Fail } from '../../../assets/svgs/fail.svg';
-import { red } from '../stylevariables';
+import { red } from '../../../styles/stylevariables';
 
 
 type Props = {
