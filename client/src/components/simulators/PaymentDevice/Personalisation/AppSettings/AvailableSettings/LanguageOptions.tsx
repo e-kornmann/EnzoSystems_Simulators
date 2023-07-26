@@ -1,14 +1,15 @@
-import { LanguageOptionsStates, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
+
+import { LanguageOptionsStatesType, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 
 const LanguageOptions = ({ state, dispatch }: StateDispatchProps) => {
-  const onChangeEventHandler = (mode: LanguageOptionsStates) => {
+  const onChangeEventHandler = (mode: LanguageOptionsStatesType) => {
     dispatch({ type: SettingModes.LANGUAGE, payload: mode });
   };
 
   return (
     <List>
-      {Object.values(LanguageOptionsStates).map((language) => (
+      {Object.values(LanguageOptionsStatesType).map((language) => (
         <Button key={language} onClick={() => onChangeEventHandler(language)}>
           {language}
           <input

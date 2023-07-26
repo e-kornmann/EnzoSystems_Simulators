@@ -1,16 +1,16 @@
-import { OperationalModeOptionsStates, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
+import { OperationalModeOptionsStatesType, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 
 
 
 const OperationalModeOptions = ({ state, dispatch }: StateDispatchProps) => {
-  const onChangeEventHandler = (mode: OperationalModeOptionsStates) => {
+  const onChangeEventHandler = (mode: OperationalModeOptionsStatesType) => {
     dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: mode });
   };
 
   return (
     <List>
-      {Object.values(OperationalModeOptionsStates).map((mode) => (
+      {Object.values(OperationalModeOptionsStatesType).map(mode => (
         <Button key={mode} onClick={() => onChangeEventHandler(mode)}>
           {mode}
           <input

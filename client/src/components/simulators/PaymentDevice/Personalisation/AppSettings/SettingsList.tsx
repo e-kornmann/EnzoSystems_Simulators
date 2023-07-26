@@ -17,7 +17,7 @@ const SettingsList = ({menuToggler}: Props) => {
   <Button onClick={() => menuToggler(SettingModes.CURRENCY)} >Currency<Arrow/></Button>
   <Button onClick={() => menuToggler(SettingModes.LANGUAGE)} >Default Language<Arrow/></Button>
   <Button onClick={() => menuToggler(SettingModes.ASK_FOR_PIN)} >Ask for PIN<Arrow/></Button>
-  <Button onClick={() => menuToggler(SettingModes.SCHEMES)} >Supported Schemes<Arrow/></Button>
+  <Button onClick={() => menuToggler(SettingModes.AVAILABLE_SCHEMES)} >Supported Schemes<Arrow/></Button>
 </List>
 </>
 )}

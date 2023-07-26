@@ -32,10 +32,6 @@ export const StyledModal = styled.div<Props>`
 	border-radius: 3px;
 	z-index: 70;
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
-	&:active {
-		cursor: grabbing !important;
-	}
-
 `;
 
 export const Header = styled.div`

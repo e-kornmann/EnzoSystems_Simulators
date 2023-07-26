@@ -1,7 +1,4 @@
-import {
-  SettingModes,
-  StateDispatchProps,
-} from '../../../utils/settingsReducer';
+import { SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
 
 import { Button, List } from '../../style';
 

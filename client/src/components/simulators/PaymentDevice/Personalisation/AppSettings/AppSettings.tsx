@@ -12,15 +12,12 @@ import PinOptions from "./AvailableSettings/PinOptions";
 import SchemeOptions from "./AvailableSettings/SchemeOptions";
 import { AllAppSettings, SettingModes, SettingsAction } from "../../utils/settingsReducer";
 
-
-
 type Props = {
   hide: boolean;
   onHide: () => void;
   state: AllAppSettings; 
   dispatch: React.Dispatch<SettingsAction>
 };
-
 
 const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
   
@@ -51,7 +48,7 @@ const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
       setHeading('Ask for PIN');
       setButtons(<PinOptions state={state} dispatch={dispatch}/>)
       break;
-    case SettingModes.SCHEMES:
+    case SettingModes.AVAILABLE_SCHEMES:
       setHeading('Supported Schemes');
       setButtons(<SchemeOptions state={state} dispatch={dispatch}/>)
       break;
@@ -67,9 +64,9 @@ return (
 <SettingsWrapper $hide={hide}>
 <S.Container> 
 <SettingHeader>
-<IconContainer>{ settingMode !== SettingModes.SETTINGS ? <Arrow onClick={() => menuToggler(SettingModes.SETTINGS)} style={{cursor: 'pointer'}} /> : null }</IconContainer>
+<IconContainer onClick={() => menuToggler(SettingModes.SETTINGS)} style={{cursor: 'pointer'}} >{ settingMode !== SettingModes.SETTINGS ? <Arrow /> : null }</IconContainer>
   { heading }
-<IconContainer style={{cursor: 'pointer'}}><CloseIcon width={16} height={16} onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}} /></IconContainer>
+<IconContainer onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}}><CloseIcon width={16} height={16} /></IconContainer>
 </SettingHeader>
 { buttons }
 </S.Container>
@@ -80,3 +77,4 @@ return (
 }
 
 export default AppSettings;
+  

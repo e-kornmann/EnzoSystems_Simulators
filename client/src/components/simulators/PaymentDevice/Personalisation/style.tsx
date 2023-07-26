@@ -7,8 +7,8 @@ export const IconContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   `;
 
 type HideProp = {
@@ -20,6 +20,7 @@ export const SettingsWrapper = styled.div<HideProp>`
   position: absolute;
   width: 100%;
   z-index: 400;
+  overflow: hidden;
 `;
 
 export const SettingHeader = styled(Header)`  
@@ -38,6 +39,29 @@ export const List = styled.div`
   background-color: #F7F7F7;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
+  height: 100%;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+      width: 1.5rem;
+      -webkit-appearance: none;
+  }
+  
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    width: 1.2rem;
+  }
+   
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888; 
+  }
+  
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  };
+  
 `;
 
 export const Button = styled.button`
@@ -55,3 +79,10 @@ export const Button = styled.button`
     fill: ${Sv.enzoOrange};
   }
 `;
+
+
+export const Wrap = styled.div`
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    `

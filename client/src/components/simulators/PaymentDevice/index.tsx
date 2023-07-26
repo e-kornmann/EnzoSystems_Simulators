@@ -11,7 +11,6 @@ import PinError from './displays/PinError';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
 import { PayOptions } from './styles';
-import CurrentPayProvider from '../../shared/svgcomponents/PayProviders/CurrentPayProvider';
 import Buttons from './buttons';
 import ChoosePayMethod from './displays/ChoosePayMethod';
 import Amount from './displays/Amount';
@@ -27,6 +26,9 @@ import { AcceptTransactionStateType } from './types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from './utils/useGetTransaction';
 import { intitialSettingState, settingsReducer } from './utils/settingsReducer';
+import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
+import PayProvider from '../../shared/svgcomponents/PayProviders/PayProvider';
+
 
 export enum Status {
   START_UP,
@@ -71,6 +73,7 @@ const PaymentDevice = () => {
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [hideSettings, setHideSettings] = useState(true);
+  const [hidePayProviders, setHidePayProviders] = useState(true);
   const [init, setInit] = useState(false);
   const [state, dispatch] = useReducer(settingsReducer, intitialSettingState);
 
@@ -127,6 +130,7 @@ const PaymentDevice = () => {
   }
 
   const settingsButtonHandler = () => setHideSettings(!hideSettings);
+  const payProviderButtonHandler = () => setHidePayProviders(!hidePayProviders);
 
   useEffect(() => {
     
@@ -327,6 +331,7 @@ const PaymentDevice = () => {
   return (
     <>
       <AppSettings hide={hideSettings} onHide={settingsButtonHandler} state={state} dispatch={dispatch}/>
+      <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} state={state} dispatch={dispatch}/>
       <S.Container>
         <S.Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</S.Header>
         <S.TimeRibbon>
@@ -363,14 +368,15 @@ const PaymentDevice = () => {
         />
 
         <S.Footer>
+          <S.SettingsButton>
           <SettingsIcon
             width={18}
             height={18}
             onClick={settingsButtonHandler}
             style={{ cursor: 'pointer' }}
-          />
-          <PayOptions>
-            <CurrentPayProvider width={48} height={28} provider={'applepay'} />
+          /></S.SettingsButton>
+          <PayOptions onClick={payProviderButtonHandler}>
+            <S.PayProviderBorder><PayProvider width={47} height={30} provider={state.selectedScheme}/></S.PayProviderBorder>
             <ExpandIcon width={16} height={13} />
           </PayOptions>
         </S.Footer>
@@ -379,5 +385,4 @@ const PaymentDevice = () => {
   );
 };
 
-export default PaymentDevice;
-
+export default PaymentDevice;        

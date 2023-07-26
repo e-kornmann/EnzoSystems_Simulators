@@ -9,7 +9,7 @@ const Container = styled.main`
   width: 360px;
   height: 760px;
   column-gap: 10px;
-  grid-template-rows: 60px 25px 620px 5px 30px;
+  grid-template-rows: 60px 25px 615px 5px 35px;
   border-radius: 5px;
 `;
 
@@ -57,10 +57,11 @@ const TimeRibbon = styled.div`
 `;
 
 const PayOptions = styled.div`
-  width: 75px;
+  width: 73px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 3px;
 `;
 
 const Footer = styled(TimeRibbon)`
@@ -76,7 +77,22 @@ const SettingsButton = styled.div`
   align-items: center;
   width: 23px;
   height: 23px;
+  margin-top: 4px;
   `;
+
+
+const PayProviderBorder = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 30px;
+    border-radius: 3px;
+    box-shadow: ${Sv.gray} 0px 1px 2px;
+    margin-top: -3px;
+    border-top: 1px solid ${Sv.lightgray};
+  `
+  
 
 
 export { 
@@ -86,6 +102,7 @@ export {
  PayOptions,
  TimeRibbon,
  TextBox,
- SettingsButton
+ SettingsButton,
+ PayProviderBorder,
  }
  

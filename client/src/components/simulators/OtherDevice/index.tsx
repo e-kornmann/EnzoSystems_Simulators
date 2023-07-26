@@ -12,7 +12,6 @@ grid-template-rows: 60px 300px;
 border-radius: 10px;
 `;
 
-
 const Header = styled.div`
 grid-row: 1 / 2;
 display: flex;

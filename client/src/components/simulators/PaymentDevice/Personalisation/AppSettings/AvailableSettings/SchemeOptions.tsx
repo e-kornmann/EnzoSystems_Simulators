@@ -1,44 +1,37 @@
-import { SettingModes, StateDispatchProps, SupportedSchemesType } from '../../../utils/settingsReducer';
-import { Button, List } from "../../style";
+import PayProvider from '../../../../../shared/svgcomponents/PayProviders/PayProvider';
+import { SettingModes, StateDispatchProps, SupportedSchemesType, } from '../../../utils/settingsReducer';
+import { Button, List, Wrap } from "../../style";
 
 const SchemeOptions = ({ state, dispatch }: StateDispatchProps) => {
   const isSchemeSelected = (scheme: SupportedSchemesType) => {
-    return state.supportedSchemes.includes(scheme);
+    return state.availableSchemes.includes(scheme);
   };
 
   const toggleScheme = (scheme: SupportedSchemesType) => {
     const updatedSchemes = isSchemeSelected(scheme)
-      ? state.supportedSchemes.filter((s) => s !== scheme)
-      : [...state.supportedSchemes, scheme];
+      ? state.availableSchemes.filter((s) => s !== scheme)
+      : [...state.availableSchemes, scheme];
 
     dispatch({
-      type: SettingModes.SCHEMES,
+      type: SettingModes.AVAILABLE_SCHEMES,
       payload: updatedSchemes,
     });
   };
 
   return (
     <List>
-      <Button key={SupportedSchemesType.THIS_SCHEME} onClick={() => toggleScheme(SupportedSchemesType.THIS_SCHEME)}>
-        {SupportedSchemesType.THIS_SCHEME}
+       {Object.values(SupportedSchemesType).map(scheme => (
+      <Button key={scheme} onClick={() => toggleScheme(scheme)}>
+         <Wrap><PayProvider width={48} height={28} provider={scheme} />{scheme}</Wrap>
         <input
           type="checkbox"
-          id={`${SupportedSchemesType.THIS_SCHEME}-checkbox`}
+          id={`${scheme}-supported`}
           name="supported-schemes"
-          checked={isSchemeSelected(SupportedSchemesType.THIS_SCHEME)}
-          onChange={() => toggleScheme(SupportedSchemesType.THIS_SCHEME)}
+          checked={isSchemeSelected(scheme)}
+          onChange={() => toggleScheme(scheme)}
         />
       </Button>
-      <Button key={SupportedSchemesType.THAT_SCHEME} onClick={() => toggleScheme(SupportedSchemesType.THAT_SCHEME)}>
-        {SupportedSchemesType.THAT_SCHEME}
-        <input
-          type="checkbox"
-          id={`${SupportedSchemesType.THAT_SCHEME}-checkbox`}
-          name="supported-schemes"
-          checked={isSchemeSelected(SupportedSchemesType.THAT_SCHEME)}
-          onChange={() => toggleScheme(SupportedSchemesType.THAT_SCHEME)}
-        />
-      </Button>
+         ))}
     </List>
   );
 };
