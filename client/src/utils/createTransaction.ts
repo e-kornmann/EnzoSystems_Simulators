@@ -1,7 +1,7 @@
 
 import api from '../api';
 
-  const createTransaction = async (accessToken: string, amountToAsk: string, setTransactionIdApp: React.Dispatch<React.SetStateAction<string>>) => {
+  const createTransaction = async (accessToken: string, amountToAsk: string | undefined, setTransactionIdApp: React.Dispatch<React.SetStateAction<string>>) => {
     try {
       const config = {
         headers: {

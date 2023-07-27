@@ -1,6 +1,7 @@
-import React, { FC, useState } from 'react';
+
 import CurrencyInput from './CurrencyInput';
 import { CurrencyInputProps } from './CurrencyInputProps';
+
 
 const options: ReadonlyArray<CurrencyInputProps['intlConfig']> = [
   {
@@ -25,22 +26,17 @@ const options: ReadonlyArray<CurrencyInputProps['intlConfig']> = [
   },
 ];
 
-export const Example3: FC = () => {
-  const [intlConfig, setIntlConfig] = useState<CurrencyInputProps['intlConfig']>(options[0]);
-  const [value, setValue] = useState<string | undefined>('123');
-  const [rawValue, setRawValue] = useState<string | undefined>(' ');
+type Props = {
+  value: string | undefined;
+  handleOnValueChange: (value: string | undefined) => void;
+  intlConfig: CurrencyInputProps['intlConfig'];
+  handleIntlSelect: (event: React.ChangeEvent<HTMLSelectElement>)  => void;
+}
 
-  const handleOnValueChange = (value: string | undefined): void => {
-    setRawValue(value === undefined ? 'undefined' : value || ' ');
-    setValue(value);
-  };
+export const Example3 = ({ value, handleOnValueChange, intlConfig, handleIntlSelect }: Props) => {
 
-  const handleIntlSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const config = options[Number(event.target.value)];
-    if (config) {
-      setIntlConfig(config);
-    }
-  };
+
+
 
   return (
         <>
@@ -55,9 +51,9 @@ export const Example3: FC = () => {
                   step={1}
                 />
           
-              <div className="col-12 mt-3">
+              <div>
                 <label htmlFor="intlConfigSelect">Intl option</label>
-                <select className="form-control" id="intlConfigSelect" onChange={handleIntlSelect}>
+                <select id="intlConfigSelect" onChange={handleIntlSelect}>
                   {options.map((config, i) => {
                     if (config) {
                       const { locale, currency } = config;
@@ -70,19 +66,6 @@ export const Example3: FC = () => {
                   })}
                 </select>
               </div>
-      
-          <div className="form-group col">
-            <pre className="h-100 p-3 bg-dark text-white">
-              <div className="row">
-                <div className="col-12">
-                  <div className="text-muted mr-3">onValueChange:</div>
-                  {rawValue}
-                  <div className="text-muted mr-3 mt-3">intlConfig:</div>
-                  {JSON.stringify(intlConfig)}
-                </div>
-              </div>
-            </pre>
-          </div>
           </>
 
   );

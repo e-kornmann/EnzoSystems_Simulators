@@ -9,6 +9,8 @@ import stopTransaction from '../../../utils/stopTransactionHost';
 import { GetTransactionDetails } from '../PaymentDevice/types';
 import { hostCredentials } from '../../../App.config';
 import useLogOn from '../../../hooks/useLogOn';
+import { CurrencyInputProps } from './CurrencyInputProps';
+
 
 import { reqBody } from '../PaymentDevice/config';
 
@@ -17,7 +19,7 @@ background-color: white;
 font-family: 'Inter', sans-serif;
 display: grid;
 width: 560px;
-height: 360px;
+height: auto;
 column-gap: 15px;
 grid-template-rows: 60px 300px;
 border-radius: 10px;
@@ -46,24 +48,66 @@ background-color: #F7F7F7;
 border-bottom-left-radius: 5px;
 border-bottom-right-radius: 5px;
 `;
+
+const OkButton = styled.button`
+cursor: pointer;
+width: 100px;
+min-width: 0;
+background-color: ${Sv.green}; 
+`;
+
+const StopButton = styled(OkButton)`
+background-color: ${Sv.red}; 
+`;
+
+
+const options: ReadonlyArray<CurrencyInputProps['intlConfig']> = [
+  {
+    locale: 'de-DE',
+    currency: 'EUR',
+  },
+  {
+    locale: 'en-US',
+    currency: 'USD',
+  },
+  {
+    locale: 'en-GB',
+    currency: 'GBP',
+  },
+  {
+    locale: 'ja-JP',
+    currency: 'JPY',
+  },
+  {
+    locale: 'en-IN',
+    currency: 'INR',
+  },
+];
+
 const OtherDevice = () => {
-
   const [init, setInit] = useState(false);
-
   const { token, logOn } = useLogOn(hostCredentials, reqBody);
-
-
-
-
-
-
-  const [ amountToAsk, setAmountToAsk ] = useState('0');
   const [ isActive, setIsActive] = useState(false);
   const [ transactionIdApp, setTransactionIdApp ] = useState('');
   const [transactionDetails, setTransactionDetails] = useState<GetTransactionDetails>(initialReceipt);
+  const [intlConfig, setIntlConfig] = useState<CurrencyInputProps['intlConfig']>(options[0]);
+  const [value, setValue] = useState<string | undefined>('123');
+  const [rawValue, setRawValue] = useState<string | undefined>(' ');
+
+  const handleOnValueChange = (value: string | undefined): void => {
+    setRawValue(value === undefined ? 'undefined' : value || ' ');
+    setValue(value);
+  };
+
+  const handleIntlSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const config = options[Number(event.target.value)];
+    if (config) {
+      setIntlConfig(config);
+    }
+  };
+
+
   
-
-
   useEffect(() => {
     if (init === false) {
        const doLogOn = async () => {
@@ -86,9 +130,6 @@ const OtherDevice = () => {
     }
   }, [token, transactionIdApp]);
 
-  
-
-
    useEffect(() => {
     if (
       transactionIdApp !== '' &&
@@ -107,55 +148,31 @@ const OtherDevice = () => {
     }
   }, [isActive, transactionDetails, transactionIdApp]);
 
-
-
   const reset = () => {
-    setAmountToAsk('');
+    setValue('123');
     setTransactionIdApp('');
     setTransactionDetails(initialReceipt)
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmountToAsk(e.target.value);
-  }
+
+
 
    const transIdMessage = isActive ? `${transactionIdApp}` : null;    
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   return (
     <Container>
         <Header>Other Device</Header>
         <TextBox>
           
-        <S.FocusContainer>
-
-                 <S.BlinkingDot $isActive={isActive}/> <S.StatusText>{transactionDetails.status}</S.StatusText>
-                  <S.PayBillContainer>
-                    <S.StyledLable htmlFor='amount'>€</S.StyledLable>
-                    <S.InputAmount id="amount" value={amountToAsk} type="number" onChange={handleChange} />
+            
+                    <S.BlinkingDot $isActive={isActive}/> <S.StatusText>{transactionDetails.status}</S.StatusText>
+                    <Example3 value={value} handleOnValueChange={handleOnValueChange} intlConfig={intlConfig} handleIntlSelect={handleIntlSelect}/>
                     <S.AmountText>{ transIdMessage }</S.AmountText>
-                    <S.StopButton onClick={() => stopTransaction(token, transactionIdApp, setIsActive, reset)} > Stop</S.StopButton>
-                    <S.OkButton onClick={() => createTransaction(token, amountToAsk, setTransactionIdApp)} > OK</S.OkButton>
-                    </S.PayBillContainer> 
-         
-                </S.FocusContainer>      
-           
-
-
+                  
+               
         </TextBox>
-        <Example3 />
+        <StopButton type="button" onClick={() => stopTransaction(token, transactionIdApp, setIsActive, reset)} > Stop</StopButton>
+        <OkButton type="button" onClick={() => createTransaction(token, rawValue, setTransactionIdApp)} > OK</OkButton>
         <S.ConnectMessage $init={init}>{import.meta.env.VITE_HOST_ID} { init ? 'is logged in to the Enzo Pay API' : 'has to be loggin to the Enzo Pay API to create a transaction'}</S.ConnectMessage>
     </Container>
   );

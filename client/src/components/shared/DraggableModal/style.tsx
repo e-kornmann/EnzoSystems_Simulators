@@ -12,6 +12,7 @@ export const Wrapper = styled.div`
 	aligng-items: flex-start;
 	top: 50%;
 	left: 50%;
+	pointer-events: none;
 	transform: translate(-50%, -50%);
 	z-index: 30;
 `;
@@ -20,7 +21,7 @@ export const StyledModal = styled.div<Props>`
 	border-radius: 2px;	
 	z-index: 70;
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
-
+	pointer-events: auto;
 `;
 
 export const Header = styled.div`

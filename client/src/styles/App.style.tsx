@@ -99,15 +99,6 @@ export const InputAmount = styled.input`
     font-size: 11px;
   `
 
- export const OkButton = styled.button`
-    width: 100px;
-    min-width: 0;
-    background-color: ${Sv.green}; 
-`;
-
-export const StopButton = styled(OkButton)`
-    background-color: ${Sv.red}; 
-`;
 
 export const StyledLable = styled.label`
     position: relative;
