@@ -1,4 +1,5 @@
 import * as S from './styles';
+import { AppContext } from './utils/settingsReducer';
 import { useContext, useEffect, useState } from 'react';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
@@ -24,11 +25,10 @@ import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
 import { AcceptTransactionStateType } from './types';
 import acceptTransaction from './utils/acceptTransaction';
-import useGetTransaction from './utils/useGetTransaction';
-
+import useGetTransaction from '../../../hooks/useGetTransaction';
 import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
 import PayProvider from '../../shared/svgcomponents/PayProvider';
-import { AppContext } from './utils/settingsReducer';
+
 
 export enum Status {
   START_UP,

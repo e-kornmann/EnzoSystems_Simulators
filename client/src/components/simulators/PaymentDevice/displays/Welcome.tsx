@@ -3,8 +3,7 @@ import { WelcomeLine } from "./styles"
 const Welcome = () => {
     return (
       <>
-      <WelcomeLine>WELCOME</WelcomeLine>
-      
+       <WelcomeLine>WELCOME</WelcomeLine>
       </>
     )
   }

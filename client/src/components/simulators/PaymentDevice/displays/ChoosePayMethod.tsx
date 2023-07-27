@@ -88,7 +88,8 @@ const ChoosePayMethod = ({chooseMethodHandler, activePayMethod, currentState }: 
         <IconContainer>
           <ChipIcon width={25} height={20} />
           </IconContainer>
-          Insert card</WithCardButton>
+          Insert card
+        </WithCardButton>
 
       </Wrapper>
       </>

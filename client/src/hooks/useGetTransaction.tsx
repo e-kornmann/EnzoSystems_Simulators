@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { GetTransactionDetails } from '../types';
-import api from '../../../../api';
-import { CurrencyCode } from '../../../../types/CurrencyTypes';
-import { Locale } from '../../../../types/LocaleTypes';
+import { GetTransactionDetails } from '../components/simulators/PaymentDevice/types';
+import api from '../api';
+import { CurrencyCode } from '../types/CurrencyTypes';
+import { Locale } from '../types/LocaleTypes';
 
 const initialReceipt: GetTransactionDetails = {
   terminalId: '',
@@ -19,7 +19,12 @@ const initialReceipt: GetTransactionDetails = {
 const useGetTransaction = (accessToken: string, transactionId: string) => {
   const [transactionDetails, setTransactionDetails] = useState<GetTransactionDetails>(initialReceipt);
   
+
   const getTransaction = useCallback(async () => {
+    if (transactionId === '') {
+      setTransactionDetails(initialReceipt);
+      return { transactionDetails, getTransaction };
+    }
     try {
       const config = {
         headers: {
@@ -27,12 +32,12 @@ const useGetTransaction = (accessToken: string, transactionId: string) => {
           authorization: `Bearer ${accessToken}`,
         }
       };
-      const response = await api.get(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, config);
-       setTransactionDetails(response.data);
+      await api.get(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, config)
+       .then(response => setTransactionDetails(response.data));
     } catch (error) {
         console.error('Unable to get transaction:', error);
     }
-  }, [accessToken, transactionId])
+  }, [accessToken, transactionDetails, transactionId])
 
   return { transactionDetails, getTransaction };
 };

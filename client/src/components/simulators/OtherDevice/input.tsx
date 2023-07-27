@@ -1,30 +1,8 @@
 
 import CurrencyInput from './CurrencyInput';
 import { CurrencyInputProps } from './CurrencyInputProps';
+import { options } from './utils/settings/settings';
 
-
-const options: ReadonlyArray<CurrencyInputProps['intlConfig']> = [
-  {
-    locale: 'de-DE',
-    currency: 'EUR',
-  },
-  {
-    locale: 'en-US',
-    currency: 'USD',
-  },
-  {
-    locale: 'en-GB',
-    currency: 'GBP',
-  },
-  {
-    locale: 'ja-JP',
-    currency: 'JPY',
-  },
-  {
-    locale: 'en-IN',
-    currency: 'INR',
-  },
-];
 
 type Props = {
   value: string | undefined;

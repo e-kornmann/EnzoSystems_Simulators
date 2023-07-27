@@ -5,10 +5,10 @@ const Container = styled.main`
   background-color: white;
   font-family: 'Inter', sans-serif;
   display: grid;
-  width: 360px;
-  height: 760px;
+  width: 460px;
+  height: 860px;
   column-gap: 10px;
-  grid-template-rows: 60px 25px 615px 5px 35px;
+  grid-template-rows: 60px 25px 1fr 5px 85px;
   border-radius: 5px;
 `;
 

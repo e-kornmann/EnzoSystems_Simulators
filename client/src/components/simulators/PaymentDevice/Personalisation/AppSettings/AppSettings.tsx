@@ -66,7 +66,7 @@ return (
   { heading }
 <IconContainer onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}}><CloseIcon width={16} height={16} /></IconContainer>
 </SettingHeader>
-{ buttons }
+  { buttons }
 </S.Container>
 </SettingsWrapper>
 </>

@@ -1,4 +1,5 @@
-import { CredentialType, ReqLogOnType } from "./types/LogOnTypes"
+import { CredentialType, ReqLogOnType } from "../../../../types/LogOnTypes"
+
 
 export const hostCredentials: CredentialType = {
  userName: 'host',

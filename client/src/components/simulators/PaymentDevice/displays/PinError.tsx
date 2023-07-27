@@ -1,17 +1,9 @@
 import { Container, IconContainer, Subline } from "./styles"
 import FailureIcon from "../../../shared/svgcomponents/Fail";
 
-
-
-
-
 type Props = {
   actionFailureType: string;
 }
-
-
-
-
 
 const PinError = ({actionFailureType}: Props) => {
 
@@ -19,8 +11,6 @@ const PinError = ({actionFailureType}: Props) => {
 
   if (actionFailureType === 'FAIL') {
     failureMessage = `PIN Limit Exceeded.\nCard Usage Restricted.`;
-    
-    
   } else if (actionFailureType === 'DECLINE') {
     failureMessage = "Unable to Complete\nTransaction: Low Balance";
   } else {

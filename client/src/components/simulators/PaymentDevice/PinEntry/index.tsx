@@ -60,16 +60,16 @@ const PinComponent = ({pinDigits, $showPinEntry}:Props) => {
   return (
     <CodeContainer>
       {pinDigits.map((digit, index) => (
-      <Digit
-      $showPinEntry={$showPinEntry}
-      key={index}
-      type="text"
-      value={digit.length > 0 ? "*".repeat(digit.length) : ""}
-      onInput={(event: React.FormEvent<HTMLInputElement>) =>
-        moveToNextField(event, index === 0 ? "seconddigit" : index === 1 ? "thirddigit" : "fourthdigit")
-      }
-      ref={index === 1 ? secondDigitRef : index === 2 ? thirdDigitRef : index === 3 ? fourthDigitRef : null}
-    />
+        <Digit
+          $showPinEntry={$showPinEntry}
+          key={index}
+          type="text"
+          value={digit.length > 0 ? "*".repeat(digit.length) : ""}
+          onInput={(event: React.FormEvent<HTMLInputElement>) =>
+            moveToNextField(event, index === 0 ? "seconddigit" : index === 1 ? "thirddigit" : "fourthdigit")
+          }
+          ref={index === 1 ? secondDigitRef : index === 2 ? thirdDigitRef : index === 3 ? fourthDigitRef : null}
+        />
       ))}
     </CodeContainer>
   );

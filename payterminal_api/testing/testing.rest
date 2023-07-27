@@ -1,0 +1,188 @@
+### Get Health info
+GET http://localhost:9001/api/simulator/payment-terminal/v1/health
+
+
+
+####################################################################################
+### 
+### Log-on host/device with username/password and exchange for access token
+### Access token has exipry of 24 hour
+### 
+####################################################################################
+
+### DEVICE
+POST http://localhost:9001/api/simulator/payment-terminal/v1/auth
+Content-type: application/json
+Authorization: Basic terminal:terminal
+
+{
+  "merchantId": "ENZO",
+  "terminalId": "123456"
+}
+
+### HOST
+POST http://localhost:9001/api/simulator/payment-terminal/v1/auth
+Content-type: application/json
+Authorization: Basic host:host
+
+{
+  "hostId": "DEMOAPP"
+}
+
+
+####################################################################################
+### 
+### Create a new transaction
+###
+### Host can create a new transaction if simulator is in IDLE state
+### Device has to start processing the new transaction within 5s after new transaction is created 
+### 
+####################################################################################
+
+### HOST: Create a new transaction
+POST http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkwNDUxMTY2LCJleHAiOjE2OTA1Mzc1NjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.bWvUl-lC-pYECQwqJwEjI2Gwvxy5hiHcjpjn-cnJcYA
+
+{
+  "amountToPay": 1000,
+  "locale": "nl-NL",
+  "currency": "EUR",
+  "reference": "abcdefg"
+}
+
+### DEVICE: Start processing new transaction
+POST http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5MDQ1MTEwMSwiZXhwIjoxNjkwNTM3NTAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.7egaxNoLhEc-yZZIntWD8Tjb7FhrO9wS3zGWCdtEIdA
+
+{
+  "action": "RUN"
+}
+
+####################################################################################
+### 
+### Update active transaction
+###
+### Device can update the state of active transaction
+### 
+####################################################################################
+
+
+### React Terminal: Update current transaction
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/80503455-cb81-4cd8-8dcd-5190e07ac8c9
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5MDQ1MTEwMSwiZXhwIjoxNjkwNTM3NTAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.7egaxNoLhEc-yZZIntWD8Tjb7FhrO9wS3zGWCdtEIdA
+
+{
+  "action": "APPROVE",
+  "amountPaid": 1000,
+  "scheme": "MASTERCARD",
+  "pan": "5678542365654321"
+}
+
+### React Terminal: Update current transaction
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/0a92bbbb-db7c-494e-a243-19f95fb07709
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5MDQ1MTEwMSwiZXhwIjoxNjkwNTM3NTAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.7egaxNoLhEc-yZZIntWD8Tjb7FhrO9wS3zGWCdtEIdA
+
+{
+  "action": "RUN"
+}
+
+
+####################################################################################
+### 
+### Stop active transaction
+###
+### Device/Host can stop active transaction
+### 
+####################################################################################
+
+### HOST
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/cd45864e-0d02-4507-bbf6-787adc3eba61
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkwNDUxMTY2LCJleHAiOjE2OTA1Mzc1NjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.bWvUl-lC-pYECQwqJwEjI2Gwvxy5hiHcjpjn-cnJcYA
+
+{
+  "action": "STOP"
+}
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/8bfc4c92-3eba-4b68-8c31-f32a844b4a0b
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5MDQ1MTEwMSwiZXhwIjoxNjkwNTM3NTAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.7egaxNoLhEc-yZZIntWD8Tjb7FhrO9wS3zGWCdtEIdA
+
+{
+  "action": "STOP"
+}
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/7802be0e-259f-4a67-a389-ea8b2c782662
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5MDQ1MTEwMSwiZXhwIjoxNjkwNTM3NTAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.7egaxNoLhEc-yZZIntWD8Tjb7FhrO9wS3zGWCdtEIdA
+
+{
+  "action": "FAIL"
+}
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/bf71b634-2dc1-48ee-bd09-d0b6e86233a0
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5MDQ1MTEwMSwiZXhwIjoxNjkwNTM3NTAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.7egaxNoLhEc-yZZIntWD8Tjb7FhrO9wS3zGWCdtEIdA
+
+{
+  "action": "DECLINE"
+}
+
+
+####################################################################################
+### 
+### Get transaction(s)
+###
+### Host can retrieve a specific transaction or all transactions
+### 
+####################################################################################
+
+### HOST: Get transaction
+GET http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/bf71b634-2dc1-48ee-bd09-d0b6e86233a0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkwNDUxMTY2LCJleHAiOjE2OTA1Mzc1NjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.bWvUl-lC-pYECQwqJwEjI2Gwvxy5hiHcjpjn-cnJcYA
+
+### HOST: Get all transactions
+GET http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkwNDUxMTY2LCJleHAiOjE2OTA1Mzc1NjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.bWvUl-lC-pYECQwqJwEjI2Gwvxy5hiHcjpjn-cnJcYA
+
+
+####################################################################################
+### 
+### Delete transaction(s)
+###
+### Host can delete a specific transaction or all transactions
+### 
+####################################################################################
+
+### HOST: Delete transaction
+DELETE http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/238cb1ad-45b3-490d-88b6-feb4adde57a7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkwNDUxMTY2LCJleHAiOjE2OTA1Mzc1NjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.bWvUl-lC-pYECQwqJwEjI2Gwvxy5hiHcjpjn-cnJcYA
+
+
+### HOST: Delete all transactions
+DELETE http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkwNDUxMTY2LCJleHAiOjE2OTA1Mzc1NjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.bWvUl-lC-pYECQwqJwEjI2Gwvxy5hiHcjpjn-cnJcYA
+
+
+######################################################################################
+### TEST ERROR SITUATIONS
+######################################################################################
+
+### Host: Hosts are NOT ALLOWED to update current transaction, so error
+PUT http://localhost:9001/api/simulator/payment-terminal/v1/enzosystems/123456/transactions/779906ed-1c84-42e2-b2b8-879f94cac894
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjg5ODM1MzgzLCJleHAiOjE2ODk5MjE3ODMsImlzcyI6IkVuem9zeXN0ZW1zIn0.7L_lI9gCgW8mpR-tTYw5e63MQ_UECs5lnp_8ez4JbxI
+
+{
+  "status": "FINISHED",
+  "amountPaid": 250013,
+  "scheme": "MASTERCARD",
+  "pan": "5678542365654321"
+}

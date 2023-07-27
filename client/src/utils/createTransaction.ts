@@ -1,6 +1,19 @@
 
 import api from '../api';
 
+function processAmount(amountToAsk: string | undefined): number {
+  if (amountToAsk) {
+  const sanitizedAmount = amountToAsk.replace(/[^0-9]/g, '');
+  
+  // Convert the sanitized string to a number
+  const numberAmount = parseFloat(sanitizedAmount);
+
+
+  return numberAmount/100;
+}
+return 0
+}
+
   const createTransaction = async (accessToken: string, amountToAsk: string | undefined, setTransactionIdApp: React.Dispatch<React.SetStateAction<string>>) => {
     try {
       const config = {
@@ -10,7 +23,7 @@ import api from '../api';
         }
       };
       const response = await api.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
-        amountToPay: Number(amountToAsk),
+        amountToPay: processAmount(amountToAsk),
         locale: "nl-NL",
         currency: "EUR",
         reference: "abcdefg"

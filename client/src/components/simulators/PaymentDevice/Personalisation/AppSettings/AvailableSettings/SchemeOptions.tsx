@@ -8,7 +8,6 @@ import Checkmark from './checkmark';
 
 
 const SchemeOptions = () => {
-  
   const { state, dispatch } = useContext(AppContext);
   
   const isSchemeSelected = (scheme: SupportedSchemesType) => {
@@ -30,7 +29,7 @@ const SchemeOptions = () => {
     <List>
       {Object.values(SupportedSchemesType).map(scheme => (
         <Button key={scheme} onClick={() => toggleScheme(scheme)}>
-          <Wrap><PayProvider width={48} height={28} provider={scheme} />{scheme}</Wrap>
+          <Wrap><PayProvider width={48} height={28} provider={scheme}/>{scheme}</Wrap>
           <Checkmark isDisplayed={isSchemeSelected(scheme)}/> 
         </Button>
       ))}

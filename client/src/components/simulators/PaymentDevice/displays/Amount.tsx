@@ -18,7 +18,6 @@ const IconContainer = styled.div<IconProp>`
   postion: absolute;
   top: 30px;
 `
-
 const Amount = ({ amount, currentState }: Props) => {
 
   let subline: string; 

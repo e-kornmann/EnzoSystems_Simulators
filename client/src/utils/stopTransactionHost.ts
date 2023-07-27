@@ -4,7 +4,7 @@ import api from '../api';
 
   const stopTransaction = async (accessToken: string, transactionId: string, setIsActive: React.Dispatch<React.SetStateAction<boolean>>, reset: () => void) => {
     try {
-            const config = {
+      const config = {
         headers: {
           contentType: 'application/json',
           authorization: `Bearer ${accessToken}`,
@@ -23,5 +23,4 @@ import api from '../api';
   };
 
 export default stopTransaction;
-
 
