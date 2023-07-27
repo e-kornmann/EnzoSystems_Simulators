@@ -16,38 +16,18 @@ export const Wrapper = styled.div`
 	z-index: 30;
 `;
 
-export const Backdrop = styled.div`
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	pointer-events: none;
-	background: rgba(0, 0, 0, 0.3);
-	z-index: 20;
-`;
-
 export const StyledModal = styled.div<Props>`
-	background: ${Sv.black};
-	border-radius: 3px;
+	border-radius: 2px;	
 	z-index: 70;
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
+
 `;
 
 export const Header = styled.div`
 	border-radius: 4px 4px 0 0;
 	display: flex;
-	justify-content: space-between;
-	background-color: ${Sv.black};
+	justify-content: flex-end;
 	padding: 0.5rem 1.3rem;
-`;
-
-export const HeaderText = styled.div`
-	font-family: 'Inter', sans-serif;
-	font-weight: 400;
-	font-size: 15px;
-	align-self: center;
-	color: ${Sv.enzoOrange};
 `;
 
 export const CloseButton = styled.button`
@@ -58,7 +38,7 @@ export const CloseButton = styled.button`
 	color: white;
 	border: none;
 	border-radius: 13px;
-	background: none;
+	background: ${Sv.gray};
 	&:hover {
 		cursor: pointer;
 		color: ${Sv.enzoOrange};
@@ -66,7 +46,8 @@ export const CloseButton = styled.button`
 `;
 
 export const Content = styled.div`
-	padding: 10px;
+	border-radius: 8px;	
 	overflow-x: hidden;
 	overflow-y: auto;
+	box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
 `;

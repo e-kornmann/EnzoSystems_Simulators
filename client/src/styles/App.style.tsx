@@ -1,42 +1,56 @@
 import styled, { keyframes } from "styled-components";
 import * as Sv from './stylevariables';
 
-export const Button = styled.button`
-  font-family: 'Inter', sans-serif;
-  letter-spacing: 0.02em;
-  font-weight: 600;
-  font-size: 1.15em;
-  background: transparant;
-  border: 2px solid ${Sv.black};
-  border-radius: 5px;
-  min-width: 230px;
-  max-width: 305px;
-  padding: 10px 0px;
-  cursor: pointer;
-  transition: all 0, 1s ease-in;
-  color: ${Sv.black};
-  justify-self: flex-end;
-  box-shadow: ${Sv.black} 3px 3px 0 0;
+export const OpenModalButtonsContainer = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: row;
+  row-gap: 15px;
+  column-gap: 5px;
+  padding: 4px;
+`;
 
-  &: active {
-    box-shadow: ${Sv.black} 2px 2px 0 0;
-    transform: translate(2px, 2px);
+export const OpenModelButton = styled.button<{$isActive: boolean}>`
+appearance: none;
+background-color: #FAFBFC;
+border: 1px solid rgba(27, 31, 35, 0.15);
+border-radius: 6px;
+box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+box-sizing: border-box;
+color: #24292E;
+cursor: pointer;
+display: inline-block;
+font-size: 14px;
+font-weight: 500;
+line-height: 20px;
+list-style: none;
+padding: 6px 16px;
+position: relative;
+transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+user-select: none;
+-webkit-user-select: none;
+touch-action: manipulation;
+vertical-align: middle;
+white-space: nowrap;
+word-wrap: break-word;
+background-color: ${(props) => (props.$isActive ? `${Sv.lightgray}` : 'white')};
+  &:active {
+    background-color: darkgray;
+    box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
+    transition: none 0s;
+  
+    box-shadow: ${Sv.gray} 1px 1px 0 0;
+    transform: translate(1px, 1px);
   }
-  &: hover {
+  &:hover {
     background: gray;
     color: #fff;
   }
-  &: hover > svg {
-    fill: white;
-  }
 `;
 
-export const ButtonModalContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 15px;
-  padding: 40px;
-`;
+
 
 export const ConnectMessage = styled.header<{ $init: boolean }>`
   font-size: 14px;
@@ -85,7 +99,7 @@ export const InputAmount = styled.input`
     font-size: 11px;
   `
 
- export const OkButton = styled(Button)`
+ export const OkButton = styled.button`
     width: 100px;
     min-width: 0;
     background-color: ${Sv.green}; 
@@ -138,8 +152,6 @@ export const BlinkingDot = styled(StatusText)<{ $isActive: boolean }>`
   animation-iteration-count: infinite;
   }
 `
-
-
 
 
 

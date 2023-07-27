@@ -1,10 +1,16 @@
+
+import { useContext } from 'react';
+import { AppContext, SettingModes, SupportedSchemesType } from '../../../utils/settingsReducer';
 import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
-import { SettingModes, StateDispatchProps, SupportedSchemesType, } from '../../../utils/settingsReducer';
 import { Button, List, Wrap } from "../../style";
 import '../../customradiobuttons.css'
 import Checkmark from './checkmark';
 
-const SchemeOptions = ({ state, dispatch }: StateDispatchProps) => {
+
+const SchemeOptions = () => {
+  
+  const { state, dispatch } = useContext(AppContext);
+  
   const isSchemeSelected = (scheme: SupportedSchemesType) => {
     return state.availableSchemes.includes(scheme);
   };

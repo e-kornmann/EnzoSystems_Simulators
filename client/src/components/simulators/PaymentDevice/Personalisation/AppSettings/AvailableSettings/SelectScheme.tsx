@@ -1,19 +1,22 @@
+import { useContext } from 'react';
 import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
 import * as S from '../../../styles';
-import { AllAppSettings, SettingModes, SettingsAction, SupportedSchemesType } from '../../../utils/settingsReducer';
+import { AppContext, SettingModes, SupportedSchemesType } from '../../../utils/settingsReducer';
 import { Button, IconContainer, List, SettingHeader, SettingsWrapper, Wrap } from "../../style";
 import { ReactComponent as CloseIcon } from '../../../../../../assets/svgs/close.svg';
 import '../../customradiobuttons.css';
 import Checkmark from './checkmark';
 
+
 type Props = {
   hide: boolean;
   onHide: () => void;
-  state: AllAppSettings;
-  dispatch: React.Dispatch<SettingsAction>
 };
 
-const SelectScheme = ({ hide, onHide, state, dispatch }: Props) => {
+const SelectScheme = ({ hide, onHide }: Props) => {
+    
+  const { state, dispatch } = useContext(AppContext);
+  
 
   const onChangeEventHandler = (mode: SupportedSchemesType) => {
     dispatch({ type: SettingModes.SELECT_SCHEME, payload: mode });

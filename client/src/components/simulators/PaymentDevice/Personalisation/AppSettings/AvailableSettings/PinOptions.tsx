@@ -1,9 +1,14 @@
-import { SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
+import { useContext } from 'react';
+import { AppContext, SettingModes } from '../../../utils/settingsReducer';
 
 import { Button, List } from '../../style';
 import Checkmark from './checkmark';
 
-const PinOptions = ({ state, dispatch }: StateDispatchProps) => {
+const PinOptions = () => {
+
+  const { state, dispatch } = useContext(AppContext);
+  
+  
   const onChangeEventHandler = (askForPin: boolean) => {
     dispatch({ type: SettingModes.ASK_FOR_PIN, payload: askForPin });
   };

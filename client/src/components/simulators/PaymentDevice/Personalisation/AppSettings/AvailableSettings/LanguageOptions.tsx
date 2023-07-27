@@ -1,9 +1,12 @@
 
-import { LanguageOptionsStatesType, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
+import { useContext } from 'react';
+import { AppContext, LanguageOptionsStatesType, SettingModes } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 import Checkmark from './checkmark';
 
-const LanguageOptions = ({ state, dispatch }: StateDispatchProps) => {
+const LanguageOptions = () => {
+  const { state, dispatch } = useContext(AppContext);
+  
   const onChangeEventHandler = (mode: LanguageOptionsStatesType) => {
     dispatch({ type: SettingModes.LANGUAGE, payload: mode });
   };

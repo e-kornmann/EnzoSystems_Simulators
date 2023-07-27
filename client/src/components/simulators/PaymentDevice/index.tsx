@@ -1,5 +1,5 @@
 import * as S from './styles';
-import { useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import TimedOut from './displays/TimedOut';
 import Welcome from './displays/Welcome';
 import OneMoment from './displays/OneMoment';
@@ -25,9 +25,10 @@ import { updateTransaction } from './utils/updateTransaction';
 import { AcceptTransactionStateType } from './types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from './utils/useGetTransaction';
-import { intitialSettingState, settingsReducer } from './utils/settingsReducer';
+
 import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
 import PayProvider from '../../shared/svgcomponents/PayProvider';
+import { AppContext } from './utils/settingsReducer';
 
 export enum Status {
   START_UP,
@@ -73,7 +74,7 @@ const PaymentDevice = () => {
   const [hideSettings, setHideSettings] = useState(true);
   const [hidePayProviders, setHidePayProviders] = useState(true);
   const [init, setInit] = useState(false);
-  const [state, dispatch] = useReducer(settingsReducer, intitialSettingState);
+  const { state } = useContext(AppContext);
 
   useEffect(() => {
     if (init === false) {
@@ -329,8 +330,8 @@ const PaymentDevice = () => {
 
   return (
     <>
-      <AppSettings hide={hideSettings} onHide={settingsButtonHandler} state={state} dispatch={dispatch}/>
-      <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} state={state} dispatch={dispatch}/>
+      <AppSettings hide={hideSettings} onHide={settingsButtonHandler} />
+      <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <S.Container>
         <S.Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</S.Header>
         <S.TimeRibbon>

@@ -1,10 +1,12 @@
+import { useContext } from 'react';
 import { CurrencyCode } from '../../../../../../types/CurrencyTypes';
-import { SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
+import { AppContext, SettingModes } from '../../../utils/settingsReducer';
 import { Button, List } from "../../style";
 import Checkmark from './checkmark';
 
 
-const CurrencyOptions = ({ state, dispatch }: StateDispatchProps) => {
+const CurrencyOptions = () => {
+  const { state, dispatch } = useContext(AppContext);
 
   const currencies = [
     CurrencyCode.EUR, 

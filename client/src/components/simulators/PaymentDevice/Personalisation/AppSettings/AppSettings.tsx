@@ -10,16 +10,14 @@ import CurrencyOptions from "./AvailableSettings/CurrencyOptions";
 import LanguageOptions from "./AvailableSettings/LanguageOptions";
 import PinOptions from "./AvailableSettings/PinOptions";
 import SchemeOptions from "./AvailableSettings/SchemeOptions";
-import { AllAppSettings, SettingModes, SettingsAction } from "../../utils/settingsReducer";
+import { SettingModes } from "../../utils/settingsReducer";
 
 type Props = {
   hide: boolean;
   onHide: () => void;
-  state: AllAppSettings; 
-  dispatch: React.Dispatch<SettingsAction>
 };
 
-const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
+const AppSettings = ({ hide, onHide }: Props) => {
   
   const menuToggler = (listItem: SettingModes) => setSettingMode(listItem);
   const [buttons, setButtons] = useState(<></>);
@@ -34,29 +32,29 @@ const AppSettings = ({ hide, onHide, state, dispatch }: Props) => {
       break;
     case SettingModes.OPERATIONAL_MODE:
       setHeading('Operational Mode');
-      setButtons(<OperationalModeOptions state={state} dispatch={dispatch}/>)
+      setButtons(<OperationalModeOptions/>)
       break;
     case SettingModes.CURRENCY:
       setHeading('Currency');
-      setButtons(<CurrencyOptions state={state} dispatch={dispatch}/>)
+      setButtons(<CurrencyOptions />)
       break;
     case SettingModes.LANGUAGE:
       setHeading('Default Language');
-      setButtons(<LanguageOptions state={state} dispatch={dispatch}/>)
+      setButtons(<LanguageOptions />)
       break;
     case SettingModes.ASK_FOR_PIN:
       setHeading('Ask for PIN');
-      setButtons(<PinOptions state={state} dispatch={dispatch}/>)
+      setButtons(<PinOptions />)
       break;
     case SettingModes.AVAILABLE_SCHEMES:
       setHeading('Supported Schemes');
-      setButtons(<SchemeOptions state={state} dispatch={dispatch}/>)
+      setButtons(<SchemeOptions/>)
       break;
     default :
       null;
     break;
   } 
-  }, [dispatch, settingMode, state])
+  }, [settingMode])
 
 return (
 <>

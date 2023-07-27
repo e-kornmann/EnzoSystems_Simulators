@@ -63,18 +63,14 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   const modal = (
    <>
-
-    <S.Backdrop onClick={hide} />
- 
-      
+     
         <S.Wrapper
           aria-modal
           aria-labelledby={headerText}
           tabIndex={-1}
           role="dialog"
           onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          
+          onMouseUp={handleMouseUp}   
         >
       
           
@@ -84,7 +80,6 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
               transform: `translateX(${translate.x}px) translateY(${translate.y}px)`
             }}>
             <S.Header>
-              <S.HeaderText>{headerText}</S.HeaderText>
               <S.CloseButton onClick={hide}>×</S.CloseButton>
             </S.Header>
             

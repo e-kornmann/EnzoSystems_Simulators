@@ -8,5 +8,4 @@ type Props = {
 
 const SuccessIcon = ({width, height, fill}: Props) => <Success width={width} height={height} fill={fill} />;
 
-
 export default SuccessIcon;

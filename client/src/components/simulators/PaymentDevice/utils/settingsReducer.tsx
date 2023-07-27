@@ -1,5 +1,6 @@
-import { Reducer } from "react";
+import { ReactNode, Reducer, createContext, useReducer } from "react";
 import { CurrencyCode } from "../../../../types/CurrencyTypes";
+import React from "react";
 
 export enum SettingModes {
   SETTINGS,
@@ -65,7 +66,7 @@ export type AllAppSettings = {
   selectedScheme: SupportedSchemesType;
 };
 
-export const intitialSettingState: AllAppSettings = {
+const intitialSettingState: AllAppSettings = {
   operationalModeOption: OperationalModeOptionsStatesType.NORMAL,
   currency: CurrencyCode.EUR,
   language: LanguageOptionsStatesType.DUTCH,
@@ -117,7 +118,7 @@ export type StateDispatchProps = {
   dispatch: React.Dispatch<SettingsAction>;
 }
 
-export const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, action) => {
+const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, action) => {
   switch (action.type) {
     case SettingModes.OPERATIONAL_MODE:
       return {
@@ -154,5 +155,29 @@ export const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, 
   }
 };
 
+type AppContextValue = {
+  state: AllAppSettings;
+  dispatch: React.Dispatch<SettingsAction>;
+};
 
 
+export const AppContext = createContext<AppContextValue>({
+  state: intitialSettingState,
+  dispatch: () => void {},
+});
+
+
+
+type AppContextProviderProps = {
+  children: ReactNode;
+}
+
+export const AppContextProvider = ({ children }: AppContextProviderProps) => {
+  const [state, dispatch] = useReducer(settingsReducer, intitialSettingState);
+  const value = { state, dispatch };
+  return (
+    <>
+      <AppContext.Provider value={value}>{children}</AppContext.Provider>
+    </>
+  );
+};

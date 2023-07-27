@@ -1,10 +1,14 @@
-import { OperationalModeOptionsStatesType, SettingModes, StateDispatchProps } from '../../../utils/settingsReducer';
+import { useContext } from 'react';
+import { AppContext, OperationalModeOptionsStatesType, SettingModes } from '../../../utils/settingsReducer';
+
 import { Button, List } from "../../style";
 import Checkmark from './checkmark';
 
 
 
-const OperationalModeOptions = ({ state, dispatch }: StateDispatchProps) => {
+const OperationalModeOptions = () => {
+  const { state, dispatch } = useContext(AppContext);
+  
   const onChangeEventHandler = (mode: OperationalModeOptionsStatesType) => {
     dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: mode });
   };
