@@ -2,10 +2,10 @@
 // import { ReactComponent as SuccessIcon } from '../../../../assets/svgs/success.svg';
 import styled from "styled-components";
 import * as Sv from "../../../../styles/stylevariables";
-import { PayMethod, Status } from "..";
 import { ReactComponent as PhoneIcon } from '../../../../assets/svgs/phone.svg';
 import { ReactComponent as ChipIcon } from '../../../../assets/svgs/chip.svg';
 import { ReactComponent as ContactlessIcon } from '../../../../assets/svgs/contactless.svg';
+import { PayMethod, Status } from "../types/types";
 
 
 const IconContainer = styled.div`
@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 const PaymentMethodButton = styled.button`
   display: flex;
   justify-content: center;
-  align-itemts: center;
+  align-items: center;
   margin: 8px auto;
   color: white;
   width: 83%;

@@ -74,10 +74,10 @@ export const Button = styled.button`
 `;
 
 export const Wrap = styled.div`
-    display: flex;
-    align-items: center;
-    column-gap: 10px;
-    `
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+ `;
 
 
 

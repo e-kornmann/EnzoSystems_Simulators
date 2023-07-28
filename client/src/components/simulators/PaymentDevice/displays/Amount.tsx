@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import PriceFormatter from '../../../../utils/priceFormatter'
 import FailureIcon from '../../../shared/svgcomponents/Fail';
 import {  Container, Mainline, Subline, SublineBottom } from './styles'
-import { Status } from '..';
+import { Status } from '../types/types';
 
 type Props = {
     amount: number | undefined;
@@ -15,7 +15,7 @@ type IconProp = {
 }
 const IconContainer = styled.div<IconProp>`
   display: ${(props) => (props.$show ? 'block' : 'none')};
-  postion: absolute;
+  position: absolute;
   top: 30px;
 `
 const Amount = ({ amount, currentState }: Props) => {

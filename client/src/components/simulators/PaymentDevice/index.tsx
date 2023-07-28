@@ -23,40 +23,12 @@ import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredential
 import useStopTransactionTerminal from './utils/useStopTransactionTerminal';
 import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
-import { AcceptTransactionStateType } from './types';
+import { AcceptTransactionStateType, PayMethod, Status } from './types/types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
 import PayProvider from '../../shared/svgcomponents/PayProvider';
 
-
-export enum Status {
-  START_UP,
-  OUT_OF_ORDER,
-  IDLE,
-  UPDATE_TRANSACTION,
-  SERVER_ERROR,
-  CHOOSE_METHOD,
-  ACTIVE_METHOD,
-  WAITING,
-  PIN_ENTRY,
-  CHECK_PIN,
-  STOP_TRANSACTION,
-  WRONG_PIN,
-  CHECK_AMOUNT,
-  TIMED_OUT,
-  PIN_ERROR,
-  AMOUNT_ERROR,
-  SUCCESS,
-  STOPPED,
-}
-
-export enum PayMethod {
-  NONE,
-  SMARTPHONE,
-  CONTACTLESS,
-  CARD,
-}
 
 const PaymentDevice = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
@@ -338,7 +310,7 @@ const PaymentDevice = () => {
           <div>{currentDate}</div>
           <div>{currentTime}</div>
         </S.TimeRibbon>
-        <S.TextBox
+        <S.Content
           $aligntop={
             status === Status.PIN_ENTRY ||
             status === Status.WRONG_PIN ||
@@ -356,7 +328,7 @@ const PaymentDevice = () => {
               currentState={status}
             />
           ) : null}
-        </S.TextBox>
+        </S.Content>
 
         <Buttons
           handleButtonClick={handleButtonClick}

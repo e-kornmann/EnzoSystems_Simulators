@@ -14,9 +14,10 @@ import { ReactComponent as Ideal } from '../../../assets/svgs/PayProviders/ideal
 import { ReactComponent as Unionpay } from '../../../assets/svgs/PayProviders/unionpay.svg';
 import { ReactComponent as Giropay } from '../../../assets/svgs/PayProviders/giropay.svg';
 import { ReactComponent as Discover } from '../../../assets/svgs/PayProviders/discover.svg';
+import { SupportedSchemesType } from '../../simulators/PaymentDevice/types/PaymentTypes';
 
 
-import { SupportedSchemesType } from '../../simulators/PaymentDevice/utils/settingsReducer';
+
 
 type Props = {
   width: number;

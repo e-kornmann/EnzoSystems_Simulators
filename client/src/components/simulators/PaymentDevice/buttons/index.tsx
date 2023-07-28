@@ -1,5 +1,5 @@
-import { Status } from '..';
 import PinComponent from '../PinEntry';
+import { Status } from '../types/types';
 import { ButtonContainer, CorrectButton, NrButton, OkButton, StopButton } from './style';
 
 
@@ -24,31 +24,21 @@ const Buttons = ({ showBottomButtons, stopHandler, payHandler, handleButtonClick
     currentState === Status.CHOOSE_METHOD || 
     currentState === Status.ACTIVE_METHOD;
 
-const numpadArray = [
-    'one', 
-    'two', 
-    'three', 
-    'four', 
-    'five', 
-    'six', 
-    'seven', 
-    'eight', 
-    'nine', 
-    'zero'];
+const numpadArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 
   return (
     <ButtonContainer>
       <PinComponent pinDigits={pinDigits} $showPinEntry={showNumPad}/>
-        {numpadArray.map((num, index) => {
-        const padNr = String(index + 1 === 10 ? 0 : index + 1)
+        {numpadArray.map((num) => {
+       
       return (
         <NrButton
           key={num}
           $gridarea={num}
           $showNrs={showNumPad}
-          onClick={() => handleButtonClick(padNr)}
+          onClick={() => handleButtonClick(num)}
         >
-          {padNr}
+          {num}
         </NrButton>
       );
     })}

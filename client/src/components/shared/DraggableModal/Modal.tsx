@@ -44,7 +44,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.keyCode === 27 && isShown) {
+      if (event.key === 'Escape' && isShown) {
         hide();
       }
     };

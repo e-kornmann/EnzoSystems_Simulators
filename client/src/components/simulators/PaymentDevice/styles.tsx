@@ -5,8 +5,8 @@ const Container = styled.main`
   background-color: white;
   font-family: 'Inter', sans-serif;
   display: grid;
-  width: 460px;
-  height: 860px;
+  width: 360px;
+  height: 760px;
   column-gap: 10px;
   grid-template-rows: 60px 25px 1fr 5px 85px;
   border-radius: 5px;
@@ -29,8 +29,7 @@ type Props = {
   $aligntop : boolean;
 }
 
-const TextBox = styled.div<Props>`
-  margin-bottom
+const Content = styled.div<Props>`
   grid-row: 3 / 4;
   padding: 12px 15px 100px;
   display: flex;
@@ -96,7 +95,7 @@ export {
  Footer,
  PayOptions,
  TimeRibbon,
- TextBox,
+ Content,
  SettingsButton,
  PayProviderBorder,
  }

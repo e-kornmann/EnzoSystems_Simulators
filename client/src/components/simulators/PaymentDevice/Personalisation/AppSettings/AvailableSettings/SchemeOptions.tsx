@@ -1,10 +1,11 @@
 
 import { useContext } from 'react';
-import { AppContext, SettingModes, SupportedSchemesType } from '../../../utils/settingsReducer';
+import { AppContext, SettingModes } from '../../../utils/settingsReducer';
 import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
 import { Button, List, Wrap } from "../../style";
 import '../../customradiobuttons.css'
 import Checkmark from './checkmark';
+import { SupportedSchemesType } from '../../../types/PaymentTypes';
 
 
 const SchemeOptions = () => {

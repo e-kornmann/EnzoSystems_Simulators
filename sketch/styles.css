@@ -1,0 +1,51 @@
+:root {
+    --enzoOrange: #FA8A00;
+    --black: #141414;
+  }
+
+  .container {
+    background-color: white;
+    font-family: 'Inter', sans-serif;
+    display: grid;
+    width: 100vw;
+    height: 100vh;
+    grid-template-rows: 45px 1fr;
+  }
+
+  .header {
+    fill: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: var(--enzoOrange);
+    font-weight: 500;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+
+  .content {
+    padding: 0 10px 55px;
+    display: flex;
+    
+    flex-direction: column;
+    font-size: 17px;
+    background-color: #EBEBEB;
+    overflow-y:unset; 
+
+  }
+
+  .vertical-center {
+    margin: auto;
+  }
+
+  .footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 10px 15px;
+    background-color: white;
+  }
+
