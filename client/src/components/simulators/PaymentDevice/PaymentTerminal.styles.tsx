@@ -5,44 +5,37 @@ const Container = styled.main`
   background-color: white;
   font-family: 'Inter', sans-serif;
   display: grid;
-  width: 360px;
-  height: 760px;
-  column-gap: 10px;
-  grid-template-rows: 60px 25px 1fr 5px 85px;
-  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  grid-template-rows: 45px 1fr;
 `;
 
 const Header = styled.div`
   fill: black;
-  grid-row: 1 / 2;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 20px;
+  font-size: 14px;
   color: ${Sv.enzoOrange};
   font-weight: 500;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+  fill: black;
 `;
 
-type Props = {
-  $aligntop : boolean;
-}
-
-const Content = styled.div<Props>`
-  grid-row: 3 / 4;
-  padding: 12px 15px 100px;
+const Content = styled.div`
+  padding: 0 10px 55px;
   display: flex;
-  justify-content: center;
-  align-items: ${(props) => (props.$aligntop ? 'flex start' : 'center')};
-  font-size: 25px;
-  background-color: #F7F7F7;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+  flex-direction: column;
+  font-size: 17px;
+  background-color: #EBEBEB;
+  overflow-y:unset;
 `;
 
 const TimeRibbon = styled.div`
-  grid-row: 2 / 3;
+  position: absolute;
+  top: 35px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -50,7 +43,7 @@ const TimeRibbon = styled.div`
   font-size: 13px;
   font-weight: 500;
   padding: 15px 20px 5px;
-  background-color: #F7F7F7;
+  background-color: transparent;
 `;
 
 const PayOptions = styled.div`
@@ -61,10 +54,15 @@ const PayOptions = styled.div`
   margin-top: 3px;
 `;
 
-const Footer = styled(TimeRibbon)`
-  grid-row: 5 / 6;
-  padding: 15px 20px 15px 22px;
+const Footer = styled.div`
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 10px 15px;
   background-color: white;
+  border-radius: 0 0 5px 5px;	
 `;
 
 const SettingsButton = styled.div`

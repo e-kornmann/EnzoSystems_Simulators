@@ -1,6 +1,6 @@
 import axios from "axios";
-import { Status } from "..";
 import api from "../../../../api";
+import { Status } from "../types/types";
 
 export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
     try {

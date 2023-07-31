@@ -1,7 +1,7 @@
 .amount-box {
- position: relative;
- top: -7px;
-
+ height: 24%;
+ margin: auto;
+ border: 1px solid gray;
 }
 .icon-container {
   position: relative;
@@ -21,6 +21,7 @@
   line-height: 0.3em;
   padding: 15px 0px;
   white-space: pre-line; 
+  border: 1px solid gray;
 }
 
 .message {
@@ -40,7 +41,9 @@
 .digit-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  margin: auto;
+  height: 10%;
+  border: 1px solid gray;
 }
 
 .digit {
@@ -56,18 +59,28 @@
   border-bottom: 2px solid grey;
 }
 
-.numpad-container, .activetransaction-footer {
+.numpad-container, .bottom-button-container {
+  height: 10%;
   display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  height: 38%;
-  row-gap: 6px;
-  column-gap: 5px;
   justify-content: space-between;
-  margin-top: auto;
+  flex-wrap: wrap;
+  row-gap: 4%;
+  column-gap: 5px;
+  border: 1px solid gray;
+  /* margin-top: auto; */
 }
 
-.numpad-button {
+
+.bottom-button-container { 
+  width: 100%;
+  /* margin-top: 8px; */
+} 
+
+.filler {
+  height: 2%;
+}
+
+.numpad-button, .stop-button, .correct-button, .ok-button {
   display: flex;
   height: auto;
   justify-content: center;
@@ -77,19 +90,27 @@
   font-weight: 600;
   min-width: 26%;
   margin: 0 auto;
-  border-radius: 50px;
-  
+  border-radius: 20px;
+ 
   &:active {
     background-color: darkgoldenrod;
     border: none;
   }
 }
 
-.activetransaction-footer { 
-  width: 100%;
-  height: 8%;
-  margin-top: 8px;
-} 
+.stop-button {
+  background-color:red;
+}
+
+.correct-button {
+  background-color:rgb(255, 191, 0);
+}
+
+.ok-button {
+  background-color:rgb(111, 255, 0);
+}
+
+
 
 .choose-method-container {
   width: 100%;  

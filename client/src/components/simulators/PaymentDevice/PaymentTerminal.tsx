@@ -1,4 +1,4 @@
-import * as S from './styles';
+import * as S from './PaymentTerminal.styles';
 import { AppContext } from './utils/settingsReducer';
 import { useContext, useEffect, useState } from 'react';
 import TimedOut from './displays/TimedOut';
@@ -11,10 +11,7 @@ import { Loading } from './displays/Loading';
 import PinError from './displays/PinError';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
-import { PayOptions } from './styles';
-import Buttons from './buttons';
-import ChoosePayMethod from './displays/ChoosePayMethod';
-import Amount from './displays/Amount';
+import { PayOptions, TimeRibbon } from './PaymentTerminal.styles';
 import AppSettings from './Personalisation/AppSettings/AppSettings';
 import NotConnected from './displays/NotConnected';
 import ServerError from './displays/ServerError';
@@ -28,9 +25,9 @@ import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
 import PayProvider from '../../shared/svgcomponents/PayProvider';
+import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
 
-
-const PaymentDevice = () => {
+const PaymentTerminal = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
   const [status, setStatus] = useState(Status.START_UP);
   const [ transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
@@ -39,10 +36,7 @@ const PaymentDevice = () => {
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
-  const [showBottomButtons, setShowBottomButtons] = useState(false);
   const [display, setDisplay] = useState(<Welcome />);
-  const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
   const [hideSettings, setHideSettings] = useState(true);
   const [hidePayProviders, setHidePayProviders] = useState(true);
   const [init, setInit] = useState(false);
@@ -57,7 +51,6 @@ const PaymentDevice = () => {
       doLogOn();
     }
   }, [init, logOn]);
-
 
   // Fetch transaction details at regular intervals (1 second) if the status is not idle, and
   // check if the transaction status is 'STOPPED' for the following useEffect below;
@@ -123,7 +116,6 @@ const PaymentDevice = () => {
         setDisplay(<Welcome />);
         setPinAttempts(0);
         setActivePayMethod(PayMethod.NONE);
-        setShowBottomButtons(false);
         setPinDigits(['','','','']);
         waitTime= 1000;
         break;
@@ -132,26 +124,19 @@ const PaymentDevice = () => {
         waitTime = 4500;
         break;
       case Status.CHOOSE_METHOD:
-        setShowBottomButtons(true);
-        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 15000;  
         break;
       case Status.ACTIVE_METHOD:
-        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 500;  
         break;
       case Status.WAITING:
-        setShowBottomButtons(true);
-        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay}  />)
         waitTime = 7000;  
         break;
       case Status.STOP_TRANSACTION:
-        setShowBottomButtons(false);
         setDisplay(<Cancel />);
         waitTime = 4500;
         break;
       case Status.PIN_ENTRY:
-        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 10000;
         break;
      case Status.CHECK_PIN:
@@ -159,16 +144,13 @@ const PaymentDevice = () => {
         waitTime = 1500;
         break;
       case Status.WRONG_PIN:
-        setDisplay(<Amount currentState={status} amount={transactionState.amountToPay} />)
         waitTime = 10000;
         break;
       case Status.TIMED_OUT:
-        setShowBottomButtons(false);
         setDisplay(<TimedOut />);
         waitTime = 2000;
         break;
       case Status.CHECK_AMOUNT:
-        setShowBottomButtons(false);
         setDisplay(<OneMoment />); 
         waitTime = 1000;
         break;
@@ -284,17 +266,6 @@ const PaymentDevice = () => {
     };
   }, [activePayMethod, currentPin, init, pinAttempts, status, stopTransaction, token, transactionState.amountToPay, transactionState.transactionId]);
 
-  useEffect(() => {
-      const timer = setInterval(() => {
-        setCurrentTime(new Date().toLocaleTimeString());
-        setCurrentDate(new Date().toLocaleDateString());
-      }, 1000);
-  
-      return () => {
-        clearInterval(timer);
-      };
-  }, []);
-
   const logTerminalTokenAndTransactionState = React.useCallback(() => {
     console.log(token);
     console.log(transactionState);
@@ -306,39 +277,38 @@ const PaymentDevice = () => {
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <S.Container>
         <S.Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</S.Header>
-        <S.TimeRibbon>
-          <div>{currentDate}</div>
-          <div>{currentTime}</div>
-        </S.TimeRibbon>
-        <S.Content
-          $aligntop={
-            status === Status.PIN_ENTRY ||
-            status === Status.WRONG_PIN ||
-            status === Status.CHOOSE_METHOD ||
-            status === Status.ACTIVE_METHOD ||
-            status === Status.CHECK_PIN
-          }
-        >
-          <div>{display}</div>
-          { status === Status.CHOOSE_METHOD ||
-            status === Status.ACTIVE_METHOD ? (
-            <ChoosePayMethod
-              chooseMethodHandler={chooseMethodHandler}
-              activePayMethod={activePayMethod}
-              currentState={status}
-            />
-          ) : null}
-        </S.Content>
+        <TimeRibbon />
+ 
+  
+        <S.Content>
 
-        <Buttons
+          { status === Status.START_UP ||
+            status === Status.OUT_OF_ORDER ||
+            status === Status.IDLE ||
+            status === Status.SERVER_ERROR ||
+            status === Status.STOP_TRANSACTION ||
+            status === Status.CHECK_PIN ||
+            status === Status.TIMED_OUT ||
+            status === Status.CHECK_AMOUNT ||
+            status === Status.PIN_ERROR ||
+            status === Status.AMOUNT_ERROR ||
+            status === Status.UPDATE_TRANSACTION ||
+            status === Status.SUCCESS ? 
+          <div style={{margin: 'auto'}}>{display}</div> : null 
+}
+
+
+        <ActiveTransaction
+          chooseMethodHandler={chooseMethodHandler}
+          activePayMethod={activePayMethod}
           handleButtonClick={handleButtonClick}
           stopHandler={stopTransaction}
           payHandler={payHandler}
           currentState={status}
-          showBottomButtons={showBottomButtons}
           pinDigits={pinDigits}
-        />
-
+          amount={transactionState.amountToPay} />
+        
+        </S.Content>
         <S.Footer>
           <S.SettingsButton>
           <SettingsIcon
@@ -357,4 +327,4 @@ const PaymentDevice = () => {
   );
 };
 
-export default PaymentDevice;        
+export default PaymentTerminal;        

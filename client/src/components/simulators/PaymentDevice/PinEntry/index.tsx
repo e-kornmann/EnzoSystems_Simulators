@@ -7,23 +7,23 @@ type DigitProps = {
 };
 
 const CodeContainer = styled.div`
-  grid-area: pin;
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
+  height: 25px;
   `;
-
+  
 const Digit = styled.input<DigitProps>`
   display: ${(props) => (props.$showPinEntry ? 'flex' : 'none')};
   border: none;
   background-color: transparent;
   color: ${Sv.asphalt};
-  text-align: center;
-  padding: 5px;
-  font-size: 38px;
-  margin: 9px;
-  width: 38px;
-  border-bottom: 1px solid ${Sv.asphalt};
+  justify-content: center;
+  font-size: 1.5em;
+  margin: 0 4px;
+  width: 20px;
+  height: 100%;
+  border-bottom: 2px solid ${Sv.asphalt};
 `;
 
 type Props = {

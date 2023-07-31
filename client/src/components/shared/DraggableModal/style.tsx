@@ -18,27 +18,23 @@ export const Wrapper = styled.div`
 `;
 
 export const StyledModal = styled.div<Props>`
-	border-radius: 2px;	
 	z-index: 70;
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
 	pointer-events: auto;
 `;
 
-export const Header = styled.div`
-	border-radius: 4px 4px 0 0;
-	display: flex;
-	justify-content: flex-end;
-	padding: 0.5rem 1.3rem;
-`;
-
 export const CloseButton = styled.button`
+	position: absolute;
+	right: 0;
+	top: -40px;
 	font-family: 'Rubik', sans-serif;
+	width: 30px;
+	height: 30px;
 	font-weight: 100;
 	font-size: 1.53rem;
-	margin-right: -5px;
 	color: white;
 	border: none;
-	border-radius: 13px;
+	border-radius: 3px;
 	background: ${Sv.gray};
 	&:hover {
 		cursor: pointer;
@@ -46,8 +42,15 @@ export const CloseButton = styled.button`
 	}
 `;
 
-export const Content = styled.div`
-	border-radius: 8px;	
+type ContentProps = { 
+	$width: number;
+	$height: number;
+}
+
+export const Content = styled.div<ContentProps>`
+	width: ${(props) => props.$width}px;
+	height: ${(props) => props.$height}px;
+	border-radius: 5px;	
 	overflow-x: hidden;
 	overflow-y: auto;
 	box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;

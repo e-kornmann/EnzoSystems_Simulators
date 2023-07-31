@@ -26,11 +26,11 @@
 
   .content {
     padding: 0 10px 55px;
-    display: flex;
-    
+    display: flex; 
     flex-direction: column;
+    align-content: stretch;
     font-size: 17px;
-    background-color: #EBEBEB;
+    background-color: palegreen;
     overflow-y:unset; 
 
   }

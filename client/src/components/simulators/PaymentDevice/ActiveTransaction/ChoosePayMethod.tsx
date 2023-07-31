@@ -15,29 +15,26 @@ const IconContainer = styled.div`
  `;
 
 const Wrapper = styled.div`
-  position: absolute;
-  bottom: 180px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  margin-bottom: 30px;
-  height: 280px;
+width: 100%;  
+height: 10%;
+position: relative;
+top: -38px
   `;
 
 const PaymentMethodButton = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 8px auto;
-  color: white;
-  width: 83%;
-  padding: 15px 0;
-  font-weight: 300;
-  font-size: 0.8em;
-  border-radius: 4px;
-  cursor: pointer;
-  z-index: 300;
+width: 96%;
+display: flex;
+justify-content: center;
+align-items: center;
+margin: 8px auto;
+color: white;
+height: 34px;
+font-weight: 300;
+font-size: 0.7em;
+border-radius: 2px;
+cursor: pointer;
+z-index: 300;
+border-radius: 6px;
   &:active {
     background-color: ${Sv.enzoDarkOrange};
   }

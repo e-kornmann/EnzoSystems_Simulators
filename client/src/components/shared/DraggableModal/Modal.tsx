@@ -2,8 +2,6 @@ import { FunctionComponent, useEffect, useState } from "react";
 
 import ReactDOM from "react-dom";
 import * as S from "./style";
-// import { Draggable } from "./Draggable";
-// import Drag from "./Drag";
 import DragMove from "./Drag";
 
 
@@ -12,7 +10,8 @@ export interface ModalProps {
   hide: () => void;
   modalContent: JSX.Element;
   headerText: string;
-  identifier: string;
+  modalWidth: number,
+  modalHeight: number,
 }
 
 
@@ -21,9 +20,11 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   hide,
   modalContent,
   headerText,
+  modalWidth,
+  modalHeight
 }) => {
 
- const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const [isGrabbing, setIsGrabbing] = useState(false);
 
 
@@ -34,7 +35,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   const handleMouseUp = () => {
     setIsGrabbing(false);
   };
-  
+
   const handleDragMove = (e: { movementX: number; movementY: number; }) => {
     setTranslate({
       x: translate.x + e.movementX,
@@ -62,42 +63,31 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   }, [isShown, hide]);
 
   const modal = (
-   <>
-     
-        <S.Wrapper
-          aria-modal
-          aria-labelledby={headerText}
-          tabIndex={-1}
-          role="dialog"
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}   
-        >
-      
+    <>
+
+      <S.Wrapper
+        aria-modal
+        aria-labelledby={headerText}
+        tabIndex={-1}
+        role="dialog"
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+      >
+        <DragMove onDragMove={handleDragMove}>
+          <S.StyledModal $grabbing={isGrabbing} style={{
+            transform: `translateX(${translate.x}px) translateY(${translate.y}px)`
+          }}>
           
-          <DragMove onDragMove={handleDragMove}>
-     
-            <S.StyledModal $grabbing={isGrabbing} style={{
-              transform: `translateX(${translate.x}px) translateY(${translate.y}px)`
-            }}>
-            <S.Header>
               <S.CloseButton onClick={hide}>×</S.CloseButton>
-            </S.Header>
-            
-            <S.Content>{modalContent}</S.Content>
-                      </S.StyledModal>
-                      </DragMove>
+          
 
-        </S.Wrapper>
-
-  
-      </>
-
+            <S.Content $width={modalWidth} $height={modalHeight}>{modalContent}</S.Content>
+          </S.StyledModal>
+        </DragMove>
+      </S.Wrapper>
+    </>
   );
-
   return isShown ? ReactDOM.createPortal(modal, document.body) : null;
 };
 
 export default DraggableModal;
-
-
-

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
-import * as S from '../../../styles';
+import * as S from '../../../PaymentTerminal.styles';
 import { AppContext, SettingModes, SupportedSchemesType } from '../../../utils/settingsReducer';
 import { Button, IconContainer, List, SettingHeader, SettingsWrapper, Wrap } from "../../style";
 import { ReactComponent as CloseIcon } from '../../../../../../assets/svgs/close.svg';

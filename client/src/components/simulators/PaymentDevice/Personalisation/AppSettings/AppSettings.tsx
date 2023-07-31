@@ -1,5 +1,5 @@
 
-import * as S from "../../styles";
+import * as S from "../../PaymentTerminal.styles";
 import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/fail.svg';
 import { ReactComponent as Arrow } from '../../../../../assets/svgs/arrow_back.svg';
 import { IconContainer, SettingHeader, SettingsWrapper } from "../style";

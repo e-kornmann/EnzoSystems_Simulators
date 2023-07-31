@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import * as Sv from "../../../../styles/stylevariables";
-import { Header } from "../styles";
+import { Header } from "../PaymentTerminal.styles";
 
 export const IconContainer = styled.div`
   fill: ${Sv.black};
@@ -17,8 +17,10 @@ type HideProp = {
 
 export const SettingsWrapper = styled.div<HideProp>`
   display: ${(props) => (props.$hide ? 'none' : 'flex')};
+  border-radius: 5px;	
   position: absolute;
   width: 100%;
+  height: 100%;
   z-index: 400;
   overflow: hidden;
 `;
@@ -40,10 +42,10 @@ export const List = styled.div`
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   height: 100%;
-  overflow-y: overlay;
+  overflow-y: scroll;
   &::-webkit-scrollbar {
-      background: transparent; 
-      width: 0.35rem;
+    background: transparent; 
+    width: 0.35rem;
   }
   &::-webkit-scrollbar-track {
     width: 0.35rem;

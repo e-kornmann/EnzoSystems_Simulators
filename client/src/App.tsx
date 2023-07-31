@@ -1,20 +1,25 @@
 import { useCallback, useState } from 'react';
-import PaymentDevice from './components/simulators/PaymentDevice';
 import OtherDevice from './components/simulators/OtherDevice';
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import './styles/style.css'
 import { DndContext } from '@dnd-kit/core';
 import * as S from './styles/App.style';
+import { Simulator } from './components/simulators/PaymentDevice_Erik/simulator'
+import PaymentTerminal from './components/simulators/PaymentDevice/PaymentTerminal';
+
+
 
 function App() {
   type SimulatorsType = {
     paymentDevice: boolean;
     otherDevice: boolean;
+    pinSimulator: boolean;
   };
 
   const [simulators, setSimulators] = useState<SimulatorsType>({
-    paymentDevice: true,
-    otherDevice: true,
+    paymentDevice: false,
+    otherDevice: false,
+    pinSimulator: false,
   });
 
   const showSimulatorHandler = useCallback((simulator: keyof SimulatorsType) => {
@@ -39,6 +44,12 @@ function App() {
         >
           Demo app
         </S.OpenModelButton>
+        <S.OpenModelButton 
+          onClick={() => showSimulatorHandler('pinSimulator')} 
+          $isActive={simulators.pinSimulator}
+        >
+          Simulator
+        </S.OpenModelButton>
       </S.OpenModalButtonsContainer>
 
       <DndContext>
@@ -46,15 +57,25 @@ function App() {
           isShown={simulators.paymentDevice}
           hide={() => showSimulatorHandler('paymentDevice')}
           headerText=""
-          modalContent={<PaymentDevice />}
-          identifier={"Payment Device"}
+          modalContent={<PaymentTerminal />}
+          modalWidth={200}
+          modalHeight={400}
         />
         <DraggableModal
           isShown={simulators.otherDevice}
           hide={() => showSimulatorHandler('otherDevice')}
           headerText=""
           modalContent={<OtherDevice />}
-          identifier={"Other Device"}
+          modalWidth={400}
+          modalHeight={200}
+        />
+             <DraggableModal
+          isShown={simulators.pinSimulator}
+          hide={() => showSimulatorHandler('pinSimulator')}
+          headerText=""
+          modalContent={<Simulator />}
+          modalWidth={250}
+          modalHeight={400}
         />
       </DndContext>
 
