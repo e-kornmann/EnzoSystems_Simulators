@@ -1,12 +1,18 @@
 
 import { useContext } from 'react';
-import { AppContext, SettingModes } from '../../../utils/settingsReducer';
-import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
-import { Button, List, Wrap } from "../../style";
-import '../../customradiobuttons.css'
-import Checkmark from './checkmark';
-import { SupportedSchemesType } from '../../../types/PaymentTypes';
+import { AppContext, SettingModes } from '../../utils/settingsReducer';
+import PayProvider from '../../../../shared/svgcomponents/PayProvider';
+import { Button, List } from './SettingModes';
+import Checkmark from '../checkmark/Checkmark';
+import { SupportedSchemesType } from '../../types/PaymentTypes';
+import styled from 'styled-components';
 
+
+export const Wrap = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+ `;
 
 const SchemeOptions = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -30,7 +36,7 @@ const SchemeOptions = () => {
     <List>
       {Object.values(SupportedSchemesType).map(scheme => (
         <Button key={scheme} onClick={() => toggleScheme(scheme)}>
-          <Wrap><PayProvider width={48} height={28} provider={scheme}/>{scheme}</Wrap>
+          <Wrap><PayProvider width={30} height={22} provider={scheme} border={false}/>{scheme}</Wrap>
           <Checkmark isDisplayed={isSchemeSelected(scheme)}/> 
         </Button>
       ))}

@@ -11,52 +11,18 @@ import useLogOn from '../../../hooks/useLogOn';
 import { CurrencyInputProps } from './CurrencyInputProps';
 import { options } from './utils/settings/settings';
 import useGetTransaction from '../../../hooks/useGetTransaction';
+import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
 
-
-const Container = styled.main`
-background-color: white;
-font-family: 'Inter', sans-serif;
-display: grid;
-width: 560px;
-height: auto;
-column-gap: 15px;
-grid-template-rows: 60px 300px;
-border-radius: 10px;
-`;
-
-const Header = styled.div`
-grid-row: 1 / 2;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 20px;
-color: ${Sv.enzoOrange};
-font-weight: 500;
-border-top-left-radius: 5px;
-border-top-right-radius: 5px;
-`;
-
-const TextBox = styled.div`
-grid-row: 2 / 3;
-padding: 12px 15px;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 25px;
-background-color: #F7F7F7;
-border-bottom-left-radius: 5px;
-border-bottom-right-radius: 5px;
-`;
 
 const OkButton = styled.button`
-cursor: pointer;
-width: 100px;
-min-width: 0;
-background-color: ${Sv.green}; 
+  cursor: pointer;
+  width: 100px;
+  min-width: 0;
+  background-color: ${Sv.green}; 
 `;
 
 const StopButton = styled(OkButton)`
-background-color: ${Sv.red}; 
+  background-color: ${Sv.red}; 
 `;
 
 const OtherDevice = () => {
@@ -133,14 +99,15 @@ const OtherDevice = () => {
   return (
     <Container>
         <Header>Other Device</Header>
-        <TextBox>
+        <Content>
           <S.BlinkingDot $isActive={isActive}/> <S.StatusText>{transactionDetails.status}</S.StatusText>
           <Example3 value={value} handleOnValueChange={handleOnValueChange} intlConfig={intlConfig} handleIntlSelect={handleIntlSelect}/>
           <S.AmountText>{ transIdMessage }</S.AmountText>
-        </TextBox>
+        
         <StopButton type="button" onClick={() => stopTransaction(token, transactionIdApp, setIsActive, reset)} > Stop</StopButton>
         <OkButton type="button" onClick={() => createTransaction(token, rawValue, setTransactionIdApp)} > OK</OkButton>
         <S.ConnectMessage $init={init}>{import.meta.env.VITE_HOST_ID} { init ? 'is logged in to the Enzo Pay API' : 'has to be loggin to the Enzo Pay API to create a transaction'}</S.ConnectMessage>
+        </Content>
     </Container>
   );
 };

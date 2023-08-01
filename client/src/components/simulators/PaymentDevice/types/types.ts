@@ -63,3 +63,10 @@ export type GetTransactionDetails = {
   status: string
 }
 
+
+export type MessageContentType = {
+  mainline: string | undefined;
+  subline: string | undefined;
+  failicon: boolean;
+  successicon: boolean;
+}

@@ -1,14 +1,14 @@
 import styled from "styled-components";
 
-const LoadingDots = styled.span`
+export const LoadingDots = styled.div`
     font-weight: bold;
     display: inline-block;
-    margin-top: 30px;
     color: gray;
     font-family: monospace;
     font-size: 30px;
     clip-path: inset(0 3ch 0 0);
     animation: l 1s steps(4) infinite;
+    height: 30px;
   }
 
   @keyframes l {
@@ -18,4 +18,4 @@ const LoadingDots = styled.span`
   }
 `;
 
-export const Loading = () => <LoadingDots className="loading">...</LoadingDots>;
+export const Loading = () => <LoadingDots>...</LoadingDots>;

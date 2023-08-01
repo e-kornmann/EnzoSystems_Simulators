@@ -3,15 +3,15 @@ import styled from "styled-components";
 
 const Container = styled.div`
   position: absolute;
-  top: 35px;
+  top: 25px;
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 0.75em;
   font-weight: 500;
-  padding: 15px 20px 5px;
+  padding: 15px 15px 5px;
   background-color: transparent;
 `;
 

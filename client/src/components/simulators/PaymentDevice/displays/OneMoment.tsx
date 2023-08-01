@@ -1,4 +1,4 @@
-import { Subline } from "./styles"
+import { Subline } from "./Message"
 
 const OneMoment = () => {
 

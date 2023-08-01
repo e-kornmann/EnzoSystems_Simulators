@@ -66,8 +66,8 @@ function App() {
           hide={() => showSimulatorHandler('otherDevice')}
           headerText=""
           modalContent={<OtherDevice />}
-          modalWidth={400}
-          modalHeight={200}
+          modalWidth={600}
+          modalHeight={400}
         />
              <DraggableModal
           isShown={simulators.pinSimulator}

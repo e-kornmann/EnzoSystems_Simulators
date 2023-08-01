@@ -1,8 +1,7 @@
 import { useContext } from 'react';
-import { AppContext, SettingModes } from '../../../utils/settingsReducer';
-
-import { Button, List } from '../../style';
-import Checkmark from './checkmark';
+import { AppContext, SettingModes } from '../../utils/settingsReducer';
+import { Button, List } from './SettingModes';
+import Checkmark from '../checkmark/Checkmark';
 
 const PinOptions = () => {
 
