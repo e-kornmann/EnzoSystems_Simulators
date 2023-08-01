@@ -1,4 +1,3 @@
-import * as S from './PaymentTerminal.styles';
 import { AppContext } from './utils/settingsReducer';
 import { useContext, useEffect, useState } from 'react';
 import TimedOut from './displays/TimedOut';
@@ -11,8 +10,7 @@ import { Loading } from './displays/Loading';
 import PinError from './displays/PinError';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
-import { PayOptions, TimeRibbon } from './PaymentTerminal.styles';
-import AppSettings from './Personalisation/AppSettings/AppSettings';
+import AppSettings from './Personalisation/AppSettings/Settings';
 import NotConnected from './displays/NotConnected';
 import ServerError from './displays/ServerError';
 import useLogOn from '../../../hooks/useLogOn';
@@ -26,6 +24,41 @@ import useGetTransaction from '../../../hooks/useGetTransaction';
 import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
 import PayProvider from '../../shared/svgcomponents/PayProvider';
 import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
+import styled from 'styled-components';
+import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
+import TimeRibbon from '../../shared/TimeRibbon/TimeRibbon';
+
+
+const PayOptions = styled.div`
+  width: 73px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 3px;
+`;
+
+const Footer = styled.div`
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 10px 10px;
+  background-color: white;
+  border-radius: 0 0 5px 5px;	
+`;
+
+const SettingsButton = styled.div`
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  `;
+
+
 
 const PaymentTerminal = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
@@ -140,7 +173,6 @@ const PaymentTerminal = () => {
         waitTime = 10000;
         break;
      case Status.CHECK_PIN:
-        setDisplay(<Loading/>);
         waitTime = 1500;
         break;
       case Status.WRONG_PIN:
@@ -275,19 +307,18 @@ const PaymentTerminal = () => {
     <>
       <AppSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
-      <S.Container>
-        <S.Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</S.Header>
+      <Container>
+        <Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</Header>
         <TimeRibbon />
  
   
-        <S.Content>
+        <Content>
 
           { status === Status.START_UP ||
             status === Status.OUT_OF_ORDER ||
             status === Status.IDLE ||
             status === Status.SERVER_ERROR ||
             status === Status.STOP_TRANSACTION ||
-            status === Status.CHECK_PIN ||
             status === Status.TIMED_OUT ||
             status === Status.CHECK_AMOUNT ||
             status === Status.PIN_ERROR ||
@@ -295,7 +326,7 @@ const PaymentTerminal = () => {
             status === Status.UPDATE_TRANSACTION ||
             status === Status.SUCCESS ? 
           <div style={{margin: 'auto'}}>{display}</div> : null 
-}
+          }
 
 
         <ActiveTransaction
@@ -308,21 +339,23 @@ const PaymentTerminal = () => {
           pinDigits={pinDigits}
           amount={transactionState.amountToPay} />
         
-        </S.Content>
-        <S.Footer>
-          <S.SettingsButton>
+        </Content>
+        <Footer>
+          <SettingsButton>
           <SettingsIcon
-            width={18}
-            height={18}
+            width={13}
+            height={13}
             onClick={settingsButtonHandler}
             style={{ cursor: 'pointer' }}
-          /></S.SettingsButton>
+          /></SettingsButton>
           <PayOptions onClick={payProviderButtonHandler}>
-            <S.PayProviderBorder><PayProvider width={47} height={30} provider={state.selectedScheme}/></S.PayProviderBorder>
-            <ExpandIcon width={16} height={13} />
+    
+              <PayProvider width={30} height={22} border={true} provider={state.selectedScheme}/>
+     
+            <ExpandIcon width={12} height={8} />
           </PayOptions>
-        </S.Footer>
-      </S.Container>
+        </Footer>
+      </Container>
     </>
   );
 };

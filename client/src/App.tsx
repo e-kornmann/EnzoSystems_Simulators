@@ -59,15 +59,15 @@ function App() {
           headerText=""
           modalContent={<PaymentTerminal />}
           modalWidth={200}
-          modalHeight={400}
+          modalHeight={440}
         />
         <DraggableModal
           isShown={simulators.otherDevice}
           hide={() => showSimulatorHandler('otherDevice')}
           headerText=""
           modalContent={<OtherDevice />}
-          modalWidth={400}
-          modalHeight={200}
+          modalWidth={900}
+          modalHeight={400}
         />
              <DraggableModal
           isShown={simulators.pinSimulator}

@@ -23,13 +23,14 @@ type Props = {
   width: number;
   height: number;
   provider: SupportedSchemesType;
+  border: boolean;
 };
 
-const PayProvider = ({ width, height, provider }: Props) => {
+const PayProvider = ({ width, height, provider, border }: Props) => {
   
   switch (provider) {
     case SupportedSchemesType.APPLEPAY:
-      return <ApplePay width={width} height={height}/>;
+      return <ApplePay width={width} height={height} style={{width, height, border: border ? '0.1em solid lightgray' : 'none', color: 'gray', borderRadius: '4px'}} />;
     case SupportedSchemesType.AMEX:
       return <Amex width={width} height={height}/>;
     case SupportedSchemesType.GOOGLEPAY:
@@ -61,7 +62,7 @@ const PayProvider = ({ width, height, provider }: Props) => {
     case SupportedSchemesType.DISCOVER:
       return <Discover width={width} height={height}/>;
     default:
-      return <div style={{width, height, color: 'gray'}}> ○ </div> 
+      return <div style={{width, height, border: border ? '0.1em solid lightgray' : 'none', color: 'gray', borderRadius: '4px'}}> ○ </div> 
   }
 };
 

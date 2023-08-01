@@ -1,7 +1,6 @@
 import { styled } from 'styled-components';
 import { useContext } from 'react';
 import { AppContext } from '../utils/settingsReducer';
-
 import { PayMethod, Status } from '../types/types';
 import * as Sv from '../../../../styles/stylevariables';
 import FailureIcon from '../../../shared/svgcomponents/Fail';
@@ -13,55 +12,80 @@ type ShowProp = {
   $show: boolean;
 }
 
-const AmountBox = styled.div<ShowProp>`
-  display: ${(props) => (props.$show ? 'flex' : 'none')};
-  height: 45%;
-  flex-direction: column;
-  justify-content: center;
-  margin: auto;
-  `
-
-const AmountText = styled.div`
-  width: 100%;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7em;
-  font-weight: 500;
-  text-align: center; 
-  line-height: 0.3em;
-  padding: 15px 0px;
-  white-space: pre-line; 
-`
-
-const Message = styled(AmountText)`
-  font-size: 0.85em;
-`
-
-const Price = styled.div`
-  width: 100%;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 1.05em;
-  line-height: 0.6em;
-  color: ${Sv.enzoOrange};
-  text-align: center; 
-`
-const IconContainer = styled.div<ShowProp>`
-  display: ${(props) => (props.$show ? 'flex' : 'none')};
-  width: 100%;
-  justify-content: center;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 2fr 1fr 2fr 3fr 3fr 10fr 1fr 3fr;
+  grid-template-areas:
+  '. icon .'
+  'amount amount amount'
+  'price price price'
+  'instruction instruction instruction'
+  'pincode pincode pincode'
+  'numpad numpad numpad'
+  '. . .'
+  'stopButton correctButton confirmButton';
 `
 
 const NumpadContainer = styled.div` 
+  grid-area: numpad;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 16% 16% 16% 16% 16%;
-  width: 95%;
-  max-width: 400px;
-  margin: auto;
-  height: 50%;
-  row-gap: 5%;
-  column-gap: 8%;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  border: 1px solid gray;
 `
+
+
+// const AmountBox = styled.div
+//   flex-direction: column;
+//   justify-content: center;
+//   border: 1px solid gray;
+//   height: 100%;
+//   width: 100%;
+//   `
+
+const AmountText = styled.div<ShowProp>`
+  grid-area: amount; 
+  display: ${(props) => (props.$show ? 'flex' : 'none')};
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65em;
+  font-weight: 500;
+  justify-content: center; 
+  border: 1px solid gray;
+`
+
+const Instruction = styled(AmountText)`
+  grid-area: instruction; 
+  font-size: 0.75em;
+`
+
+const Price = styled.div<ShowProp>`
+  grid-area: price; 
+  display: ${(props) => (props.$show ? 'flex' : 'none')};
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.05em;
+  color: ${Sv.enzoOrange};
+  justify-content: center; 
+  border: 1px solid gray;
+`
+
+const IconContainer = styled.div<ShowProp>`
+  grid-area: icon;
+  display: ${(props) => (props.$show ? 'flex' : 'none')};
+  justify-content: center;
+  border: 1px solid gray;
+`
+
+
+const PinCodeContainer = styled.div`
+  grid-area: pincode; 
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  border: 1px solid gray;
+  `;
 
 const Pads = styled.button`
   display: flex;
@@ -74,6 +98,9 @@ const Pads = styled.button`
   font-weight: 600;
   cursor: pointer;
 `;
+
+
+
 
 type PadProps = {
   $showNrs: boolean;
@@ -101,32 +128,35 @@ type BottomButtonProps = {
 
 const StopButton = styled(Pads) <BottomButtonProps>`
     display: ${(props) => (props.$showBottomButtons ? 'flex' : 'none')};
-    grid-area: 5/1;
+    grid-area: stopButton;
     background: ${Sv.red};
     &:active {
       background-color: ${Sv.darkred};
       border: none;
     }
+    border: 1px solid gray;
   `;
 
 const CorrectButton = styled(Pads) <BottomButtonProps>`
     display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
-    grid-area: 5/2;
+    grid-area: correctButton;
     background: ${Sv.yellow};
     &:active {
       background-color: ${Sv.darkyellow};
       border: none;
     }
+    border: 1px solid gray;
   `;
 
 const OkButton = styled(Pads) <BottomButtonProps>`
     display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
-    grid-area: 5/3;
+    grid-area: confirmButton;
     background: ${Sv.green};
     &:active {
       background-color: ${Sv.darkgreen};
       border: none;
     }
+    border: 1px solid gray;
   `;
 
 
@@ -187,24 +217,26 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
 
   return (
     <>
-
-      <AmountBox $show={transactionIsActive}>
-      { currentState === Status.CHECK_PIN ? <Loading /> :  
-        <>
-        <IconContainer $show={currentState === Status.WRONG_PIN}><FailureIcon width={15} height={15} /></IconContainer>
-        <AmountText>Amount:</AmountText>
-        <Price>{amountText}</Price>
-        <Message>
-          {subline}
-        </Message>
-        <PinDigits pinDigits={pinDigits} $showPinEntry={showNumPad} />
-        </>
-      }
-     
-      </AmountBox>
       
-      <NumpadContainer>
+      
+    <Grid>
+      
+      
+        <>
+        <IconContainer $show={true}>{ currentState === Status.WRONG_PIN ? <FailureIcon width={15} height={15} /> : ' '}</IconContainer>
+        <AmountText $show={true}>{transactionIsActive ? 'Amount:' : ' '}</AmountText>
+        <Price $show={true}>{ currentState === Status.CHECK_PIN ? <Loading /> :  (transactionIsActive ? amountText : ' ')}</Price>
+        <Instruction $show={true}>{transactionIsActive ? subline : ' '}</Instruction>
+      
+        </>
+      
 
+      <PinCodeContainer>
+        <PinDigits pinDigits={pinDigits} $showPinEntry={showNumPad && currentState !== Status.CHECK_PIN} />
+      </PinCodeContainer>
+    
+
+      <NumpadContainer>
       {showPayMethodButtons ? <ChoosePayMethod
           chooseMethodHandler={chooseMethodHandler}
           activePayMethod={activePayMethod}
@@ -225,7 +257,11 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
         <ZeroButton key={'0'} $showNrs={showNumPad} onClick={() => handleButtonClick('0')} >
           {'0'}
         </ZeroButton>
+        </NumpadContainer>
+        
+ 
 
+ 
         <StopButton onClick={stopHandler} $showBottomButtons={transactionIsActive}>
           Stop
         </StopButton>
@@ -235,7 +271,7 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
         <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={payHandler}>
           OK
         </OkButton>
-      </NumpadContainer>
+      </Grid>
 
     </>
   )

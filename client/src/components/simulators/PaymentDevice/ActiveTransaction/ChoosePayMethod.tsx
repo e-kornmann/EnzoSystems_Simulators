@@ -15,42 +15,28 @@ const IconContainer = styled.div`
  `;
 
 const Wrapper = styled.div`
-width: 100%;  
-height: 10%;
-position: relative;
-top: -38px
+  grid-area: 1 / 1 / 3 / 4;
   `;
 
-const PaymentMethodButton = styled.button`
-width: 96%;
-display: flex;
-justify-content: center;
-align-items: center;
-margin: 8px auto;
-color: white;
-height: 34px;
-font-weight: 300;
-font-size: 0.7em;
-border-radius: 2px;
-cursor: pointer;
-z-index: 300;
-border-radius: 6px;
+const PaymentMethodButton = styled.button<{ $inActive: boolean }>`
+  background-color: ${(props) => (props.$inActive ? "#B4B4B4" : Sv.enzoOrange)};
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 4px;
+  color: white;
+  height: 32%;
+  font-weight: 300;
+  font-size: 0.7em;
+  border-radius: 2px;
+  cursor: pointer;
+  z-index: 300;
+  border-radius: 6px;
   &:active {
     background-color: ${Sv.enzoDarkOrange};
   }
   `;
-
-const SmartphoneButton = styled(PaymentMethodButton)<{ $inActive: boolean }>`
-  background-color: ${(props) => (props.$inActive ? "#B4B4B4" : Sv.enzoOrange)};
-`;
-
-const ContactlessButton = styled(PaymentMethodButton)<{ $inActive: boolean }>`
-  background-color: ${(props) => (props.$inActive ? "#B4B4B4" : Sv.enzoOrange)};
-`;
-
-const WithCardButton = styled(PaymentMethodButton)<{ $inActive: boolean }>`
-  background-color: ${(props) => (props.$inActive ? "#B4B4B4" : Sv.enzoOrange)};
-`;
 
   type Props = {
     chooseMethodHandler: (method: PayMethod) => void;
@@ -59,37 +45,33 @@ const WithCardButton = styled(PaymentMethodButton)<{ $inActive: boolean }>`
   }
 
 const ChoosePayMethod = ({chooseMethodHandler, activePayMethod, currentState }: Props) => {
-
     
     const isInactiveButton = (thisPayMethod: PayMethod): boolean =>
     currentState === Status.ACTIVE_METHOD && thisPayMethod !== activePayMethod;
 
-
-
-    return (
-      <>
+    return ( 
       <Wrapper>
-        <SmartphoneButton onClick={() => chooseMethodHandler(PayMethod.SMARTPHONE)} $inActive={isInactiveButton(PayMethod.SMARTPHONE)}>
+        <PaymentMethodButton onClick={() => chooseMethodHandler(PayMethod.SMARTPHONE)} $inActive={isInactiveButton(PayMethod.SMARTPHONE)}>
           <IconContainer>
-            <PhoneIcon />
+            <PhoneIcon  width={15} height={15} />
           </IconContainer>
           Smartphone
-        </SmartphoneButton>
-        <ContactlessButton onClick={() => chooseMethodHandler(PayMethod.CONTACTLESS)} $inActive={isInactiveButton(PayMethod.CONTACTLESS)}>
+        </PaymentMethodButton>
+        <PaymentMethodButton onClick={() => chooseMethodHandler(PayMethod.CONTACTLESS)} $inActive={isInactiveButton(PayMethod.CONTACTLESS)}>
         <IconContainer>
-          <ContactlessIcon />
+          <ContactlessIcon width={15} height={15} />
         </IconContainer>
           Contactless card
-        </ContactlessButton>
-        <WithCardButton onClick={() => chooseMethodHandler(PayMethod.CARD)} $inActive={isInactiveButton(PayMethod.CARD)}>
+        </PaymentMethodButton>
+        <PaymentMethodButton onClick={() => chooseMethodHandler(PayMethod.CARD)} $inActive={isInactiveButton(PayMethod.CARD)}>
         <IconContainer>
-          <ChipIcon width={25} height={20} />
+          <ChipIcon width={13} height={13} />
           </IconContainer>
           Insert card
-        </WithCardButton>
+        </PaymentMethodButton>
 
       </Wrapper>
-      </>
+   
     )
   }
   

@@ -1,8 +1,8 @@
 
 import { useContext } from 'react';
 import { AppContext, LanguageOptionsStatesType, SettingModes } from '../../../utils/settingsReducer';
-import { Button, List } from "../../style";
-import Checkmark from './checkmark';
+import Checkmark from '../checkmark';
+import { Button, List } from './SettingModes';
 
 const LanguageOptions = () => {
   const { state, dispatch } = useContext(AppContext);

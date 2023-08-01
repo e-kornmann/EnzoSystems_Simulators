@@ -4,8 +4,8 @@
 ******************************/
 
 import styled from "styled-components";
-import { Header } from "../PaymentDevice/PaymentTerminal.styles";
 import { useCallback, useState, useRef, useEffect } from "react";
+import { Header } from "../../shared/DraggableModal/ModalTemplate";
 
 const StyledMessage = styled.div`
   color: black;

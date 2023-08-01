@@ -1,8 +1,7 @@
 import { useContext } from 'react';
 import { AppContext, OperationalModeOptionsStatesType, SettingModes } from '../../../utils/settingsReducer';
-
-import { Button, List } from "../../style";
-import Checkmark from './checkmark';
+import { Button, List } from './SettingModes';
+import Checkmark from '../checkmark';
 
 
 

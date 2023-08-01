@@ -6,23 +6,17 @@ type DigitProps = {
   $showPinEntry: boolean;
 };
 
-const CodeContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-  height: 25px;
-  `;
-  
+ 
 const Digit = styled.input<DigitProps>`
-  display: ${(props) => (props.$showPinEntry ? 'flex' : 'none')};
+  display: ${(props) => (props.$showPinEntry ? 'block' : 'none')};
   border: none;
   background-color: transparent;
   color: ${Sv.asphalt};
-  justify-content: center;
-  font-size: 1.5em;
-  margin: 0 4px;
+  text-align: center;
+  font-size: 1.2em;
+  margin: 4px;
   width: 20px;
-  height: 100%;
+  height: 20px;
   border-bottom: 2px solid ${Sv.asphalt};
 `;
 
@@ -31,7 +25,7 @@ type Props = {
   $showPinEntry: boolean;
 }
 
-const PinComponent = ({pinDigits, $showPinEntry}:Props) => {
+const PinDigits = ({pinDigits, $showPinEntry}:Props) => {
 
   const secondDigitRef = useRef<HTMLInputElement>(null);
   const thirdDigitRef = useRef<HTMLInputElement>(null);
@@ -58,7 +52,7 @@ const PinComponent = ({pinDigits, $showPinEntry}:Props) => {
   };
 
   return (
-    <CodeContainer>
+ <>
       {pinDigits.map((digit, index) => (
         <Digit
           $showPinEntry={$showPinEntry}
@@ -71,8 +65,8 @@ const PinComponent = ({pinDigits, $showPinEntry}:Props) => {
           ref={index === 1 ? secondDigitRef : index === 2 ? thirdDigitRef : index === 3 ? fourthDigitRef : null}
         />
       ))}
-    </CodeContainer>
+</>
   );
 };
 
-export default PinComponent;
+export default PinDigits;
