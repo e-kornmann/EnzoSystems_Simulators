@@ -7,11 +7,6 @@ import { Loading } from './displays/Loading';
 import PinError from './displays/PinError';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
-<<<<<<< HEAD
-import AppSettings from './Personalisation/AppSettings/Settings';
-import NotConnected from './displays/NotConnected';
-=======
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 import ServerError from './displays/ServerError';
 import useLogOn from '../../../hooks/useLogOn';
 import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
@@ -26,12 +21,6 @@ import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
 import styled from 'styled-components';
 import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon/TimeRibbon';
-<<<<<<< HEAD
-
-
-const PayOptions = styled.div`
-  width: 73px;
-=======
 import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
 import DeviceSettings from './DeviceSettings/DeviceSettings';
 import Message, { MessageContainer } from './displays/Message';
@@ -40,7 +29,6 @@ import Message, { MessageContainer } from './displays/Message';
 
 const PayOptions = styled.div`
   width: 50px;
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -69,11 +57,8 @@ const SettingsButton = styled.div`
   `;
 
 
-<<<<<<< HEAD
-=======
 const initialMessage = {mainline: undefined, subline: undefined, failicon: false, successicon: false}
 
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
 const PaymentTerminal = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
@@ -330,15 +315,9 @@ const PaymentTerminal = () => {
       <Container>
         <Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</Header>
         <TimeRibbon />
-<<<<<<< HEAD
- 
-  
-        <Content>
-=======
         <Content>
         
          { status === Status.START_UP && <MessageContainer><Loading /></MessageContainer> }
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
           {
             status === Status.OUT_OF_ORDER ||
@@ -351,15 +330,9 @@ const PaymentTerminal = () => {
             status === Status.AMOUNT_ERROR ||
             status === Status.UPDATE_TRANSACTION ||
             status === Status.SUCCESS ? 
-<<<<<<< HEAD
-          <div style={{margin: 'auto'}}>{display}</div> : null 
-          }
-
-=======
           <Message content={messageContent} /> : 
           
       
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
         
         <ActiveTransaction
@@ -371,11 +344,7 @@ const PaymentTerminal = () => {
           currentState={status}
           pinDigits={pinDigits}
           amount={transactionState.amountToPay} />
-<<<<<<< HEAD
-        
-=======
         }
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
         </Content>
         <Footer>
           <SettingsButton>
@@ -386,13 +355,7 @@ const PaymentTerminal = () => {
             style={{ cursor: 'pointer' }}
           /></SettingsButton>
           <PayOptions onClick={payProviderButtonHandler}>
-<<<<<<< HEAD
-    
-              <PayProvider width={30} height={22} border={true} provider={state.selectedScheme}/>
-     
-=======
              <PayProvider width={30} height={22} border={true} provider={state.selectedScheme}/>
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
             <ExpandIcon width={12} height={8} />
           </PayOptions>
         </Footer>

@@ -8,10 +8,10 @@ import CurrencyOptions from "./AvailableSettings/CurrencyOptions";
 import LanguageOptions from "./AvailableSettings/LanguageOptions";
 import PinOptions from "./AvailableSettings/PinOptions";
 import SchemeOptions from "./AvailableSettings/SchemeOptions";
-import { SettingModes } from "../../utils/settingsReducer";
+import { SettingModes } from "../utils/settingsReducer";
 import styled from "styled-components";
-import * as Sv from "../../../../../styles/stylevariables";
-import { Container, Header } from '../../../../shared/DraggableModal/ModalTemplate';
+import * as Sv from "../../../../styles/stylevariables";
+import { Container, Header } from '../../../shared/DraggableModal/ModalTemplate';
 
 
 
