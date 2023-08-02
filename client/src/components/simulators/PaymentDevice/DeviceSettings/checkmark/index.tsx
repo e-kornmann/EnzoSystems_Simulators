@@ -1,5 +1,5 @@
-import SuccessIcon from "../../../../../shared/svgcomponents/Success";
-import * as Sv from "../../../../../../styles/stylevariables";
+import SuccessIcon from "../../../../shared/Success";
+import * as Sv from "../../../../../styles/stylevariables";
 
 type Props = {
     isDisplayed: boolean;

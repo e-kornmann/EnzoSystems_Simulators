@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import PayProvider from '../../../../shared/svgcomponents/PayProvider';
+import PayProvider from '../../../../shared/PayProvider';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/close.svg';
 import Checkmark from '../checkmark/Checkmark';
@@ -8,6 +8,7 @@ import { SupportedSchemesType } from '../../types/PaymentTypes';
 import { IconContainer, SettingHeader, SettingsWrapper } from '../DeviceSettings';
 import { Button, List } from './SettingModes';
 import { Wrap } from './SchemeOptions';
+import ts from '../../Translations/translations';
 
 
 type Props = {
@@ -16,7 +17,6 @@ type Props = {
 };
 
 const SelectScheme = ({ hide, onHide }: Props) => {
-    
   const { state, dispatch } = useContext(AppContext);
   
 
@@ -30,7 +30,7 @@ const SelectScheme = ({ hide, onHide }: Props) => {
       <Container>
         <SettingHeader>
           <IconContainer>{null}</IconContainer>
-          Payment Methods
+          {ts('paymentMethod', state.language)}
           <IconContainer onClick={onHide} style={{ cursor: 'pointer' }}><CloseIcon width={13} height={13} /></IconContainer>
         </SettingHeader>
         <List>

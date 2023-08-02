@@ -21,18 +21,17 @@ export enum OperationalModeOptionsStatesType {
   FIRST_FAIL_THEN_SUCCEED = 'First fail, then succeed',
 }
 
-export enum LanguageOptionsStatesType {
+export enum Lang {
   DUTCH = 'Dutch',
   ENGLISH = 'English',
-  CHALCATONGO = 'Chalcatongo',
+  GERMAN = 'German',
   FRENCH = 'French',
 }
-
 
 export type AllAppSettings = {
   operationalModeOption: OperationalModeOptionsStatesType;
   currency: CurrencyCode;
-  language: LanguageOptionsStatesType;
+  language: Lang;
   askForPin: boolean;
   availableSchemes: SupportedSchemesType[];
   selectedScheme: SupportedSchemesType;
@@ -41,7 +40,7 @@ export type AllAppSettings = {
 const intitialSettingState: AllAppSettings = {
   operationalModeOption: OperationalModeOptionsStatesType.NORMAL,
   currency: CurrencyCode.EUR,
-  language: LanguageOptionsStatesType.DUTCH,
+  language: Lang.DUTCH,
   askForPin: true,
   availableSchemes: [SupportedSchemesType.GOOGLEPAY, SupportedSchemesType.JCB_BANK, SupportedSchemesType.AMEX, SupportedSchemesType.ALIPAY],
   selectedScheme: SupportedSchemesType.GOOGLEPAY,
@@ -59,7 +58,7 @@ export type CurrencyActionType = {
 
 export type LanguageActionType = {
   type: SettingModes.LANGUAGE;
-  payload: LanguageOptionsStatesType;
+  payload: Lang;
 };
 
 export type AskForPinActionType = {

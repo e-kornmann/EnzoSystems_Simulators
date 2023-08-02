@@ -24,7 +24,7 @@ export const Header = styled.div`
 `;
 
 export const Content = styled.div`
-  padding: 0 10px 55px;
+  padding: 0 10px 50px;
   display: flex;
   flex-direction: column;
   font-size: 17px;

@@ -1,11 +1,11 @@
 import { styled } from 'styled-components';
 import { useContext } from 'react';
-import { AppContext } from '../utils/settingsReducer';
-import { PayMethod, Status } from '../types/types';
-import * as Sv from '../../../../styles/stylevariables';
-import FailureIcon from '../../../shared/svgcomponents/Fail';
+import { AppContext } from './utils/settingsReducer';
+import { PayMethod, Status } from './types/types';
+import * as Sv from '../../../styles/stylevariables';
+import FailureIcon from '../../shared/Fail';
 import ChoosePayMethod from './ChoosePayMethod';
-import { Loading } from '../displays/Loading';
+import { Loading } from '../../shared/Loading';
 import PinDigits from './PinDigits';
 
 type ShowProp = {
@@ -247,7 +247,7 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
           return (
             <NumPadButton
               key={num}
-              $showNrs={showNumPad}
+              $showNrs={showNumPad && transactionIsActive}
               onClick={() => handleButtonClick(num)}
             >
               {num}

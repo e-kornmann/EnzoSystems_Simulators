@@ -1,4 +1,4 @@
-import { ReactComponent as Expand } from '../../../assets/svgs/expand.svg';
+import { ReactComponent as Expand } from '../../assets/svgs/expand.svg';
 
 
 type Props = {

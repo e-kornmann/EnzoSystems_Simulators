@@ -1,40 +1,45 @@
 import { styled } from 'styled-components';
 import { useContext } from 'react';
-import { AppContext } from '../utils/settingsReducer';
-
-import { PayMethod, Status } from '../types/types';
-import * as Sv from '../../../../styles/stylevariables';
-import FailureIcon from '../../../shared/svgcomponents/Fail';
+import { AppContext } from './utils/settingsReducer';
+import { PayMethod, Status } from './types/types';
+import * as Sv from '../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod';
-import { Loading } from '../displays/Loading';
+import { Loading } from '../../shared/Loading';
 import PinDigits from './PinDigits';
+import CrossIcon from '../../shared/Fail';
+import ts from './Translations/translations';
 
 type ShowProp = {
   $show: boolean;
 }
 
+const ActiveTransactionContainer = styled.div` 
+  display: grid;
+  grid-template-rows: 35% 15% 40% 10%;
+  width: 95%;
+  max-width: 400px;
+  margin: auto;
+  height: 100%;
+`
 const AmountBox = styled.div<ShowProp>`
   display: ${(props) => (props.$show ? 'flex' : 'none')};
-  height: 32%;
   flex-direction: column;
   justify-content: center;
   margin: auto;
   padding-top: 10%;
-  `
-
+`
 const AmountText = styled.div`
   width: 100%;
   font-family: 'Inter', sans-serif;
   font-size: 0.7em;
   font-weight: 500;
   text-align: center; 
-  line-height: 0.3em;
+  line-height: 0.4em;
   padding: 15px 0px;
   white-space: pre-line; 
 `
-
 const Message = styled(AmountText)`
-  font-size: 0.85em;
+  font-size: 0.8em;
 `
 
 const Price = styled.div`
@@ -51,26 +56,12 @@ const IconContainer = styled.div<ShowProp>`
   width: 100%;
   justify-content: center;
 `
-
 const PincodeContainer = styled.div`
   display: flex;
-  height: 20%;
   justify-content: center;
   align-items: center;
-  `
-
-const NumpadContainer = styled.div` 
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 16% 16% 16% 16% 16%;
-  width: 95%;
-  max-width: 400px;
-  margin: auto;
-  height: 48%;
-  row-gap: 5%;
-  column-gap: 8%;
+  padding-bottom: 10%;
 `
-
 const Pads = styled.button`
   display: flex;
   justify-content: center;
@@ -81,16 +72,22 @@ const Pads = styled.button`
   border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
-`;
+  height: 100%;
+`
 
-type PadProps = {
-  $showNrs: boolean;
-};
+const StyledContent = styled.div`
+  height: 100%;
+`
+const StyledNumpad = styled.div<ShowProp>`
+  display: ${(props) => (props.$show ? 'grid' : 'none')};
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  height: 100%;
+  column-gap: 5%;
+  row-gap: 5%;
+`
 
-const NumPadButton = styled(Pads) <PadProps>`
-  display: ${(props) => (props.$showNrs ? 'flex' : 'none')};
-  justify-content: center;
-  align-items: center;
+const NumPadButton = styled(Pads)`
   background: ${Sv.enzoOrange};  
   &:active {
     background-color: ${Sv.enzoDarkOrange};
@@ -98,41 +95,49 @@ const NumPadButton = styled(Pads) <PadProps>`
   }
 `
 const ZeroButton = styled(NumPadButton)`
-  grid-area: 4/2;
+  grid-column: 2;
+`
+const StyledFooter = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 100%;
+  column-gap: 5%;
 `
 type BottomButtonProps = {
   $showBottomButtons: boolean;
   $hideButtons?: boolean;
-};
+}
 
 const StopButton = styled(Pads) <BottomButtonProps>`
-    display: ${(props) => (props.$showBottomButtons ? 'flex' : 'none')};
-    grid-area: 5/1;
-    background: ${Sv.red};
-    &:active {
-      background-color: ${Sv.darkred};
-      border: none;
-    }
-  `
+  display: ${(props) => (props.$showBottomButtons ? 'flex' : 'none')};
+  height: 90%;
+  margin-top: 10%;
+  background: ${Sv.red};
+  &:active {
+    background-color: ${Sv.darkred};
+    border: none;
+  }
+`
 const CorrectButton = styled(Pads) <BottomButtonProps>`
-    display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
-    grid-area: 5/2;
-    background: ${Sv.yellow};
-    &:active {
-      background-color: ${Sv.darkyellow};
-      border: none;
-    }
-  `;
-
+  display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
+  height: 90%;
+  margin-top: 10%;
+  background: ${Sv.yellow};
+  &:active {
+    background-color: ${Sv.darkyellow};
+    border: none;
+  }
+`
 const OkButton = styled(Pads) <BottomButtonProps>`
-    display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
-    grid-area: 5/3;
-    background: ${Sv.green};
-    &:active {
-      background-color: ${Sv.darkgreen};
-      border: none;
-    }
-  `;
+  display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
+  height: 90%;
+  margin-top: 10%;
+  background: ${Sv.green};
+  &:active {
+    background-color: ${Sv.darkgreen};
+    border: none;
+  }
+`
 
 type Props = {
   chooseMethodHandler: (method: PayMethod) => void;
@@ -154,13 +159,13 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
   let subline: string;
   switch (currentState) {
     case Status.PIN_ENTRY:
-      subline = 'Enter Pin';
+      subline = ts('enterPin', state.language);
       break;
     case Status.WRONG_PIN:
-      subline = 'Wrong PIN. Try again.';
+      subline = ts('wrongPin', state.language);
       break;
     default:
-      subline = 'Present Card';
+      subline = ts('presentCard', state.language);
       break;
   }
 
@@ -190,12 +195,12 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
 
   return (
     <>
-
+    <ActiveTransactionContainer>
       <AmountBox $show={transactionIsActive}>
       { currentState === Status.CHECK_PIN ? <Loading /> :  
         <>
-        <IconContainer $show={currentState === Status.WRONG_PIN}><FailureIcon width={15} height={15} /></IconContainer>
-        <AmountText>Amount:</AmountText>
+        <IconContainer $show={currentState === Status.WRONG_PIN}><CrossIcon width={15} height={15} fill={Sv.red} /></IconContainer>
+        <AmountText>{ ts('amountToPay', state.language) }</AmountText>
         <Price>{amountText}</Price>
         <Message>
           {subline}
@@ -204,32 +209,29 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
       }
       </AmountBox>
 
-
       <PincodeContainer><PinDigits pinDigits={pinDigits} $showPinEntry={showNumPad} /></PincodeContainer>
-     
-      <NumpadContainer>
-
-        {showPayMethodButtons ? <ChoosePayMethod
-          chooseMethodHandler={chooseMethodHandler}
-          activePayMethod={activePayMethod}
-          currentState={currentState}
-        /> : null}
-
-        {numpadArray.map((num) => {
-          return (
-            <NumPadButton
-              key={num}
-              $showNrs={showNumPad}
-              onClick={() => handleButtonClick(num)}
-            >
-              {num}
-            </NumPadButton>
-          );
-        })}
-        <ZeroButton key={'0'} $showNrs={showNumPad} onClick={() => handleButtonClick('0')} >
-          {'0'}
-        </ZeroButton>
-
+        <StyledContent>
+          {showPayMethodButtons
+            ?  <ChoosePayMethod
+            chooseMethodHandler={chooseMethodHandler}
+            activePayMethod={activePayMethod}
+            currentState={currentState}
+          /> 
+            : <StyledNumpad $show={showNumPad && transactionIsActive && currentState !== Status.START_UP}> {numpadArray.map((num) => {
+              return (
+                <NumPadButton
+                  key={num}
+                  onClick={() => handleButtonClick(num)}
+                >
+                  {num}
+                </NumPadButton>
+              );
+            })}
+            <ZeroButton key={'0'} onClick={() => handleButtonClick('0')} >
+              {'0'}
+            </ZeroButton></StyledNumpad>}
+        </StyledContent>
+        <StyledFooter>
         <StopButton onClick={stopHandler} $showBottomButtons={transactionIsActive}>
           Stop
         </StopButton>
@@ -239,8 +241,8 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
         <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={payHandler}>
           OK
         </OkButton>
-      </NumpadContainer>
-
+        </StyledFooter>
+      </ActiveTransactionContainer>
     </>
   )
 }

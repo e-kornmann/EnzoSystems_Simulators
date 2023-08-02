@@ -1,4 +1,4 @@
-import { ReactComponent as Success } from '../../../assets/svgs/success.svg';
+import { ReactComponent as Success } from '../../assets/svgs/success.svg';
 
 type Props = {
     width: number;

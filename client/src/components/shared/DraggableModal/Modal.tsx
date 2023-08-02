@@ -1,10 +1,9 @@
 import { FunctionComponent, useEffect, useState } from "react";
-
 import ReactDOM from "react-dom";
-
 import DragMove from "./Drag";
 import styled from 'styled-components';
 import * as Sv from '../../../styles/stylevariables';
+import CrossIcon from "../Fail";
 
 type Props = { 
 	$grabbing: boolean;
@@ -33,12 +32,8 @@ export const CloseButton = styled.button`
 	right: 0;
 	top: -40px;
 	font-family: 'Rubik', sans-serif;
-	width: 30px;
-	height: 30px;
-	font-weight: 100;
-	font-size: 1.53rem;
-	color: white;
-	border: none;
+	width: 20px;
+	height: 20px;
 	border-radius: 3px;
 	background: ${Sv.gray};
 	&:hover {
@@ -134,7 +129,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
             transform: `translateX(${translate.x}px) translateY(${translate.y}px)`
           }}>
           
-              <CloseButton onClick={hide}>×</CloseButton>
+              <CloseButton onClick={hide}><CrossIcon width={10} height={10} fill={'white'} /></CloseButton>
           
 
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>

@@ -9,7 +9,7 @@ const Container = styled.div`
   justify-content: space-between;
   align-items: center;
   font-variant-numeric: tabular-nums;
-  font-size: 0.75em;
+  font-size: 0.7em;
   font-weight: 500;
   padding: 15px 15px 5px;
   background-color: transparent;

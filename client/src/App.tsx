@@ -59,7 +59,7 @@ function App() {
           headerText=""
           modalContent={<PaymentTerminal />}
           modalWidth={200}
-          modalHeight={440}
+          modalHeight={410}
         />
         <DraggableModal
           isShown={simulators.otherDevice}

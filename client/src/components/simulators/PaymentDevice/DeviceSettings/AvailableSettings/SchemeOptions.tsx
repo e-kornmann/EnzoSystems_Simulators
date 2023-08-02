@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
-import PayProvider from '../../../../shared/svgcomponents/PayProvider';
+import PayProvider from '../../../../shared/PayProvider';
 import { Button, List } from './SettingModes';
 import Checkmark from '../checkmark/Checkmark';
 import { SupportedSchemesType } from '../../types/PaymentTypes';

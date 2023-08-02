@@ -2,18 +2,17 @@
 import { ReactComponent as CloseIcon } from '../../../../assets/svgs/fail.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svgs/arrow_back.svg';
 import OperationalModeOptions from "./AvailableSettings/OperationalModeOptions";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SettingsModesList from "./AvailableSettings/SettingModes";
 import CurrencyOptions from "./AvailableSettings/CurrencyOptions";
 import LanguageOptions from "./AvailableSettings/LanguageOptions";
 import PinOptions from "./AvailableSettings/PinOptions";
 import SchemeOptions from "./AvailableSettings/SchemeOptions";
-import { SettingModes } from "../utils/settingsReducer";
+import { AppContext, SettingModes } from "../utils/settingsReducer";
 import styled from "styled-components";
 import * as Sv from "../../../../styles/stylevariables";
 import { Container, Header } from '../../../shared/DraggableModal/ModalTemplate';
-
-
+import ts from '../Translations/translations';
 
 export const IconContainer = styled.div`
   fill: ${Sv.black};
@@ -48,44 +47,44 @@ type Props = {
   onHide: () => void;
 };
 
-const DeviceSettings = ({ hide, onHide }: Props) => {
-  
+const AppSettings = ({ hide, onHide }: Props) => {
+  const { state } = useContext(AppContext);
   const menuToggler = (listItem: SettingModes) => setSettingMode(listItem);
-  const [settingList, setSettingList] = useState(<></>);
+  const [buttons, setButtons] = useState(<></>);
   const [settingMode, setSettingMode] = useState(SettingModes.SETTINGS);
-  const [settingHeader, setSettingHeader] = useState('Settings');  
+  const [heading, setHeading] = useState('Settings');  
 
   useEffect(() => {
     switch(settingMode) {
     case SettingModes.SETTINGS:
-      setSettingHeader('Settings');
-      setSettingList(<SettingsModesList menuToggler={menuToggler}/>);
+      setHeading('Settings');
+      setButtons(<SettingsModesList menuToggler={menuToggler}/>);
       break;
     case SettingModes.OPERATIONAL_MODE:
-      setSettingHeader('Operational Mode');
-      setSettingList(<OperationalModeOptions/>)
+      setHeading(ts('operationalMode', state.language));
+      setButtons(<OperationalModeOptions/>)
       break;
     case SettingModes.CURRENCY:
-      setSettingHeader('Currency');
-      setSettingList(<CurrencyOptions />)
+      setHeading(ts('currency', state.language));
+      setButtons(<CurrencyOptions />)
       break;
     case SettingModes.LANGUAGE:
-      setSettingHeader('Default Language');
-      setSettingList(<LanguageOptions />)
+      setHeading(ts('defaultLanguage', state.language));
+      setButtons(<LanguageOptions />)
       break;
     case SettingModes.ASK_FOR_PIN:
-      setSettingHeader('Ask for PIN');
-      setSettingList(<PinOptions />)
+      setHeading(ts('askForPin', state.language));
+      setButtons(<PinOptions />)
       break;
     case SettingModes.AVAILABLE_SCHEMES:
-      setSettingHeader('Supported Schemes');
-      setSettingList(<SchemeOptions/>)
+      setHeading(ts('supportedSchemes', state.language));
+      setButtons(<SchemeOptions/>)
       break;
     default :
       null;
     break;
   } 
-  }, [settingMode])
+  }, [settingMode, state.language])
 
 return (
 <>
@@ -93,11 +92,11 @@ return (
 <SettingsWrapper $hide={hide}>
 <Container> 
 <SettingHeader>
-<IconContainer onClick={() => menuToggler(SettingModes.SETTINGS)} style={{cursor: 'pointer'}} >{ settingMode !== SettingModes.SETTINGS ? <Arrow  width={11} height={11} /> : null }</IconContainer>
-  { settingHeader }
-<IconContainer onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}}><CloseIcon width={11} height={11} /></IconContainer>
+<IconContainer onClick={() => menuToggler(SettingModes.SETTINGS)} style={{cursor: 'pointer'}} >{ settingMode !== SettingModes.SETTINGS ? <Arrow  width={13} height={13} /> : null }</IconContainer>
+  { heading }
+<IconContainer onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}}><CloseIcon width={13} height={13} /></IconContainer>
 </SettingHeader>
-  { settingList }
+  { buttons }
   </Container> 
 </SettingsWrapper>
 </>
@@ -105,5 +104,5 @@ return (
 
 }
 
-export default DeviceSettings;
+export default AppSettings;
   

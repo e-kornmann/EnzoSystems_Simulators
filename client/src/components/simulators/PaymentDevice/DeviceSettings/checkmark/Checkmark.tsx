@@ -1,4 +1,4 @@
-import SuccessIcon from "../../../../shared/svgcomponents/Success";
+import SuccessIcon from "../../../../shared/Success";
 import * as Sv from "../../../../../styles/stylevariables";
 
 type Props = {
