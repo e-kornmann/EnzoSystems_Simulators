@@ -7,7 +7,11 @@ import * as Sv from '../../../../styles/stylevariables';
 import FailureIcon from '../../../shared/svgcomponents/Fail';
 import ChoosePayMethod from './ChoosePayMethod';
 import { Loading } from '../displays/Loading';
+<<<<<<< HEAD
 import PinDigits from '../PinEntry/PinDigits';
+=======
+import PinDigits from './PinDigits';
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
 type ShowProp = {
   $show: boolean;
@@ -15,10 +19,18 @@ type ShowProp = {
 
 const AmountBox = styled.div<ShowProp>`
   display: ${(props) => (props.$show ? 'flex' : 'none')};
+<<<<<<< HEAD
   height: 45%;
   flex-direction: column;
   justify-content: center;
   margin: auto;
+=======
+  height: 32%;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+  padding-top: 10%;
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
   `
 
 const AmountText = styled.div`
@@ -51,6 +63,16 @@ const IconContainer = styled.div<ShowProp>`
   justify-content: center;
 `
 
+<<<<<<< HEAD
+=======
+const PincodeContainer = styled.div`
+  display: flex;
+  height: 20%;
+  justify-content: center;
+  align-items: center;
+  `
+
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 const NumpadContainer = styled.div` 
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -58,7 +80,11 @@ const NumpadContainer = styled.div`
   width: 95%;
   max-width: 400px;
   margin: auto;
+<<<<<<< HEAD
   height: 50%;
+=======
+  height: 48%;
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
   row-gap: 5%;
   column-gap: 8%;
 `
@@ -89,11 +115,17 @@ const NumPadButton = styled(Pads) <PadProps>`
     border: none;
   }
 `
+<<<<<<< HEAD
 
 const ZeroButton = styled(NumPadButton)`
   grid-area: 4/2;
 `
 
+=======
+const ZeroButton = styled(NumPadButton)`
+  grid-area: 4/2;
+`
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 type BottomButtonProps = {
   $showBottomButtons: boolean;
   $hideButtons?: boolean;
@@ -105,6 +137,15 @@ const StopButton = styled(Pads) <BottomButtonProps>`
     background: ${Sv.red};
     &:active {
       background-color: ${Sv.darkred};
+      border: none;
+    }
+  `
+const CorrectButton = styled(Pads) <BottomButtonProps>`
+    display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
+    grid-area: 5/2;
+    background: ${Sv.yellow};
+    &:active {
+      background-color: ${Sv.darkyellow};
       border: none;
     }
   `;
@@ -129,8 +170,11 @@ const OkButton = styled(Pads) <BottomButtonProps>`
     }
   `;
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 type Props = {
   chooseMethodHandler: (method: PayMethod) => void;
   activePayMethod: PayMethod;
@@ -197,6 +241,7 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
         <Message>
           {subline}
         </Message>
+<<<<<<< HEAD
         <PinDigits pinDigits={pinDigits} $showPinEntry={showNumPad} />
         </>
       }
@@ -206,6 +251,18 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
       <NumpadContainer>
 
       {showPayMethodButtons ? <ChoosePayMethod
+=======
+        </>
+      }
+      </AmountBox>
+
+
+      <PincodeContainer><PinDigits pinDigits={pinDigits} $showPinEntry={showNumPad} /></PincodeContainer>
+     
+      <NumpadContainer>
+
+        {showPayMethodButtons ? <ChoosePayMethod
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
           chooseMethodHandler={chooseMethodHandler}
           activePayMethod={activePayMethod}
           currentState={currentState}

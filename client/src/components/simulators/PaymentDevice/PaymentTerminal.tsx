@@ -1,36 +1,46 @@
 import { AppContext } from './utils/settingsReducer';
 import { useContext, useEffect, useState } from 'react';
-import TimedOut from './displays/TimedOut';
-import Welcome from './displays/Welcome';
 import OneMoment from './displays/OneMoment';
 import Success from './displays/Success';
-import Cancel from './displays/Cancel';
 import React from 'react';
 import { Loading } from './displays/Loading';
 import PinError from './displays/PinError';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/svgcomponents/Expand';
+<<<<<<< HEAD
 import AppSettings from './Personalisation/AppSettings/Settings';
 import NotConnected from './displays/NotConnected';
+=======
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 import ServerError from './displays/ServerError';
 import useLogOn from '../../../hooks/useLogOn';
-import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './config';
+import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
 import useStopTransactionTerminal from './utils/useStopTransactionTerminal';
 import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
-import { AcceptTransactionStateType, PayMethod, Status } from './types/types';
+import { AcceptTransactionStateType, MessageContentType, PayMethod, Status } from './types/types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
-import SelectScheme from './Personalisation/AppSettings/AvailableSettings/SelectScheme';
 import PayProvider from '../../shared/svgcomponents/PayProvider';
 import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
 import styled from 'styled-components';
 import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon/TimeRibbon';
+<<<<<<< HEAD
 
 
 const PayOptions = styled.div`
   width: 73px;
+=======
+import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
+import DeviceSettings from './DeviceSettings/DeviceSettings';
+import Message, { MessageContainer } from './displays/Message';
+
+
+
+const PayOptions = styled.div`
+  width: 50px;
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -59,6 +69,11 @@ const SettingsButton = styled.div`
   `;
 
 
+<<<<<<< HEAD
+=======
+const initialMessage = {mainline: undefined, subline: undefined, failicon: false, successicon: false}
+
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
 const PaymentTerminal = () => {
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
@@ -69,11 +84,18 @@ const PaymentTerminal = () => {
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE)
   const [pinDigits, setPinDigits] = useState(["", "", "", ""]);
   const [pinAttempts, setPinAttempts] = useState(0);
-  const [display, setDisplay] = useState(<Welcome />);
+  const [display, setDisplay] = useState(<></>);
   const [hideSettings, setHideSettings] = useState(true);
   const [hidePayProviders, setHidePayProviders] = useState(true);
   const [init, setInit] = useState(false);
   const { state } = useContext(AppContext);
+
+
+  
+
+  const [messageContent, setMessageContent] = useState<MessageContentType>({...initialMessage, mainline: 'WELCOME'});
+  
+
 
   useEffect(() => {
     if (init === false) {
@@ -139,14 +161,12 @@ const PaymentTerminal = () => {
 
     switch (status) {
       case Status.START_UP:
-        setDisplay(<Loading/>);
         waitTime = 1000;
         break;
       case Status.OUT_OF_ORDER:
-        setDisplay(<NotConnected/>);
+        setMessageContent({...initialMessage, subline: 'Unable to connect', failicon: true})
         break;
       case Status.IDLE:
-        setDisplay(<Welcome />);
         setPinAttempts(0);
         setActivePayMethod(PayMethod.NONE);
         setPinDigits(['','','','']);
@@ -166,7 +186,7 @@ const PaymentTerminal = () => {
         waitTime = 7000;  
         break;
       case Status.STOP_TRANSACTION:
-        setDisplay(<Cancel />);
+        setMessageContent({...initialMessage, subline: 'Payment is canceled', failicon: true})
         waitTime = 4500;
         break;
       case Status.PIN_ENTRY:
@@ -179,7 +199,7 @@ const PaymentTerminal = () => {
         waitTime = 10000;
         break;
       case Status.TIMED_OUT:
-        setDisplay(<TimedOut />);
+        setMessageContent({...initialMessage, mainline: 'Nothing paid',  subline: 'Payment timed out'})
         waitTime = 2000;
         break;
       case Status.CHECK_AMOUNT:
@@ -296,7 +316,7 @@ const PaymentTerminal = () => {
         clearInterval(intervalId);
       }
     };
-  }, [activePayMethod, currentPin, init, pinAttempts, status, stopTransaction, token, transactionState.amountToPay, transactionState.transactionId]);
+  }, [activePayMethod, currentPin, init, pinAttempts, setMessageContent, status, stopTransaction, token, transactionState.amountToPay, transactionState.transactionId]);
 
   const logTerminalTokenAndTransactionState = React.useCallback(() => {
     console.log(token);
@@ -305,16 +325,22 @@ const PaymentTerminal = () => {
 
   return (
     <>
-      <AppSettings hide={hideSettings} onHide={settingsButtonHandler} />
+      <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <Container>
         <Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</Header>
         <TimeRibbon />
+<<<<<<< HEAD
  
   
         <Content>
+=======
+        <Content>
+        
+         { status === Status.START_UP && <MessageContainer><Loading /></MessageContainer> }
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
-          { status === Status.START_UP ||
+          {
             status === Status.OUT_OF_ORDER ||
             status === Status.IDLE ||
             status === Status.SERVER_ERROR ||
@@ -325,10 +351,17 @@ const PaymentTerminal = () => {
             status === Status.AMOUNT_ERROR ||
             status === Status.UPDATE_TRANSACTION ||
             status === Status.SUCCESS ? 
+<<<<<<< HEAD
           <div style={{margin: 'auto'}}>{display}</div> : null 
           }
 
+=======
+          <Message content={messageContent} /> : 
+          
+      
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
+        
         <ActiveTransaction
           chooseMethodHandler={chooseMethodHandler}
           activePayMethod={activePayMethod}
@@ -338,7 +371,11 @@ const PaymentTerminal = () => {
           currentState={status}
           pinDigits={pinDigits}
           amount={transactionState.amountToPay} />
+<<<<<<< HEAD
         
+=======
+        }
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
         </Content>
         <Footer>
           <SettingsButton>
@@ -349,9 +386,13 @@ const PaymentTerminal = () => {
             style={{ cursor: 'pointer' }}
           /></SettingsButton>
           <PayOptions onClick={payProviderButtonHandler}>
+<<<<<<< HEAD
     
               <PayProvider width={30} height={22} border={true} provider={state.selectedScheme}/>
      
+=======
+             <PayProvider width={30} height={22} border={true} provider={state.selectedScheme}/>
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
             <ExpandIcon width={12} height={8} />
           </PayOptions>
         </Footer>

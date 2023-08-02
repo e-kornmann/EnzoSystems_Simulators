@@ -1,5 +1,6 @@
-import { Container, IconContainer, Subline } from "./styles"
+
 import FailureIcon from "../../../shared/svgcomponents/Fail";
+import { MessageContainer, IconContainer, Subline } from "./Message";
 
 type Props = {
   actionFailureType: string;
@@ -19,10 +20,10 @@ const PinError = ({actionFailureType}: Props) => {
 
   return (
 
-      <Container>
+      <MessageContainer>
         <IconContainer><FailureIcon width={73} height={73}/></IconContainer>
         <Subline>{ failureMessage }</Subline>
-      </Container>
+      </MessageContainer>
 
   )};
 

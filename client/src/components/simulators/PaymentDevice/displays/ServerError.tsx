@@ -1,4 +1,5 @@
-import { Container, Mainline, Subline } from "./styles"
+import { MessageContainer, Mainline, Subline } from "./Message";
+
 
 type Props =  {
   statusCode: number | undefined
@@ -20,10 +21,10 @@ const ServerError = ({statusCode}: Props) => {
   }
 
   return (
-    <Container>
+    <MessageContainer>
       <Mainline>{mainline}</Mainline>
       <Subline>{subline}</Subline>
-    </Container>
+    </MessageContainer>
   )
 }
 

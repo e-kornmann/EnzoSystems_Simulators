@@ -66,7 +66,11 @@ function App() {
           hide={() => showSimulatorHandler('otherDevice')}
           headerText=""
           modalContent={<OtherDevice />}
+<<<<<<< HEAD
           modalWidth={900}
+=======
+          modalWidth={600}
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
           modalHeight={400}
         />
              <DraggableModal

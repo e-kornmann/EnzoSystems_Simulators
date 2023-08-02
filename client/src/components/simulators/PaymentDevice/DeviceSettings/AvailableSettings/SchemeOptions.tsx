@@ -1,10 +1,18 @@
 
 import { useContext } from 'react';
+<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/Personalisation/AppSettings/AvailableSettings/SchemeOptions.tsx
 import { AppContext, SettingModes } from '../../../utils/settingsReducer';
 import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
 import { Button, List } from './SettingModes';
 import Checkmark from '../checkmark';
 import { SupportedSchemesType } from '../../../types/PaymentTypes';
+=======
+import { AppContext, SettingModes } from '../../utils/settingsReducer';
+import PayProvider from '../../../../shared/svgcomponents/PayProvider';
+import { Button, List } from './SettingModes';
+import Checkmark from '../checkmark/Checkmark';
+import { SupportedSchemesType } from '../../types/PaymentTypes';
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/DeviceSettings/AvailableSettings/SchemeOptions.tsx
 import styled from 'styled-components';
 
 

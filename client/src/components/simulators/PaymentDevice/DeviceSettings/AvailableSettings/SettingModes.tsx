@@ -1,13 +1,22 @@
 
 
+<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/Personalisation/AppSettings/AvailableSettings/SettingModes.tsx
 import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow.svg';
 import * as Sv from '../../../../../../styles/stylevariables';
 import { SettingModes } from '../../../utils/settingsReducer';
+=======
+import { ReactComponent as Arrow } from '../../../../../assets/svgs/arrow.svg';
+import * as Sv from '../../../../../styles/stylevariables';
+import { SettingModes } from '../../utils/settingsReducer';
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/DeviceSettings/AvailableSettings/SettingModes.tsx
 import styled from "styled-components";
 
 
 export const List = styled.div`
+<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/Personalisation/AppSettings/AvailableSettings/SettingModes.tsx
   grid-row: 2 / 7;
+=======
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/DeviceSettings/AvailableSettings/SettingModes.tsx
   background-color: ${Sv.lightgray};
   padding: 2px 0;
   display: flex;
@@ -59,11 +68,19 @@ const SettingsModesList = ({menuToggler}: Props) => {
   return (
 <>
 <List>
+<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/Personalisation/AppSettings/AvailableSettings/SettingModes.tsx
   <Button onClick={() => menuToggler(SettingModes.OPERATIONAL_MODE)} >Operational Mode<Arrow/></Button>
   <Button onClick={() => menuToggler(SettingModes.CURRENCY)} >Currency<Arrow/></Button>
   <Button onClick={() => menuToggler(SettingModes.LANGUAGE)} >Default Language<Arrow/></Button>
   <Button onClick={() => menuToggler(SettingModes.ASK_FOR_PIN)} >Ask for PIN<Arrow/></Button>
   <Button onClick={() => menuToggler(SettingModes.AVAILABLE_SCHEMES)} >Supported Schemes<Arrow/></Button>
+=======
+  <Button onClick={() => menuToggler(SettingModes.OPERATIONAL_MODE)} >Operational Mode<Arrow height={11} /></Button>
+  <Button onClick={() => menuToggler(SettingModes.CURRENCY)} >Currency<Arrow height={11}/></Button>
+  <Button onClick={() => menuToggler(SettingModes.LANGUAGE)} >Default Language<Arrow height={11}/></Button>
+  <Button onClick={() => menuToggler(SettingModes.ASK_FOR_PIN)} >Ask for PIN<Arrow height={11}/></Button>
+  <Button onClick={() => menuToggler(SettingModes.AVAILABLE_SCHEMES)} >Supported Schemes<Arrow height={11}/></Button>
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/DeviceSettings/AvailableSettings/SettingModes.tsx
 </List>
 </>
 )}

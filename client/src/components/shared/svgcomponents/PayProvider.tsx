@@ -26,43 +26,64 @@ type Props = {
   border: boolean;
 };
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 const PayProvider = ({ width, height, provider, border }: Props) => {
   
+  const PayProviderStyle: React.CSSProperties = {
+    width, height, border: border ? '1px solid lightgray' : 'none', color: 'gray', borderRadius: '4px'
+  };
+
+
   switch (provider) {
     case SupportedSchemesType.APPLEPAY:
+<<<<<<< HEAD
       return <ApplePay width={width} height={height} style={{width, height, border: border ? '0.1em solid lightgray' : 'none', color: 'gray', borderRadius: '4px'}} />;
+=======
+      return <ApplePay style={PayProviderStyle} />;
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
     case SupportedSchemesType.AMEX:
-      return <Amex width={width} height={height}/>;
+      return <Amex style={PayProviderStyle} />;
     case SupportedSchemesType.GOOGLEPAY:
-      return <GooglePay width={width} height={height}/>;
+      return <GooglePay style={PayProviderStyle} />;
     case SupportedSchemesType.PAYPAL:
-      return <PayPal width={width} height={height}/>;
+      return <PayPal style={PayProviderStyle} />;
     case SupportedSchemesType.VISA:
-      return <Visa width={width} height={height}/>;
+      return <Visa style={PayProviderStyle} />;
     case SupportedSchemesType.ALIPAY:
-      return <AliPay width={width} height={height}/>;
+      return <AliPay style={PayProviderStyle} />;
     case SupportedSchemesType.MASTERCARD:
-      return <Mastercard width={width} height={height}/>;
+      return <Mastercard style={PayProviderStyle} />;
     case SupportedSchemesType.MAESTRO:
-      return <Maestro width={width} height={height}/>;
+      return <Maestro style={PayProviderStyle} />;
     case SupportedSchemesType.DINERS:
-      return <Diners width={width} height={height}/>;
+      return <Diners style={PayProviderStyle} />;
     case SupportedSchemesType.BANCONTACT:
-      return <Bancontact width={width} height={height}/>;
+      return <Bancontact style={PayProviderStyle} />;
     case SupportedSchemesType.JCB_BANK:
-      return <JcbBank width={width} height={height}/>;
+      return <JcbBank style={PayProviderStyle} />;
     case SupportedSchemesType.WECHATPAY:
-      return <Wechat width={width} height={height}/>;
+      return <Wechat style={PayProviderStyle} />;
     case SupportedSchemesType.IDEAL:
-      return <Ideal width={width} height={height}/>;
+      return <Ideal style={PayProviderStyle} />;
     case SupportedSchemesType.UNIONPAY:
-      return <Unionpay width={width} height={height}/>;
+      return <Unionpay style={PayProviderStyle} />;
     case SupportedSchemesType.GIROPAY:
-      return <Giropay width={width} height={height}/>;
+      return <Giropay style={PayProviderStyle} />;
     case SupportedSchemesType.DISCOVER:
-      return <Discover width={width} height={height}/>;
+      return <Discover style={PayProviderStyle} />;
     default:
+<<<<<<< HEAD
       return <div style={{width, height, border: border ? '0.1em solid lightgray' : 'none', color: 'gray', borderRadius: '4px'}}> ○ </div> 
+=======
+      return <div style={PayProviderStyle}> ○ </div> 
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
   }
 };
 

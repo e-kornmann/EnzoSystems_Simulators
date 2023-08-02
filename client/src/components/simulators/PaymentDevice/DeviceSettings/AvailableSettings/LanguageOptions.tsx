@@ -1,7 +1,7 @@
 
 import { useContext } from 'react';
-import { AppContext, LanguageOptionsStatesType, SettingModes } from '../../../utils/settingsReducer';
-import Checkmark from '../checkmark';
+import { AppContext, LanguageOptionsStatesType, SettingModes } from '../../utils/settingsReducer';
+import Checkmark from '../checkmark/Checkmark';
 import { Button, List } from './SettingModes';
 
 const LanguageOptions = () => {

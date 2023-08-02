@@ -85,7 +85,6 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const [isGrabbing, setIsGrabbing] = useState(false);
 
-
   const handleMouseDown = () => {
     setIsGrabbing(true);
   };
@@ -122,7 +121,10 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   const modal = (
     <>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
       <Wrapper
         aria-modal
         aria-labelledby={headerText}

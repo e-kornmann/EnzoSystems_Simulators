@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const LoadingDots = styled.span`
+export const LoadingDots = styled.div`
     font-weight: bold;
     display: inline-block;
     color: gray;
@@ -18,4 +18,4 @@ const LoadingDots = styled.span`
   }
 `;
 
-export const Loading = () => <LoadingDots className="loading">...</LoadingDots>;
+export const Loading = () => <LoadingDots>...</LoadingDots>;
