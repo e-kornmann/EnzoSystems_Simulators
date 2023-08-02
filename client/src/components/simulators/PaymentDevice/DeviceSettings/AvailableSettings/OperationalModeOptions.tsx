@@ -1,13 +1,7 @@
 import { useContext } from 'react';
-<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/Personalisation/AppSettings/AvailableSettings/OperationalModeOptions.tsx
-import { AppContext, OperationalModeOptionsStatesType, SettingModes } from '../../../utils/settingsReducer';
-import { Button, List } from './SettingModes';
-import Checkmark from '../checkmark';
-=======
 import { AppContext, OperationalModeOptionsStatesType, SettingModes } from '../../utils/settingsReducer';
 import { Button, List } from './SettingModes';
 import Checkmark from '../checkmark/Checkmark';
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/DeviceSettings/AvailableSettings/OperationalModeOptions.tsx
 
 
 

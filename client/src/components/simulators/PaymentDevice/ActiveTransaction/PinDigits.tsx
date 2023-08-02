@@ -6,10 +6,6 @@ type DigitProps = {
   $showPinEntry: boolean;
 };
 
-<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/PinEntry/PinDigits.tsx
- 
-=======
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/ActiveTransaction/PinDigits.tsx
 const Digit = styled.input<DigitProps>`
   display: ${(props) => (props.$showPinEntry ? 'block' : 'none')};
   border: none;
@@ -18,10 +14,7 @@ const Digit = styled.input<DigitProps>`
   text-align: center;
   font-size: 1.2em;
   margin: 4px;
-<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/PinEntry/PinDigits.tsx
-=======
   padding: 0;
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/ActiveTransaction/PinDigits.tsx
   width: 20px;
   height: 20px;
   border-bottom: 2px solid ${Sv.asphalt};

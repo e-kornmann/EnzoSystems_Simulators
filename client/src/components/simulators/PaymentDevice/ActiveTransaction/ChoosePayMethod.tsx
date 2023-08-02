@@ -15,11 +15,7 @@ const IconContainer = styled.div`
  `;
 
 const Wrapper = styled.div`
-<<<<<<< HEAD
-  grid-area: 1 / 1 / 3 / 4;
-=======
   grid-area: 1 / 1 / 4 / 4;
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
   `;
 
 const PaymentMethodButton = styled.button<{ $inActive: boolean }>`

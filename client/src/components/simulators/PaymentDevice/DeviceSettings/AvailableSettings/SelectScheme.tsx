@@ -1,13 +1,4 @@
 import { useContext } from 'react';
-<<<<<<< HEAD:client/src/components/simulators/PaymentDevice/Personalisation/AppSettings/AvailableSettings/SelectScheme.tsx
-import PayProvider from '../../../../../shared/svgcomponents/PayProvider';
-import { AppContext, SettingModes } from '../../../utils/settingsReducer';
-import { ReactComponent as CloseIcon } from '../../../../../../assets/svgs/close.svg';
-import Checkmark from '../checkmark';
-import { Container } from '../../../../../shared/DraggableModal/ModalTemplate';
-import { SupportedSchemesType } from '../../../types/PaymentTypes';
-import { IconContainer, SettingHeader, SettingsWrapper } from '../Settings';
-=======
 import PayProvider from '../../../../shared/svgcomponents/PayProvider';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/close.svg';
@@ -15,7 +6,6 @@ import Checkmark from '../checkmark/Checkmark';
 import { Container } from '../../../../shared/DraggableModal/ModalTemplate';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import { IconContainer, SettingHeader, SettingsWrapper } from '../DeviceSettings';
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3:client/src/components/simulators/PaymentDevice/DeviceSettings/AvailableSettings/SelectScheme.tsx
 import { Button, List } from './SettingModes';
 import { Wrap } from './SchemeOptions';
 

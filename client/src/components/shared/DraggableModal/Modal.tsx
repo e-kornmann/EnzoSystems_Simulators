@@ -121,10 +121,6 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   const modal = (
     <>
-<<<<<<< HEAD
-
-=======
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
       <Wrapper
         aria-modal
         aria-labelledby={headerText}

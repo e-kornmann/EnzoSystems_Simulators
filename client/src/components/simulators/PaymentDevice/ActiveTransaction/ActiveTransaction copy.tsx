@@ -6,11 +6,7 @@ import * as Sv from '../../../../styles/stylevariables';
 import FailureIcon from '../../../shared/svgcomponents/Fail';
 import ChoosePayMethod from './ChoosePayMethod';
 import { Loading } from '../displays/Loading';
-<<<<<<< HEAD
-import PinDigits from '../PinEntry/PinDigits';
-=======
 import PinDigits from './PinDigits';
->>>>>>> 109a59d764cc376814feed24b47e1f735bb51ca3
 
 type ShowProp = {
   $show: boolean;
