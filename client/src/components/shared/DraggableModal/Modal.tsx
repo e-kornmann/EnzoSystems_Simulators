@@ -19,14 +19,12 @@ export const Wrapper = styled.div`
 	pointer-events: none;
 	transform: translate(-50%, -50%);
 	z-index: 30;
-`;
-
+`
 export const StyledModal = styled.div<Props>`
 	z-index: 70;
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
 	pointer-events: auto;
-`;
-
+`
 export const CloseButton = styled.button`
 	position: absolute;
 	right: 0;
@@ -40,13 +38,11 @@ export const CloseButton = styled.button`
 		cursor: pointer;
 		color: ${Sv.enzoOrange};
 	}
-`;
-
+`
 type ContentProps = { 
 	$width: number;
 	$height: number;
 }
-
 export const Content = styled.div<ContentProps>`
 	width: ${(props) => props.$width}px;
 	height: ${(props) => props.$height}px;
@@ -54,10 +50,7 @@ export const Content = styled.div<ContentProps>`
 	overflow-x: hidden;
 	overflow-y: auto;
 	box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
-`;
-
-
-
+`
 export interface ModalProps {
   isShown: boolean;
   hide: () => void;
@@ -66,8 +59,6 @@ export interface ModalProps {
   modalWidth: number,
   modalHeight: number,
 }
-
-
 export const DraggableModal: FunctionComponent<ModalProps> = ({
   isShown,
   hide,
@@ -101,7 +92,6 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         hide();
       }
     };
-
     if (isShown) {
       document.body.style.overflow = "hidden";
       document.addEventListener("keydown", onKeyDown, false);
@@ -125,13 +115,10 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         onMouseUp={handleMouseUp}
       >
         <DragMove onDragMove={handleDragMove}>
-          <StyledModal $grabbing={isGrabbing} style={{
-            transform: `translateX(${translate.x}px) translateY(${translate.y}px)`
-          }}>
-          
-              <CloseButton onClick={hide}><CrossIcon width={10} height={10} fill={'white'} /></CloseButton>
-          
-
+          <StyledModal $grabbing={isGrabbing} style={{transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
+              <CloseButton onClick={hide}>
+                <CrossIcon width={10} height={10} fill={'white'} />
+              </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>
         </DragMove>

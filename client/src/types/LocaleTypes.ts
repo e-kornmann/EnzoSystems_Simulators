@@ -730,4 +730,5 @@ export enum Locale {
     zh_Hant_ZA = 'zh-Hant-ZA',
     zu = 'zu',
     zu_ZA = 'zu-ZA',
-  };
+  }
+  

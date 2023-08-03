@@ -13,7 +13,7 @@ import { AcceptTransactionStateType, MessageContentType, PayMethod, Status } fro
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
-import ActiveTransaction from './ActiveTransaction';
+import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
 import styled from 'styled-components';
 import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon';
@@ -154,6 +154,7 @@ const PaymentTerminal = () => {
       case Status.SERVER_ERROR:
         updateTransactionStatusCode === 409 ? 
           setMessageContent({...initialMessage, mainline: ts('serverError409', state.language), subline: ts('serverError409', state.language, 1), failicon: true}) :
+          // if response status code is not 409 set message with a regular serverError;
           setMessageContent({...initialMessage, mainline: ts('serverError', state.language), subline: ts('serverError', state.language, 1), failicon: true});
         waitTime = 4500;
         break;
@@ -328,7 +329,7 @@ const PaymentTerminal = () => {
         <TimeRibbon />
         <Content>
 
-            {/* {Show loading dots} */}
+            {/* {Show loading dots by start-up} */}
          { terminalState === Status.START_UP && <MessageContainer><Loading /></MessageContainer> }
 
 

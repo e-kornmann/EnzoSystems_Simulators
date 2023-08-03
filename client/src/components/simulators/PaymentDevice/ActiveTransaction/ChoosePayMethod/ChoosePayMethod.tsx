@@ -1,11 +1,11 @@
 
 // import { ReactComponent as SuccessIcon } from '../../../../assets/svgs/success.svg';
 import styled from "styled-components";
-import * as Sv from "../../../styles/stylevariables";
-import { ReactComponent as PhoneIcon } from '../../../assets/svgs/phone.svg';
-import { ReactComponent as ChipIcon } from '../../../assets/svgs/chip.svg';
-import { ReactComponent as ContactlessIcon } from '../../../assets/svgs/contactless.svg';
-import { PayMethod, Status } from "./types/types";
+import * as Sv from "../../../../../styles/stylevariables";
+import { ReactComponent as PhoneIcon } from '../../../../../assets/svgs/phone.svg';
+import { ReactComponent as ChipIcon } from '../../../../../assets/svgs/chip.svg';
+import { ReactComponent as ContactlessIcon } from '../../../../../assets/svgs/contactless.svg';
+import { PayMethod, Status } from "../../types/types";
 
 
 const IconContainer = styled.div`

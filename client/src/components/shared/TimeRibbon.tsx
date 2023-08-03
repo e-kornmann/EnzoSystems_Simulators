@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 const Container = styled.div`
   position: absolute;
-  top: 25px;
+  top: 28px;
   width: 100%;
   display: flex;
   justify-content: space-between;

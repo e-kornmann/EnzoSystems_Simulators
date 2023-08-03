@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import * as Sv from './stylevariables';
 
 export const OpenModalButtonsContainer = styled.div`
@@ -48,25 +48,12 @@ background-color: ${(props) => (props.$isActive ? `${Sv.lightgray}` : 'white')};
     background: gray;
     color: #fff;
   }
-`;
-
-
-
-export const ConnectMessage = styled.header<{ $init: boolean }>`
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px;
-  background-color: ${(props) => (props.$init ? Sv.green : Sv.red)};
-  color: white;
-  text-align: center;
-  z-index: 1000;
 `
 export const FocusContainer = styled.div`
     margin-top: 230px;
     width: 350px;
     z-index: 500;
 `
-
 export const PayBillContainer = styled.div`
     background-color: ${Sv.lightgray};
     border-radius: 10px;
@@ -88,16 +75,6 @@ export const InputAmount = styled.input`
     border: 3px solid ${Sv.gray};
   `
 
-  export const AmountText = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    height: 60px;
-    padding: 4px;
-    font-size: 11px;
-  `
 
 
 export const StyledLable = styled.label`
@@ -109,40 +86,8 @@ export const StyledLable = styled.label`
     color: ${Sv.black};
 `
 
-const blinkAnimation = keyframes`
-  70%, 100% {
-    opacity: 1;
 
-  }
-  30% {
-    opacity: 0;
-  }
-`;
 
-export const StatusText = styled.div`
-  position: relative;
-  top: 40px;
-  right: 2px;
-  font-size: 0.8em;
-  float: right;
-  width: 100px;
-  height: 20px;
-`
-
-export const BlinkingDot = styled(StatusText)<{ $isActive: boolean }>`
-  position: relative;
-  top: 21px;
-  right: 60px;
-  width: 10px;
-  height: 10px;
-  background-color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
-  border-radius: 100px;
-  margin: 20px;
-  animation-name: ${blinkAnimation};
-  animation-duration: 0.5s;
-  animation-iteration-count: infinite;
-  }
-`
 
 
 

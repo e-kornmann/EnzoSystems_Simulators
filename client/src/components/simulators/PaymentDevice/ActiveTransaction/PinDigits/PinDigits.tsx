@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import * as Sv from "../../../styles/stylevariables";
+import * as Sv from "../../../../../styles/stylevariables";
 
 type DigitProps = {
   $showPinEntry: boolean;

@@ -1,7 +1,9 @@
 
 import CurrencyInput from './CurrencyInput';
 import { CurrencyInputProps } from './CurrencyInputProps';
-import { options } from './utils/settings/settings';
+import { options } from '../settings/settings';
+import './custom-inputfield.css';
+import styled from 'styled-components';
 
 
 type Props = {
@@ -11,26 +13,39 @@ type Props = {
   handleIntlSelect: (event: React.ChangeEvent<HTMLSelectElement>)  => void;
 }
 
-export const Example3 = ({ value, handleOnValueChange, intlConfig, handleIntlSelect }: Props) => {
 
-
-
+const InputWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+`
+const Input = styled.div`
+  width: 100%;
+  `
+const Dropdown = styled. div`
+  width: 80px;
+  position: relative;
+  top: -34px;
+  left: 0px;
+`
+export const InputAmount = ({ value, handleOnValueChange, intlConfig, handleIntlSelect }: Props) => {
 
   return (
-        <>
-                <CurrencyInput
+          <InputWrapper>
+          <Input>
+          <CurrencyInput
                   id="validationCustom04"
                   name="input-1"
                   intlConfig={intlConfig}
-                  className={`form-control`}
+                  className={`form-container-input`}
                   onValueChange={handleOnValueChange}
-                  decimalsLimit={6}
+                  decimalsLimit={2}
                   value={value}
                   step={1}
                 />
-          
-              <div>
-                <label htmlFor="intlConfigSelect">Intl option</label>
+          </Input>
+          <Dropdown>
+          <div className="select-dropdown">
+              
                 <select id="intlConfigSelect" onChange={handleIntlSelect}>
                   {options.map((config, i) => {
                     if (config) {
@@ -44,9 +59,10 @@ export const Example3 = ({ value, handleOnValueChange, intlConfig, handleIntlSel
                   })}
                 </select>
               </div>
-          </>
+            </Dropdown>
+            </InputWrapper>
 
   );
 };
 
-export default Example3;
+export default InputAmount;

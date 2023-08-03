@@ -22,17 +22,14 @@ export const Subline = styled.div`
     font-weight: 500;
     text-align: center; 
     white-space: pre-line; 
-`;
-
-export const SublineBottom = styled(Subline)`
-    font-size: 0.9em;
+    margin: 7px 0;
 `;
 
 export const Mainline = styled.div`
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 1.2em;
- 
+    line-height: 1.1em;
     color: ${Sv.enzoOrange};
     text-align: center; 
 `;

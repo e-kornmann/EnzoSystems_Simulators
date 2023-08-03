@@ -1,24 +1,25 @@
 import { useCallback, useState } from 'react';
-import OtherDevice from './components/simulators/OtherDevice';
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import './styles/style.css'
 import { DndContext } from '@dnd-kit/core';
 import * as S from './styles/App.style';
 import { Simulator } from './components/simulators/PaymentDevice_Erik/simulator'
 import PaymentTerminal from './components/simulators/PaymentDevice/PaymentTerminal';
+import DemoApp from './components/simulators/DemoApp/DemoApp';
+
 
 
 
 function App() {
   type SimulatorsType = {
     paymentDevice: boolean;
-    otherDevice: boolean;
+    demoApp: boolean;
     pinSimulator: boolean;
   };
 
   const [simulators, setSimulators] = useState<SimulatorsType>({
     paymentDevice: false,
-    otherDevice: false,
+    demoApp: false,
     pinSimulator: false,
   });
 
@@ -39,8 +40,8 @@ function App() {
           Open payment modal
         </S.OpenModelButton>
         <S.OpenModelButton 
-          onClick={() => showSimulatorHandler('otherDevice')} 
-          $isActive={simulators.otherDevice}
+          onClick={() => showSimulatorHandler('demoApp')} 
+          $isActive={simulators.demoApp}
         >
           Demo app
         </S.OpenModelButton>
@@ -59,15 +60,15 @@ function App() {
           headerText=""
           modalContent={<PaymentTerminal />}
           modalWidth={200}
-          modalHeight={410}
+          modalHeight={420}
         />
         <DraggableModal
-          isShown={simulators.otherDevice}
-          hide={() => showSimulatorHandler('otherDevice')}
+          isShown={simulators.demoApp}
+          hide={() => showSimulatorHandler('demoApp')}
           headerText=""
-          modalContent={<OtherDevice />}
-          modalWidth={600}
-          modalHeight={400}
+          modalContent={<DemoApp />}
+          modalWidth={300}
+          modalHeight={500}
         />
              <DraggableModal
           isShown={simulators.pinSimulator}

@@ -1,13 +1,13 @@
 import { styled } from 'styled-components';
 import { useContext } from 'react';
-import { AppContext } from './utils/settingsReducer';
-import { PayMethod, Status } from './types/types';
-import * as Sv from '../../../styles/stylevariables';
-import ChoosePayMethod from './ChoosePayMethod';
-import { Loading } from '../../shared/Loading';
-import PinDigits from './PinDigits';
-import CrossIcon from '../../shared/Fail';
-import ts from './Translations/translations';
+import { AppContext } from '../utils/settingsReducer';
+import { PayMethod, Status } from '../types/types';
+import * as Sv from '../../../../styles/stylevariables';
+import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
+import { LoadingDots } from '../../../shared/Loading';
+import PinDigits from './PinDigits/PinDigits';
+import CrossIcon from '../../../shared/Fail';
+import ts from '../Translations/translations';
 
 type ShowProp = {
   $show: boolean;
@@ -22,39 +22,44 @@ const ActiveTransactionContainer = styled.div`
   height: 100%;
 `
 const AmountBox = styled.div<ShowProp>`
-  display: ${(props) => (props.$show ? 'flex' : 'none')};
+  display: ${(props) => (props.$show ? 'grid' : 'none')};
+  grid-template-rows: 30% 10% 30% 30%;
   flex-direction: column;
+  height: 100%;
+`
+const IconContainer = styled.div`
+  grid-row: 1;
+  display: flex;
   justify-content: center;
-  margin: auto;
-  padding-top: 10%;
+  align-items: center;
+  padding-top: 5px;
 `
 const AmountText = styled.div`
-  width: 100%;
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;  
   font-family: 'Inter', sans-serif;
-  font-size: 0.7em;
+  font-size: 0.65em;
   font-weight: 500;
-  text-align: center; 
-  line-height: 0.4em;
-  padding: 15px 0px;
-  white-space: pre-line; 
+  text-align: center;
+  white-space: pre-line;
 `
-const Message = styled(AmountText)`
-  font-size: 0.8em;
-`
-
 const Price = styled.div`
-  width: 100%;
+  grid-row: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 1.05em;
-  line-height: 0.6em;
   color: ${Sv.enzoOrange};
-  text-align: center; 
 `
-const IconContainer = styled.div<ShowProp>`
-  display: ${(props) => (props.$show ? 'flex' : 'none')};
-  width: 100%;
-  justify-content: center;
+const Instruction = styled(AmountText)`
+  display: block;
+  grid-row: 4;
+  font-size: 0.7em;
+  line-height: 1.15em;
 `
 const PincodeContainer = styled.div`
   display: flex;
@@ -67,12 +72,19 @@ const Pads = styled.button`
   justify-content: center;
   align-items: center;
   color: ${Sv.black};
-  font-size: 0.7em;
+  font-size: 0.68em;
   font-weight: 600;
   border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
   height: 100%;
+`
+
+const LoadingDotsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-row: 3;
 `
 
 const StyledContent = styled.div`
@@ -82,6 +94,8 @@ const StyledNumpad = styled.div<ShowProp>`
   display: ${(props) => (props.$show ? 'grid' : 'none')};
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
+  max-height: 340px;
+  max-width: 700px;
   height: 100%;
   column-gap: 5%;
   row-gap: 5%;
@@ -101,6 +115,7 @@ const StyledFooter = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   height: 100%;
+  max-height: 78px;
   column-gap: 5%;
 `
 type BottomButtonProps = {
@@ -152,20 +167,20 @@ type Props = {
 
 const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, payHandler, handleButtonClick, pinDigits, currentState, amount }: Props) => {
   const { state } = useContext(AppContext);
-
+  console.log(amount);
   const amountFormat = new Intl.NumberFormat(state.currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const amountText = state.currency + ' ' + amountFormat.format(amount / 100);
+  const amountText = state.currency + ' ' + amountFormat.format(amount/100);
 
-  let subline: string;
+  let instruction: string;
   switch (currentState) {
     case Status.PIN_ENTRY:
-      subline = ts('enterPin', state.language);
+      instruction = ts('enterPin', state.language);
       break;
     case Status.WRONG_PIN:
-      subline = ts('wrongPin', state.language);
+      instruction = ts('wrongPin', state.language);
       break;
     default:
-      subline = ts('presentCard', state.language);
+      instruction = ts('presentCard', state.language);
       break;
   }
 
@@ -197,14 +212,14 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
     <>
     <ActiveTransactionContainer>
       <AmountBox $show={transactionIsActive}>
-      { currentState === Status.CHECK_PIN ? <Loading /> :  
+      { currentState === Status.CHECK_PIN ? <LoadingDotsContainer><LoadingDots>...</LoadingDots></LoadingDotsContainer> :  
         <>
-        <IconContainer $show={currentState === Status.WRONG_PIN}><CrossIcon width={15} height={15} fill={Sv.red} /></IconContainer>
+        <IconContainer>{ currentState === Status.WRONG_PIN ? <CrossIcon width={15} height={15} fill={Sv.red} /> : ''}</IconContainer>
         <AmountText>{ ts('amountToPay', state.language) }</AmountText>
         <Price>{amountText}</Price>
-        <Message>
-          {subline}
-        </Message>
+        <Instruction>
+          {instruction}
+        </Instruction>
         </>
       }
       </AmountBox>
@@ -217,7 +232,7 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
             activePayMethod={activePayMethod}
             currentState={currentState}
           /> 
-            : <StyledNumpad $show={showNumPad && transactionIsActive && currentState !== Status.START_UP}> {numpadArray.map((num) => {
+            : <StyledNumpad $show={showNumPad}> {numpadArray.map((num) => {
               return (
                 <NumPadButton
                   key={num}

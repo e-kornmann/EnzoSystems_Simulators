@@ -1,8 +1,9 @@
 import { Lang } from '../utils/settingsReducer';
 
-interface Translations {
+type Translations = {
   [key: string]: { [key in Lang]: string; }[];
 }
+
 const translations: Translations = {
   welcome: [
     {
@@ -98,10 +99,10 @@ const translations: Translations = {
   ],
   wrongPin: [
     {
-      [Lang.DUTCH]: 'Verkeerde PIN. Probeer opnieuw.',
+      [Lang.DUTCH]: `Verkeerde PIN.\nProbeer opnieuw.`,
       [Lang.ENGLISH]: 'Wrong PIN. Try again.',
       [Lang.FRENCH]: 'PIN incorrect. Réessayez.',
-      [Lang.GERMAN]: 'Falsche PIN. Bitte erneut versuchen.',
+      [Lang.GERMAN]: `Falsche PIN.\nBitte erneut versuchen.`,
     },
   ],
   enterPin: [
@@ -187,11 +188,11 @@ const translations: Translations = {
   ],
 };
 
-
-const ts = (id: string, language: Lang, indexed?: number): string => {
+  // Use indexed if you need a second line in a different element, i.e., a subline.
+  const ts = (id: string, language: Lang, indexed?: number): string => {
   const translation = translations[id];
 
-  // If 'indexed' is valid use it, otherwise use the first index as default if no index or invalid idex is given.
+  // If 'indexed' is valid use it, otherwise use the first index '[0]' as default if no index or invalid idex is given.
   const selectedTranslationIndex = (indexed && indexed >= 0 && indexed < translation.length) ? indexed : 0;
 
   return translation[selectedTranslationIndex][language] || '';
