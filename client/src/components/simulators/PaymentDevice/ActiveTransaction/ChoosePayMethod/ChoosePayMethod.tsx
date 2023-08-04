@@ -5,7 +5,7 @@ import * as Sv from "../../../../../styles/stylevariables";
 import { ReactComponent as PhoneIcon } from '../../../../../assets/svgs/phone.svg';
 import { ReactComponent as ChipIcon } from '../../../../../assets/svgs/chip.svg';
 import { ReactComponent as ContactlessIcon } from '../../../../../assets/svgs/contactless.svg';
-import { PayMethod, Status } from "../../types/types";
+import { PayMethod, PinTerminalStatus } from "../../types/types";
 
 
 const IconContainer = styled.div`
@@ -41,13 +41,13 @@ const PaymentMethodButton = styled.button<{ $inActive: boolean }>`
   type Props = {
     chooseMethodHandler: (method: PayMethod) => void;
     activePayMethod: PayMethod;
-    currentState: Status;
+    currentState: PinTerminalStatus;
   }
 
 const ChoosePayMethod = ({chooseMethodHandler, activePayMethod, currentState }: Props) => {
     
     const isInactiveButton = (thisPayMethod: PayMethod): boolean =>
-    currentState === Status.ACTIVE_METHOD && thisPayMethod !== activePayMethod;
+    currentState === PinTerminalStatus.ACTIVE_METHOD && thisPayMethod !== activePayMethod;
 
     return ( 
       <Wrapper>

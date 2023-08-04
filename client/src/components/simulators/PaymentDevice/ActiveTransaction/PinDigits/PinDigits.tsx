@@ -1,4 +1,3 @@
-import React, { useRef } from "react";
 import styled from "styled-components";
 import * as Sv from "../../../../../styles/stylevariables";
 
@@ -6,7 +5,7 @@ type DigitProps = {
   $showPinEntry: boolean;
 };
 
-const Digit = styled.input<DigitProps>`
+const Digit = styled.div<DigitProps>`
   display: ${(props) => (props.$showPinEntry ? 'block' : 'none')};
   border: none;
   background-color: transparent;
@@ -21,50 +20,45 @@ const Digit = styled.input<DigitProps>`
 `;
 
 type Props = {
-  pinDigits: string[];
+  pincode: string;
   $showPinEntry: boolean;
 }
 
-const PinDigits = ({pinDigits, $showPinEntry}:Props) => {
+const PinDigits = ({pincode, $showPinEntry}:Props) => {
 
-  const secondDigitRef = useRef<HTMLInputElement>(null);
-  const thirdDigitRef = useRef<HTMLInputElement>(null);
-  const fourthDigitRef = useRef<HTMLInputElement>(null);
-  const moveToNextField = (event: React.FormEvent<HTMLInputElement>, nextField: string) => {
-  const inputLength = event.currentTarget.value.length;
+  // const secondDigitRef = useRef<HTMLInputElement>(null);
+  // const thirdDigitRef = useRef<HTMLInputElement>(null);
+  // const fourthDigitRef = useRef<HTMLInputElement>(null);
+  // const moveToNextField = (event: React.FormEvent<HTMLInputElement>, nextField: string) => {
+  // const inputLength = event.currentTarget.value.length;
  
 
-    if (inputLength === 1) {
-      switch (nextField) {
-        case "seconddigit":
-          secondDigitRef.current?.focus();
-          break;
-        case "thirddigit":
-          thirdDigitRef.current?.focus();
-          break;
-        case "fourthdigit":
-          fourthDigitRef.current?.focus();
-          break;
-        default:
-          break;
-      }
-    }
-  };
+  //   if (inputLength === 1) {
+  //     switch (nextField) {
+  //       case "seconddigit":
+  //         secondDigitRef.current?.focus();
+  //         break;
+  //       case "thirddigit":
+  //         thirdDigitRef.current?.focus();
+  //         break;
+  //       case "fourthdigit":
+  //         fourthDigitRef.current?.focus();
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   }
+  // };
 
   return (
  <>
-      {pinDigits.map((digit, index) => (
-        <Digit
-          $showPinEntry={$showPinEntry}
-          key={index}
-          type="text"
-          value={digit.length > 0 ? "*".repeat(digit.length) : ""}
-          onInput={(event: React.FormEvent<HTMLInputElement>) =>
-            moveToNextField(event, index === 0 ? "seconddigit" : index === 1 ? "thirddigit" : "fourthdigit")
-          }
-          ref={index === 1 ? secondDigitRef : index === 2 ? thirdDigitRef : index === 3 ? fourthDigitRef : null}
-        />
-      ))}
+     
+        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 1 ? "*" : ''}</Digit>
+        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 2 ? "*" : ''}</Digit>
+        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 3 ? "*" : ''}</Digit>
+        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 4 ? "*" : ''}</Digit>
+          
+      
 </>
   );
 };

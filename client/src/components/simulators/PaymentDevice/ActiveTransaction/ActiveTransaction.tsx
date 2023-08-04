@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AppContext } from '../utils/settingsReducer';
-import { PayMethod, Status } from '../types/types';
+import { PayMethod, PinTerminalStatus } from '../types/types';
 import * as Sv from '../../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
 import { LoadingDots } from '../../../shared/Loading';
@@ -153,19 +153,25 @@ const OkButton = styled(Pads) <BottomButtonProps>`
     border: none;
   }
 `
-
 type Props = {
   chooseMethodHandler: (method: PayMethod) => void;
   activePayMethod: PayMethod;
   amount: number;
-  stopHandler: () => void;
-  payHandler: () => void;
-  pinDigits: string[];
-  handleButtonClick: (value: string) => void;
-  currentState: Status;
+  handleStopEvent: () => void;
+  handleConfirmEvent: () => void;
+  pincode: string;
+  handlePincodeSetter: (value: string) => void;
+  handleCorrectionEvent: ()=>void;
+  currentState: PinTerminalStatus;
+  init: boolean;
 }
 
-const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, payHandler, handleButtonClick, pinDigits, currentState, amount }: Props) => {
+
+
+
+
+
+const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleStopEvent, handleConfirmEvent, handlePincodeSetter, handleCorrectionEvent, pincode, currentState, amount }: Props) => {
   const { state } = useContext(AppContext);
   console.log(amount);
   const amountFormat = new Intl.NumberFormat(state.currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -173,38 +179,68 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
 
   let instruction: string;
   switch (currentState) {
-    case Status.PIN_ENTRY:
+    case PinTerminalStatus.PIN_ENTRY:
       instruction = ts('enterPin', state.language);
       break;
-    case Status.WRONG_PIN:
+    case PinTerminalStatus.WRONG_PIN:
       instruction = ts('wrongPin', state.language);
       break;
+    case PinTerminalStatus.PIN_CONFIRM:
+        instruction = ts('confirmPin', state.language);
+        break;
     default:
       instruction = ts('presentCard', state.language);
       break;
   }
 
+
+  // This useEffect listens to KeyEvents and initiates the corrsponding functions.
+  useEffect(() => {
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        console.log('A key was released: ', event.key);
+        handleConfirmEvent();
+      }
+      if (event.key === 'Escape' && init) {
+        console.log('A key was released: ', event.key);
+        handleStopEvent();
+      }
+      if (event.key === 'Backspace' || event.key === 'Delete') {
+        console.log('A key was released: ', event.key);
+        handleCorrectionEvent();
+      }
+    };
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      // cleanup this component
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleConfirmEvent, handleStopEvent, handleCorrectionEvent, init]);
+
+
+
+
   const transactionIsActive: boolean =
-    currentState === Status.CHOOSE_METHOD ||
-    currentState === Status.ACTIVE_METHOD ||
-    currentState === Status.WAITING ||
-    currentState === Status.PIN_ENTRY ||
-    currentState === Status.CHECK_PIN ||
-    currentState === Status.WRONG_PIN;
+    currentState === PinTerminalStatus.CHOOSE_METHOD ||
+    currentState === PinTerminalStatus.ACTIVE_METHOD ||
+    currentState === PinTerminalStatus.PIN_CONFIRM ||
+    currentState === PinTerminalStatus.PIN_ENTRY ||
+    currentState === PinTerminalStatus.CHECK_PIN ||
+    currentState === PinTerminalStatus.WRONG_PIN;
 
   const showPayMethodButtons: boolean =
-    currentState === Status.CHOOSE_METHOD ||
-    currentState === Status.ACTIVE_METHOD;
+    currentState === PinTerminalStatus.CHOOSE_METHOD ||
+    currentState === PinTerminalStatus.ACTIVE_METHOD;
 
   const showNumPad: boolean =
-    currentState === Status.PIN_ENTRY ||
-    currentState === Status.WRONG_PIN ||
-    currentState === Status.WAITING ||
-    currentState === Status.CHECK_PIN;
+    currentState === PinTerminalStatus.PIN_ENTRY ||
+    currentState === PinTerminalStatus.WRONG_PIN ||
+    currentState === PinTerminalStatus.PIN_CONFIRM ||
+    currentState === PinTerminalStatus.CHECK_PIN;
 
   const hideCorrectAndOkButton: boolean =
-    currentState === Status.CHOOSE_METHOD ||
-    currentState === Status.ACTIVE_METHOD;
+    currentState === PinTerminalStatus.CHOOSE_METHOD ||
+    currentState === PinTerminalStatus.ACTIVE_METHOD;
 
   const numpadArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -212,9 +248,9 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
     <>
     <ActiveTransactionContainer>
       <AmountBox $show={transactionIsActive}>
-      { currentState === Status.CHECK_PIN ? <LoadingDotsContainer><LoadingDots>...</LoadingDots></LoadingDotsContainer> :  
+      { currentState === PinTerminalStatus.CHECK_PIN ? <LoadingDotsContainer><LoadingDots>...</LoadingDots></LoadingDotsContainer> :  
         <>
-        <IconContainer>{ currentState === Status.WRONG_PIN ? <CrossIcon width={15} height={15} fill={Sv.red} /> : ''}</IconContainer>
+        <IconContainer>{ currentState === PinTerminalStatus.WRONG_PIN ? <CrossIcon width={15} height={15} fill={Sv.red} /> : ''}</IconContainer>
         <AmountText>{ ts('amountToPay', state.language) }</AmountText>
         <Price>{amountText}</Price>
         <Instruction>
@@ -224,7 +260,7 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
       }
       </AmountBox>
 
-      <PincodeContainer><PinDigits pinDigits={pinDigits} $showPinEntry={showNumPad} /></PincodeContainer>
+      <PincodeContainer><PinDigits pincode={pincode} $showPinEntry={showNumPad} /></PincodeContainer>
         <StyledContent>
           {showPayMethodButtons
             ?  <ChoosePayMethod
@@ -236,26 +272,21 @@ const ActiveTransaction = ({ chooseMethodHandler, activePayMethod, stopHandler, 
               return (
                 <NumPadButton
                   key={num}
-                  onClick={() => handleButtonClick(num)}
+                  onClick={() => handlePincodeSetter(num)}
                 >
                   {num}
                 </NumPadButton>
               );
             })}
-            <ZeroButton key={'0'} onClick={() => handleButtonClick('0')} >
+            <ZeroButton key={'0'} onClick={() => handlePincodeSetter('0')} >
               {'0'}
             </ZeroButton></StyledNumpad>}
         </StyledContent>
         <StyledFooter>
-        <StopButton onClick={stopHandler} $showBottomButtons={transactionIsActive}>
-          Stop
-        </StopButton>
-        <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={() => handleButtonClick('correct-button')}>
-          Cor
-        </CorrectButton>
-        <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={payHandler}>
-          OK
-        </OkButton>
+        <StopButton $showBottomButtons={transactionIsActive} onClick={handleStopEvent}>Stop</StopButton> 
+        <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>Cor</CorrectButton>
+        <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type='button' onClick={handleConfirmEvent}>OK</OkButton>
+   
         </StyledFooter>
       </ActiveTransactionContainer>
     </>

@@ -70,7 +70,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const [isGrabbing, setIsGrabbing] = useState(false);
-
+  
   const handleMouseDown = () => {
     setIsGrabbing(true);
   };
@@ -88,7 +88,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isShown) {
+      if (event.key === 'x' && isShown) {
         hide();
       }
     };

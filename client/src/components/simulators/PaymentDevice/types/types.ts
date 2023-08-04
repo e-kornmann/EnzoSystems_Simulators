@@ -2,7 +2,7 @@ import { CurrencyCode } from "../../../../types/CurrencyTypes";
 import { Locale } from "../../../../types/LocaleTypes";
 
 
-export enum Status {
+export enum PinTerminalStatus {
   START_UP,
   OUT_OF_ORDER,
   IDLE,
@@ -10,8 +10,8 @@ export enum Status {
   SERVER_ERROR,
   CHOOSE_METHOD,
   ACTIVE_METHOD,
-  WAITING,
   PIN_ENTRY,
+  PIN_CONFIRM,
   CHECK_PIN,
   STOP_TRANSACTION,
   WRONG_PIN,

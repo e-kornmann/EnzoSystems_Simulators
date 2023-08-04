@@ -113,6 +113,14 @@ const translations: Translations = {
       [Lang.GERMAN]: 'PIN eingeben',
     },
   ],
+  confirmPin: [
+    {
+      [Lang.DUTCH]: 'Druk OK om te bevestigen',
+      [Lang.ENGLISH]: 'To confirm, press OK',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
   amountToPay: [
     {
       [Lang.DUTCH]: 'Te betalen bedrag',

@@ -1,8 +1,8 @@
 import axios from "axios";
 import api from "../../../../api";
-import { Status } from "../types/types";
+import { PinTerminalStatus } from "../types/types";
 
-export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<Status>>) => {
+export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<PinTerminalStatus>>) => {
     try {
       const config = {
         headers: {
@@ -24,7 +24,7 @@ export const updateTransaction = async (accessToken: string, transactionId: stri
       );
       return response.status
     } catch (error) {
-      setStatus(Status.SERVER_ERROR);
+      setStatus(PinTerminalStatus.SERVER_ERROR);
 
       if (axios.isAxiosError(error)) {
         return error.response?.status;
