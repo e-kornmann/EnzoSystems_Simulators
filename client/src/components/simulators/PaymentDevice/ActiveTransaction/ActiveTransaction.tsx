@@ -79,14 +79,12 @@ const Pads = styled.button`
   cursor: pointer;
   height: 100%;
 `
-
 const LoadingDotsContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   grid-row: 3;
 `
-
 const StyledContent = styled.div`
   height: 100%;
 `
@@ -100,7 +98,6 @@ const StyledNumpad = styled.div<ShowProp>`
   column-gap: 5%;
   row-gap: 5%;
 `
-
 const NumPadButton = styled(Pads)`
   background: ${Sv.enzoOrange};  
   &:active {
@@ -166,14 +163,8 @@ type Props = {
   init: boolean;
 }
 
-
-
-
-
-
 const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleStopEvent, handleConfirmEvent, handlePincodeSetter, handleCorrectionEvent, pincode, currentState, amount }: Props) => {
   const { state } = useContext(AppContext);
-  console.log(amount);
   const amountFormat = new Intl.NumberFormat(state.currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const amountText = state.currency + ' ' + amountFormat.format(amount/100);
 
@@ -186,39 +177,12 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
       instruction = ts('wrongPin', state.language);
       break;
     case PinTerminalStatus.PIN_CONFIRM:
-        instruction = ts('confirmPin', state.language);
-        break;
+      instruction = ts('confirmPin', state.language);
+      break;
     default:
       instruction = ts('presentCard', state.language);
       break;
   }
-
-
-  // This useEffect listens to KeyEvents and initiates the corrsponding functions.
-  useEffect(() => {
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        console.log('A key was released: ', event.key);
-        handleConfirmEvent();
-      }
-      if (event.key === 'Escape' && init) {
-        console.log('A key was released: ', event.key);
-        handleStopEvent();
-      }
-      if (event.key === 'Backspace' || event.key === 'Delete') {
-        console.log('A key was released: ', event.key);
-        handleCorrectionEvent();
-      }
-    };
-    window.addEventListener('keyup', handleKeyUp);
-    return () => {
-      // cleanup this component
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [handleConfirmEvent, handleStopEvent, handleCorrectionEvent, init]);
-
-
-
 
   const transactionIsActive: boolean =
     currentState === PinTerminalStatus.CHOOSE_METHOD ||
@@ -242,6 +206,30 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
     currentState === PinTerminalStatus.CHOOSE_METHOD ||
     currentState === PinTerminalStatus.ACTIVE_METHOD;
 
+  // This useEffect listens to KeyEvents and initiates the corrsponding functions.
+  useEffect(() => {
+    const handleKeyUp = (event: KeyboardEvent) => {
+      // Check if the pressed key is a numeric key (0-9)
+      if (/^[0-9]$/.test(event.key) && showNumPad) {
+        handlePincodeSetter(event.key);
+      }
+      if (event.key === 'Enter' && showNumPad) {
+        handleConfirmEvent();
+      }
+      if (event.key === 'Escape' && showNumPad) {
+        handleStopEvent();
+      }
+      if (event.key === 'Backspace' && showNumPad || event.key === 'Delete' && showNumPad) {
+        handleCorrectionEvent();
+      }
+    };
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      // cleanup this component
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleConfirmEvent, handleStopEvent, handleCorrectionEvent, init, showNumPad, handlePincodeSetter]);
+  
   const numpadArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
@@ -258,36 +246,30 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
         </Instruction>
         </>
       }
-      </AmountBox>
+        </AmountBox>
 
-      <PincodeContainer><PinDigits pincode={pincode} $showPinEntry={showNumPad} /></PincodeContainer>
+        <PincodeContainer><PinDigits pincode={pincode} $showPinEntry={showNumPad} /></PincodeContainer>
+
         <StyledContent>
-          {showPayMethodButtons
-            ?  <ChoosePayMethod
-            chooseMethodHandler={chooseMethodHandler}
-            activePayMethod={activePayMethod}
-            currentState={currentState}
-          /> 
-            : <StyledNumpad $show={showNumPad}> {numpadArray.map((num) => {
-              return (
-                <NumPadButton
-                  key={num}
-                  onClick={() => handlePincodeSetter(num)}
-                >
-                  {num}
-                </NumPadButton>
-              );
-            })}
-            <ZeroButton key={'0'} onClick={() => handlePincodeSetter('0')} >
-              {'0'}
-            </ZeroButton></StyledNumpad>}
+          { showPayMethodButtons ?
+            (
+              <ChoosePayMethod chooseMethodHandler={chooseMethodHandler} activePayMethod={activePayMethod} currentState={currentState} />
+            ) : (
+              <StyledNumpad $show={showNumPad}> 
+                { numpadArray.map((num) => <NumPadButton key={num} onClick={() => handlePincodeSetter(num)}>{num}</NumPadButton>) }
+                <ZeroButton key={'0'} onClick={() => handlePincodeSetter('0')} >{'0'}</ZeroButton>
+              </StyledNumpad>
+            )
+          }
+
         </StyledContent>
+
         <StyledFooter>
-        <StopButton $showBottomButtons={transactionIsActive} onClick={handleStopEvent}>Stop</StopButton> 
-        <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>Cor</CorrectButton>
-        <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type='button' onClick={handleConfirmEvent}>OK</OkButton>
-   
+          <StopButton $showBottomButtons={transactionIsActive} onClick={handleStopEvent}>Stop</StopButton>
+          <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>Cor</CorrectButton>
+          <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type='button' onClick={handleConfirmEvent}>OK</OkButton>
         </StyledFooter>
+
       </ActiveTransactionContainer>
     </>
   )

@@ -19,8 +19,8 @@ export const IconContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 19px;
-  height: 19px;
+  width: 13px;
+  height: 13px;
   `;
 
 type HideProp = {
@@ -42,6 +42,51 @@ export const SettingHeader = styled(Header)`
   justify-content: space-between;
 `;
 
+export const List = styled.div`
+  background-color: ${Sv.lightgray};
+  padding: 2px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: 'flex start';
+  font-size: 1.5em;
+  background-color: #F7F7F7;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  height: 100%;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    background: transparent; 
+    width: 0.35rem;
+  }
+  &::-webkit-scrollbar-track {
+    width: 0.35rem;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${Sv.gray}; 
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${Sv.asphalt}; 
+  };
+`;
+
+export const Button = styled.button`
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.13em solid ${Sv.lightgray};
+  width: 100%;
+  height: 40px;
+  font-size: 0.55em;
+  padding: 11px;
+  &:active {
+    background-color: ${Sv.enzoLightOrange};
+    fill: ${Sv.enzoOrange};
+  }
+`;
+
 type Props = {
   hide: boolean;
   onHide: () => void;
@@ -50,7 +95,7 @@ type Props = {
 const AppSettings = ({ hide, onHide }: Props) => {
   const { state } = useContext(AppContext);
   const menuToggler = (listItem: SettingModes) => setSettingMode(listItem);
-  const [buttons, setButtons] = useState(<></>);
+  const [list, setList] = useState(<></>);
   const [settingMode, setSettingMode] = useState(SettingModes.SETTINGS);
   const [heading, setHeading] = useState('Settings');  
 
@@ -58,27 +103,27 @@ const AppSettings = ({ hide, onHide }: Props) => {
     switch(settingMode) {
     case SettingModes.SETTINGS:
       setHeading('Settings');
-      setButtons(<SettingsModesList menuToggler={menuToggler}/>);
+      setList(<SettingsModesList menuToggler={menuToggler}/>);
       break;
     case SettingModes.OPERATIONAL_MODE:
       setHeading(ts('operationalMode', state.language));
-      setButtons(<OperationalModeOptions/>)
+      setList(<OperationalModeOptions/>)
       break;
     case SettingModes.CURRENCY:
       setHeading(ts('currency', state.language));
-      setButtons(<CurrencyOptions />)
+      setList(<CurrencyOptions />)
       break;
     case SettingModes.LANGUAGE:
       setHeading(ts('defaultLanguage', state.language));
-      setButtons(<LanguageOptions />)
+      setList(<LanguageOptions />)
       break;
     case SettingModes.ASK_FOR_PIN:
       setHeading(ts('askForPin', state.language));
-      setButtons(<PinOptions />)
+      setList(<PinOptions />)
       break;
     case SettingModes.AVAILABLE_SCHEMES:
       setHeading(ts('supportedSchemes', state.language));
-      setButtons(<SchemeOptions/>)
+      setList(<SchemeOptions/>)
       break;
     default :
       null;
@@ -92,11 +137,11 @@ return (
 <SettingsWrapper $hide={hide}>
 <Container> 
 <SettingHeader>
-<IconContainer onClick={() => menuToggler(SettingModes.SETTINGS)} style={{cursor: 'pointer'}} >{ settingMode !== SettingModes.SETTINGS ? <Arrow  width={13} height={13} /> : null }</IconContainer>
+<IconContainer onClick={() => menuToggler(SettingModes.SETTINGS)} style={{cursor: 'pointer'}} >{ settingMode !== SettingModes.SETTINGS ? <Arrow  width={11} height={11} /> : null }</IconContainer>
   { heading }
-<IconContainer onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}}><CloseIcon width={13} height={13} /></IconContainer>
+<IconContainer onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide()}} style={{cursor: 'pointer'}}><CloseIcon width={11} height={11} /></IconContainer>
 </SettingHeader>
-  { buttons }
+  { list }
   </Container> 
 </SettingsWrapper>
 </>

@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider from '../../../../shared/PayProvider';
-import { Button, List } from './SettingModes';
+import * as S from '../DeviceSettings';
 import Checkmark from '../checkmark/Checkmark';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import styled from 'styled-components';
@@ -33,14 +33,14 @@ const SchemeOptions = () => {
   };
 
   return (
-    <List>
+    <S.List>
       {Object.values(SupportedSchemesType).map(scheme => (
-        <Button key={scheme} onClick={() => toggleScheme(scheme)}>
+        <S.Button key={scheme} onClick={() => toggleScheme(scheme)}>
           <Wrap><PayProvider width={30} height={22} provider={scheme} border={false}/>{scheme}</Wrap>
           <Checkmark isDisplayed={isSchemeSelected(scheme)}/> 
-        </Button>
+        </S.Button>
       ))}
-    </List>
+    </S.List>
   );
 };
 

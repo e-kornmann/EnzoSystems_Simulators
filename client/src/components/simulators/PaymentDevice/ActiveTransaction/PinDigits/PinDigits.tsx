@@ -26,40 +26,13 @@ type Props = {
 
 const PinDigits = ({pincode, $showPinEntry}:Props) => {
 
-  // const secondDigitRef = useRef<HTMLInputElement>(null);
-  // const thirdDigitRef = useRef<HTMLInputElement>(null);
-  // const fourthDigitRef = useRef<HTMLInputElement>(null);
-  // const moveToNextField = (event: React.FormEvent<HTMLInputElement>, nextField: string) => {
-  // const inputLength = event.currentTarget.value.length;
- 
-
-  //   if (inputLength === 1) {
-  //     switch (nextField) {
-  //       case "seconddigit":
-  //         secondDigitRef.current?.focus();
-  //         break;
-  //       case "thirddigit":
-  //         thirdDigitRef.current?.focus();
-  //         break;
-  //       case "fourthdigit":
-  //         fourthDigitRef.current?.focus();
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   }
-  // };
-
   return (
- <>
-     
-        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 1 ? "*" : ''}</Digit>
-        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 2 ? "*" : ''}</Digit>
-        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 3 ? "*" : ''}</Digit>
-        <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 4 ? "*" : ''}</Digit>
-          
-      
-</>
+ <>   
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 1 ? "*" : ''}</Digit>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 2 ? "*" : ''}</Digit>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 3 ? "*" : ''}</Digit>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 4 ? "*" : ''}</Digit>
+  </>
   );
 };
 

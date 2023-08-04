@@ -3,10 +3,6 @@
 import api from '../../../../api';
 import { IntlConfigType } from '../../../../types/IntlConfigType';
 
-
-
-
-
 function processAmount(amountToPay: string | undefined): number {
   if (amountToPay) {
     const sanitizedAmount = amountToPay.replace(/[€$]/g, '').replace(/[^0-9,.]/g, '');
@@ -18,7 +14,6 @@ function processAmount(amountToPay: string | undefined): number {
     
     // Convert the final string to a number
     const finalAmount = parseFloat(numberWithDecimal);
-    console.log(finalAmount); 
   return finalAmount*100;
 }
 return 0

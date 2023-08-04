@@ -6,7 +6,7 @@ import Checkmark from '../checkmark/Checkmark';
 import { Container } from '../../../../shared/DraggableModal/ModalTemplate';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import { IconContainer, SettingHeader, SettingsWrapper } from '../DeviceSettings';
-import { Button, List } from './SettingModes';
+import * as S from '../DeviceSettings';
 import { Wrap } from './SchemeOptions';
 import ts from '../../Translations/translations';
 
@@ -33,14 +33,14 @@ const SelectScheme = ({ hide, onHide }: Props) => {
           {ts('paymentMethod', state.language)}
           <IconContainer onClick={onHide} style={{ cursor: 'pointer' }}><CloseIcon width={13} height={13} /></IconContainer>
         </SettingHeader>
-        <List>
+        <S.List>
           {state.availableSchemes.map(scheme => (
-            <Button key={scheme} onClick={() => onChangeEventHandler(scheme)}>
+            <S.Button key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
               <Checkmark isDisplayed={ state.selectedScheme === scheme }/> 
-            </Button>
+            </S.Button>
           ))}
-        </List>
+        </S.List>
       </Container>
     </SettingsWrapper>
   )

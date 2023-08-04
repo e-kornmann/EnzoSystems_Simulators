@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { CurrencyCode } from '../../../../../types/CurrencyTypes';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
-import { Button, List } from './SettingModes';
+import { Button, List } from '../DeviceSettings';
 import Checkmark from '../checkmark/Checkmark';
 
 

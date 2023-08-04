@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import { AppContext, Lang, SettingModes } from '../../utils/settingsReducer';
 import Checkmark from '../checkmark/Checkmark';
-import { Button, List } from './SettingModes';
+import * as S from '../DeviceSettings';
 
 const LanguageOptions = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -12,14 +12,14 @@ const LanguageOptions = () => {
   };
 
   return (
-    <List>
+    <S.List>
       {Object.values(Lang).map((language) => (
-        <Button key={language} onClick={() => onChangeEventHandler(language)}>
+        <S.Button key={language} onClick={() => onChangeEventHandler(language)}>
           {language}
           <Checkmark isDisplayed={state.language === language }/>
-        </Button>
+        </S.Button>
       ))}
-    </List>
+    </S.List>
   );
 };
 

@@ -301,11 +301,6 @@ const PaymentTerminal = () => {
     };
   }, [activePayMethod, pincode, init, pinAttempts, setMessageContent, state.language, stopTransaction, terminalState, token, transactionState.amountToPay, transactionState.transactionId]);
 
-  const logTerminalTokenAndTransactionState = React.useCallback(() => {
-    console.log(token);
-    console.log(transactionState);
-  }, [token, transactionState]);
-
   const showMessage = useMemo(() => {
     if (terminalState === PinTerminalStatus.OUT_OF_ORDER ||
       terminalState === PinTerminalStatus.IDLE ||
@@ -328,7 +323,7 @@ const PaymentTerminal = () => {
       <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <Container>
-        <Header onClick={logTerminalTokenAndTransactionState}>Payment Terminal</Header>
+        <Header>Payment Terminal</Header>
         <TimeRibbon />
         <Content>
 

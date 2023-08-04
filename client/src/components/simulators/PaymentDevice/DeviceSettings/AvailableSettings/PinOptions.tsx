@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
-import { Button, List } from './SettingModes';
+import * as S from '../DeviceSettings';
 import Checkmark from '../checkmark/Checkmark';
 import ts from '../../Translations/translations';
 
@@ -14,16 +14,16 @@ const PinOptions = () => {
   };
 
   return (
-    <List>
-      <Button key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
+    <S.List>
+      <S.Button key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
       {ts('yes', state.language)}
         <Checkmark isDisplayed={ state.askForPin === true }/> 
-      </Button>
-      <Button key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
+      </S.Button>
+      <S.Button key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
       {ts('no', state.language)}
         <Checkmark isDisplayed={ state.askForPin === false }/> 
-      </Button>
-    </List>
+      </S.Button>
+    </S.List>
   );
 };
 export default PinOptions;

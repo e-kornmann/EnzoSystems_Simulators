@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import * as Sv from '../../../styles/stylevariables';
 import CrossIcon from "../Fail";
 
+
+
 type Props = { 
 	$grabbing: boolean;
 }
@@ -27,16 +29,24 @@ export const StyledModal = styled.div<Props>`
 `
 export const CloseButton = styled.button`
 	position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 	right: 0;
-	top: -40px;
+	top: -28px;
 	font-family: 'Rubik', sans-serif;
-	width: 20px;
-	height: 20px;
-	border-radius: 3px;
-	background: ${Sv.gray};
+	width: 15px;
+	height: 16px;
+	border-radius: 1px;
+  background: ${Sv.gray};
 	&:hover {
 		cursor: pointer;
 		color: ${Sv.enzoOrange};
+    background-color: ${Sv.asphalt};
+    & > svg {
+      fill: white;
+    }
+  
 	}
 `
 type ContentProps = { 
@@ -117,7 +127,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         <DragMove onDragMove={handleDragMove}>
           <StyledModal $grabbing={isGrabbing} style={{transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
               <CloseButton onClick={hide}>
-                <CrossIcon width={10} height={10} fill={'white'} />
+                <CrossIcon width={8} height={8} fill={'gray'} />
               </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>
