@@ -3,9 +3,10 @@ import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import './styles/style.css'
 import { DndContext } from '@dnd-kit/core';
 import * as S from './styles/App.style';
-import { Simulator } from './components/simulators/PaymentDevice_Erik/simulator'
+
 import PaymentTerminal from './components/simulators/PaymentDevice/PaymentTerminal';
 import DemoApp from './components/simulators/DemoApp/DemoApp';
+import QrScanner from './components/simulators/QR-Scanner/QrScanner';
 
 
 
@@ -14,13 +15,13 @@ function App() {
   type SimulatorsType = {
     paymentDevice: boolean;
     demoApp: boolean;
-    pinSimulator: boolean;
+    QrScanner: boolean;
   };
 
   const [simulators, setSimulators] = useState<SimulatorsType>({
     paymentDevice: false,
     demoApp: false,
-    pinSimulator: false,
+    QrScanner: false,
   });
 
   const showSimulatorHandler = useCallback((simulator: keyof SimulatorsType) => {
@@ -46,10 +47,10 @@ function App() {
           Demo app
         </S.OpenModelButton>
         <S.OpenModelButton 
-          onClick={() => showSimulatorHandler('pinSimulator')} 
-          $isActive={simulators.pinSimulator}
+          onClick={() => showSimulatorHandler('QrScanner')} 
+          $isActive={simulators.QrScanner}
         >
-          Simulator
+          Qr Scanner
         </S.OpenModelButton>
       </S.OpenModalButtonsContainer>
 
@@ -59,8 +60,8 @@ function App() {
           hide={() => showSimulatorHandler('paymentDevice')}
           headerText=""
           modalContent={<PaymentTerminal />}
-          modalWidth={200}
-          modalHeight={420}
+          modalWidth={220}
+          modalHeight={440}
         />
         <DraggableModal
           isShown={simulators.demoApp}
@@ -71,10 +72,10 @@ function App() {
           modalHeight={500}
         />
              <DraggableModal
-          isShown={simulators.pinSimulator}
-          hide={() => showSimulatorHandler('pinSimulator')}
+          isShown={simulators.QrScanner}
+          hide={() => showSimulatorHandler('QrScanner')}
           headerText=""
-          modalContent={<Simulator />}
+          modalContent={<QrScanner />}
           modalWidth={250}
           modalHeight={400}
         />
