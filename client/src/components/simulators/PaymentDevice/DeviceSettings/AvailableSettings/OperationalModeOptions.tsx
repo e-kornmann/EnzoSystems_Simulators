@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { AppContext, OperationalModeOptionsStatesType, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../DeviceSettings';
 import Checkmark from '../checkmark/Checkmark';
-
+import ts from '../../Translations/translations';
 
 
 const OperationalModeOptions = () => {
@@ -16,7 +16,9 @@ const OperationalModeOptions = () => {
     <S.List>
       {Object.values(OperationalModeOptionsStatesType).map((mode) => (
         <S.Button key={mode} onClick={() => onChangeEventHandler(mode)}>
-          {mode}
+          
+          {ts(mode, state.language)}
+           
           <Checkmark isDisplayed={state.operationalModeOption === mode }/> 
         </S.Button>
       ))}

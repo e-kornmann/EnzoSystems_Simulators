@@ -30,12 +30,14 @@ const translations: Translations = {
     },
   ],
   timedOut: [
+    //mainline
     {
       [Lang.DUTCH]: 'Geen betaling',
       [Lang.ENGLISH]: 'Nothing paid',
       [Lang.FRENCH]: 'Rien payé',
       [Lang.GERMAN]: 'Keine Zahlung erfolgt',
     },
+    //subline
     {
       [Lang.DUTCH]: 'Betaling verlopen',
       [Lang.ENGLISH]: 'Payment timed out',
@@ -43,13 +45,31 @@ const translations: Translations = {
       [Lang.GERMAN]: 'Zahlung abgelaufen',
     },
   ],
+  serverError: [
+    //mainline
+    {
+      [Lang.DUTCH]: 'Serverfout',
+      [Lang.ENGLISH]: 'Server error',
+      [Lang.FRENCH]: 'Erreur du serveur.',
+      [Lang.GERMAN]: 'Serverfehler',
+    },
+    //subline
+    {
+      [Lang.DUTCH]: 'Kan geen betaling uitvoeren',
+      [Lang.ENGLISH]: 'Unable to make payment',
+      [Lang.FRENCH]: 'Impossible de réaliser le paiement',
+      [Lang.GERMAN]: 'Zahlung nicht möglich',
+    },
+  ],
   serverError409: [
+    //mainline
     {
       [Lang.DUTCH]: 'Conflict',
       [Lang.ENGLISH]: 'Conflict',
       [Lang.FRENCH]: 'Conflit',
       [Lang.GERMAN]: 'Konflikt',
     },
+    //subline
     {
       [Lang.DUTCH]: 'Een andere betaling is al bezig',
       [Lang.ENGLISH]: 'Another payment was already in progress',
@@ -117,8 +137,8 @@ const translations: Translations = {
     {
       [Lang.DUTCH]: 'Druk OK om te bevestigen',
       [Lang.ENGLISH]: 'To confirm, press OK',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      [Lang.FRENCH]: 'Pour confirmer, appuyez sur OK',
+      [Lang.GERMAN]: 'Zum Bestätigen drücken Sie OK',
     },
   ],
   amountToPay: [
@@ -129,6 +149,7 @@ const translations: Translations = {
       [Lang.GERMAN]: 'Zu zahlender Betrag',
     },
   ],
+  // settings
   operationalMode: [
     {
       [Lang.DUTCH]: 'Operationele modus',
@@ -137,12 +158,76 @@ const translations: Translations = {
       [Lang.GERMAN]: 'Betriebsmodus',
     },
   ],
+  normal: [
+    {
+      [Lang.DUTCH]: 'Normaal',
+      [Lang.ENGLISH]: 'Normal',
+      [Lang.FRENCH]: 'Normal',
+      [Lang.GERMAN]: 'Normal',
+    },
+  ],
+  alwaysSucceed: [
+    {
+      [Lang.DUTCH]: 'Altijd slagen',
+      [Lang.ENGLISH]: 'Always succeed',
+      [Lang.FRENCH]: 'Toujours réussir',
+      [Lang.GERMAN]: 'Immer erfolgreich',
+    },
+  ],
+  alwaysFails: [
+    {
+      [Lang.DUTCH]: 'Altijd mislukken',
+      [Lang.ENGLISH]: 'Always fails ',
+      [Lang.FRENCH]: 'Échoue toujours',
+      [Lang.GERMAN]: 'Schlägt immer fehl',
+    },
+  ],
+  firstFail: [
+    {
+      [Lang.DUTCH]: 'Eerst mislukken, dan slagen',
+      [Lang.ENGLISH]: 'First fail, then succeed',
+      [Lang.FRENCH]: 'Échec d\'abord, puis réussite',
+      [Lang.GERMAN]: 'Zuerst scheitern, dann erfolgreich sein',
+    },
+  ],
   defaultLanguage: [
     {
       [Lang.DUTCH]: 'Standaardtaal',
       [Lang.ENGLISH]: 'Default Language',
       [Lang.FRENCH]: 'Langue par défaut',
       [Lang.GERMAN]: 'Standardsprache',
+    },
+  ],
+  dutch: [
+    {
+      [Lang.DUTCH]: 'Nederlands',
+      [Lang.ENGLISH]: 'Dutch',
+      [Lang.FRENCH]: 'Néerlandais',
+      [Lang.GERMAN]: 'Niederländisch',
+    },
+  ],
+  english: [
+    {
+      [Lang.DUTCH]: 'Engels',
+      [Lang.ENGLISH]: 'English',
+      [Lang.FRENCH]: 'Anglais',
+      [Lang.GERMAN]: 'Englisch',
+    },
+  ],
+  german: [
+    {
+      [Lang.DUTCH]: 'Duits',
+      [Lang.ENGLISH]: 'German',
+      [Lang.FRENCH]: 'Allemand',
+      [Lang.GERMAN]: 'Deutsch',
+    },
+  ],
+  french: [
+    {
+      [Lang.DUTCH]: 'Frans',
+      [Lang.ENGLISH]: 'French',
+      [Lang.FRENCH]: 'Français',
+      [Lang.GERMAN]: 'Französisch',
     },
   ],
   askForPin: [
@@ -161,13 +246,13 @@ const translations: Translations = {
       [Lang.GERMAN]: 'Währung',
     },
   ],
-  // Deze even goed nalopen
+  
   supportedSchemes: [
     {
-      [Lang.DUTCH]: 'Schemas',
-      [Lang.ENGLISH]: 'Schemes',
-      [Lang.FRENCH]: 'Schemas',
-      [Lang.GERMAN]: 'Schemata',
+      [Lang.DUTCH]: 'Ondersteunde schema\'s',
+      [Lang.ENGLISH]: 'Supported schemes',
+      [Lang.FRENCH]: 'Schémas pris en charge',
+      [Lang.GERMAN]: 'Unterstützte Schemata',
     },
   ],
   paymentMethod: [

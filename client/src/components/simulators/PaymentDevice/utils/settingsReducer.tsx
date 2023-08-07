@@ -13,19 +13,19 @@ export enum SettingModes {
   SELECT_SCHEME,
 }
 
+
 export enum OperationalModeOptionsStatesType {
-  NORMAL = 'Normal',
-  ALWAYS_SUCCEED = 'Always succeed',
-  ALWAYS_FAIL = 'Always fail',
-  FIRST_FAIL = 'First fail',
-  FIRST_FAIL_THEN_SUCCEED = 'First fail, then succeed',
+  NORMAL = 'normal',
+  ALWAYS_SUCCEED = 'alwaysSucceed',
+  ALWAYS_FAIL = 'alwaysFails',
+  FIRST_FAIL = 'firstFail',
 }
 
 export enum Lang {
-  DUTCH = 'Dutch',
-  ENGLISH = 'English',
-  GERMAN = 'German',
-  FRENCH = 'French',
+  DUTCH = 'dutch',
+  ENGLISH = 'english',
+  GERMAN = 'german',
+  FRENCH = 'french',
 }
 
 export type AllAppSettings = {
