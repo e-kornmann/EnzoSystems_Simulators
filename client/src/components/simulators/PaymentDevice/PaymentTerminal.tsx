@@ -354,7 +354,7 @@ const PaymentTerminal = () => {
               onClick={settingsButtonHandler}
             /></SettingsButton>
           <PayOptions onClick={payProviderButtonHandler}>
-            <PayProvider width={30} height={22} border={true} provider={state.selectedScheme} />
+            <PayProvider width={30} height={22} border={true} provider={state.schemeInUse} />
             <ExpandIcon width={12} height={8} />
           </PayOptions>
         </Footer>

@@ -34,10 +34,10 @@ const SelectScheme = ({ hide, onHide }: Props) => {
           <IconContainer onClick={onHide} style={{ cursor: 'pointer' }}><CloseIcon width={13} height={13} /></IconContainer>
         </SettingHeader>
         <S.List>
-          {state.availableSchemes.map(scheme => (
+          {state.selectedSchemes.map(scheme => (
             <S.Button key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
-              <Checkmark isDisplayed={ state.selectedScheme === scheme }/> 
+              <Checkmark isDisplayed={ state.schemeInUse === scheme }/> 
             </S.Button>
           ))}
         </S.List>

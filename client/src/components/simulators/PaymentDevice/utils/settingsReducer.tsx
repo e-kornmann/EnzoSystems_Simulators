@@ -33,8 +33,8 @@ export type AllAppSettings = {
   currency: CurrencyCode;
   language: Lang;
   askForPin: boolean;
-  availableSchemes: SupportedSchemesType[];
-  selectedScheme: SupportedSchemesType;
+  selectedSchemes: SupportedSchemesType[];
+  schemeInUse: SupportedSchemesType;
 };
 
 const intitialSettingState: AllAppSettings = {
@@ -42,8 +42,8 @@ const intitialSettingState: AllAppSettings = {
   currency: CurrencyCode.EUR,
   language: Lang.DUTCH,
   askForPin: true,
-  availableSchemes: [SupportedSchemesType.GOOGLEPAY, SupportedSchemesType.JCB_BANK, SupportedSchemesType.AMEX, SupportedSchemesType.ALIPAY],
-  selectedScheme: SupportedSchemesType.GOOGLEPAY,
+  selectedSchemes: [SupportedSchemesType.GOOGLEPAY, SupportedSchemesType.JCB_BANK, SupportedSchemesType.AMEX, SupportedSchemesType.ALIPAY],
+  schemeInUse: SupportedSchemesType.GOOGLEPAY,
 };
 
 export type OperationalModeActionType = {
@@ -114,12 +114,12 @@ const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, action)
     case SettingModes.AVAILABLE_SCHEMES:
       return {
         ...state,
-        availableSchemes: action.payload,
+        selectedSchemes: action.payload,
       };
     case SettingModes.SELECT_SCHEME:
       return {
         ...state,
-        selectedScheme: action.payload,
+        schemeInUse: action.payload,
       };
     default:
       return state;

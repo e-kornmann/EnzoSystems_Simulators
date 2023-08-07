@@ -123,13 +123,13 @@ const AppSettings = ({ hide, onHide }: Props) => {
       break;
     case SettingModes.AVAILABLE_SCHEMES:
       setHeading(ts('supportedSchemes', state.language));
-      setList(<SchemeOptions/>)
+      setList(<SchemeOptions onHide={onHide}/>)
       break;
     default :
       null;
     break;
   } 
-  }, [settingMode, state.language])
+  }, [onHide, settingMode, state.language])
 
 return (
 <>

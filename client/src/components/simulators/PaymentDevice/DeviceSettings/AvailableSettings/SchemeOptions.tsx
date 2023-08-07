@@ -1,46 +1,126 @@
-
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider from '../../../../shared/PayProvider';
 import * as S from '../DeviceSettings';
 import Checkmark from '../checkmark/Checkmark';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import styled from 'styled-components';
+import * as Sv from '../../../../../styles/stylevariables';
 
+const Footer = styled.div`
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 10px 15px;
+  background-color: white;
+  border-radius: 0 0 5px 5px;
+  & > button {
+    color: ${Sv.enzoOrange};
+    font-size: 0.75em;
+    cursor: pointer;
+    &:disabled  
+    {
+      color: ${Sv.gray};
+    }
+  }
+`;
 
 export const Wrap = styled.div`
   display: flex;
   align-items: center;
   column-gap: 8px;
- `;
+`;
 
-const SchemeOptions = () => {
+type Props = {
+  onHide: () => void;
+};
+
+const SchemeOptions = ({ onHide }: Props) => {
   const { state, dispatch } = useContext(AppContext);
-  
+  const [updateOfSelectedSchemes, setUpdateOfSelectedSchemes] = useState(state.selectedSchemes);
+  const [allSelected, setAllSelected] = useState(false);
+  const [saveButtonIsActive, setSaveButtonIsActive] = useState(false);
+
   const isSchemeSelected = (scheme: SupportedSchemesType) => {
-    return state.availableSchemes.includes(scheme);
+    return updateOfSelectedSchemes.includes(scheme);
   };
 
   const toggleScheme = (scheme: SupportedSchemesType) => {
-    const updatedSchemes = isSchemeSelected(scheme)
-      ? state.availableSchemes.filter((s) => s !== scheme)
-      : [...state.availableSchemes, scheme];
+    const updatedScheme = isSchemeSelected(scheme)
+      ? updateOfSelectedSchemes.filter((s) => s !== scheme)
+      : [...updateOfSelectedSchemes, scheme];
+    setUpdateOfSelectedSchemes(updatedScheme);
+    setSaveButtonIsActive(true);
+  };
 
-    dispatch({
-      type: SettingModes.AVAILABLE_SCHEMES,
-      payload: updatedSchemes,
-    });
+  const saveHandler = () => {
+    // if one scheme is selected, please use it immediately
+    if (updateOfSelectedSchemes.length === 1 ) {
+      dispatch({ type: SettingModes.SELECT_SCHEME, payload: updateOfSelectedSchemes[0] });  
+    }
+    // but in any cases.. do the following
+      dispatch({ type: SettingModes.AVAILABLE_SCHEMES, payload: updateOfSelectedSchemes });
+      onHide();
+  };
+  
+
+  const selectOrDeselectAllHandler = () => {
+    if (allSelected) {
+      // Deselect all
+      setUpdateOfSelectedSchemes([]);
+    } else {
+      // Select all
+      const allSchemes = Object.values(SupportedSchemesType);
+      setUpdateOfSelectedSchemes(allSchemes);
+    }
+  };
+  useEffect(() => {
+    // Check if all schemes are selected
+    const allSchemes = Object.values(SupportedSchemesType);
+    const areAllSchemesSelected = allSchemes.every((scheme) =>
+      updateOfSelectedSchemes.includes(scheme)
+    );
+    areAllSchemesSelected ? setAllSelected(true) : setAllSelected(false);
+    }, [updateOfSelectedSchemes]);
+
+  useEffect(() => { 
+    // Check if at least one button is selected before activating the save button
+    if (updateOfSelectedSchemes.length === 0 ) setSaveButtonIsActive(false);
+  }, [updateOfSelectedSchemes]);
+
+  const randomHandler = () => {
+    const availableSchemes = Object.values(SupportedSchemesType);
+    const randomIndex = Math.floor(Math.random() * availableSchemes.length);
+    const randomScheme = availableSchemes[randomIndex];
+    setUpdateOfSelectedSchemes([randomScheme]);
+    setSaveButtonIsActive(true);  
   };
 
   return (
-    <S.List>
-      {Object.values(SupportedSchemesType).map(scheme => (
-        <S.Button key={scheme} onClick={() => toggleScheme(scheme)}>
-          <Wrap><PayProvider width={30} height={22} provider={scheme} border={false}/>{scheme}</Wrap>
-          <Checkmark isDisplayed={isSchemeSelected(scheme)}/> 
-        </S.Button>
-      ))}
-    </S.List>
+    <>
+      <S.List>
+        <S.Button onClick={randomHandler}> Random </S.Button>
+        {Object.values(SupportedSchemesType).map((scheme) => (
+          <S.Button key={scheme} onClick={() => toggleScheme(scheme)}>
+            <Wrap>
+              <PayProvider width={30} height={22} provider={scheme} border={false} />
+              {scheme}
+            </Wrap>
+            <Checkmark isDisplayed={isSchemeSelected(scheme)} />
+          </S.Button>
+        ))}
+      </S.List>
+      <Footer>
+        <button type="button" onClick={selectOrDeselectAllHandler}>
+          { allSelected ? 'Deselect all' : 'Select all' }
+        </button>
+        <button type="button" onClick={saveHandler} disabled={!saveButtonIsActive}>
+          Save
+        </button>
+      </Footer>
+    </>
   );
 };
 
