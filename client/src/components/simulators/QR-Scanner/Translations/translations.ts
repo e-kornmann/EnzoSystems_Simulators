@@ -30,6 +30,14 @@ const translations: Translations = {
       [Lang.GERMAN]: '..',
     },
   ],
+  readyToScan: [
+    {
+      [Lang.DUTCH]: '..',
+      [Lang.ENGLISH]: 'Ready to scan',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
   }
 
   // Use indexed if you need a second line in a different element, i.e., a subline.

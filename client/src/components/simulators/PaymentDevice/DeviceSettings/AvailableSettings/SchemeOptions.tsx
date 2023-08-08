@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider from '../../../../shared/PayProvider';
-import * as S from '../DeviceSettings';
+import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import Checkmark from '../checkmark/Checkmark';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import styled from 'styled-components';
@@ -87,18 +87,18 @@ const SchemeOptions = ({ onHide }: Props) => {
 
   return (
     <>
-      <S.List>
-        <S.Button onClick={randomHandler}> Random </S.Button>
+      <S.GenericList>
+        <S.GenericListButton onClick={randomHandler}> Random </S.GenericListButton>
         {Object.values(SupportedSchemesType).map((scheme) => (
-          <S.Button key={scheme} onClick={() => toggleScheme(scheme)}>
+          <S.GenericListButton key={scheme} onClick={() => toggleScheme(scheme)}>
             <Wrap>
               <PayProvider width={30} height={22} provider={scheme} border={false} />
               {scheme}
             </Wrap>
             <Checkmark isDisplayed={isSchemeSelected(scheme)} />
-          </S.Button>
+          </S.GenericListButton>
         ))}
-      </S.List>
+      </S.GenericList>
       <Footer>
         <button type="button" onClick={selectOrDeselectAllHandler}>
           { allSelected ? 'Deselect all' : 'Select all' }

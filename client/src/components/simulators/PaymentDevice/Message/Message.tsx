@@ -1,7 +1,7 @@
 import * as Sv from "../../../../styles/stylevariables";
 import SuccessIcon from "../../../shared/Success";
 import styled from "styled-components";
-import { MessageContentType } from "../types/types";
+import { MessageContentType, PinTerminalStatus } from "../types/types";
 import { memo } from 'react';
 import CrossIcon from "../../../shared/Fail";
 
@@ -18,7 +18,7 @@ export const MessageContainer = styled.div`
 
 export const Subline = styled.div`
     font-family: 'Inter', sans-serif;
-    font-size: 0.7em;
+    font-size: 1.0em;
     font-weight: 500;
     text-align: center; 
     white-space: pre-line; 
@@ -28,14 +28,15 @@ export const Subline = styled.div`
 export const Mainline = styled.div`
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 1.2em;
-    line-height: 1.1em;
+    font-size: 1.5em;
+    line-height: 1.3em;
     color: ${Sv.enzoOrange};
     text-align: center; 
 `;
 
 export const WelcomeLine = styled(Mainline)`
     font-weight: 500;
+    font-size: 1.8em;
 `;
 
 export const IconContainer = styled.div`
@@ -48,18 +49,20 @@ export const IconContainer = styled.div`
 
 type Props = {
     content: MessageContentType;
+    terminalState: PinTerminalStatus;
 }
 
-const MessageBlock = ({content}: Props) => {
-    const {mainline, subline, failicon, successicon} = content;
+const MessageBlock = ({content, terminalState}: Props) => {
+    const { mainline, subline, failicon, successicon } = content;
 
     return (
       <>
       <MessageContainer>
         { successicon && <IconContainer><SuccessIcon width={53} height={53} fill={Sv.green}/></IconContainer> }
         { failicon && <IconContainer><CrossIcon width={53} height={53} fill={Sv.red}/></IconContainer> }
-        { (mainline !== '') && ( <Mainline>{mainline}</Mainline>)}
-        { (subline !== '') && ( <Subline>{subline}</Subline>)}
+        { (terminalState === PinTerminalStatus.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine> :  
+     <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>
+    }
       </MessageContainer>
       </>
     )

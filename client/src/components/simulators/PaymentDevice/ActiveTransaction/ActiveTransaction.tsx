@@ -40,7 +40,7 @@ const AmountText = styled.div`
   justify-content: center;
   align-items: center;  
   font-family: 'Inter', sans-serif;
-  font-size: 0.65em;
+  font-size: 0.9em;
   font-weight: 500;
   text-align: center;
   white-space: pre-line;
@@ -52,13 +52,13 @@ const Price = styled.div`
   align-items: center;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 1.05em;
+  font-size: 1.5em;
   color: ${Sv.enzoOrange};
 `
 const Instruction = styled(AmountText)`
   display: block;
   grid-row: 4;
-  font-size: 0.7em;
+  font-size: 1.0em;
   line-height: 1.15em;
 `
 const PincodeContainer = styled.div`
@@ -72,7 +72,7 @@ const Pads = styled.button`
   justify-content: center;
   align-items: center;
   color: ${Sv.black};
-  font-size: 0.68em;
+
   font-weight: 600;
   border-radius: 50px;
   font-weight: 600;

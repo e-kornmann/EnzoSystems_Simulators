@@ -27,37 +27,16 @@ const Content = styled.div`
   padding: 0 10px 50px;
   display: flex;
   flex-direction: column;
-  font-size: 17px;
-  background-color: #EBEBEB;
   overflow-y: sunset;
 `;
 
-const PayOptions = styled.div`
-  width: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 3px;
-`;
+
 
 const Footer = styled(GenericFooter)`
   position: absolute;
   height: 40px;
   bottom: 0px;
 `;
-
-const SettingsButton = styled.div`
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-  & > svg {
-    height: 13px;
-    width: 13px;
-  }
-  `;
 
 const initialMessage = { mainline: '', subline: undefined, failicon: false, successicon: false }
 
@@ -337,7 +316,7 @@ const PaymentTerminal = () => {
           {/* {Show window without numpad OR numpad} */}
           {
             showMessage ?
-              <Message content={messageContent} /> :
+              <Message content={messageContent} terminalState={terminalState}/> :
               <ActiveTransaction
                 chooseMethodHandler={chooseMethodHandler}
                 activePayMethod={activePayMethod}
@@ -352,14 +331,13 @@ const PaymentTerminal = () => {
           }
         </Content>
         <Footer>
-          <SettingsButton>
-            <SettingsIcon
-              onClick={settingsButtonHandler}
-            /></SettingsButton>
-          <PayOptions onClick={payProviderButtonHandler}>
+
+            <SettingsIcon width={13} height={13} onClick={settingsButtonHandler}
+            />
+          <div onClick={payProviderButtonHandler}>
             <PayProvider width={30} height={22} border={true} provider={state.schemeInUse} />
             <ExpandIcon width={12} height={8} />
-          </PayOptions>
+          </div>
         </Footer>
       </Container>
     </>

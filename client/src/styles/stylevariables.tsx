@@ -10,6 +10,7 @@ export const breakpoints = {
 
 export const black = '#141414';
 export const asphalt = '#3a3a3d';
+export const appBackground = '#EBEBEB';
 export const lightgray = '#d6d6d6';
 export const gray = '#B4B4B4'
 export const green = '#55AD3C';

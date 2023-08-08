@@ -8,28 +8,23 @@ import stopTransaction from './utils/stopTransactionHost';
 import useLogOn from '../../../hooks/useLogOn';
 import { options } from './settings/settings';
 import useGetTransaction from '../../../hooks/useGetTransaction';
-import { Container, Header } from '../../shared/DraggableModal/ModalTemplate';
+import { Container, GenericFooter, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TransactionDetails from "./TransactionDetails/TransactionDetails";
 import { IntlConfigType } from "../../../types/IntlConfigType";
 
 const DemoAppContainer = styled.div`
   display: grid;
-  grid-template-rows: 40px 70px 38px 1fr 26px; 
-  justify-content: center;
-  align-items: center;
-  line-height: 0.9em;
+  grid-template-rows: 40px 70px 35px 1fr 26px; 
   margin: auto;
-  width: 80%;
-  height: 90%;
+  width: 83%;
+  height: 87%;
 `
 
 
 const Content = styled.div`
-  padding: 0 10px 50px;
+  padding: 0 4px 50px;
   display: flex;
   flex-direction: column;
-  font-size: 17px;
-  background-color: #EBEBEB;
   overflow-y: sunset;
 `;
 
@@ -47,7 +42,7 @@ const OkButton = styled.button`
   color: ${Sv.black};
   width: 60px;
   height: 30px;
-  font-size: 12px;
+  font-size: 1.0em;
   font-weight: 600;
   min-width: 0;
   background-color: ${Sv.green}; 
@@ -68,9 +63,9 @@ const TransactionDetailsHeader = styled.div`
   width: 100%;
   height: 100%;
   padding: 4px 6px;
-  font-size: 10px;
+  font-size: 0.82em;
   background-color: ${Sv.asphalt}; 
-  border-bottom: 1px solid #EBEBEB;
+  border-bottom: 1px solid  ${Sv.appBackground};
   border-radius: 3px 3px 0 0;
   
 `
@@ -79,17 +74,17 @@ const TransactionDetailsContent = styled.div`
   width: 100%;
   height: 100%;
   padding: 4px 6px;
-  font-size: 10px;
+  font-size: 0.82em;
   background-color: ${Sv.asphalt}; 
 `
 const TransactionDetailsFooter = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
-  font-size: 10px;
+  font-size: 0.82em;
   align-items: baseline;
   background-color: ${Sv.asphalt}; 
-  border-top: 1px solid #EBEBEB;
+  border-top: 1px solid ${Sv.appBackground};
   border-radius: 0 0 3px 3px;
 `
 const blinkAnimation = keyframes`
@@ -114,18 +109,15 @@ const BlinkingDot = styled(StatusText) <{ $isActive: boolean }>`
   animation-iteration-count: infinite;
   }
 `
-const Footer = styled.footer<{ $init: boolean }>`
-  position: absolute;
-  font-size: 12px;
+
+const Footer = styled(GenericFooter)<{ $init: boolean }>`
   color: ${(props) => (props.$init ? Sv.green : Sv.red)};
-  width: 100%;
-  bottom: 0px;
-  display: flex;
+  position: absolute;
   justify-content: center;
-  padding: 15px 10px;
-  background-color: white;
-  border-radius: 0 0 5px 5px;
-`
+  bottom: 0px;
+`;
+
+
 
 const DemoApp = () => {
   const [init, setInit] = useState(false);

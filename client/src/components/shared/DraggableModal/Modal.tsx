@@ -50,12 +50,12 @@ export const CloseButton = styled.button`
 	}
 `
 type ContentProps = { 
-	$width: number;
-	$height: number;
+	$width: string;
+	$height: string;
 }
 export const Content = styled.div<ContentProps>`
-	width: ${(props) => props.$width}px;
-	height: ${(props) => props.$height}px;
+	width: ${(props) => props.$width};
+	height: ${(props) => props.$height};
 	border-radius: 5px;	
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -66,8 +66,8 @@ export interface ModalProps {
   hide: () => void;
   modalContent: JSX.Element;
   headerText: string;
-  modalWidth: number,
-  modalHeight: number,
+  modalWidth: string,
+  modalHeight: string,
 }
 export const DraggableModal: FunctionComponent<ModalProps> = ({
   isShown,

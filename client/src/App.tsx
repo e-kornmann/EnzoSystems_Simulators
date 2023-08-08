@@ -60,24 +60,24 @@ function App() {
           hide={() => showSimulatorHandler('paymentDevice')}
           headerText=""
           modalContent={<PaymentTerminal />}
-          modalWidth={220}
-          modalHeight={440}
+          modalWidth={'220px'}
+          modalHeight={'430px'}
         />
         <DraggableModal
           isShown={simulators.demoApp}
           hide={() => showSimulatorHandler('demoApp')}
           headerText=""
           modalContent={<DemoApp />}
-          modalWidth={300}
-          modalHeight={500}
+          modalWidth={'300px'}
+          modalHeight={'500px'}
         />
              <DraggableModal
           isShown={simulators.QrScanner}
           hide={() => showSimulatorHandler('QrScanner')}
           headerText=""
           modalContent={<QrScanner />}
-          modalWidth={250}
-          modalHeight={400}
+          modalWidth={'100vw'}
+          modalHeight={'100vh'}
         />
       </DndContext>
 

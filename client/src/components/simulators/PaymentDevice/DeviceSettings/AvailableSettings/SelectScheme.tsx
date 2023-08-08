@@ -5,8 +5,8 @@ import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/close.sv
 import Checkmark from '../checkmark/Checkmark';
 import { Container } from '../../../../shared/DraggableModal/ModalTemplate';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
-import { IconContainer, SettingHeader, SettingsWrapper } from '../DeviceSettings';
-import * as S from '../DeviceSettings';
+import { SettingHeader, SettingsWrapper } from '../DeviceSettings';
+import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import { Wrap } from './SchemeOptions';
 import ts from '../../Translations/translations';
 
@@ -29,18 +29,18 @@ const SelectScheme = ({ hide, onHide }: Props) => {
     <SettingsWrapper $hide={hide}>
       <Container>
         <SettingHeader>
-          <IconContainer>{null}</IconContainer>
+          <div>{null}</div>
           {ts('paymentMethod', state.language)}
-          <IconContainer onClick={onHide} style={{ cursor: 'pointer' }}><CloseIcon width={13} height={13} /></IconContainer>
+          <CloseIcon width={11} height={11} onClick={onHide} />
         </SettingHeader>
-        <S.List>
+        <S.GenericList>
           {state.selectedSchemes.map(scheme => (
-            <S.Button key={scheme} onClick={() => onChangeEventHandler(scheme)}>
+            <S.GenericListButton key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
               <Checkmark isDisplayed={ state.schemeInUse === scheme }/> 
-            </S.Button>
+            </S.GenericListButton>
           ))}
-        </S.List>
+        </S.GenericList>
       </Container>
     </SettingsWrapper>
   )

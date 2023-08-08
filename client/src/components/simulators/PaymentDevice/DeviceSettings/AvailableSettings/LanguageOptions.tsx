@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import { AppContext, Lang, SettingModes } from '../../utils/settingsReducer';
 import Checkmark from '../checkmark/Checkmark';
-import * as S from '../DeviceSettings';
+import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import ts from '../../Translations/translations';
 
 
@@ -17,14 +17,14 @@ const LanguageOptions = () => {
   };
 
   return (
-    <S.List>
+    <S.GenericList>
       {Object.values(Lang).map((language) => (
-        <S.Button key={language} onClick={() => onChangeEventHandler(language)}>
+        <S.GenericListButton key={language} onClick={() => onChangeEventHandler(language)}>
           { ts(language, state.language) }
           <Checkmark isDisplayed={state.language === language }/>
-        </S.Button>
+        </S.GenericListButton>
       ))}
-    </S.List>
+    </S.GenericList>
   );
 };
 

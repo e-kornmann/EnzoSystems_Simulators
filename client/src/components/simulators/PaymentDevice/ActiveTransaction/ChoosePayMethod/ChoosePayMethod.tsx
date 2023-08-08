@@ -7,19 +7,12 @@ import { ReactComponent as ChipIcon } from '../../../../../assets/svgs/chip.svg'
 import { ReactComponent as ContactlessIcon } from '../../../../../assets/svgs/contactless.svg';
 import { PayMethod, PinTerminalStatus } from "../../types/types";
 
-
-const IconContainer = styled.div`
-  position: relative;
-  top: 3px;
-  margin: 0 15px 0 0; 
- `;
-
 const Wrapper = styled.div`
   height: 80%;
   `;
 
 const PaymentMethodButton = styled.button<{ $inActive: boolean }>`
-  background-color: ${(props) => (props.$inActive ? "#B4B4B4" : Sv.enzoOrange)};
+  background-color: ${(props) => (props.$inActive ? Sv.gray : Sv.enzoOrange)};
   width: 100%;
   display: flex;
   justify-content: center;
@@ -28,11 +21,17 @@ const PaymentMethodButton = styled.button<{ $inActive: boolean }>`
   color: white;
   height: 32%;
   font-weight: 300;
-  font-size: 0.7em;
+  font-size: 0.9em;
   border-radius: 2px;
   cursor: pointer;
   z-index: 300;
   border-radius: 6px;
+  & > svg {
+    position: relative;
+    top: -1px;
+    fill: white;
+    margin-right: 6px;
+ }
   &:active {
     background-color: ${Sv.enzoDarkOrange};
   }
@@ -52,22 +51,12 @@ const ChoosePayMethod = ({chooseMethodHandler, activePayMethod, currentState }: 
     return ( 
       <Wrapper>
         <PaymentMethodButton onClick={() => chooseMethodHandler(PayMethod.SMARTPHONE)} $inActive={isInactiveButton(PayMethod.SMARTPHONE)}>
-          <IconContainer>
-            <PhoneIcon  width={15} height={15} />
-          </IconContainer>
-          Smartphone
-        </PaymentMethodButton>
+          <PhoneIcon  width={15} height={15} />Smartphone</PaymentMethodButton>
         <PaymentMethodButton onClick={() => chooseMethodHandler(PayMethod.CONTACTLESS)} $inActive={isInactiveButton(PayMethod.CONTACTLESS)}>
-        <IconContainer>
-          <ContactlessIcon width={15} height={15} />
-        </IconContainer>
-          Contactless card
+          <ContactlessIcon width={15} height={15} />Contactless card
         </PaymentMethodButton>
         <PaymentMethodButton onClick={() => chooseMethodHandler(PayMethod.CARD)} $inActive={isInactiveButton(PayMethod.CARD)}>
-        <IconContainer>
-          <ChipIcon width={13} height={13} />
-          </IconContainer>
-          Insert card
+          <ChipIcon width={13} height={13} style={{top: '0px'}} />Insert card
         </PaymentMethodButton>
       </Wrapper>
     )
