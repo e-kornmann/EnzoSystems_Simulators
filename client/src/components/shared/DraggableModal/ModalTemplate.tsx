@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { enzoOrange } from "../../../styles/stylevariables";
+import * as Sv from "../../../styles/stylevariables";
 
 export const Container = styled.main`
   background-color: white;
@@ -16,18 +16,29 @@ export const Header = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 13px;
-  color: ${enzoOrange};
+  color: ${Sv.enzoOrange};
   font-weight: 500;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   fill: black;
 `;
 
-export const Content = styled.div`
-  padding: 0 10px 50px;
+
+export const GenericFooter = styled.footer`
+  height: 100%;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  font-size: 17px;
-  background-color: #EBEBEB;
-  overflow-y: sunset;
+  justify-content: space-between;
+  padding: 10px 10px 15px;
+  background-color: white;
+  border-radius: 0 0 5px 5px;
+  & > button {
+    color: ${Sv.enzoOrange};
+    font-size: 0.75em;
+    cursor: pointer;
+    &:disabled  
+    {
+      color: ${Sv.gray};
+    }
+  }
 `;

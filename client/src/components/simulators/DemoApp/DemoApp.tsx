@@ -8,7 +8,7 @@ import stopTransaction from './utils/stopTransactionHost';
 import useLogOn from '../../../hooks/useLogOn';
 import { options } from './settings/settings';
 import useGetTransaction from '../../../hooks/useGetTransaction';
-import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
+import { Container, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TransactionDetails from "./TransactionDetails/TransactionDetails";
 import { IntlConfigType } from "../../../types/IntlConfigType";
 
@@ -22,6 +22,18 @@ const DemoAppContainer = styled.div`
   width: 80%;
   height: 90%;
 `
+
+
+const Content = styled.div`
+  padding: 0 10px 50px;
+  display: flex;
+  flex-direction: column;
+  font-size: 17px;
+  background-color: #EBEBEB;
+  overflow-y: sunset;
+`;
+
+
 const ButtonContainer = styled.div`
   display: flex;
   width: 100%;

@@ -5,27 +5,14 @@ import * as S from '../DeviceSettings';
 import Checkmark from '../checkmark/Checkmark';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import styled from 'styled-components';
-import * as Sv from '../../../../../styles/stylevariables';
+import { GenericFooter } from '../../../../shared/DraggableModal/ModalTemplate';
 
-const Footer = styled.div`
+const Footer = styled(GenericFooter)`
   position: absolute;
-  width: 100%;
+  height: 40px;
   bottom: 0px;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 10px 15px;
-  background-color: white;
-  border-radius: 0 0 5px 5px;
-  & > button {
-    color: ${Sv.enzoOrange};
-    font-size: 0.75em;
-    cursor: pointer;
-    &:disabled  
-    {
-      color: ${Sv.gray};
-    }
-  }
 `;
+
 
 export const Wrap = styled.div`
   display: flex;

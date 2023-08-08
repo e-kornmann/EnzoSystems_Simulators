@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import { QrModi } from ".";
+import {  QrModi } from ".";
 import { GenericFooter } from "../../shared/DraggableModal/ModalTemplate";
 
 
-const NewQrWrapper = styled.div`
+const QrCodesWrapper = styled.div`
   display: grid;
   grid-template-rows: 1fr 26px; 
   justify-content: center;
@@ -14,27 +14,21 @@ const NewQrWrapper = styled.div`
   height: 90%;
 `
 
-
-
-
-
 type Props = {
-  modusSetter: (modus: QrModi) => void;
+    modusSetter: (modus: QrModi) => void;
 }
 
 
 const NewQr = ({modusSetter}: Props) => {
-    
-
-
+  
   return (
-      <NewQrWrapper>    
+      <QrCodesWrapper>    
         <div>New QR</div>
-        <GenericFooter>
-            <div>Save</div>
-            <div>qr</div>
-        </GenericFooter>
-      </NewQrWrapper>
+            <GenericFooter>
+        <div>Save</div>
+        <div>qr</div>
+            </GenericFooter>
+      </QrCodesWrapper>
 
   );
 };

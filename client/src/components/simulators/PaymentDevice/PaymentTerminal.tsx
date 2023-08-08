@@ -15,13 +15,22 @@ import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
 import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
 import styled from 'styled-components';
-import { Container, Content, Header } from '../../shared/DraggableModal/ModalTemplate';
+import { Container, GenericFooter, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon';
 import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
 import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 
+
+const Content = styled.div`
+  padding: 0 10px 50px;
+  display: flex;
+  flex-direction: column;
+  font-size: 17px;
+  background-color: #EBEBEB;
+  overflow-y: sunset;
+`;
 
 const PayOptions = styled.div`
   width: 50px;
@@ -31,15 +40,10 @@ const PayOptions = styled.div`
   margin-top: 3px;
 `;
 
-const Footer = styled.div`
+const Footer = styled(GenericFooter)`
   position: absolute;
-  width: 100%;
+  height: 40px;
   bottom: 0px;
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 10px 10px;
-  background-color: white;
-  border-radius: 0 0 5px 5px;
 `;
 
 const SettingsButton = styled.div`
@@ -49,7 +53,6 @@ const SettingsButton = styled.div`
   align-items: center;
   width: 20px;
   height: 20px;
-  margin-top: 4px;
   & > svg {
     height: 13px;
     width: 13px;
