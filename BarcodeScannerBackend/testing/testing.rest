@@ -1,0 +1,92 @@
+### Get Health info
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/health
+
+
+####################################################################################
+### Log-on host/device with username/password and exchange for access token (24 hours valid)
+####################################################################################
+
+### DEVICE
+POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth
+Content-type: application/json
+Authorization: Basic device:device
+
+{
+  "deviceId": "BarcodeScannerx"
+}
+
+### HOST
+POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth
+Content-type: application/json
+Authorization: Basic host:host
+
+{
+  "hostId": "DEMOAPP"
+}
+
+####################################################################################
+### Set device status and connect it to the back-end (DEVICE only, call on regular base, check .env for time-out)
+####################################################################################
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/barcode-scanner/v1/status
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkJhcmNvZGVTY2FubmVyIiwiaWF0IjoxNjkxNjY2NTY0LCJleHAiOjE2OTE3NTI5NjQsImlzcyI6IkVuem9zeXN0ZW1zIn0.zyt6hOSOFQ_0f0Q4nQGchy6uOpF_3AbtFXxzYM_8T2A
+
+{
+  "status": "connected"
+}
+
+####################################################################################
+### Get device status (HOST)
+####################################################################################
+
+### HOST
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/status?currentStatus=connected&longPollingSecs=15
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkxNTk1MDE3LCJleHAiOjE2OTE2ODE0MTcsImlzcyI6IkVuem9zeXN0ZW1zIn0.G3u2-2VoRa3mN_xQ2uhsjAl5ryKN4YYVpVaUe7EmPb8
+
+
+####################################################################################
+### Set device mode to ENABLED or DISABLED (HOST only)
+####################################################################################
+
+### HOST 
+PUT http://localhost:9001/api/simulator/barcode-scanner/v1/mode
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkxNTk1MDE3LCJleHAiOjE2OTE2ODE0MTcsImlzcyI6IkVuem9zeXN0ZW1zIn0.G3u2-2VoRa3mN_xQ2uhsjAl5ryKN4YYVpVaUe7EmPb8
+
+{
+  "mode": "enabled"
+}
+
+####################################################################################
+### GET device mode (HOST + DEVICE)
+####################################################################################
+
+### HOST/DEVICE 
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/mode?currentMode=disabled&longPollingSecs=15
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkJBUkNPREVTQ0FOTkVSIiwiaWF0IjoxNjkxNTk0OTg3LCJleHAiOjE2OTE2ODEzODcsImlzcyI6IkVuem9zeXN0ZW1zIn0.RKQ0Q9r9HxETQy9_hbGnP_DcO1yWWxxvmA44XmytTCg
+
+####################################################################################
+### Store new scanned data (DEVICE only, mode should be ENABLED)
+####################################################################################
+
+### DEVICE
+POST http://localhost:9001/api/simulator/barcode-scanner/v1/scan
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkJBUkNPREVTQ0FOTkVSIiwiaWF0IjoxNjkxNTk0OTg3LCJleHAiOjE2OTE2ODEzODcsImlzcyI6IkVuem9zeXN0ZW1zIn0.RKQ0Q9r9HxETQy9_hbGnP_DcO1yWWxxvmA44XmytTCg
+
+{
+  "scannedData": "This is the content"
+}
+
+####################################################################################
+### GET scan data (HOST only)
+####################################################################################
+
+### HOST 
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/scan?longPollingSecs=2
+Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkxNTk1MDE3LCJleHAiOjE2OTE2ODE0MTcsImlzcyI6IkVuem9zeXN0ZW1zIn0.G3u2-2VoRa3mN_xQ2uhsjAl5ryKN4YYVpVaUe7EmPb8
