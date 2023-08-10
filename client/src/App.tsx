@@ -9,8 +9,6 @@ import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner';
 
 
-
-
 function App() {
   type SimulatorsType = {
     paymentDevice: boolean;
@@ -61,7 +59,7 @@ function App() {
           headerText=""
           modalContent={<PaymentTerminal />}
           modalWidth={'220px'}
-          modalHeight={'430px'}
+          modalHeight={'435px'}
         />
         <DraggableModal
           isShown={simulators.demoApp}
@@ -76,8 +74,8 @@ function App() {
           hide={() => showSimulatorHandler('QrScanner')}
           headerText=""
           modalContent={<QrScanner />}
-          modalWidth={'100vw'}
-          modalHeight={'100vh'}
+          modalWidth={'220px'}
+          modalHeight={'435px'}
         />
       </DndContext>
 

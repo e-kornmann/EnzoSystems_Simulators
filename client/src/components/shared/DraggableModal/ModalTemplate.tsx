@@ -2,14 +2,14 @@ import styled from "styled-components";
 import * as Sv from "../../../styles/stylevariables";
 
 export const Container = styled.main`
-  background-color: ${Sv.appBackground};
+  display: grid;
+  grid-template-rows: auto 1fr;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
-  display: grid;
   width: 100%;
   height: 100%;
   min-height: 420px;
-  grid-template-rows: auto 1fr;
+  background-color: ${Sv.appBackground};
 `;
 
 export const Header = styled.div`
@@ -78,7 +78,6 @@ export const GenericList = styled.div`
   padding: 2px 0;
   display: flex;
   flex-direction: column;
-  align-items: 'flex start';
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   height: 100%;
@@ -103,6 +102,7 @@ export const GenericListButton = styled.button`
   display: flex;
   flex-direction: row;
   cursor: pointer;
+  text-align: left;
   align-items: center;
   justify-content: space-between;
   border-bottom: 0.13em solid ${Sv.lightgray};
@@ -110,6 +110,17 @@ export const GenericListButton = styled.button`
   height: 40px;
   font-size: 0.9em;
   padding: 11px;
+  column-gap: 20px;
+  & > svg {
+    min-width: 14px;
+  }
+  & > span {
+    overflow: hidden;
+    white-space: nowrap; 
+    text-overflow: ellipsis; 
+    max-width: 82%;
+  }
+  &:active {
   &:active {
     background-color: ${Sv.enzoLightOrange};
     fill: ${Sv.enzoOrange};

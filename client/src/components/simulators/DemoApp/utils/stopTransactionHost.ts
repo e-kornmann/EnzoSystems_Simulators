@@ -1,8 +1,8 @@
-import api from '../../../../api';
+import api from '../../../../api/pinApi';
 
 
 
-  const stopTransaction = async (accessToken: string, transactionId: string, setIsActive: React.Dispatch<React.SetStateAction<boolean>>, reset: () => void) => {
+  const stopTransaction = async (accessToken: string, transactionId: string, setIsActive: React.Dispatch<React.SetStateAction<boolean>>, getTransactionId: () => void) => {
     try {
       const config = {
         headers: {
@@ -14,7 +14,7 @@ import api from '../../../../api';
         action: "STOP"
       }, config)
       .then(() => {
-        reset();
+        getTransactionId();
         setIsActive(false);
       })
     } catch (error) {

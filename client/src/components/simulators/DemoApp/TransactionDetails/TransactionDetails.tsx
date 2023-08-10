@@ -1,4 +1,4 @@
-import { GetTransactionDetails } from '../../PaymentDevice/types/types';
+import { GetTransactionDetails } from '../../PaymentDevice/types';
 
 type Prop = {
     transactionDetails: GetTransactionDetails;

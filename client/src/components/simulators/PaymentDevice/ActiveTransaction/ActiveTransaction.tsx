@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
 import { useContext, useEffect } from 'react';
 import { AppContext } from '../utils/settingsReducer';
-import { PayMethod, PinTerminalStatus } from '../types/types';
+import { PayMethod, PinTerminalStatus } from '../types';
 import * as Sv from '../../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
 import { LoadingDots } from '../../../shared/Loading';

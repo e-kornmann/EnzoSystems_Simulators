@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../api';
+import pinApi from '../api/pinApi';
 import { CredentialType, ReqLogOnType } from '../types/LogOnTypes';
 
 const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType ) => {
@@ -14,7 +14,7 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType ) => {
               authorization: `Basic ${authCredentials}`
             }
           };
-      const response = await api.post('/auth', reqBody, config);
+      const response = await pinApi.post('/auth', reqBody, config);
       setToken(response.data.accessToken);
       return true;
     } catch (error) {

@@ -1,6 +1,6 @@
 
 
-import api from '../../../../api';
+import api from '../../../../api/pinApi';
 import { IntlConfigType } from '../../../../types/IntlConfigType';
 
 function processAmount(amountToPay: string | undefined): number {

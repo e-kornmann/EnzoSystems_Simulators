@@ -1,6 +1,6 @@
 import axios from "axios";
-import api from "../../../../api";
-import { PinTerminalStatus } from "../types/types";
+import api from "../../../../api/pinApi";
+import { PinTerminalStatus } from "../types";
 
 export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<PinTerminalStatus>>) => {
     try {

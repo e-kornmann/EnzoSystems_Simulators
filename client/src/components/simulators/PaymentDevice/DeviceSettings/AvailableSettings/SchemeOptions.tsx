@@ -1,9 +1,9 @@
 import { useContext, useState, useEffect } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
-import PayProvider from '../../../../shared/PayProvider';
+import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark/Checkmark';
-import { SupportedSchemesType } from '../../types/PaymentTypes';
+import Checkmark from '../checkmark';
+
 import styled from 'styled-components';
 import { GenericFooter } from '../../../../shared/DraggableModal/ModalTemplate';
 
@@ -12,7 +12,6 @@ const Footer = styled(GenericFooter)`
   height: 40px;
   bottom: 0px;
 `;
-
 
 export const Wrap = styled.div`
   display: flex;
@@ -52,7 +51,6 @@ const SchemeOptions = ({ onHide }: Props) => {
       onHide();
   };
   
-
   const selectOrDeselectAllHandler = () => {
     if (allSelected) {
       // Deselect all
@@ -63,6 +61,7 @@ const SchemeOptions = ({ onHide }: Props) => {
       setUpdateOfSelectedSchemes(allSchemes);
     }
   };
+  
   useEffect(() => {
     // Check if all schemes are selected
     const allSchemes = Object.values(SupportedSchemesType);

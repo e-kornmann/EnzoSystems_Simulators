@@ -3,7 +3,7 @@ import { ReactComponent as CloseIcon } from '../../../../assets/svgs/fail.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svgs/arrow_back.svg';
 import OperationalModeOptions from "./AvailableSettings/OperationalModeOptions";
 import { useContext, useEffect, useState } from "react";
-import SettingsModesList from "./AvailableSettings/SettingModes";
+import Settings from "./AvailableSettings/Settings";
 import CurrencyOptions from "./AvailableSettings/CurrencyOptions";
 import LanguageOptions from "./AvailableSettings/LanguageOptions";
 import PinOptions from "./AvailableSettings/PinOptions";
@@ -34,8 +34,6 @@ export const SettingHeader = styled(Header)`
   justify-content: space-between;
 `;
 
-
-
 type Props = {
   hide: boolean;
   onHide: () => void;
@@ -52,7 +50,7 @@ const AppSettings = ({ hide, onHide }: Props) => {
     switch(settingMode) {
     case SettingModes.SETTINGS:
       setHeading('Settings');
-      setList(<SettingsModesList menuToggler={menuToggler}/>);
+      setList(<Settings menuToggler={menuToggler}/>);
       break;
     case SettingModes.OPERATIONAL_MODE:
       setHeading(ts('operationalMode', state.language));

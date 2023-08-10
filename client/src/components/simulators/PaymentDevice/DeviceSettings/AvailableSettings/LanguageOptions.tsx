@@ -1,13 +1,16 @@
 
 import { useContext } from 'react';
-import { AppContext, Lang, SettingModes } from '../../utils/settingsReducer';
-import Checkmark from '../checkmark/Checkmark';
+import { AppContext, SettingModes } from '../../utils/settingsReducer';
+import Checkmark from '../checkmark';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import ts from '../../Translations/translations';
 
-
-
-
+export enum Lang {
+  DUTCH = 'dutch',
+  ENGLISH = 'english',
+  GERMAN = 'german',
+  FRENCH = 'french',
+}
 
 const LanguageOptions = () => {
   const { state, dispatch } = useContext(AppContext);

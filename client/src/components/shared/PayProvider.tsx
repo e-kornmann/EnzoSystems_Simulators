@@ -18,12 +18,10 @@ import { ReactComponent as Maestro } from '../../assets/svgs/PayProviders/meastr
 import { ReactComponent as Mastercard } from '../../assets/svgs/PayProviders/mastercard.svg';
 import { ReactComponent as MastercardDebit } from '../../assets/svgs/PayProviders/mastercard-debit.svg';
 
-
 import { ReactComponent as MasterPass } from '../../assets/svgs/PayProviders/masterpass.svg';
 import { ReactComponent as PayPal } from '../../assets/svgs/PayProviders/paypal.svg';
 import { ReactComponent as SwissPost } from '../../assets/svgs/PayProviders/swisspost.svg' ;
 import { ReactComponent as SwissReka } from '../../assets/svgs/PayProviders/swissreka.svg';
-
 
 import { ReactComponent as Twint } from '../../assets/svgs/PayProviders/twint.svg';
 import { ReactComponent as Unionpay } from '../../assets/svgs/PayProviders/unionpay.svg';
@@ -34,7 +32,42 @@ import { ReactComponent as VisaDebit } from '../../assets/svgs/PayProviders/visa
 import { ReactComponent as VPay } from '../../assets/svgs/PayProviders/vpay.svg';
 import { ReactComponent as Wechat } from '../../assets/svgs/PayProviders/wechatpay.svg';
 
-import { SupportedSchemesType } from '../simulators/PaymentDevice/types/PaymentTypes';
+
+export enum SupportedSchemesType {
+  ALIPAY = "Alipay",
+  AMEX = "AMEX",
+  APPLEPAY = "ApplePay",
+  BANCONTACT = "Bancontact",
+
+  CARTESBANCAIRES = "Cartes Bancaires",
+  DINERS = "Diners Club",
+  DISCOVER = "Discover",
+  GIROCARD = "Girocard",
+
+  GIROPAY = "Giropay",
+  GOOGLEPAY = "Google Pay",
+  IDEAL = "iDEAL",
+  INTERAC = "Interac",
+
+  JCB_BANK = "JCB",
+  MAESTRO = "Maestro",
+  MASTERCARD = "Mastercard",
+  MASTERCARDDEBIT = "Mastercard Debit",
+
+  MASTERPASS = "Masterpass",
+  PAYPAL = "PayPal",
+  SWISSPOST = "Swiss Post",
+  SWISSREKA = "Swiss Reka",
+
+  TWINT = "Twint",
+  UNIONPAY = "UnionPay",
+  VISA = "Visa",
+  VISAELECTRON = "Visa Electron",
+
+  VISADEBIT = "Visa Debit",
+  VPAY = "V PAY",
+  WECHATPAY = "WeChat Pay",
+}
 
 type Props = {
   width: number;
@@ -95,7 +128,6 @@ const PayProvider = ({ width, height, provider, border }: Props) => {
     case SupportedSchemesType.SWISSREKA:
       return <SwissReka style={PayProviderStyle} />;
     
-    
     case SupportedSchemesType.TWINT:
       return <Twint style={PayProviderStyle} />;
     case SupportedSchemesType.UNIONPAY:
@@ -105,7 +137,6 @@ const PayProvider = ({ width, height, provider, border }: Props) => {
     case SupportedSchemesType.VISAELECTRON:
       return <VisaElectron style={PayProviderStyle} />;
 
-    
     case SupportedSchemesType.VISADEBIT:
       return <VisaDebit style={PayProviderStyle} />;
     case SupportedSchemesType.VPAY:

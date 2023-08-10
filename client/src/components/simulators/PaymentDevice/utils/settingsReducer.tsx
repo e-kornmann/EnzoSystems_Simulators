@@ -1,7 +1,10 @@
 import { ReactNode, Reducer, createContext, useReducer } from "react";
 import { CurrencyCode } from "../../../../types/CurrencyTypes";
 import React from "react";
-import { SupportedSchemesType } from "../types/PaymentTypes";
+import { OperationalModeOptionsType } from "../DeviceSettings/AvailableSettings/OperationalModeOptions";
+import { SupportedSchemesType } from "../../../shared/PayProvider";
+import { Lang } from "../DeviceSettings/AvailableSettings/LanguageOptions";
+
 
 export enum SettingModes {
   SETTINGS,
@@ -13,23 +16,8 @@ export enum SettingModes {
   SELECT_SCHEME,
 }
 
-
-export enum OperationalModeOptionsStatesType {
-  NORMAL = 'normal',
-  ALWAYS_SUCCEED = 'alwaysSucceed',
-  ALWAYS_FAIL = 'alwaysFails',
-  FIRST_FAIL = 'firstFail',
-}
-
-export enum Lang {
-  DUTCH = 'dutch',
-  ENGLISH = 'english',
-  GERMAN = 'german',
-  FRENCH = 'french',
-}
-
 export type AllAppSettings = {
-  operationalModeOption: OperationalModeOptionsStatesType;
+  operationalModeOption: OperationalModeOptionsType;
   currency: CurrencyCode;
   language: Lang;
   askForPin: boolean;
@@ -38,7 +26,7 @@ export type AllAppSettings = {
 };
 
 const intitialSettingState: AllAppSettings = {
-  operationalModeOption: OperationalModeOptionsStatesType.NORMAL,
+  operationalModeOption: OperationalModeOptionsType.NORMAL,
   currency: CurrencyCode.EUR,
   language: Lang.DUTCH,
   askForPin: true,
@@ -48,7 +36,7 @@ const intitialSettingState: AllAppSettings = {
 
 export type OperationalModeActionType = {
   type: SettingModes.OPERATIONAL_MODE;
-  payload: OperationalModeOptionsStatesType;
+  payload: OperationalModeOptionsType;
 };
 
 export type CurrencyActionType = {

@@ -1,7 +1,7 @@
 import * as Sv from "../../../../styles/stylevariables";
 import SuccessIcon from "../../../shared/Success";
 import styled from "styled-components";
-import { MessageContentType, PinTerminalStatus } from "../types/types";
+import { MessageContentType, PinTerminalStatus } from "../types";
 import { memo } from 'react';
 import CrossIcon from "../../../shared/Fail";
 

@@ -1,4 +1,5 @@
-import { Lang } from '../utils/settingsReducer';
+import { Lang } from "../DeviceSettings/AvailableSettings/LanguageOptions";
+
 
 type Translations = {
   [key: string]: { [key in Lang]: string; }[];

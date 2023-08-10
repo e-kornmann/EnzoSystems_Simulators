@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { GetTransactionDetails } from '../components/simulators/PaymentDevice/types/types';
-import api from '../api';
+import { GetTransactionDetails } from '../components/simulators/PaymentDevice/types';
+import api from '../api/pinApi';
 import { CurrencyCode } from '../types/CurrencyTypes';
 import { Locale } from '../types/LocaleTypes';
 

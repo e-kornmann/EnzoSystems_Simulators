@@ -1,5 +1,4 @@
-import { Lang } from "../../PaymentDevice/utils/settingsReducer";
-
+import { Lang } from "../../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions";
 
 type Translations = {
   [key: string]: { [key in Lang]: string; }[];
@@ -14,10 +13,34 @@ const translations: Translations = {
       [Lang.GERMAN]: '..',
     },
   ],
-  newQr: [
+  newQrForm: [
     {
       [Lang.DUTCH]: '..',
       [Lang.ENGLISH]: 'Add New QR-code',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  editQrList: [
+    {
+      [Lang.DUTCH]: '..',
+      [Lang.ENGLISH]: 'Edit QR-codes',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  editQrForm: [
+    {
+      [Lang.DUTCH]: '..',
+      [Lang.ENGLISH]: 'Edit QR-code',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  deleteQr: [
+    {
+      [Lang.DUTCH]: '..',
+      [Lang.ENGLISH]: 'Delete QR-codes',
       [Lang.FRENCH]: '..',
       [Lang.GERMAN]: '..',
     },
@@ -38,6 +61,14 @@ const translations: Translations = {
       [Lang.GERMAN]: '..',
     },
   ],
+  outOfOrder: [
+    {
+      [Lang.DUTCH]: '..',
+      [Lang.ENGLISH]: 'Out of order',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
   }
 
   // Use indexed if you need a second line in a different element, i.e., a subline.
@@ -51,3 +82,6 @@ const translations: Translations = {
 };
 
 export default ts;
+
+
+

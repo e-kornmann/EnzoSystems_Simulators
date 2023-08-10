@@ -5,7 +5,7 @@ import * as Sv from "../../../../../styles/stylevariables";
 import { ReactComponent as PhoneIcon } from '../../../../../assets/svgs/phone.svg';
 import { ReactComponent as ChipIcon } from '../../../../../assets/svgs/chip.svg';
 import { ReactComponent as ContactlessIcon } from '../../../../../assets/svgs/contactless.svg';
-import { PayMethod, PinTerminalStatus } from "../../types/types";
+import { PayMethod, PinTerminalStatus } from "../../types";
 
 const Wrapper = styled.div`
   height: 80%;

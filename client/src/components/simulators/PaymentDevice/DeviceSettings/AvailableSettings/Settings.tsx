@@ -7,12 +7,11 @@ import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 
 
-
 type Props = {
   menuToggler: (listItem: SettingModes) => void;
 }
 
-const SettingsModesList = ({menuToggler}: Props) => {
+const Settings = ({menuToggler}: Props) => {
   const { state } = useContext(AppContext);
   
   return (
@@ -25,4 +24,4 @@ const SettingsModesList = ({menuToggler}: Props) => {
 </S.GenericList>
 )}
 
-export default SettingsModesList;
+export default Settings;

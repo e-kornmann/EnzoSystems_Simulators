@@ -9,7 +9,7 @@ import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredential
 import useStopTransactionTerminal from './utils/useStopTransactionTerminal';
 import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
-import { AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus } from './types/types';
+import { AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus } from './types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
@@ -22,15 +22,12 @@ import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 
-
 const Content = styled.div`
   padding: 0 10px 50px;
   display: flex;
   flex-direction: column;
   overflow-y: sunset;
 `;
-
-
 
 const Footer = styled(GenericFooter)`
   position: absolute;
@@ -84,11 +81,9 @@ const PaymentTerminal = () => {
     }
   }, [transactionDetails.status]);
 
-
   const handleCorrectionEvent = React.useCallback(() => {
     setPincode('');
   }, [setPincode]);
-
 
   useEffect(() => {
     if (pincode.length === 4) {
@@ -139,7 +134,7 @@ const PaymentTerminal = () => {
       case PinTerminalStatus.SERVER_ERROR:
         updateTransactionStatusCode === 409 ?
           setMessageContent({ ...initialMessage, mainline: ts('serverError409', state.language), subline: ts('serverError409', state.language, 1), failicon: true }) :
-          // if response status code is not 409 set message with a regular serverError;
+          // if response status code is not 409, set message with a regular serverError;
           setMessageContent({ ...initialMessage, mainline: ts('serverError', state.language), subline: ts('serverError', state.language, 1), failicon: true });
         waitTime = 4500;
         break;

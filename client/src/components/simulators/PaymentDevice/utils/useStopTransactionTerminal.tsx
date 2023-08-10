@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import api from '../../../../api';
+import api from '../../../../api/pinApi';
 
 const useStopTransactionTerminal = (accessToken: string, transactionId: string | undefined) => {
   const stopTransaction = useCallback(async () => {

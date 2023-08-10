@@ -19,15 +19,12 @@ const DemoAppContainer = styled.div`
   width: 83%;
   height: 87%;
 `
-
-
 const Content = styled.div`
   padding: 0 4px 50px;
   display: flex;
   flex-direction: column;
   overflow-y: sunset;
-`;
-
+`
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -50,6 +47,11 @@ const OkButton = styled.button`
   padding: 3px;
   &:active {
     background-color: ${Sv.darkgreen};
+  }
+  &:disabled {
+    cursor: inherit;
+    background-color: ${Sv.gray};
+    color: gray;
   }
 `
 const StopButton = styled(OkButton)`
@@ -88,28 +90,27 @@ const TransactionDetailsFooter = styled.div`
   border-radius: 0 0 3px 3px;
 `
 const blinkAnimation = keyframes`
-  70%, 100% {
+  90%, 100% {
     opacity: 1;
   }
-  30% {
+  10% {
     opacity: 0;
   }
 `
 const StatusText = styled.div<{ $isActive: boolean }>`
   color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
 `
-const BlinkingDot = styled(StatusText) <{ $isActive: boolean }>`
+const BlinkingDot = styled(StatusText)`
   width: 6px;
   height: 6px;
   background-color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
   border-radius: 100px;
   margin: 10px 7px;
   animation-name: ${blinkAnimation};
-  animation-duration: 0.5s;
+  animation-duration: 1.0s;
   animation-iteration-count: infinite;
   }
 `
-
 const Footer = styled(GenericFooter)<{ $init: boolean }>`
   color: ${(props) => (props.$init ? Sv.green : Sv.red)};
   position: absolute;
@@ -146,26 +147,32 @@ const DemoApp = () => {
         const logOnSucceeded = await logOn();
         setInit(logOnSucceeded);
       };
-      setTimeout(() => doLogOn(), 5000);
+      setTimeout(() => doLogOn(), 3000);
     }
   }, [init, logOn]);
 
+
+  
+  // get transaction ID with the useGetTransaction hook
+  const getTransactionId = useCallback(() => {
+    setTransactionIdApp('');
+    getTransaction();
+  }, [getTransaction]);
+
+  // update transactionDetails with transaction ID with the same hook
   useEffect(() => {
     if (transactionIdApp !== '' && token !== '') {
       const interval = setInterval(() => {
         getTransaction();
-      }, 3000);
+      }, 1000);
       return () => {
         clearInterval(interval);
       };
     }
   }, [getTransaction, token, transactionIdApp]);
 
-  const reset = useCallback(() => {
-    setTransactionIdApp('');
-    getTransaction();
-  }, [getTransaction]);
 
+  // check if app is active
   useEffect(() => {
     if (
       transactionIdApp !== '' &&
@@ -178,11 +185,11 @@ const DemoApp = () => {
       setTimeout(() => setIsActive(true), 2000);
     } else {
       setTimeout(() => {
-        reset();
+        getTransactionId();
         setIsActive(false);
       }, 2000);
     }
-  }, [isActive, reset, transactionDetails, transactionIdApp]);
+  }, [isActive, getTransactionId, transactionDetails, transactionIdApp]);
 
   return (
     <Container>
@@ -193,8 +200,8 @@ const DemoApp = () => {
           <InputAmount value={value} handleOnValueChange={handleOnValueChange} intlConfig={intlConfig} handleIntlSelect={handleIntlSelect} />
 
           <ButtonContainer>
-            {isActive ? <StopButton type="button" onClick={() => stopTransaction(token, transactionIdApp, setIsActive, reset)} >Stop</StopButton> :
-              <OkButton type="button" onClick={() => createTransaction(token, value, setTransactionIdApp, intlConfig)} >OK</OkButton>}
+            {isActive ? <StopButton type="button" onClick={() => stopTransaction(token, transactionIdApp, setIsActive, getTransactionId)} >Stop</StopButton> :
+              <OkButton type="button" onClick={() => createTransaction(token, value, setTransactionIdApp, intlConfig)} disabled={!init}>OK</OkButton>}
           </ButtonContainer>
 
           <TransactionDetailsHeader>

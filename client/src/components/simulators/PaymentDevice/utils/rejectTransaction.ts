@@ -1,4 +1,4 @@
-import api from "../../../../api";
+import api from "../../../../api/pinApi";
 
 
    export const rejectTransaction = async (accessToken: string, transactionId: string, failOrDecline: string) => {

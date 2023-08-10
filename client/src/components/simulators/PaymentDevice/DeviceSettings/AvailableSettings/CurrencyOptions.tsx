@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { CurrencyCode } from '../../../../../types/CurrencyTypes';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark/Checkmark';
+import Checkmark from '../checkmark';
 
 
 const CurrencyOptions = () => {

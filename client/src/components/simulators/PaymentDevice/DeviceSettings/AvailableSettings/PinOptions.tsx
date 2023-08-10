@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark/Checkmark';
+import Checkmark from '../checkmark';
 import ts from '../../Translations/translations';
 
 const PinOptions = () => {

@@ -1,6 +1,6 @@
-import api from '../../../../api';
+import api from '../../../../api/pinApi';
 import axios from 'axios';
-import { AcceptTransactionStateType } from '../types/types';
+import { AcceptTransactionStateType } from '../types';
 
 const acceptTransaction = async(
   token: string,

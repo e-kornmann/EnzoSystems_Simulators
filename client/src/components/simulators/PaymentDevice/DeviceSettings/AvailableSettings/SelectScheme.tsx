@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import PayProvider from '../../../../shared/PayProvider';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/close.svg';
-import Checkmark from '../checkmark/Checkmark';
+import Checkmark from '../checkmark';
 import { Container } from '../../../../shared/DraggableModal/ModalTemplate';
 import { SupportedSchemesType } from '../../types/PaymentTypes';
 import { SettingHeader, SettingsWrapper } from '../DeviceSettings';
