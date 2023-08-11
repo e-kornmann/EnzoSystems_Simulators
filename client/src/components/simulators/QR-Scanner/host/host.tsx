@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import * as Sv from '../../../styles/stylevariables';
-import { Header } from '../../shared/DraggableModal/ModalTemplate'
+import { useCallback, useState } from 'react';
+import * as Sv from '../../../../styles/stylevariables';
+import { Header } from '../../../shared/DraggableModal/ModalTemplate'
 import styled, { keyframes } from "styled-components";
-import { ReactComponent as StandByIcon } from '../../../assets/svgs/standby.svg'
+import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg'
+import TurnOnDevice from '../../../shared/TurnOnDevice';
+import useLogOn from '../../../../hooks/useLogOn';
+import { hostCredentials, reqBody } from '../../DemoApp/config';
 
 const DemoAppContainer = styled.div`
   display: grid;
@@ -26,11 +29,9 @@ const blinkAnimation = keyframes`
 `
 const BlinkingDot = styled.div<{ $isActive: boolean }>`
   position: absolute;
-  top: 0px;
-  left: 0px;
   width: 6px;
   height: 6px;
-  background-color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
+  background-color: ${(props) => (props.$isActive ? Sv.green : 'transparent')};
   border-radius: 100px;
   margin: 5px 4px;
   animation-name: ${blinkAnimation};
@@ -55,20 +56,27 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
     align-items: center;
     row-gap: 8px;
     flex-direction: column;
+    & > span {
+      padding: 3px;
+      font-size: 0.75em;
+      font-weight: 800;
+      text-align: center;
+      color: ${Sv.asphalt};
+    }
     & > button {
         height: 32px;
         width: 32px;
-
+        display: flex;
+        justify-content: center;
+        align-items: center;
         margin-top: 20px;
         background-color: ${Sv.asphalt};
         border-radius: 5px;
         cursor: pointer;
         & > svg {
-          position: relative;
-          top: 2px;
           height: 18px;
           width: 18px;
-          fill: ${(props) => (props.$isEnabled ? Sv.green : Sv.red )};
+          fill: ${(props) => (props.$isEnabled ? 'limegreen' : Sv.gray )};
         }
     
         &:disabled { 
@@ -80,30 +88,9 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
         }
     }
    
-    & > span {
-        padding: 3px;
-        font-size: 0.75em;
-        font-weight: 800;
-        text-align: center;
-        color: ${Sv.asphalt};
-    }`
+    `
 
-const LogInButton = styled.button`
-  cursor: pointer;
-  color: ${Sv.asphalt};
-  width: 60px;
-  height: 30px;
-  font-size: 1.0em;
-  font-weight: 600;
-  min-width: 0;
-  background-color: transparent;
-  border-radius: 40px;
-  padding: 3px;
 
-`
-const LogOutButton = styled(LogInButton)`
-  color: ${Sv.asphalt};
-`
 export enum DemoAppStatus {
   HOST_LOGGED_OUT,
   HOST_LOGGED_IN,
@@ -111,28 +98,57 @@ export enum DemoAppStatus {
   API_DISABLED,
 }
 
-type Props = {
-  hostIsEnabledListener: () => void;
-}
 
-const DemoApp = ({ hostIsEnabledListener }: Props) => {
+
+const DemoApp = () => {
   const [hostStatus, setHostStatus] = useState(DemoAppStatus.HOST_LOGGED_OUT);
+  const { token, logOn } = useLogOn( hostCredentials, reqBody, 'barcode-scanner');
+  const [standByText, setStandByText] = useState<string>('OFF')
+  const [init, setInit] = useState(false);
 
-  const LogInHandler = () => setHostStatus(DemoAppStatus.HOST_LOGGED_IN);
-  const LogOutHandler = () => setHostStatus(DemoAppStatus.HOST_LOGGED_OUT);
+  const logInButtonHandler = useCallback(async () => {
+    if (!init) {
+      try {
+        await logOn()
+          .then((success) => {
+            if (success) {
+              setStandByText(' • •');  
+              setTimeout(() => {setStandByText('ON')}, 500);   
+              setInit(true); 
+              setHostStatus(DemoAppStatus.HOST_LOGGED_IN)
+            } else {
+              setStandByText('ERROR');  
+              setTimeout(() => {
+                  setStandByText('OFF');   
+              }, 4000); 
+              setInit(false);
+              setHostStatus(DemoAppStatus.HOST_LOGGED_OUT)
+            } 
+          });
+      } catch (error) {
+        console.error("Error during login:", error);
+      }
+    } else {
+      setInit(false);
+      setStandByText('OFF');
+    }
+  }, [init, logOn]);
+
+
+
+  
 
   const standByButtonHandler = () => {
     if (hostStatus === DemoAppStatus.HOST_LOGGED_IN) {
       setHostStatus(DemoAppStatus.API_ENABLED);
-      hostIsEnabledListener();
+
     }
     if (hostStatus === DemoAppStatus.API_ENABLED) {
       setHostStatus(DemoAppStatus.API_DISABLED);
-      hostIsEnabledListener();
+      
     }
     if (hostStatus === DemoAppStatus.API_DISABLED) {
       setHostStatus(DemoAppStatus.API_ENABLED);
-      hostIsEnabledListener();
     }
   }
 
@@ -140,16 +156,17 @@ const DemoApp = ({ hostIsEnabledListener }: Props) => {
 
   return (
     <DemoAppContainer>
-      <Header> <BlinkingDot $isActive={hostStatus !== DemoAppStatus.HOST_LOGGED_OUT} />Demo App</Header>
+      <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
+      <Header>Demo App</Header>
       <Content>
-        {hostStatus === DemoAppStatus.HOST_LOGGED_OUT && <LogInButton type='button' onClick={LogInHandler}>Login</LogInButton>}
-        {hostStatus !== DemoAppStatus.HOST_LOGGED_OUT && <LogOutButton type='button' onClick={LogOutHandler}>Logout</LogOutButton>}
+
         <Wrap $isActive={hostStatus === DemoAppStatus.HOST_LOGGED_IN} $isEnabled={hostStatus === DemoAppStatus.API_ENABLED}>
-        <button type="button" disabled={hostStatus === DemoAppStatus.HOST_LOGGED_OUT} onClick={standByButtonHandler}><StandByIcon /></button>
+        <button type="button" disabled={hostStatus === DemoAppStatus.HOST_LOGGED_OUT} onClick={standByButtonHandler}>
+        <CrossHairIcon /><BlinkingDot $isActive={hostStatus === DemoAppStatus.API_ENABLED} /></button>
         
         {hostStatus !== DemoAppStatus.HOST_LOGGED_OUT &&  
         <span>
-          {hostStatus !== DemoAppStatus.API_ENABLED ? 'Turn ON' : 'Turn OFF'}<br />scan device</span>
+          {hostStatus !== DemoAppStatus.API_ENABLED ? 'ACTIVATE' : 'DEACTIVATE'}<br />scan device</span>
           }
       </Wrap>
       </Content>

@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
-import api from '../../../../api/pinApi';
+import api from '../api/pinApi';
+import { ReqLogOnType } from '../types/LogOnTypes';
 
-const useStopTransactionTerminal = (accessToken: string, transactionId: string | undefined) => {
+const useStopTransaction = (accessToken: string, reqBody: ReqLogOnType, transactionId: string | undefined) => {
   const stopTransaction = useCallback(async () => {
     try {
       const config = {
@@ -10,14 +11,14 @@ const useStopTransactionTerminal = (accessToken: string, transactionId: string |
           authorization: `Bearer ${accessToken}`,
         }
       };
-      await api.put(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, {
+      await api.put(`/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`, {
         action: "STOP"
       }, config);
     } catch (error) {
       console.error('Unable to stop transaction:', error);
     }
-  }, [accessToken, transactionId]);
+  }, [accessToken, reqBody, transactionId]);
   return { stopTransaction };
 };
 
-export default useStopTransactionTerminal;
+export default useStopTransaction;

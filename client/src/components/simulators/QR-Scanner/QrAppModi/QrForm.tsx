@@ -4,11 +4,20 @@ import styled from "styled-components";
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
 import { useState, useEffect, useRef } from "react";
 import * as Sv from "../../../../styles/stylevariables";
-import { QrAppModi, QrCode } from "..";
+import { QrAppModi, QrCode } from "./QrCodeReader";
+
+
+
 
 const QrFormWrapper = styled.form`
+  position: absolute;
+  top: 35px;
+  height: calc(100% - 35px);
+  border-radius: 0 0 5px 5px;
+  background-color: ${Sv.appBackground};
   display: grid;
   grid-template-rows: 1fr auto; 
+  z-index: 400;
 `
 const InputWrapper = styled.div`
   display: grid;
@@ -80,7 +89,6 @@ const StyledTextArea = styled.textarea`
 `
 
 type Props = {
-  modusSetterHandler: (modus: QrAppModi) => void;
   saveNewQrCodeHandler: (newQrCode: QrCode) => void;
   isEditMode: boolean;
   qrCodeToEdit?: QrCode;
@@ -91,8 +99,11 @@ type InitialStateType = {
   activeFields: { name: boolean, data: boolean };
 }
 
-const QrForm = ({ modusSetterHandler, saveNewQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
+const QrForm = ({ saveNewQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
+  
 
+  
+  
   const initialState: InitialStateType = isEditMode && qrCodeToEdit ? {
     qrCodeToEdit, activeFields: {
       name: true,
@@ -118,7 +129,6 @@ const QrForm = ({ modusSetterHandler, saveNewQrCodeHandler, isEditMode, qrCodeTo
   const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     saveNewQrCodeHandler(qrCode);
-    setTimeout(() => modusSetterHandler(QrAppModi.QR_SCANNER), 300);
   }
 
   const inputRef = useRef<HTMLInputElement>(null);

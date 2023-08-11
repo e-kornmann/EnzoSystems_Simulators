@@ -6,7 +6,7 @@ import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.sv
 import ExpandIcon from '../../shared/Expand';
 import useLogOn from '../../../hooks/useLogOn';
 import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
-import useStopTransactionTerminal from './utils/useStopTransactionTerminal';
+import useStopTransaction from '../../../hooks/useStopTransaction';
 import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
 import { AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus } from './types';
@@ -21,6 +21,7 @@ import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
 import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
+import TurnOnDevice from '../../shared/TurnOnDevice';
 
 const Content = styled.div`
   padding: 0 10px 50px;
@@ -39,11 +40,12 @@ const initialMessage = { mainline: '', subline: undefined, failicon: false, succ
 
 const PaymentTerminal = () => {
   const { state } = useContext(AppContext);
-  const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody);
+  const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody, 'payment-terminal');
+  const [standByText, setStandByText] = useState<string>('OFF')
   const [terminalState, setTerminalState] = useState(PinTerminalStatus.START_UP);
   const [transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
   const { transactionDetails, getTransaction } = useGetTransaction(token, transactionState.transactionId);
-  const { stopTransaction } = useStopTransactionTerminal(token, transactionState.transactionId);
+  const { stopTransaction } = useStopTransaction(token, reqBody, transactionState.transactionId);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE);
   const [pincode, setPincode] = useState('');
   const [pinAttempts, setPinAttempts] = useState(0);
@@ -52,15 +54,34 @@ const PaymentTerminal = () => {
   const [init, setInit] = useState(false);
   const [messageContent, setMessageContent] = useState<MessageContentType>(initialMessage);
 
-  useEffect(() => {
-    if (init === false) {
-      const doLogOn = async () => {
-        const logOnSucceeded = await logOn();
-        setInit(logOnSucceeded);
-      };
-      doLogOn();
+  const logInButtonHandler = useCallback(async () => {
+    if (!init) {
+      try {
+        await logOn()
+          .then((success) => {
+            if (success) {
+              setStandByText(' • •');  
+              setTimeout(() => {setStandByText('ON')}, 500);   
+              setInit(true); 
+              setTerminalState(PinTerminalStatus.START_UP);
+            } else {
+              setStandByText('ERROR');  
+              setTimeout(() => {
+                  setStandByText('OFF');   
+              }, 4000); 
+              setInit(false);
+            } 
+          });
+      } catch (error) {
+        console.error("Error during login:", error);
+      }
+    } else {
+      setInit(false);
+      setStandByText('OFF');
+      stopTransaction();
+      setTerminalState(PinTerminalStatus.OUT_OF_ORDER);
     }
-  }, [init, logOn]);
+  }, [init, logOn, stopTransaction]);
 
   // Fetch transaction details at regular intervals (1 second) if the terminalState is not idle, 
   // and put the response in transactionDetails:
@@ -300,6 +321,7 @@ const PaymentTerminal = () => {
       <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <Container>
+        <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
         <Header>Payment Terminal</Header>
         <TimeRibbon />
         <Content>

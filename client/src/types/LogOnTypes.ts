@@ -8,5 +8,6 @@ export type CredentialType = {
     hostId?: string,
     merchantId?: string,
     terminalId?: string,
+    deviceId?: string
   }
   

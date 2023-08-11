@@ -3,7 +3,6 @@ import { CredentialType, ReqLogOnType } from "../../../../types/LogOnTypes";
 export const pinTerminalCredentials: CredentialType = {
  userName: 'terminal',
  passWord: 'terminal',
-
 }
 
 export const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import api from "../../../../api/pinApi";
+import pinApi from "../../../../api/pinApi";
 import { PinTerminalStatus } from "../types";
 
 export const updateTransaction = async (accessToken: string, transactionId: string, amountPaid: number, setStatus: React.Dispatch<React.SetStateAction<PinTerminalStatus>>) => {
@@ -10,7 +10,7 @@ export const updateTransaction = async (accessToken: string, transactionId: stri
           authorization: `Bearer ${accessToken}`,
         },
       };
-        const response = await api.put(
+        const response = await pinApi.put(
         `/${import.meta.env.VITE_MERCHANT_ID}/${
           import.meta.env.VITE_TERMINAL_ID
         }/transactions/${transactionId}`,

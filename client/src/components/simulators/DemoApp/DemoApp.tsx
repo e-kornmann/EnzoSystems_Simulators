@@ -1,26 +1,27 @@
 import styled, { keyframes } from "styled-components";
 import * as Sv from '../../../styles/stylevariables';
-import { hostCredentials, reqBody } from './config';
+import { hostCredentials, reqBody } from './config'
 import InputAmount from './input/InputAmount';
 import { useState, useEffect, useCallback } from 'react';
 import createTransaction from './utils/createTransaction';
-import stopTransaction from './utils/stopTransactionHost';
 import useLogOn from '../../../hooks/useLogOn';
 import { options } from './settings/settings';
 import useGetTransaction from '../../../hooks/useGetTransaction';
-import { Container, GenericFooter, Header } from '../../shared/DraggableModal/ModalTemplate';
+import { Container, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TransactionDetails from "./TransactionDetails/TransactionDetails";
 import { IntlConfigType } from "../../../types/IntlConfigType";
+import TurnOnDevice from "../../shared/TurnOnDevice";
+import useStopTransaction from "../../../hooks/useStopTransaction";
 
 const DemoAppContainer = styled.div`
   display: grid;
-  grid-template-rows: 40px 70px 35px 1fr 26px; 
+  grid-template-rows: 40px 70px 35px 1fr; 
   margin: auto;
   width: 83%;
   height: 87%;
 `
 const Content = styled.div`
-  padding: 0 4px 50px;
+  padding: 0 4px 10px;
   display: flex;
   flex-direction: column;
   overflow-y: sunset;
@@ -111,20 +112,16 @@ const BlinkingDot = styled(StatusText)`
   animation-iteration-count: infinite;
   }
 `
-const Footer = styled(GenericFooter)<{ $init: boolean }>`
-  color: ${(props) => (props.$init ? Sv.green : Sv.red)};
-  position: absolute;
-  justify-content: center;
-  bottom: 0px;
-`;
-
 
 
 const DemoApp = () => {
   const [init, setInit] = useState(false);
-  const { token, logOn } = useLogOn(hostCredentials, reqBody);
+  const { token, logOn } = useLogOn(hostCredentials, reqBody, 'payment-terminal');
+  const [standByText, setStandByText] = useState<string>('OFF')
+    
   const [isActive, setIsActive] = useState(false);
   const [transactionIdApp, setTransactionIdApp] = useState('');
+  const { stopTransaction } = useStopTransaction(token, reqBody, transactionIdApp);
   const { transactionDetails, getTransaction } = useGetTransaction(token, transactionIdApp);
 
   const [intlConfig, setIntlConfig] = useState<IntlConfigType>(options[0]);
@@ -141,23 +138,48 @@ const DemoApp = () => {
     }
   };
 
-  useEffect(() => {
-    if (init === false) {
-      const doLogOn = async () => {
-        const logOnSucceeded = await logOn();
-        setInit(logOnSucceeded);
-      };
-      setTimeout(() => doLogOn(), 3000);
-    }
-  }, [init, logOn]);
+    // get transaction ID with the useGetTransaction hook
+    const getTransactionId = useCallback(() => {
+      setTransactionIdApp('');
+      getTransaction();
+    }, [getTransaction]);
+  
+
+  const stopHandler = useCallback(() => {
+    stopTransaction();
+    getTransactionId();
+    setIsActive(false);
+  }, [getTransactionId, stopTransaction]);
+
+  const logInButtonHandler = useCallback(async () => {
+    if (!init) {
+      try {
+        await logOn()
+          .then((success) => {
+            if (success) {
+              setStandByText(' • •');  
+              setTimeout(() => {setStandByText('ON')}, 500);   
+              setInit(true); 
+            } else {
+              setStandByText('ERROR');  
+              setTimeout(() => {
+                  setStandByText('OFF');   
+              }, 4000); 
+              setInit(false);
+            } 
+          });
+      } catch (error) {
+        console.error("Error during login:", error);
+      }
+    } else {
+      setInit(false);
+      setStandByText('OFF');
+      stopHandler();
+      }
+  }, [init, logOn, stopHandler]);
 
 
   
-  // get transaction ID with the useGetTransaction hook
-  const getTransactionId = useCallback(() => {
-    setTransactionIdApp('');
-    getTransaction();
-  }, [getTransaction]);
 
   // update transactionDetails with transaction ID with the same hook
   useEffect(() => {
@@ -170,6 +192,9 @@ const DemoApp = () => {
       };
     }
   }, [getTransaction, token, transactionIdApp]);
+
+
+
 
 
   // check if app is active
@@ -193,6 +218,7 @@ const DemoApp = () => {
 
   return (
     <Container>
+       <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
       <Header>Demo App</Header>
       <Content>
         <DemoAppContainer>
@@ -200,7 +226,7 @@ const DemoApp = () => {
           <InputAmount value={value} handleOnValueChange={handleOnValueChange} intlConfig={intlConfig} handleIntlSelect={handleIntlSelect} />
 
           <ButtonContainer>
-            {isActive ? <StopButton type="button" onClick={() => stopTransaction(token, transactionIdApp, setIsActive, getTransactionId)} >Stop</StopButton> :
+            {isActive ? <StopButton type="button" onClick={stopHandler} >Stop</StopButton> :
               <OkButton type="button" onClick={() => createTransaction(token, value, setTransactionIdApp, intlConfig)} disabled={!init}>OK</OkButton>}
           </ButtonContainer>
 
@@ -221,7 +247,6 @@ const DemoApp = () => {
         </DemoAppContainer>
 
       </Content>
-      <Footer $init={init}>{import.meta.env.VITE_HOST_ID} {init ? 'is logged in to the Enzo Pay API' : 'logging in'}</Footer>
     </Container>
   );
 };
