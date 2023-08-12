@@ -6,7 +6,7 @@ import * as S from './styles/App.style';
 
 import PaymentTerminal from './components/simulators/PaymentDevice/PaymentTerminal';
 import DemoApp from './components/simulators/DemoApp/DemoApp';
-import QrScanner from './components/simulators/QR-Scanner/QrAppModi/QrCodeReader';
+import QrScanner from './components/simulators/QR-Scanner';
 
 
 function App() {

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
 import { useState, useEffect, useRef } from "react";
 import * as Sv from "../../../../styles/stylevariables";
-import { QrAppModi, QrCode } from "./QrCodeReader";
+import { QrCode } from "..";
 
 
 
@@ -90,6 +90,7 @@ const StyledTextArea = styled.textarea`
 
 type Props = {
   saveNewQrCodeHandler: (newQrCode: QrCode) => void;
+  updateQrCodeHandler: (newQrCode: QrCode) => void;
   isEditMode: boolean;
   qrCodeToEdit?: QrCode;
 }
@@ -99,7 +100,7 @@ type InitialStateType = {
   activeFields: { name: boolean, data: boolean };
 }
 
-const QrForm = ({ saveNewQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
+const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
   
 
   
@@ -121,14 +122,14 @@ const QrForm = ({ saveNewQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
   const [isActive, setIsActive] = useState<InitialStateType['activeFields']>(initialState.activeFields);
 
   const onFocusHandler = (field: keyof typeof isActive) => setIsActive((prev) => ({ ...prev, [field]: true }));
-  const onBlurHandler = (field: keyof typeof isActive) =>   !qrCode.name && !qrCode.data ? setIsActive((prev) => ({ ...prev, [field]: false })) : null;
+  const onBlurHandler = (field: keyof typeof isActive) => !qrCode.name && !qrCode.data ? setIsActive((prev) => ({ ...prev, [field]: false })) : null;
 
   const handleNameInput = (event: React.ChangeEvent<HTMLInputElement>) => setQrcode({ ...qrCode, name: event.target.value });
   const handleDataInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => setQrcode({ ...qrCode, data: event.target.value });
 
   const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    saveNewQrCodeHandler(qrCode);
+    isEditMode ? updateQrCodeHandler(qrCode) : saveNewQrCodeHandler(qrCode);
   }
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -171,10 +172,3 @@ const QrForm = ({ saveNewQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
 };
 
 export default QrForm;
-
-
-
-
-
-
-

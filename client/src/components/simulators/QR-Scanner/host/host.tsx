@@ -130,6 +130,7 @@ const DemoApp = () => {
       }
     } else {
       setInit(false);
+      setHostStatus(DemoAppStatus.HOST_LOGGED_OUT)
       setStandByText('OFF');
     }
   }, [init, logOn]);
