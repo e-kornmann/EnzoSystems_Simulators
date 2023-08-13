@@ -6,7 +6,7 @@ import { Container, Header } from "../../shared/DraggableModal/ModalTemplate";
 import QrForm from "./QrAppModi/QrForm";
 import ts from "./Translations/translations";
 import QrCodeReader from "./QrAppModi/QrCodeReader";
-import QrCodes from "./QrAppModi/QrCodes";
+import QrCodesComponent from "./QrAppModi/QrCodes";
 import { Lang } from '../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions';
 import DemoApp from './host/host';
 
@@ -32,43 +32,12 @@ const NavigationHeader = styled(Header)`
 
 const QrScanner = () => {
   const [currentModus, setCurrentModus] = useState(QrAppModi.QR_SCANNER);
-  const [qrCodes, setQrCodes] = useState<QrCode[]>([]);
   const [currentQrCode, setCurrentQrCode] = useState<QrCode>({ name: '', data: '' });
   const [qrCodeToEdit, setQrCodeToEdit] = useState<QrCode>({ name: '', data: '' });
   const modusSetterHandler = (modus: QrAppModi) => setCurrentModus(modus);
+  const [qrCodes, setQrCodes] = useState<QrCode[]>([]);
 
-  const saveNewQrCodeHandler = useCallback((newQrCode: QrCode) => {
-      setQrCodes([...qrCodes, newQrCode]);
-      setCurrentQrCode(newQrCode);
-      setCurrentModus(QrAppModi.QR_SCANNER);
-    }, [qrCodes]);
-    
-    
-  const updateQrCodeHandler = useCallback((newQrCode: QrCode) => {
-   const updatedQrCodes = qrCodes.map((qr) =>
-        qr.name === newQrCode.name ? newQrCode : qr
-      );
-      setQrCodes(updatedQrCodes);
-      setCurrentQrCode(newQrCode);
-      setCurrentModus(QrAppModi.QR_SCANNER);
-  
-  
-}, [qrCodes]);
-  
-
-
-  
-
- 
-
-  const deleteQrCodesHandler = (qrCodesToDelete: QrCode[]) => {
-    const updatedQrCodes = qrCodes.filter(qrCode =>
-      !qrCodesToDelete.includes(qrCode)
-    );
-    setQrCodes(updatedQrCodes);
-    setCurrentModus(QrAppModi.QR_SCANNER);
-  };
-
+  //select QR code to edit or to show and save to currentQrCode
   const selectQrCodeHandler = (selectedQrCode: QrCode) => {
     if (currentModus === QrAppModi.QR_CODES) {
       setCurrentQrCode(selectedQrCode);
@@ -80,6 +49,32 @@ const QrScanner = () => {
       setCurrentModus(QrAppModi.EDIT_QR);
     }
   };
+
+  // add new QR to qrCodes
+  const saveNewQrCodeHandler = useCallback((newQrCode: QrCode) => {
+      setQrCodes([...qrCodes, newQrCode]);
+      setCurrentQrCode(newQrCode);
+      setCurrentModus(QrAppModi.QR_SCANNER);
+    }, [qrCodes]);
+    
+  // use the selected QR (currentQR) to check wich element needs to be updated, 
+  // then update qrCodes and save updated QR to currentQrCode
+    const updateQrCodeHandler = useCallback((newQrCode: QrCode) => {
+      setQrCodes((prev) => prev.map((code) =>
+      code.name === currentQrCode.name ? newQrCode : code ))
+      setCurrentQrCode(newQrCode);
+      setCurrentModus(QrAppModi.QR_SCANNER);
+    }, [currentQrCode.name]);
+  
+
+  const deleteQrCodesHandler = (qrCodesToDelete: QrCode[]) => {
+    const updatedQrCodes = qrCodes.filter(qrCode =>
+      !qrCodesToDelete.includes(qrCode)
+    );
+    setQrCodes(updatedQrCodes);
+    setCurrentModus(QrAppModi.QR_SCANNER);
+  };
+
 
   return (
     <Container>
@@ -99,10 +94,10 @@ const QrScanner = () => {
       </NavigationHeader>
         
       <QrCodeReader modusSetterHandler={modusSetterHandler} currentQrCode={currentQrCode} />
-      { currentModus === QrAppModi.NEW_QR ? <QrForm saveNewQrCodeHandler={saveNewQrCodeHandler} updateQrCodeHandler={updateQrCodeHandler} isEditMode={false} /> : null}
-      { currentModus === QrAppModi.EDIT_QR ? <QrForm updateQrCodeHandler={updateQrCodeHandler} saveNewQrCodeHandler={saveNewQrCodeHandler} isEditMode={true} qrCodeToEdit={qrCodeToEdit} /> 
- : null}
-      <QrCodes qrCodes={qrCodes} modusSetterHandler={modusSetterHandler} selectQrCodeHandler={selectQrCodeHandler} currentModus={currentModus} currentQrCode={currentQrCode} deleteQrCodesHandler={deleteQrCodesHandler}/> 
+      
+      <QrForm updateQrCodeHandler={updateQrCodeHandler} saveNewQrCodeHandler={saveNewQrCodeHandler} currentModus={currentModus} qrCodeToEdit={qrCodeToEdit} /> 
+
+      <QrCodesComponent qrCodes={qrCodes} modusSetterHandler={modusSetterHandler} selectQrCodeHandler={selectQrCodeHandler} currentModus={currentModus} currentQrCode={currentQrCode} deleteQrCodesHandler={deleteQrCodesHandler}/> 
 
 
     </Container>

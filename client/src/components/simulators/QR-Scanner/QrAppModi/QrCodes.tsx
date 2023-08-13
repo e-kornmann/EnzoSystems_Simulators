@@ -40,7 +40,7 @@ type Props = {
   
 };
 
-const QrCodes = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, currentModus, currentQrCode, deleteQrCodesHandler }: Props) => {
+const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, currentModus, currentQrCode, deleteQrCodesHandler }: Props) => {
   
     const [selectedQrCodesForDeletion, setSelectedQrCodesForDeletion] = useState<QrCode[]>([]);
     const [allSelected, setAllSelected] = useState(false);
@@ -87,9 +87,6 @@ const QrCodes = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, currentModu
       areAllSchemesSelected ? setAllSelected(true) : setAllSelected(false);
       }, [qrCodes, selectedQrCodesForDeletion]);
 
-
-
-
   return (
 
     showQrCodes &&
@@ -118,17 +115,17 @@ const QrCodes = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, currentModu
       {currentModus !== QrAppModi.EDIT_LIST && (
         <S.GenericFooter>
         { currentModus !== QrAppModi.DEL_QR && <button type="button" onClick={()=>modusSetterHandler(QrAppModi.NEW_QR)}>New</button> }       
-{ currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>Edit</button> }
-{ currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>Delete</button> }
-          {currentModus === QrAppModi.DEL_QR && <button type="button" onClick={selectOrDeselectAllHandler}>{ allSelected ? 'Deselect all' : 'Select all' }</button>}
-          {currentModus === QrAppModi.DEL_QR && <button type="button" onClick={() => deleteQrCodesHandler(selectedQrCodesForDeletion)} disabled={selectedQrCodesForDeletion.length === 0 }>Delete</button>}
+        { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>Edit</button> }
+        { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>Delete</button> }
+        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={selectOrDeselectAllHandler}>{ allSelected ? 'Deselect all' : 'Select all' }</button>}
+        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={() => deleteQrCodesHandler(selectedQrCodesForDeletion)} disabled={selectedQrCodesForDeletion.length === 0 }>Delete</button>}
         </S.GenericFooter>
       )}
     </QrCodesWrapper>
   );
 };
 
-export default QrCodes;
+export default QrCodesComponent;
 
 
   

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
 import { useState, useEffect, useRef } from "react";
 import * as Sv from "../../../../styles/stylevariables";
-import { QrCode } from "..";
+import { QrAppModi, QrCode } from "..";
 
 
 
@@ -91,7 +91,7 @@ const StyledTextArea = styled.textarea`
 type Props = {
   saveNewQrCodeHandler: (newQrCode: QrCode) => void;
   updateQrCodeHandler: (newQrCode: QrCode) => void;
-  isEditMode: boolean;
+  currentModus: QrAppModi;
   qrCodeToEdit?: QrCode;
 }
 
@@ -100,26 +100,57 @@ type InitialStateType = {
   activeFields: { name: boolean, data: boolean };
 }
 
-const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, isEditMode, qrCodeToEdit }: Props) => {
-  
 
-  
-  
-  const initialState: InitialStateType = isEditMode && qrCodeToEdit ? {
-    qrCodeToEdit, activeFields: {
-      name: true,
-      data: true
-    }
-  } :
-    {
-      qrCodeToEdit: { name: '', data: '' }, activeFields: {
-        name: false,
-        data: false
-      }
-    }
+const initialState: InitialStateType = { 
+  qrCodeToEdit: { 
+    name: '', 
+    data: '', 
+  }, 
+  activeFields: {
+    name: false,
+    data: false,
+  }
+}
 
+const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, currentModus, qrCodeToEdit }: Props) => {
+  
+  const [showQrForm, setShowQrForm] = useState(false);
   const [qrCode, setQrcode] = useState<InitialStateType['qrCodeToEdit']>(initialState.qrCodeToEdit);
   const [isActive, setIsActive] = useState<InitialStateType['activeFields']>(initialState.activeFields);
+  
+
+  
+
+  // show component
+  useEffect(()=>  {
+    if (
+    currentModus === QrAppModi.NEW_QR || 
+    currentModus === QrAppModi.EDIT_QR
+     ) {
+      setShowQrForm(true);
+  } else {
+    setShowQrForm(false);
+  }
+
+  }, [currentModus])
+
+  // when in NEW_QR mode empty fields and set fieds to inactive so that label is scaled up.
+  // when in edit mode fill fields with QR data and set fields to active so that label doesn't cover the text
+  useEffect(()=>  {
+    if (currentModus === QrAppModi.NEW_QR) {
+      setQrcode(initialState.qrCodeToEdit);
+      setIsActive(initialState.activeFields);
+    }
+    if (qrCodeToEdit && currentModus === QrAppModi.EDIT_QR){
+      setQrcode(qrCodeToEdit);
+      setIsActive({
+        name: true,
+        data: true,
+      })
+    }
+  }, [currentModus, qrCodeToEdit])
+  
+
 
   const onFocusHandler = (field: keyof typeof isActive) => setIsActive((prev) => ({ ...prev, [field]: true }));
   const onBlurHandler = (field: keyof typeof isActive) => !qrCode.name && !qrCode.data ? setIsActive((prev) => ({ ...prev, [field]: false })) : null;
@@ -129,7 +160,7 @@ const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, isEditMode, qrCodeT
 
   const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    isEditMode ? updateQrCodeHandler(qrCode) : saveNewQrCodeHandler(qrCode);
+    currentModus === QrAppModi.EDIT_QR ? updateQrCodeHandler(qrCode) : saveNewQrCodeHandler(qrCode);
   }
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -140,6 +171,8 @@ const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, isEditMode, qrCodeT
   }, []);
 
   return (
+
+    showQrForm &&
     <QrFormWrapper onSubmit={onFormSubmit}>
       <InputWrapper >
         <StyledLabel $animate={isActive.name} htmlFor={'name'}>Name<span>*</span></StyledLabel>
@@ -165,7 +198,7 @@ const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, isEditMode, qrCodeT
         </StyledTextArea>
       </InputWrapper>
       <S.GenericFooter>
-        <button type="submit" style={{ marginLeft: "auto" }} disabled={!qrCode.name || !qrCode.data}>{isEditMode ? 'Update' : 'Save'}</button>
+        <button type="submit" style={{ marginLeft: "auto" }} disabled={!qrCode.name || !qrCode.data}>{currentModus === QrAppModi.EDIT_QR ? 'Update' : 'Save'}</button>
       </S.GenericFooter>
     </QrFormWrapper>
   );
