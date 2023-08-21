@@ -127,7 +127,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         <DragMove onDragMove={handleDragMove}>
           <StyledModal $grabbing={isGrabbing} style={{transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
               <CloseButton onClick={hide}>
-                <CrossIcon width={8} height={8} fill={'gray'} />
+                <CrossIcon width={8} height={8} fill={Sv.asphalt} />
               </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>

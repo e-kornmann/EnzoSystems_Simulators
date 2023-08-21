@@ -1,7 +1,7 @@
 import axios from "axios";
 import scanApi from "../../../../api/scannerApi";
 
-export const setApiStatusConnected = async (accessToken: string) => {
+export const setDeviceStatusDisconnected = async (accessToken: string) => {
     try {
       const config = {
         headers: {
@@ -11,7 +11,7 @@ export const setApiStatusConnected = async (accessToken: string) => {
       };
         const response = await scanApi.put(`/status`,
         {
-            status: "connected"
+            status: "DISCONNECTED"
         },
         config
       );
@@ -20,12 +20,11 @@ export const setApiStatusConnected = async (accessToken: string) => {
       if (axios.isAxiosError(error)) {
         return error.response?.status;
       }
-      console.error('Unable to make payment:', error);
+      console.error('Unable to disconnect:', error);
       return undefined;
       
     }
   };
-
 
 
 
