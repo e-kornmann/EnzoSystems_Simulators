@@ -7,7 +7,6 @@ import TurnOnDevice from '../../../shared/TurnOnDevice';
 import useLogOn from '../../../../hooks/useLogOn';
 import { hostCredentials, reqBody } from '../../DemoApp/config';
 import { getStatus } from './utils/getStatus';
-import { setDeviceStatusDisconnected } from '../utils/setDeviceStatusDisconnected';
 import { setDeviceMode } from './utils/setDeviceMode';
 import { getScannedData } from './utils/getScannedData';
 
@@ -46,8 +45,8 @@ const BlinkingDot = styled.div<{ $isActive: boolean }>`
 
 const Content = styled.div`
   display: flex;
-  padding: 35px 5px;
-  height: 190px;
+  padding: 5px 5px;
+  height: 270px;
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
@@ -56,7 +55,7 @@ const Content = styled.div`
 
 const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     row-gap: 8px;
     flex-direction: column;
@@ -73,7 +72,7 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 20px;
+        margin-top: 10px;
         background-color: ${Sv.asphalt};
         border-radius: 5px;
         cursor: pointer;
@@ -110,8 +109,8 @@ const GetDeviceStatusText = styled.div`
 export enum DemoAppStatus {
   HOST_LOGGED_OUT,
   HOST_LOGGED_IN,
-  API_ENABLED,
-  API_DISABLED,
+  DEVICE_ENABLED,
+  DEVICE_DISABLED,
 }
 
 
@@ -119,7 +118,7 @@ export enum DemoAppStatus {
 const DemoApp = () => {
   const [hostStatus, setHostStatus] = useState(DemoAppStatus.HOST_LOGGED_OUT);
   const { token, logOn } = useLogOn(hostCredentials, reqBody, 'barcode-scanner');
-  const [deviceStatus, setDeviceStatus] = useState('');
+  const [deviceStatus, setDeviceStatus] = useState('disconnected');
   const [standByText, setStandByText] = useState<string>('OFF')
   const [init, setInit] = useState(false);
   const [scannedData, setScannedData] = useState('');
@@ -141,81 +140,83 @@ const DemoApp = () => {
             setTimeout(() => {
               setStandByText('OFF');
             }, 4000);
-            setInit(false);
-            setDeviceStatus('');
+            setInit(false)
             setHostStatus(DemoAppStatus.HOST_LOGGED_OUT)
           }
         });
-    } else {
-      setInit(false);
-      setHostStatus(DemoAppStatus.HOST_LOGGED_OUT)
-      setStandByText('OFF');
-      if (token) {
-        await setDeviceStatusDisconnected(token);
-        setDeviceStatus('');
-      }
+ 
     }
-  }, [init, logOn, token]);
+  }, [init, logOn]);
 
 
-
-
-
+  
   const enableDeviceButtonHandler = async () => {
     if (token) {
-      if (hostStatus === DemoAppStatus.HOST_LOGGED_IN || hostStatus === DemoAppStatus.API_DISABLED) {
+      if (hostStatus === DemoAppStatus.HOST_LOGGED_IN || hostStatus === DemoAppStatus.DEVICE_DISABLED) {
         const enableResponse = await setDeviceMode(token, 'enabled');
         if (enableResponse === 200) {
-          setHostStatus(DemoAppStatus.API_ENABLED);
+          setHostStatus(DemoAppStatus.DEVICE_ENABLED);
   
           // After a successful enable, automatically disable the devive after 12 seconds
           setTimeout(async () => {
             const disableResponse = await setDeviceMode(token, 'disabled');
             if (disableResponse === 200) {
-              setHostStatus(DemoAppStatus.API_DISABLED);
+              setHostStatus(DemoAppStatus.DEVICE_DISABLED);
             }
           }, 12000);
         } else {
-          setHostStatus(DemoAppStatus.API_DISABLED);
+          setHostStatus(DemoAppStatus.DEVICE_DISABLED);
         }
-      } else if (hostStatus === DemoAppStatus.API_ENABLED) {
+      } else if (hostStatus === DemoAppStatus.DEVICE_ENABLED) {
         const disableResponse = await setDeviceMode(token, 'disabled');
         if (disableResponse === 200) {
-          setHostStatus(DemoAppStatus.API_DISABLED);
+          setHostStatus(DemoAppStatus.DEVICE_DISABLED);
         } else {
-          setHostStatus(DemoAppStatus.API_ENABLED);
+          setHostStatus(DemoAppStatus.DEVICE_ENABLED);
         }
       }
     }
   };
   
 
-
+    
   useEffect(() => {
-    const intervalId = setInterval(async () => {
-      const status = await getStatus(token);
+    logInButtonHandler();
+  }, [logInButtonHandler]);
+
+
+
+  
+  useEffect(() => {
+    const intervalId = setInterval( async() => {
+      const status = await getStatus(token, deviceStatus);
       setDeviceStatus(status);
-    }, 11000); // Fetch status every 10 seconds
+    }, 500); 
 
     // Clean up the interval when the component unmounts
     return () => {
       clearInterval(intervalId);
     };
-  }, [token]);
+  }, [deviceStatus, token]);
 
 
 
   useEffect(() => {
     const fetchData = async () => { // Define an async function here
-      if (init && deviceStatus === 'connected') {
+      if (init && hostStatus === DemoAppStatus.DEVICE_ENABLED) {
         const qrData = await getScannedData(token);
-        setScannedData(qrData.scannedData);
+        if (scannedData !== qrData) {
+          setScannedData(qrData.scannedData);  
+        } else { setScannedData(`This QR code is already scanned,
+          please try another one.`)
+        }
+        
       }
     };
   
     fetchData();
   
-  }, [deviceStatus, init, token])
+  }, [hostStatus, init, scannedData, token])
 
 
   return (
@@ -223,21 +224,22 @@ const DemoApp = () => {
       <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
       <Header>Demo App</Header>
       <Content>
-
-        <Wrap $isActive={hostStatus === DemoAppStatus.HOST_LOGGED_IN} $isEnabled={hostStatus === DemoAppStatus.API_ENABLED}>
+        
+        <Wrap $isActive={hostStatus === DemoAppStatus.HOST_LOGGED_IN} $isEnabled={hostStatus === DemoAppStatus.DEVICE_ENABLED}>
+        <GetDeviceStatusText>{deviceStatus && 'QR-Scanner\nis ' + deviceStatus}</GetDeviceStatusText>
           <button type="button" disabled={hostStatus === DemoAppStatus.HOST_LOGGED_OUT } onClick={enableDeviceButtonHandler}>
-            <CrossHairIcon /><BlinkingDot $isActive={hostStatus === DemoAppStatus.API_ENABLED} /></button>
+            <CrossHairIcon /><BlinkingDot $isActive={hostStatus === DemoAppStatus.DEVICE_ENABLED} /></button>
 
           {(hostStatus !== DemoAppStatus.HOST_LOGGED_OUT && deviceStatus === 'connected') &&
             <span>
-              {hostStatus !== DemoAppStatus.API_ENABLED ? 'ACTIVATE' : 'DEACTIVATE'}<br />scan device</span>
+              {hostStatus !== DemoAppStatus.DEVICE_ENABLED ? 'ACTIVATE' : 'DEACTIVATE'}<br />scan device</span>
           }
 
 
           Scanneddata: {scannedData}
         </Wrap>
 
-        <GetDeviceStatusText>{deviceStatus && 'QR-Scanner\nis ' + deviceStatus}</GetDeviceStatusText>
+        
       </Content>
 
 

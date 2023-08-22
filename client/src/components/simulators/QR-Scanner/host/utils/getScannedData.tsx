@@ -8,7 +8,7 @@ export const getScannedData = async (accessToken: string) => {
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await scanApi.get(`/scan?longPollingSecs=2`, config);
+    const response = await scanApi.get(`/scan?longPollingSecs=10`, config);
     return response.data;
   } catch (error) {
     console.error('Error:', error);

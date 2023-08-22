@@ -230,7 +230,9 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
             }
             break;
           case OperationalState.DEVICE_COULD_NOT_CONNECT:
-            setDeviceStatus(OperationalState.DEVICE_INIT);
+            if (token) {
+              response = await setDeviceStatusDisconnected(token);
+            }
             break;
           
           case OperationalState.DEVICE_CONNECTED:

@@ -1,6 +1,6 @@
 import scanApi from "../../../../../api/scannerApi";
 
-export const getStatus = async (accessToken: string) => {
+export const getStatus = async (accessToken: string, currentStatus: string) => {
   try {
     const config = {
       headers: {
@@ -8,7 +8,7 @@ export const getStatus = async (accessToken: string) => {
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await scanApi.get(`/status?longPollingSecs=10&currentStatus=connected`, config);
+    const response = await scanApi.get(`/status?currentStatus=${currentStatus}&longPollingSecs=15`, config);
     return response.data.status;
   } catch (error) {
     console.error('Error fetching status:', error);
