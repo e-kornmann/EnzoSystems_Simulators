@@ -1,7 +1,7 @@
 import scanApi from "../../../../../api/scannerApi";
 
 
-export const setDeviceMode = async (accessToken: string, deviceMode: string) => {
+export const changeDeviceMode = async (accessToken: string, deviceMode: string) => {
     try {
       const config = {
         headers: {

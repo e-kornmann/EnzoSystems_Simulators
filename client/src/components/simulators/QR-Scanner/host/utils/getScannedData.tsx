@@ -9,9 +9,8 @@ export const getScannedData = async (accessToken: string) => {
       },
     };
     const response = await scanApi.get(`/scan?longPollingSecs=10`, config);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Error:', error);
-    return null;
   }
 };

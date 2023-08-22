@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Sv from '../../../../styles/stylevariables';
 import { Header } from '../../../shared/DraggableModal/ModalTemplate'
 import styled, { keyframes } from "styled-components";
@@ -7,14 +7,14 @@ import TurnOnDevice from '../../../shared/TurnOnDevice';
 import useLogOn from '../../../../hooks/useLogOn';
 import { hostCredentials, reqBody } from '../../DemoApp/config';
 import { getStatus } from './utils/getStatus';
-import { setDeviceMode } from './utils/setDeviceMode';
+import { changeDeviceMode } from './utils/setDeviceMode';
 import { getScannedData } from './utils/getScannedData';
 
 const DemoAppContainer = styled.div`
   display: grid;
   grid-template-rows: auto 1fr;
   position: absolute;
-  width: 100px;
+  width: 130px;
   left: 300px;
   display: flex;
   flex-direction: column;
@@ -46,7 +46,6 @@ const BlinkingDot = styled.div<{ $isActive: boolean }>`
 const Content = styled.div`
   display: flex;
   padding: 5px 5px;
-  height: 270px;
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
@@ -58,6 +57,7 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
     justify-content: flex-start;
     align-items: center;
     row-gap: 8px;
+    height: 100px;
     flex-direction: column;
     & > span {
       padding: 3px;
@@ -99,16 +99,39 @@ const GetDeviceStatusText = styled.div`
     font-weight: 400;
     justify-content: center;
     text-align: center;
-    margin-top: 30px;
+    margin-top: 10px;
     align-items: center;
     white-space: pre-line; 
   `
 
 
+  const QrData = styled.div`
+  display: grid;
+  grid-template-rows: 20px 160px;
+  padding: 10px;
 
-export enum DemoAppStatus {
-  HOST_LOGGED_OUT,
-  HOST_LOGGED_IN,
+  `
+
+  const QrDataHeader = styled.div`
+  color: white;
+  padding: 4px 6px;
+  font-size: 0.82em;
+  background-color: ${Sv.asphalt}; 
+  border-bottom: 1px solid  ${Sv.appBackground};
+  border-radius: 3px 3px 0 0;
+  
+`
+const QrDataContent = styled.div`
+  color: white;
+  padding: 4px 6px;
+  font-size: 0.82em;
+  background-color: ${Sv.asphalt}; 
+  border-radius: 0 0 3px 3px;
+`
+
+
+
+export enum DeviceMode {
   DEVICE_ENABLED,
   DEVICE_DISABLED,
 }
@@ -116,13 +139,14 @@ export enum DemoAppStatus {
 
 
 const DemoApp = () => {
-  const [hostStatus, setHostStatus] = useState(DemoAppStatus.HOST_LOGGED_OUT);
   const { token, logOn } = useLogOn(hostCredentials, reqBody, 'barcode-scanner');
   const [deviceStatus, setDeviceStatus] = useState('disconnected');
+  const [deviceMode, setDeviceMode] = useState(DeviceMode.DEVICE_DISABLED);
   const [standByText, setStandByText] = useState<string>('OFF')
   const [init, setInit] = useState(false);
   const [scannedData, setScannedData] = useState('');
-  
+  // use this ref for the first useEffect below
+  const initRef = useRef(false);
 
 
   const logInButtonHandler = useCallback(async () => {
@@ -133,90 +157,92 @@ const DemoApp = () => {
             setStandByText(' • •');
             setTimeout(() => { setStandByText('ON') }, 500);
             setInit(true);
-            setHostStatus(DemoAppStatus.HOST_LOGGED_IN)
           } else {
             setStandByText('ERROR');
-
             setTimeout(() => {
               setStandByText('OFF');
-            }, 4000);
-            setInit(false)
-            setHostStatus(DemoAppStatus.HOST_LOGGED_OUT)
-          }
-        });
- 
-    }
-  }, [init, logOn]);
+            }, 2000);
+            setInit(false);
+            }
+          })
+      } else {
+        setInit(false);
+        setStandByText('OFF');
+      }
+    }, [init, logOn]);
 
 
+    // automatically initiate logInButtonHandler ONCE when component is rendered.
+    useEffect(() => {
+      if (!initRef.current) {
+        initRef.current = true;
+        setTimeout(async() => await logInButtonHandler(), 3500);
+      }
+    }, [logInButtonHandler]);
+  
   
   const enableDeviceButtonHandler = async () => {
     if (token) {
-      if (hostStatus === DemoAppStatus.HOST_LOGGED_IN || hostStatus === DemoAppStatus.DEVICE_DISABLED) {
-        const enableResponse = await setDeviceMode(token, 'enabled');
+      if (init && deviceMode === DeviceMode.DEVICE_DISABLED) {
+        const enableResponse = await changeDeviceMode(token, 'enabled');
         if (enableResponse === 200) {
-          setHostStatus(DemoAppStatus.DEVICE_ENABLED);
+          setDeviceMode(DeviceMode.DEVICE_ENABLED);
   
           // After a successful enable, automatically disable the devive after 12 seconds
           setTimeout(async () => {
-            const disableResponse = await setDeviceMode(token, 'disabled');
+            const disableResponse = await changeDeviceMode(token, 'disabled');
             if (disableResponse === 200) {
-              setHostStatus(DemoAppStatus.DEVICE_DISABLED);
+              setDeviceMode(DeviceMode.DEVICE_DISABLED);
             }
-          }, 12000);
-        } else {
-          setHostStatus(DemoAppStatus.DEVICE_DISABLED);
+          }, 12000);      
         }
-      } else if (hostStatus === DemoAppStatus.DEVICE_ENABLED) {
-        const disableResponse = await setDeviceMode(token, 'disabled');
+      } else if (init && deviceMode === DeviceMode.DEVICE_ENABLED) {
+        const disableResponse = await changeDeviceMode(token, 'disabled');
         if (disableResponse === 200) {
-          setHostStatus(DemoAppStatus.DEVICE_DISABLED);
-        } else {
-          setHostStatus(DemoAppStatus.DEVICE_ENABLED);
-        }
+          setDeviceMode(DeviceMode.DEVICE_DISABLED);
+        } 
       }
     }
   };
   
-
-    
+  // check for changes in the device status with an interval of 500 miliseconds 
   useEffect(() => {
-    logInButtonHandler();
-  }, [logInButtonHandler]);
-
-
-
-  
-  useEffect(() => {
-    const intervalId = setInterval( async() => {
-      const status = await getStatus(token, deviceStatus);
-      setDeviceStatus(status);
-    }, 500); 
-
-    // Clean up the interval when the component unmounts
-    return () => {
-      clearInterval(intervalId);
-    };
+    if (token) {
+      setTimeout( async() => {
+        const newDeviceStatus = await getStatus(token, deviceStatus);
+        setDeviceStatus(newDeviceStatus);
+       }, 500); 
+   }
   }, [deviceStatus, token]);
 
 
-
+  // if device mode is enabled, retrieve QRdata if available
   useEffect(() => {
-    const fetchData = async () => { // Define an async function here
-      if (init && hostStatus === DemoAppStatus.DEVICE_ENABLED) {
+    if (token) {
+      setTimeout( async() => {
+      if (init && deviceMode === DeviceMode.DEVICE_ENABLED) {
         const qrData = await getScannedData(token);
-        if (scannedData !== qrData) {
-          setScannedData(qrData.scannedData);  
-        } else { setScannedData(`This QR code is already scanned,
-          please try another one.`)
+        if (qrData && qrData.status === 200 ) {
+          if (scannedData === qrData.data.scannedData) {
+          setScannedData('This QR code has already been scanned, please try another one.')
+          } else { 
+          setScannedData(qrData.data.scannedData);  
+          }
+          
+          } 
+          // disable device after a 200 repsose
+          const disableResponse = await changeDeviceMode(token, 'disabled');
+          if (disableResponse === 200) {
+            setDeviceMode(DeviceMode.DEVICE_DISABLED);
+        } else {
+          setScannedData('');  
+          return null
         }
-        
       }
-    };
-  
-    fetchData();
-  
-  }, [hostStatus, init, scannedData, token])
+     
+      }, 1000); 
+    }
+  }, [deviceMode, init, scannedData, token])
 
 
   return (
@@ -224,25 +250,29 @@ const DemoApp = () => {
       <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
       <Header>Demo App</Header>
       <Content>
-        
-        <Wrap $isActive={hostStatus === DemoAppStatus.HOST_LOGGED_IN} $isEnabled={hostStatus === DemoAppStatus.DEVICE_ENABLED}>
-        <GetDeviceStatusText>{deviceStatus && 'QR-Scanner\nis ' + deviceStatus}</GetDeviceStatusText>
-          <button type="button" disabled={hostStatus === DemoAppStatus.HOST_LOGGED_OUT } onClick={enableDeviceButtonHandler}>
-            <CrossHairIcon /><BlinkingDot $isActive={hostStatus === DemoAppStatus.DEVICE_ENABLED} /></button>
+      <GetDeviceStatusText>{'QR-Scanner\nis ' + deviceStatus}</GetDeviceStatusText>
+        <Wrap $isActive={init} $isEnabled={deviceMode === DeviceMode.DEVICE_ENABLED}>
+       
+          <button type="button" disabled={!init} onClick={enableDeviceButtonHandler}>
+            <CrossHairIcon /><BlinkingDot $isActive={deviceMode === DeviceMode.DEVICE_ENABLED} /></button>
 
-          {(hostStatus !== DemoAppStatus.HOST_LOGGED_OUT && deviceStatus === 'connected') &&
+          {(init && deviceStatus === 'connected') &&
             <span>
-              {hostStatus !== DemoAppStatus.DEVICE_ENABLED ? 'ACTIVATE' : 'DEACTIVATE'}<br />scan device</span>
+              {deviceMode !== DeviceMode.DEVICE_ENABLED ? 'ACTIVATE' : 'DEACTIVATE'}<br />scan device</span>
           }
 
-
-          Scanneddata: {scannedData}
+    
         </Wrap>
 
         
       </Content>
 
-
+      <QrData>
+          <QrDataHeader>Scanned data: </QrDataHeader>
+          <QrDataContent>
+          {scannedData}
+          </QrDataContent>
+          </QrData>
     </DemoAppContainer>
   )
 }
