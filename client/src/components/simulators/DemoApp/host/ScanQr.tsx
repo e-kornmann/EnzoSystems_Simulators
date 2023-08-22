@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Sv from '../../../../styles/stylevariables';
 import { Header } from '../../../shared/DraggableModal/ModalTemplate'
 import styled, { keyframes } from "styled-components";
-import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg'
+import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg';
 import TurnOnDevice from '../../../shared/TurnOnDevice';
 import useLogOn from '../../../../hooks/useLogOn';
-import { hostCredentials, reqBody } from '../../DemoApp/config';
+import { hostCredentials, reqBody } from '../config';
 import { getStatus } from './utils/getStatus';
 import { changeDeviceMode } from './utils/setDeviceMode';
 import { getScannedData } from './utils/getScannedData';
@@ -15,7 +15,7 @@ const DemoAppContainer = styled.div`
   grid-template-rows: auto 1fr;
   position: absolute;
   width: 130px;
-  left: 300px;
+  left: 330px;
   display: flex;
   flex-direction: column;
   border-radius: 5px;
@@ -90,10 +90,9 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
           }
         }
     }
-   
     `
 
-const GetDeviceStatusText = styled.div`
+  const GetDeviceStatusText = styled.div`
     display: flex;
     font-size: 0.75em;    
     font-weight: 400;
@@ -106,28 +105,26 @@ const GetDeviceStatusText = styled.div`
 
 
   const QrData = styled.div`
-  display: grid;
-  grid-template-rows: 20px 160px;
-  padding: 10px;
-
+    display: grid;
+    grid-template-rows: 20px 160px;
+    padding: 10px;
   `
 
   const QrDataHeader = styled.div`
-  color: white;
-  padding: 4px 6px;
-  font-size: 0.82em;
-  background-color: ${Sv.asphalt}; 
-  border-bottom: 1px solid  ${Sv.appBackground};
-  border-radius: 3px 3px 0 0;
-  
-`
-const QrDataContent = styled.div`
-  color: white;
-  padding: 4px 6px;
-  font-size: 0.82em;
-  background-color: ${Sv.asphalt}; 
-  border-radius: 0 0 3px 3px;
-`
+    color: white;
+    padding: 4px 6px;
+    font-size: 0.82em;
+    background-color: ${Sv.asphalt}; 
+    border-bottom: 1px solid  ${Sv.appBackground};
+    border-radius: 3px 3px 0 0;
+  `
+  const QrDataContent = styled.div`
+    color: white;
+    padding: 4px 6px;
+    font-size: 0.82em;
+    background-color: ${Sv.asphalt}; 
+    border-radius: 0 0 3px 3px;
+  `
 
 
 
@@ -136,9 +133,7 @@ export enum DeviceMode {
   DEVICE_DISABLED,
 }
 
-
-
-const DemoApp = () => {
+const ScanQr = () => {
   const { token, logOn } = useLogOn(hostCredentials, reqBody, 'barcode-scanner');
   const [deviceStatus, setDeviceStatus] = useState('disconnected');
   const [deviceMode, setDeviceMode] = useState(DeviceMode.DEVICE_DISABLED);
@@ -147,7 +142,6 @@ const DemoApp = () => {
   const [scannedData, setScannedData] = useState('');
   // use this ref for the first useEffect below
   const initRef = useRef(false);
-
 
   const logInButtonHandler = useCallback(async () => {
     if (!init) {
@@ -277,4 +271,4 @@ const DemoApp = () => {
   )
 }
 
-export default DemoApp
+export default ScanQr;

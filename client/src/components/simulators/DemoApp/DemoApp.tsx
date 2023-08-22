@@ -12,6 +12,7 @@ import TransactionDetails from "./TransactionDetails/TransactionDetails";
 import { IntlConfigType } from "../../../types/IntlConfigType";
 import TurnOnDevice from "../../shared/TurnOnDevice";
 import useStopTransaction from "../../../hooks/useStopTransaction";
+import ScanQr from "./host/ScanQr";
 
 const DemoAppContainer = styled.div`
   display: grid;
@@ -138,11 +139,11 @@ const DemoApp = () => {
     }
   };
 
-    // get transaction ID with the useGetTransaction hook
-    const getTransactionId = useCallback(() => {
-      setTransactionIdApp('');
-      getTransaction();
-    }, [getTransaction]);
+  // get transaction ID with the useGetTransaction hook
+  const getTransactionId = useCallback(() => {
+    setTransactionIdApp('');
+    getTransaction();
+  }, [getTransaction]);
   
 
   const stopHandler = useCallback(() => {
@@ -193,10 +194,6 @@ const DemoApp = () => {
     }
   }, [getTransaction, token, transactionIdApp]);
 
-
-
-
-
   // check if app is active
   useEffect(() => {
     if (
@@ -218,6 +215,8 @@ const DemoApp = () => {
 
   return (
     <Container>
+
+      <ScanQr />
        <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
       <Header>Demo App</Header>
       <Content>
@@ -235,7 +234,7 @@ const DemoApp = () => {
             {transactionIdApp}
             </TransactionDetailsHeader>
 
-          <TransactionDetailsContent>
+           <TransactionDetailsContent>
             
             {isActive ? ( <TransactionDetails transactionDetails={transactionDetails} />
             ): ''}

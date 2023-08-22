@@ -11,7 +11,7 @@ export const setDeviceStatusDisconnected = async (accessToken: string) => {
       };
         const response = await scanApi.put(`/status`,
         {
-            status: "DISCONNECTED"
+          status: "DISCONNECTED"
         },
         config
       );

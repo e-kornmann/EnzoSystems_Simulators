@@ -1,9 +1,16 @@
 import SuccessIcon from "../../../../shared/Success";
-import * as Sv from "../../../../../styles/stylevariables";
+
 
 type Props = {
     isDisplayed: boolean;
+    width: number;
+    height: number;
+    color: string
 }
-const CheckMark = ({ isDisplayed }: Props) => isDisplayed ? <SuccessIcon width={14} height={14} fill={Sv.enzoOrange} /> : null
+
+const CheckMark = ({ isDisplayed, width, height, color }: Props) => isDisplayed ? <SuccessIcon width={width} height={height} fill={color} /> : null
+
+
+
 
 export default CheckMark;

@@ -1,26 +1,26 @@
 {
-  "name": "thermalprinterbackend",
+  "name": "barcodescannerbackend",
   "version": "1.0.0",
   "description": "",
-  "main": "device_app.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --trace-warnings device_app.js",
-    "prod": "cross-env NODE_ENV=production node device_app.js",
+    "dev": "cross-env NODE_ENV=development nodemon --trace-warnings app.js",
+    "prod": "cross-env NODE_ENV=production node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/Enzosystems/ThermalPrinterBackend"
+    "url": "git+https://gitlab.com/Enzosystems/BarcodeScannerBackend"
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://gitlab.com/Enzosystems/ThermalPrinterBackendr#readme",
+  "homepage": "https://gitlab.com/Enzosystems/BarcodeScannerBackend#readme",
   "bugs": {
-    "url": "https://gitlab.com/Enzosystems/ThermalPrinterBackend/issues",
+    "url": "https://gitlab.com/Enzosystems/BarcodeScannerBackend/issues",
     "email": "software@enzosystems.com"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",

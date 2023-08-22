@@ -8,7 +8,7 @@ import ts from "./Translations/translations";
 import QrCodeReader from "./QrAppModi/QrCodeReader";
 import QrCodesComponent from "./QrAppModi/QrCodes";
 import { Lang } from '../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions';
-import DemoApp from './host/host';
+
 
 
 export enum QrAppModi {
@@ -71,6 +71,8 @@ const QrScanner = () => {
     const updatedQrCodes = qrCodes.filter(qrCode =>
       !qrCodesToDelete.includes(qrCode)
     );
+    // take first qrCode of list if currentQr code where the deleted one
+    if (!updatedQrCodes.includes(currentQrCode)) setCurrentQrCode(qrCodes[0]);
     setQrCodes(updatedQrCodes);
     setCurrentModus(QrAppModi.QR_SCANNER);
   };
@@ -78,8 +80,6 @@ const QrScanner = () => {
 
   return (
     <Container>
-       
-      <DemoApp />
       <NavigationHeader>
         <div>
           {currentModus === QrAppModi.EDIT_QR ||
@@ -94,12 +94,8 @@ const QrScanner = () => {
       </NavigationHeader>
         
       <QrCodeReader modusSetterHandler={modusSetterHandler} currentQrCode={currentQrCode} />
-      
       <QrForm updateQrCodeHandler={updateQrCodeHandler} saveNewQrCodeHandler={saveNewQrCodeHandler} currentModus={currentModus} qrCodeToEdit={qrCodeToEdit} /> 
-
-      <QrCodesComponent qrCodes={qrCodes} modusSetterHandler={modusSetterHandler} selectQrCodeHandler={selectQrCodeHandler} currentModus={currentModus} currentQrCode={currentQrCode} deleteQrCodesHandler={deleteQrCodesHandler}/> 
-
-
+      <QrCodesComponent qrCodes={qrCodes} modusSetterHandler={modusSetterHandler} selectQrCodeHandler={selectQrCodeHandler} currentModus={currentModus} currentQrCode={currentQrCode} deleteQrCodesHandler={deleteQrCodesHandler}/>   
     </Container>
   );
 };

@@ -69,7 +69,7 @@ function App() {
           modalWidth={'300px'}
           modalHeight={'500px'}
         />
-             <DraggableModal
+        <DraggableModal
           isShown={simulators.QrScanner}
           hide={() => showSimulatorHandler('QrScanner')}
           headerText=""

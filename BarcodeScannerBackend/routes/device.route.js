@@ -1,17 +1,11 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
-const deviceController = require('../controllers/device.controller');
-
-// host specific routes
-router.get('/status', deviceController.getDeviceStatus);
-router.put('/mode', deviceController.setDeviceMode);
-router.get('/scan', deviceController.getScan);
+const controller = require('../controllers/device.controller');
 
 // device specific routes
-router.put('/status', deviceController.setDeviceStatus);
-router.post('/scan', deviceController.newScan);
+router.put('/status', controller.setStatus);
 
-// shared routes
-router.get('/mode', deviceController.getDeviceMode);
+router.get('/active-session', controller.getSession);
+router.put('/active-session', controller.updateSession);
 
 module.exports = router;

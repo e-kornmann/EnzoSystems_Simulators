@@ -11,7 +11,7 @@ export const setDeviceStatusConnected = async (accessToken: string) => {
       };
         const response = await scanApi.put(`/status`,
         {
-            status: "CONNECTED"
+          status: "CONNECTED"
         },
         config
       );

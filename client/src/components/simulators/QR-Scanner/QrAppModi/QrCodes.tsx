@@ -23,11 +23,18 @@ export const Wrap = styled.div`
   column-gap: 8px;
 `;
 
-const SelectionDiv = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
+const SelectionDiv = styled.div<{$isSelected: boolean}>`
+  display: flex;
+  align-items: center;
+  width: 12px;
+  height: 12px;
+  border: 1px solid ${props => props.$isSelected ? Sv.enzoOrange : Sv.asphalt};
+  border-radius: 1px;
   cursor: pointer;
+  background-color: ${props => props.$isSelected ? Sv.enzoOrange : 'white'};
+  & > svg {
+    margin-left: 1px;
+  }
 `;
 
 type Props = {
@@ -98,17 +105,15 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
               {currentModus === QrAppModi.DEL_QR && (
                 <SelectionDiv
                   onClick={() => {
-                   
                     toggleSelectedQrCodeForDeletion(qr);
                   }}
-                  style={{
-                    backgroundColor: selectedQrCodesForDeletion.includes(qr) ? "black" : "white",
-                  }}
-                />
+                  $isSelected={selectedQrCodesForDeletion.includes(qr)}
+                ><Checkmark isDisplayed={selectedQrCodesForDeletion.includes(qr)} width={9} height={6} color={Sv.asphalt}/>
+                </SelectionDiv>
               )}
               <span>{qr.name}</span>
             </Wrap>
-            {currentModus !== QrAppModi.EDIT_LIST && currentModus !== QrAppModi.DEL_QR && <Checkmark isDisplayed={currentQrCode === qr }/> }
+            {currentModus !== QrAppModi.EDIT_LIST && currentModus !== QrAppModi.DEL_QR && <Checkmark isDisplayed={currentQrCode === qr } width={14} height={11} color={Sv.enzoOrange}/> }
           </S.GenericListButton>
         ))}
       </S.GenericList>

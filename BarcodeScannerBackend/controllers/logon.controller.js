@@ -80,7 +80,7 @@ async function createToken (req, res) {
         res.status(httpStatus.StatusCodes.BAD_REQUEST);
         throw new Error(`Body contains invalid deviceId value, should be: \'${process.env.DEVICE_ID}\'`);
       }
-    } else { // if (req.body.hostId) 
+    } else { // if (req.body.hostId)
       accessPayload = { type: 'host', user: req.body.hostId };
     }
     // else {

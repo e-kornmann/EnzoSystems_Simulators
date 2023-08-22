@@ -1,8 +1,6 @@
 import axios from "axios";
 import scanApi from "../../../../api/scannerApi";
 
-
-
 export const postScannedData = async (accessToken: string, qrData: string) => {
     try {
         const config = {

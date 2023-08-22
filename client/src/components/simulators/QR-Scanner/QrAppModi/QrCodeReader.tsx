@@ -17,6 +17,7 @@ import { setDeviceStatusConnected } from "../utils/setDeviceStatusConnected";
 import { setDeviceStatusDisconnected } from "../utils/setDeviceStatusDisconnected";
 import { getDeviceMode } from "../utils/getDeviceMode";
 import { postScannedData } from "../utils/postScannedData";
+import CrossIcon from "../../../shared/Fail";
 
 const QrScannerWrapper = styled.div`
   display: grid;
@@ -32,7 +33,8 @@ const InstructionBox = styled.div`
   & > span {
   white-space: pre-line;
   text-align: center;
-  font-size: 1.25em;
+  font-size: 1.15em;
+  line-height: 1.23em;
   font-weight: 500;
   } 
 `
@@ -91,6 +93,16 @@ const ScanActionButton = styled.button`
   }
   `;
 
+
+
+  const AnimatedQr = styled.div`
+    width: 40%;
+    height: 40%;
+    position: absolute;
+    left: 30px;
+
+  `
+
   export enum OperationalState {
     DEVICE_NOPOWER,
     DEVICE_START_UP,
@@ -102,25 +114,22 @@ const ScanActionButton = styled.button`
     API_OUTOFORDER,
     DEVICE_DISABLED,
     DEVICE_TIMEOUT,
-    API_SCANFAILED,
-    API_SCANSUCCESS,
+    DEVICE_IS_SCANNING,
+    API_SCAN_FAILED,
+    API_SCAN_SUCCESS,
   }
-
 
 type Props = {
   modusSetterHandler: (modus: QrAppModi) => void;
   currentQrCode: QrCode;
 }
 const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
+  const [init, setInit] = useState(false);
   const [deviceStatus, setDeviceStatus] = useState<OperationalState>(OperationalState.DEVICE_START_UP);
   const [instructionText, setInstructionText] = useState('');
   const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'barcode-scanner');
   const [standByText, setStandByText] = useState<string>('OFF')
-  const [init, setInit] = useState(false);
-  
 
-
-  
   
   const logInButtonHandler = useCallback(async () => {
     if (!init) {
@@ -130,6 +139,7 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
               setStandByText(' • •');  
               setTimeout(() => {
                 setStandByText('ON');
+                setInit(true);
                 setDeviceStatus(OperationalState.DEVICE_INIT)}, 500);   
               } else {
               setStandByText('ERROR');  
@@ -172,7 +182,7 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
         break;
       case OperationalState.DEVICE_INIT:
         setInstructionText('');
-        waitTime = 1500;
+        waitTime = 1000;
         break;
       case OperationalState.DEVICE_CONNECTED:
         setInstructionText(`Device CONNECTED,\nbut not activated`);
@@ -195,7 +205,15 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
         setInstructionText('TIME OUT');
         waitTime = 2500; 
         break;
-      case OperationalState.API_SCANSUCCESS:
+      case OperationalState.DEVICE_IS_SCANNING:
+        setInstructionText('Scanning...');
+        waitTime = 5500; 
+        break;
+      case OperationalState.API_SCAN_FAILED:
+        setInstructionText('Scan failed');
+        waitTime = 2500; 
+        break;
+      case OperationalState.API_SCAN_SUCCESS:
         setInstructionText('SUCCESS');
         waitTime = 2500; 
         break;
@@ -216,10 +234,8 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
             if (token) {
               response = await setDeviceStatusConnected(token);
               if (response !== 200) {
-                setInit(false);
                 setDeviceStatus(OperationalState.DEVICE_COULD_NOT_CONNECT);
               } else {
-                setInit(true);
                 setDeviceStatus(OperationalState.DEVICE_CONNECTED);
               }
             }
@@ -234,12 +250,11 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
               response = await setDeviceStatusDisconnected(token);
             }
             break;
-          
           case OperationalState.DEVICE_CONNECTED:
             if (token) {
               // if still connected look if mode is needs to be set to ENABLED
-              const mode = await getDeviceMode(token);
-              if (mode === 'enabled') {
+              const newMode = await getDeviceMode(token, 'disabled');
+              if (newMode === 'enabled') {
                 setDeviceStatus(OperationalState.DEVICE_ENABLED);
               } else {
                 checkCounter++;
@@ -249,7 +264,6 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
                 if (token) {
                   response = await setDeviceStatusConnected(token);
                   if (response !== 200) {
-                    setInit(false);
                     setDeviceStatus(OperationalState.DEVICE_COULD_NOT_CONNECT);
                   }
                 }
@@ -258,21 +272,28 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
             break;
           case OperationalState.DEVICE_ENABLED:
             if (token) {
-              const mode = await getDeviceMode(token);
-              if (mode === 'disabled') {
+              const newMode = await getDeviceMode(token, 'enabled');
+              if (newMode === 'disabled') {
                 setDeviceStatus(OperationalState.DEVICE_DISABLED);
               } else {
                 checkCounter++;
               }
-              // at the time of this writing, the timer at the host is set up to 11500 miliseconds.
               if (checkCounter >= 11) {
                 setDeviceStatus(OperationalState.DEVICE_TIMEOUT);
               }
             }
             break;
+          case OperationalState.DEVICE_IS_SCANNING:
+            if (token) {
+              const res = await postScannedData(token, currentQrCode.data);
+            if (res.result === 'success')
+              setDeviceStatus(OperationalState.API_SCAN_SUCCESS);
+            }
+            break;
           case OperationalState.DEVICE_DISABLED:
           case OperationalState.DEVICE_TIMEOUT:  
-          case OperationalState.API_SCANSUCCESS: 
+          case OperationalState.API_SCAN_SUCCESS: 
+          case OperationalState.API_SCAN_FAILED:
             init === false ? setDeviceStatus(OperationalState.API_OUTOFORDER) : setDeviceStatus(OperationalState.DEVICE_INIT);
             break;
 
@@ -285,18 +306,13 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
         clearInterval(intervalId);
       }
     };
-  }, [deviceStatus, init, logInButtonHandler, token]);
+  }, [currentQrCode.data, deviceStatus, init, logInButtonHandler, token]);
 
 
 
   const scanQrButtonHandler = async() => {
-    const res = await postScannedData(token, currentQrCode.data);
-    if (res.result === 'success')
-
-      setDeviceStatus(OperationalState.API_SCANSUCCESS);
+    setDeviceStatus(OperationalState.DEVICE_IS_SCANNING);
   }
-
-  
 
 
   return (
@@ -308,11 +324,18 @@ const QrCodeReader = ({modusSetterHandler, currentQrCode }: Props) => {
       {/* {Show loading dots by start-up} */}
       { deviceStatus === OperationalState.DEVICE_START_UP || deviceStatus === OperationalState.DEVICE_INIT && <Loading />}  
        <span> { instructionText }</span></InstructionBox>
-      <IconBox>{ deviceStatus === OperationalState.API_SCANSUCCESS ? <SuccessIcon width={30} height={30} fill={Sv.green} /> : null }</IconBox>
-      <ScannerBox><AnimatedCrossHair animate={deviceStatus === OperationalState.DEVICE_ENABLED}/></ScannerBox>
+      <IconBox>
+        { deviceStatus === OperationalState.API_SCAN_SUCCESS && <SuccessIcon width={30} height={30} fill={Sv.green} />  }
+        { deviceStatus === OperationalState.API_SCAN_FAILED && <CrossIcon width={30} height={30} fill={Sv.red} /> }
+      
+      </IconBox>
+      <ScannerBox>
+       { deviceStatus === OperationalState.DEVICE_IS_SCANNING && <AnimatedQr><QrCodeIcon width={130} height={130} /></AnimatedQr> }
+        <AnimatedCrossHair animate={deviceStatus === OperationalState.DEVICE_ENABLED}/>
+      </ScannerBox>
      <ButtonBox> 
-      <ScanActionButton type="button" onClick={scanQrButtonHandler} disabled={!currentQrCode.name || !currentQrCode.data}>
-        <QrCodeIcon width={15} height={15} /><span>{ !currentQrCode.name ? 'No Qr-Codes' : currentQrCode.name }</span></ScanActionButton>
+      <ScanActionButton type="button" onClick={scanQrButtonHandler} disabled={!currentQrCode.name || !currentQrCode.data || deviceStatus !== OperationalState.DEVICE_ENABLED }>
+        <QrCodeIcon width={15} height={15} /><span>{ !currentQrCode.name ? 'No Qr-Codes' : 'Scan: '+ currentQrCode.name }</span></ScanActionButton>
      </ButtonBox>
     <GenericFooter>
         <div onClick={()=> modusSetterHandler(QrAppModi.NEW_QR)}><AddIcon/>New</div>

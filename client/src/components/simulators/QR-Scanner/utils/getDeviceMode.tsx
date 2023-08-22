@@ -2,7 +2,7 @@ import axios from "axios";
 import scanApi from "../../../../api/scannerApi";
 
 
-export const getDeviceMode = async (accessToken: string) => {
+export const getDeviceMode = async (accessToken: string, currentModus: string) => {
     try {
       const config = {
         headers: {
@@ -10,8 +10,7 @@ export const getDeviceMode = async (accessToken: string) => {
           authorization: `Bearer ${accessToken}`,
         },
       };
-        const response = await scanApi.get(`/mode`,
- 
+        const response = await scanApi.get(`/mode?currentMode=${currentModus}&longPollingSecs=15`,
         config
       );
       return response.data.mode
@@ -21,7 +20,6 @@ export const getDeviceMode = async (accessToken: string) => {
       }
       console.error('Unable to get mode:', error);
       return undefined;
-      
     }
   };
 
