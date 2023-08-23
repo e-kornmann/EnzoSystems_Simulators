@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import * as Sv from "../../../../styles/stylevariables";
 import { QrAppModi, QrCode } from "..";
 
-const QrCodesWrapper = styled.form`
+const QrCodesWrapper = styled.div`
   position: absolute;
   top: 35px;
   height: calc(100% - 35px);
@@ -64,6 +64,9 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
     }
   
     }, [currentModus])
+
+
+        
 
 
   

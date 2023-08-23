@@ -27,9 +27,11 @@ export const StyledModal = styled.div<Props>`
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
 	pointer-events: auto;
 `
+
+// for now don't display it
 export const CloseButton = styled.button`
 	position: absolute;
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
 	right: 0;
@@ -98,7 +100,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'x' && isShown) {
+      if (event.ctrlKey && event.key === "x" && isShown) {
         hide();
       }
     };

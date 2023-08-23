@@ -51,7 +51,10 @@ export const GenericFooter = styled.footer`
     color: ${Sv.enzoOrange};
     font-size: 0.80em;
     cursor: pointer;
-    margin-right: 4px;
+    &:last-of-type {
+      margin-right: 4px;
+    }
+    
     &:disabled  
     {
       color: ${Sv.gray};
@@ -60,13 +63,21 @@ export const GenericFooter = styled.footer`
   & > svg {
     margin: 2px;
   }
+  
   & > div {
-    margin-right: 5px;
+    cursor: pointer;
+    width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     column-gap: 5px;
     align-items: center;
     color: ${Sv.asphalt};
+    &:first-of-type {
+      justify-content: flex-start;
+    }
+    &:last-of-type {
+      justify-content: flex-end;
+    }
     & > svg {
       fill: ${Sv.asphalt};
     }

@@ -1,4 +1,4 @@
-import { AppContext } from './utils/settingsReducer';
+import { AppContext, AppContextProvider } from './utils/settingsReducer';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import { Loading } from '../../shared/Loading';
@@ -317,7 +317,8 @@ const PaymentTerminal = () => {
   }, [terminalState]);
 
   return (
-    <>
+  
+      <AppContextProvider>
       <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <Container>
@@ -349,15 +350,14 @@ const PaymentTerminal = () => {
         </Content>
         <Footer>
 
-            <SettingsIcon width={13} height={13} onClick={settingsButtonHandler}
-            />
+            <div><SettingsIcon width={13} height={13} onClick={settingsButtonHandler} /></div>
           <div onClick={payProviderButtonHandler}>
             <PayProvider width={30} height={22} border={true} provider={state.schemeInUse} />
             <ExpandIcon width={12} height={8} />
           </div>
         </Footer>
       </Container>
-    </>
+      </AppContextProvider>
   );
 };
 

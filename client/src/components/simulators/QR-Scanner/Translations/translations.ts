@@ -69,6 +69,30 @@ const translations: Translations = {
       [Lang.GERMAN]: '..',
     },
   ],
+  settings: [
+    {
+      [Lang.DUTCH]: '..',
+      [Lang.ENGLISH]: 'Settings',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  operationalMode: [
+    {
+      [Lang.DUTCH]: 'Operationele modus',
+      [Lang.ENGLISH]: 'Operational mode',
+      [Lang.FRENCH]: 'Mode opérationnel',
+      [Lang.GERMAN]: 'Betriebsmodus',
+    },
+  ],
+  defaultLanguage: [
+    {
+      [Lang.DUTCH]: 'Standaardtaal',
+      [Lang.ENGLISH]: 'Default Language',
+      [Lang.FRENCH]: 'Langue par défaut',
+      [Lang.GERMAN]: 'Standardsprache',
+    },
+  ],
   }
 
   // Use indexed if you need a second line in a different element, i.e., a subline.

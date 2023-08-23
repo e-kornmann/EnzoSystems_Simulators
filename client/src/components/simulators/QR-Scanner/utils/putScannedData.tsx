@@ -15,7 +15,7 @@ export const putScannedData = async (accessToken: string, qrData: string) => {
             },
             config
         );
-        return response.data.metadata;
+        return response.status;
     } catch (error) {
         if (axios.isAxiosError(error)) {
             return error.response?.status;

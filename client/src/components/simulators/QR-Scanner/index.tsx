@@ -4,11 +4,13 @@ import { ReactComponent as Arrow } from '../../../assets/svgs/arrow_back.svg'
 import { styled } from 'styled-components';
 import { Container, Header } from "../../shared/DraggableModal/ModalTemplate";
 import QrForm from "./QrAppModi/QrForm";
-import ts from "./Translations/translations";
+
 import QrCodeReader from "./QrAppModi/QrCodeReader";
 import QrCodesComponent from "./QrAppModi/QrCodes";
 import { Lang } from '../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions';
-
+import { AppContextProvider } from './utils/settingsReducer';
+import DeviceSettings from './QrAppModi/DeviceSettings/DeviceSettings';
+import ts from './Translations/translations';
 
 
 export enum QrAppModi {
@@ -18,6 +20,9 @@ export enum QrAppModi {
   EDIT_QR = 'editQrForm',
   DEL_QR = 'deleteQr',
   QR_CODES = 'qrCodes',
+  SETTINGS = 'settings',
+  SET_LANGUAGE = 'defaultLanguage',
+  SET_MODE = 'operationalMode'
 }
 
 export type QrCode = {
@@ -31,11 +36,13 @@ const NavigationHeader = styled(Header)`
 `;
 
 const QrScanner = () => {
+
   const [currentModus, setCurrentModus] = useState(QrAppModi.QR_SCANNER);
   const [currentQrCode, setCurrentQrCode] = useState<QrCode>({ name: '', data: '' });
   const [qrCodeToEdit, setQrCodeToEdit] = useState<QrCode>({ name: '', data: '' });
   const modusSetterHandler = (modus: QrAppModi) => setCurrentModus(modus);
   const [qrCodes, setQrCodes] = useState<QrCode[]>([]);
+
 
   //select QR code to edit or to show and save to currentQrCode
   const selectQrCodeHandler = (selectedQrCode: QrCode) => {
@@ -71,33 +78,49 @@ const QrScanner = () => {
     const updatedQrCodes = qrCodes.filter(qrCode =>
       !qrCodesToDelete.includes(qrCode)
     );
-    // take first qrCode of list if currentQr code where the deleted one
+    // take the first qrCode from the list if the currentQr code where the deleted one
     if (!updatedQrCodes.includes(currentQrCode)) setCurrentQrCode(qrCodes[0]);
-    setQrCodes(updatedQrCodes);
-    setCurrentModus(QrAppModi.QR_SCANNER);
+      setQrCodes(updatedQrCodes);
+      setCurrentModus(QrAppModi.QR_SCANNER);
   };
+
+    
 
 
   return (
-    <Container>
-      <NavigationHeader>
-        <div>
-          {currentModus === QrAppModi.EDIT_QR ||
-            currentModus === QrAppModi.DEL_QR &&
-            <Arrow width={12} height={12} onClick={() => setCurrentModus(QrAppModi.QR_CODES)} style={{ top: '2px' }} />}
-        </div>
-        {ts(currentModus, Lang.ENGLISH)}
-        <div>
-          {currentModus !== QrAppModi.QR_SCANNER &&
-            <CloseIcon width={11} height={11} onClick={() => { setCurrentModus(QrAppModi.QR_SCANNER) }} />}
-        </div>
-      </NavigationHeader>
-        
-      <QrCodeReader modusSetterHandler={modusSetterHandler} currentQrCode={currentQrCode} />
-      <QrForm updateQrCodeHandler={updateQrCodeHandler} saveNewQrCodeHandler={saveNewQrCodeHandler} currentModus={currentModus} qrCodeToEdit={qrCodeToEdit} /> 
-      <QrCodesComponent qrCodes={qrCodes} modusSetterHandler={modusSetterHandler} selectQrCodeHandler={selectQrCodeHandler} currentModus={currentModus} currentQrCode={currentQrCode} deleteQrCodesHandler={deleteQrCodesHandler}/>   
-    </Container>
+    <AppContextProvider>
+
+      <Container>
+
+        <NavigationHeader>
+          <div>
+            { currentModus === QrAppModi.EDIT_QR ||
+              currentModus === QrAppModi.DEL_QR &&
+              <Arrow width={12} height={12} onClick={() => modusSetterHandler(QrAppModi.QR_CODES)} style={{ top: '2px' }} />}
+
+          </div>
+          {ts(currentModus, Lang.ENGLISH)}
+          <div>
+            {currentModus !== QrAppModi.QR_SCANNER &&
+              <CloseIcon width={11} height={11} onClick={() => { setCurrentModus(QrAppModi.QR_SCANNER) }} />}
+          </div>
+        </NavigationHeader>
+
+        <QrCodeReader modusSetterHandler={modusSetterHandler} currentQrCode={currentQrCode} />
+        {(
+          currentModus !== QrAppModi.QR_SCANNER &&
+          currentModus !== QrAppModi.NEW_QR &&
+          currentModus !== QrAppModi.EDIT_LIST &&
+          currentModus !== QrAppModi.EDIT_QR &&
+          currentModus !== QrAppModi.DEL_QR &&
+          currentModus !== QrAppModi.QR_CODES
+          ) && <DeviceSettings modusSetterHandler={modusSetterHandler} />}
+        <QrForm updateQrCodeHandler={updateQrCodeHandler} saveNewQrCodeHandler={saveNewQrCodeHandler} currentModus={currentModus} qrCodeToEdit={qrCodeToEdit} />
+        <QrCodesComponent qrCodes={qrCodes} modusSetterHandler={modusSetterHandler} selectQrCodeHandler={selectQrCodeHandler} currentModus={currentModus} currentQrCode={currentQrCode} deleteQrCodesHandler={deleteQrCodesHandler} />
+      </Container>
+    </AppContextProvider>
   );
 };
 
 export default QrScanner;
+
