@@ -1,7 +1,8 @@
 import axios from "axios";
 import scanApi from "../../../../api/scannerApi";
 
-export const setDeviceStatusConnected = async (accessToken: string) => {
+
+export const getSession = async (accessToken: string) => {
     try {
       const config = {
         headers: {
@@ -9,20 +10,16 @@ export const setDeviceStatusConnected = async (accessToken: string) => {
           authorization: `Bearer ${accessToken}`,
         },
       };
-        const response = await scanApi.put(`/status`,
-        {
-          status: "CONNECTED"
-        },
+        const response = await scanApi.get(`/active-session`,
         config
       );
-      return response.status
+      return response.data.metadata;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        return error.response?.status;
+        return error.response;
       }
-      console.error('Unable to connect:', error);
+      console.error('Unable to get mode:', error);
       return undefined;
-      
     }
   };
 

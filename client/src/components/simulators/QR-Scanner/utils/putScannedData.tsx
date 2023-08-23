@@ -1,7 +1,7 @@
 import axios from "axios";
 import scanApi from "../../../../api/scannerApi";
 
-export const postScannedData = async (accessToken: string, qrData: string) => {
+export const putScannedData = async (accessToken: string, qrData: string) => {
     try {
         const config = {
             headers: {
@@ -9,13 +9,13 @@ export const postScannedData = async (accessToken: string, qrData: string) => {
                 authorization: `Bearer ${accessToken}`,
             },
         };
-        const response = await scanApi.post(`/scan`,
+        const response = await scanApi.put(`/active-session`,
             {
-                scannedData: qrData
+                barcodeData: qrData
             },
             config
         );
-        return response.data;
+        return response.data.metadata;
     } catch (error) {
         if (axios.isAxiosError(error)) {
             return error.response?.status;
