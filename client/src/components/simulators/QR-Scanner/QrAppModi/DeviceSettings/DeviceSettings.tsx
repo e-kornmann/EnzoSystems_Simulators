@@ -9,8 +9,6 @@ import { QrAppModi } from '../..';
 import { SettingModes } from '../../utils/settingsReducer';
 import * as Sv from '../../../../../styles/stylevariables';
 
-
-
 export const SettingsWrapper = styled.div`
   position: absolute;
   top: 35px;

@@ -17,6 +17,7 @@ const CurrencyOptions = () => {
 
   const onChangeEventHandler = (currency: CurrencyCode) => {
     dispatch({ type: SettingModes.CURRENCY, payload: currency });
+    // hier de local storage updaten,
   };
 
   return (

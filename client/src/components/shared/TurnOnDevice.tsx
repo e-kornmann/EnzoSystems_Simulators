@@ -52,7 +52,7 @@ const Wrap = styled.div<{ $isLoggedIn: boolean }>`
 type Props = {
   init: boolean;
   logInButtonHandler: () => void;
-  standByText : string;
+  standByText? : string;
 };
 
 const TurnOnDevice = ({ init, logInButtonHandler, standByText}: Props) => {

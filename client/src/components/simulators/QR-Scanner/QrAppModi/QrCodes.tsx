@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
 import Checkmark from "./checkmark";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as Sv from "../../../../styles/stylevariables";
 import { QrAppModi, QrCode } from "..";
+import { DeleteDialog } from "./DeleteDialog";
 
 const QrCodesWrapper = styled.div`
   position: absolute;
@@ -44,15 +45,20 @@ type Props = {
   currentModus: QrAppModi;
   currentQrCode: QrCode;
   deleteQrCodesHandler: (qrCodesToDelete: QrCode[]) => void;
-  
 };
 
 const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, currentModus, currentQrCode, deleteQrCodesHandler }: Props) => {
-  
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [selectedQrCodesForDeletion, setSelectedQrCodesForDeletion] = useState<QrCode[]>([]);
     const [allSelected, setAllSelected] = useState(false);
     const [showQrCodes, setShowQrCodes] = useState(false);
     
+    const toggleShowComponent = useCallback(()=>{
+      setShowDeleteDialog(!showDeleteDialog);
+    }, [showDeleteDialog])
+
+
+
     useEffect(()=>  {
       if (
       currentModus === QrAppModi.QR_CODES || 
@@ -62,14 +68,8 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
     } else {
       setShowQrCodes(false);
     }
-  
     }, [currentModus])
 
-
-        
-
-
-  
     const toggleSelectedQrCodeForDeletion = (qrCode: QrCode) => {
       if (selectedQrCodesForDeletion.includes(qrCode)) {
         setSelectedQrCodesForDeletion(selectedQrCodesForDeletion.filter((code) => code !== qrCode));
@@ -101,6 +101,7 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
 
     showQrCodes &&
     <QrCodesWrapper>
+     
       <S.GenericList>
         {qrCodes.map((qr, index) => (
           <S.GenericListButton type="button" key={`${qr}_${index}`} onClick={() => selectQrCodeHandler(qr)}>
@@ -126,7 +127,8 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
         { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>Edit</button> }
         { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>Delete</button> }
         { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={selectOrDeselectAllHandler}>{ allSelected ? 'Deselect all' : 'Select all' }</button>}
-        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={() => deleteQrCodesHandler(selectedQrCodesForDeletion)} disabled={selectedQrCodesForDeletion.length === 0 }>Delete</button>}
+        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={toggleShowComponent} disabled={selectedQrCodesForDeletion.length === 0 }>Delete</button>}
+        <DeleteDialog deleteQrCodesHandler={deleteQrCodesHandler} toggleShowComponent={toggleShowComponent} showComponent={showDeleteDialog} selectedQrCodesForDeletion={selectedQrCodesForDeletion}></DeleteDialog>
         </S.GenericFooter>
       )}
     </QrCodesWrapper>
