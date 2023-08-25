@@ -1,0 +1,43 @@
+import styled from "styled-components";
+import { ReactComponent as DragIcon } from '../../../assets/svgs/drag-icon.svg';
+import * as Sv from "../../../styles/stylevariables";
+
+const IframeContainer = styled.div`
+  height: 100%; 
+  overflow: hidden; 
+`
+const DragIconWrapper = styled.div`
+ display: grid;
+ justify-content: center; 
+ align-content: flex-start;
+ padding: 8px;
+ width: 100%;
+ height: 50px;
+ background-color: ${Sv.gray};
+ border-radius: 5px 5px;
+ position: absolute;
+ top: -40px;
+ z-index: -1;
+`
+  const StyledIframe = styled.iframe`
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ccc;
+  padding: 0;
+  margin: 0;
+`
+
+const KeyEncoderIframe = () => {
+  return (
+    
+  <IframeContainer>
+    <DragIconWrapper>
+      <DragIcon width={20} height={20} />
+      </DragIconWrapper>
+    <StyledIframe src="http://localhost:6968/" />
+  </IframeContainer>
+
+  )
+}
+
+export default KeyEncoderIframe

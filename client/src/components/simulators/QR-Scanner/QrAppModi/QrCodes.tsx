@@ -1,10 +1,12 @@
 import styled from "styled-components";
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
 import Checkmark from "./checkmark";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import * as Sv from "../../../../styles/stylevariables";
 import { QrAppModi, QrCode } from "..";
 import { DeleteDialog } from "./DeleteDialog";
+import { AppContext } from "../utils/settingsReducer";
+import ts from "../Translations/translations";
 
 const QrCodesWrapper = styled.div`
   position: absolute;
@@ -16,6 +18,19 @@ const QrCodesWrapper = styled.div`
   display: grid;
   grid-template-rows: 1fr auto; 
   z-index: 400;
+`;
+
+const NoQrCodesMessage = styled.div`
+  width: 100%;
+  height: 16%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  white-space: pre-line;
+  text-align: center;
+  font-size: 1.15em;
+  line-height: 1.23em;
+  font-weight: 500;
 `;
 
 export const Wrap = styled.div`
@@ -52,6 +67,7 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
     const [selectedQrCodesForDeletion, setSelectedQrCodesForDeletion] = useState<QrCode[]>([]);
     const [allSelected, setAllSelected] = useState(false);
     const [showQrCodes, setShowQrCodes] = useState(false);
+    const { state } = useContext(AppContext);
     
     const toggleShowComponent = useCallback(()=>{
       setShowDeleteDialog(!showDeleteDialog);
@@ -101,11 +117,12 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
 
     showQrCodes &&
     <QrCodesWrapper>
-     
+           { qrCodes.length === 0 && <NoQrCodesMessage>{ `You don't have\n any QR-codes `}</NoQrCodesMessage>}
       <S.GenericList>
         {qrCodes.map((qr, index) => (
           <S.GenericListButton type="button" key={`${qr}_${index}`} onClick={() => selectQrCodeHandler(qr)}>
             <Wrap>
+      
               {currentModus === QrAppModi.DEL_QR && (
                 <SelectionDiv
                   onClick={() => {
@@ -123,11 +140,11 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
       </S.GenericList>
       {currentModus !== QrAppModi.EDIT_LIST && (
         <S.GenericFooter>
-        { currentModus !== QrAppModi.DEL_QR && <button type="button" onClick={()=>modusSetterHandler(QrAppModi.NEW_QR)}>New</button> }       
-        { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>Edit</button> }
-        { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>Delete</button> }
+        { currentModus !== QrAppModi.DEL_QR && <button type="button" onClick={()=>modusSetterHandler(QrAppModi.NEW_QR)}>{ts('new', state.language)}</button> }       
+        { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>{ts('edit', state.language)}</button> }
+        { currentModus !== QrAppModi.DEL_QR && <button onClick={()=>modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>{ts('delete', state.language)}</button> }
         { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={selectOrDeselectAllHandler}>{ allSelected ? 'Deselect all' : 'Select all' }</button>}
-        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={toggleShowComponent} disabled={selectedQrCodesForDeletion.length === 0 }>Delete</button>}
+        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={toggleShowComponent} disabled={selectedQrCodesForDeletion.length === 0 }>{ts('delete', state.language)}</button>}
         <DeleteDialog deleteQrCodesHandler={deleteQrCodesHandler} toggleShowComponent={toggleShowComponent} showComponent={showDeleteDialog} selectedQrCodesForDeletion={selectedQrCodesForDeletion}></DeleteDialog>
         </S.GenericFooter>
       )}

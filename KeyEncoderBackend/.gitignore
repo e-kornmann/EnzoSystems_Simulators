@@ -1,0 +1,8 @@
+# Npm modules directory
+node_modules/
+
+# dotenv environment variables file
+.env
+
+# Visual Studio Code directory
+.vscode/

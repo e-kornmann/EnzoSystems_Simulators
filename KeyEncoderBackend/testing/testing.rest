@@ -1,0 +1,148 @@
+### Get Health info
+GET http://localhost:9001/api/simulator/key-encoder/v1/health
+
+
+####################################################################################
+### Log-on host/device with username/password and exchange for access token (24 hours valid)
+####################################################################################
+
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTI4MTY5OTAsImV4cCI6MTY5MjkwMzM5MCwiaXNzIjoiRW56b3N5c3RlbXMifQ.fZ5iXaeMkmZXaT1UEavzhv4oO_XBwYPc3VxGEb7yMDA
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkyODc3NzEwLCJleHAiOjE2OTI5NjQxMTAsImlzcyI6IkVuem9zeXN0ZW1zIn0.SSJpM8GK3MhXto_gA9wcE5tqrZCBxBv6jJD61_erTqk
+
+### DEVICE
+POST http://localhost:9001/api/simulator/key-encoder/v1/auth
+Content-type: application/json
+Authorization: Basic device:device
+
+{
+  "deviceId": "KeyEncoder"
+}
+
+### HOST
+POST http://localhost:9001/api/simulator/key-encoder/v1/auth
+Content-type: application/json
+Authorization: Basic host:host
+
+{
+  "hostId": "DEMOAPP"
+}
+
+####################################################################################
+### Set device status and connect it to the back-end (DEVICE only, call on regular base, check .env for time-out)
+####################################################################################
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/key-encoder/v1/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "status": "CONNECTED"
+}
+
+####################################################################################
+### Get device status (HOST)
+####################################################################################
+
+### HOST
+GET http://localhost:9001/api/simulator/key-encoder/v1/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+### HOST
+GET http://localhost:9001/api/simulator/key-encoder/v1/status?referenceStatus=CONNECTED&longPollingMS=1000
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+####################################################################################
+### POST request for creating new keys or reading existing keys (HOST)
+####################################################################################
+
+### HOST
+POST http://localhost:9001/api/simulator/key-encoder/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CREATE_KEY",
+  "creationMode": "NEW",
+  "data": {
+    "roomAccess": ["123"],
+    "additionalAccess": ["SPA"],
+    "startDateTime": "2023-12-31T15:00Z",
+    "endDateTime": "2023-08-16T11:00:00"
+  }
+}
+
+
+### HOST
+POST http://localhost:9001/api/simulator/key-encoder/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "READ_KEY"
+}
+
+
+### HOST
+PUT http://localhost:9001/api/simulator/key-encoder/v1/session/686affd2-3395-4768-a18a-cf709a22e1c2
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "STOP"
+}
+
+
+### HOST
+GET http://localhost:9001/api/simulator/key-encoder/v1/session/b21df204-47bb-4156-9bc2-6d1d751c5fbf
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+### HOST
+GET http://localhost:9001/api/simulator/key-encoder/v1/session/f7670583-dc07-4dc9-bd1a-6c3f272a58d0?longPollingMS=2000
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+
+####################################################################################
+### Send existing key data from red key to backend, receive new key date from backend to write to new key (DEVICE only)
+####################################################################################
+
+
+### DEVICE 
+GET http://localhost:9001/api/simulator/key-encoder/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+
+### DEVICE, create key
+PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "keyId": "466421384",
+  "data": {
+    "additionalAccess": ["ENTREE"]
+  }
+}
+
+### DEVICE, read key
+PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "keyId": "123456789",
+  "data": {
+    "roomAccess": ["123"],
+    "additionalAccess": ["ENTREE", "PARKING", "GYM"],
+    "startDateTime": "2023-12-31T15:00Z",
+    "endDateTime": "2023-08-16T11:00:00"
+  }
+}
+

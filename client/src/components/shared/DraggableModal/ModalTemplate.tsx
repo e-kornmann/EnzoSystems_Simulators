@@ -44,17 +44,17 @@ export const GenericFooter = styled.footer`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 10px 10px 15px;
+  padding: 6px 13px 10px;
   background-color: white;
   border-radius: 0 0 5px 5px;
   & > button {
+    display: flex;
+    align-items; top;
+    padding: 2px;
+    justify-content: center;
     color: ${Sv.enzoOrange};
     font-size: 0.80em;
     cursor: pointer;
-    &:last-of-type {
-      margin-right: 4px;
-    }
-    
     &:disabled  
     {
       color: ${Sv.gray};
@@ -67,9 +67,11 @@ export const GenericFooter = styled.footer`
   & > div {
     cursor: pointer;
     width: 100%;
+    height: 100%;
+  
     display: flex;
     justify-content: center;
-    column-gap: 5px;
+    column-gap: 8px;
     align-items: center;
     color: ${Sv.asphalt};
     &:first-of-type {

@@ -1,34 +1,33 @@
 import { ReactNode, Reducer, createContext, useReducer } from "react";
 import React from "react";
-import { Lang } from "../QrAppModi/DeviceSettings/AvailableSettings/LanguageOptions";
-import { OperationalModeOptionsType } from "../QrAppModi/DeviceSettings/AvailableSettings/OperationalModeOptions";
+
+import { statusOptions } from "../QrAppModi/DeviceSettings/AvailableSettings/StatusOptions";
 
 
 export enum SettingModes {
   SETTINGS,
   OPERATIONAL_MODE,
   LANGUAGE,
-  HIDE,
 }
 
 export type AllAppSettings = {
-  operationalModeOption: OperationalModeOptionsType;
-  language: Lang;
+  statusOption: statusOptions;
+  language: string;
 };
 
 const intitialSettingState: AllAppSettings = {
-  operationalModeOption: OperationalModeOptionsType.OUT_OF_ORDER,
-  language: Lang.DUTCH,
+  statusOption: statusOptions.OUT_OF_ORDER,
+  language: 'english',
 };
 
 export type OperationalModeActionType = {
   type: SettingModes.OPERATIONAL_MODE;
-  payload: OperationalModeOptionsType;
+  payload: statusOptions;
 };
 
 export type LanguageActionType = {
   type: SettingModes.LANGUAGE;
-  payload: Lang;
+  payload: string;
 };
 
 export type SettingsAction =
@@ -45,7 +44,7 @@ const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, action)
     case SettingModes.OPERATIONAL_MODE:
       return {
         ...state,
-        operationalModeOption: action.payload,
+        statusOption: action.payload,
       };
 
     case SettingModes.LANGUAGE:

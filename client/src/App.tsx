@@ -4,22 +4,24 @@ import './styles/style.css'
 import { DndContext } from '@dnd-kit/core';
 import * as S from './styles/App.style';
 
-import PaymentTerminal from './components/simulators/PaymentDevice/PaymentTerminal';
 import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner';
-
+import KeyEncoderIframe from './components/simulators/IFrameComponent/KeyEncoder';
+import PaymentTerminalSimulator from './components/simulators/PaymentDevice';
 
 function App() {
   type SimulatorsType = {
     paymentDevice: boolean;
     demoApp: boolean;
     QrScanner: boolean;
+    roomKeyEncoder: boolean;
   };
 
   const [simulators, setSimulators] = useState<SimulatorsType>({
     paymentDevice: false,
     demoApp: false,
     QrScanner: false,
+    roomKeyEncoder: false,
   });
 
   const showSimulatorHandler = useCallback((simulator: keyof SimulatorsType) => {
@@ -50,21 +52,25 @@ function App() {
         >
           Qr Scanner
         </S.OpenModelButton>
+        <S.OpenModelButton 
+          onClick={() => showSimulatorHandler('roomKeyEncoder')} 
+          $isActive={simulators.roomKeyEncoder}
+        >
+          Room Key Encoder
+        </S.OpenModelButton>
       </S.OpenModalButtonsContainer>
 
       <DndContext>
         <DraggableModal
           isShown={simulators.paymentDevice}
           hide={() => showSimulatorHandler('paymentDevice')}
-          headerText=""
-          modalContent={<PaymentTerminal />}
+          modalContent={<PaymentTerminalSimulator />}
           modalWidth={'220px'}
           modalHeight={'435px'}
         />
         <DraggableModal
           isShown={simulators.demoApp}
           hide={() => showSimulatorHandler('demoApp')}
-          headerText=""
           modalContent={<DemoApp />}
           modalWidth={'300px'}
           modalHeight={'500px'}
@@ -72,12 +78,23 @@ function App() {
         <DraggableModal
           isShown={simulators.QrScanner}
           hide={() => showSimulatorHandler('QrScanner')}
-          headerText=""
           modalContent={<QrScanner />}
           modalWidth={'220px'}
           modalHeight={'435px'}
         />
+      
+      <DraggableModal
+          isShown={simulators.roomKeyEncoder}
+          hide={() => showSimulatorHandler('roomKeyEncoder')}
+          modalContent={<KeyEncoderIframe />}
+          modalWidth={'220px'}
+          modalHeight={'435px'}
+        />
+
+
+
       </DndContext>
+
 
     </>
   );

@@ -1,5 +1,3 @@
-import { AppContext, AppContextProvider } from './utils/settingsReducer';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import { Loading } from '../../shared/Loading';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
@@ -22,6 +20,8 @@ import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 import TurnOnDevice from '../../shared/TurnOnDevice';
+import { AppContext } from './utils/settingsReducer';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const Content = styled.div`
   padding: 0 10px 50px;
@@ -318,7 +318,7 @@ const PaymentTerminal = () => {
 
   return (
   
-      <AppContextProvider>
+<>
       <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <Container>
@@ -357,7 +357,7 @@ const PaymentTerminal = () => {
           </div>
         </Footer>
       </Container>
-      </AppContextProvider>
+      </>
   );
 };
 

@@ -1,4 +1,4 @@
-import OperationalModeOptions from "./AvailableSettings/OperationalModeOptions";
+
 import { useCallback, useEffect, useState } from "react";
 import Settings from "./AvailableSettings/Settings";
 
@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { QrAppModi } from '../..';
 import { SettingModes } from '../../utils/settingsReducer';
 import * as Sv from '../../../../../styles/stylevariables';
+import StatusOptions from "./AvailableSettings/StatusOptions";
 
 export const SettingsWrapper = styled.div`
   position: absolute;
@@ -30,10 +31,8 @@ export const ArrowWrapper = styled.div`
     fill: ${Sv.asphalt}; 
   }
 `
-
 type Props = {
   modusSetterHandler: (modus: QrAppModi) => void;
-
 };
 
 const DeviceSettings = ({ modusSetterHandler }: Props) => {
@@ -57,15 +56,12 @@ const DeviceSettings = ({ modusSetterHandler }: Props) => {
         setList(<Settings menuToggler={menuToggler} />);
         break;
       case SettingModes.OPERATIONAL_MODE:
-        setList(<OperationalModeOptions arrowBackButtonHandler={arrowBackButtonHandler} />);
+        setList(<StatusOptions arrowBackButtonHandler={arrowBackButtonHandler} />);
         modusSetterHandler(QrAppModi.SET_MODE);
         break;
       case SettingModes.LANGUAGE:
         setList(<LanguageOptions arrowBackButtonHandler={arrowBackButtonHandler} />)
         modusSetterHandler(QrAppModi.SET_LANGUAGE);
-        break;
-      case SettingModes.HIDE: 
-        modusSetterHandler(QrAppModi.QR_SCANNER);
         break;
       default:
         modusSetterHandler(QrAppModi.QR_SCANNER);

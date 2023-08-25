@@ -1,102 +1,137 @@
-import { Lang } from "../../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions";
+
+
 
 type Translations = {
-  [key: string]: { [key in Lang]: string; }[];
+  [key: string]: { [key in string]: string; }[];
 }
 
 const translations: Translations = {
   qrCodeReader: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'QR-code reader',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'QR-code reader',
+      english: 'QR-code reader',
     },
   ],
   newQrForm: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Add New QR-code',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Voeg QR-code toe',
+      english: 'Add New QR-code',
     },
   ],
   editQrList: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Edit QR-codes',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Edit QR-codes',
+      english: 'Edit QR-codes',
+
     },
   ],
   editQrForm: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Edit QR-code',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Edit QR-code',
+      english: 'Edit QR-code',
+
     },
   ],
   deleteQr: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Delete QR-codes',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Verwijder QR-codes',
+      english: 'Delete QR-codes',
     },
   ],
   qrCodes: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'QR-codes',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'QR-codes',
+      english: 'QR-codes',
+
     },
   ],
   readyToScan: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Ready to scan',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Klaar om te scannen',
+      english: 'Ready to scan',
+
+    },
+  ],
+  couldNotConnect: [
+    {
+      dutch: 'Kan geen verbinding maken',
+      english: 'Device could not connect',
+
     },
   ],
   outOfOrder: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Out of order',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Buiten gebruik',
+      english: 'Out of order',
+
     },
   ],
   settings: [
     {
-      [Lang.DUTCH]: '..',
-      [Lang.ENGLISH]: 'Settings',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
+      dutch: 'Instellingen',
+      english: 'Settings',
+
     },
   ],
-  operationalMode: [
+  status: [
     {
-      [Lang.DUTCH]: 'Operationele modus',
-      [Lang.ENGLISH]: 'Operational mode',
-      [Lang.FRENCH]: 'Mode opérationnel',
-      [Lang.GERMAN]: 'Betriebsmodus',
+      dutch: 'Status',
+      english: 'Status',
+
     },
   ],
   defaultLanguage: [
     {
-      [Lang.DUTCH]: 'Standaardtaal',
-      [Lang.ENGLISH]: 'Default Language',
-      [Lang.FRENCH]: 'Langue par défaut',
-      [Lang.GERMAN]: 'Standardsprache',
+      dutch: 'Standaardtaal',
+      english: 'Default Language',
     },
   ],
-  }
+  dutch: [
+    {
+      dutch: 'Nederlands',
+      english: 'Dutch',
 
-  // Use indexed if you need a second line in a different element, i.e., a subline.
-  const ts = (id: string, language: Lang, indexed?: number): string => {
+    },
+  ],
+  english: [
+    {
+      dutch: 'Engels',
+      english: 'English',
+    },
+  ],
+  new: [
+    {
+      dutch: 'Nieuw',
+      english: 'New',
+
+    },
+  ],
+  edit: [
+    {
+      dutch: 'Edit',
+      english: 'Edit',
+
+    },
+  ],
+  delete: [
+    {
+      dutch: 'Verwijder',
+      english: 'Delete',
+
+    },
+  ],
+  // QR-FORM
+
+  name: [
+    {
+      dutch: 'Naam',
+      english: 'Name',
+    },
+  ],
+}
+
+// Use indexed if you need a second line in a different element, i.e., a subline.
+const ts = (id: string, language: string, indexed?: number): string => {
   const translation = translations[id];
 
   // If 'indexed' is valid use it, otherwise use the first index '[0]' as default if no index or invalid idex is given.

@@ -1,9 +1,10 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import DragMove from "./Drag";
+
 import styled from 'styled-components';
 import * as Sv from '../../../styles/stylevariables';
 import CrossIcon from "../Fail";
+import DraggableCore from "react-draggable";
 
 
 
@@ -67,7 +68,6 @@ export interface ModalProps {
   isShown: boolean;
   hide: () => void;
   modalContent: JSX.Element;
-  headerText: string;
   modalWidth: string,
   modalHeight: string,
 }
@@ -75,12 +75,11 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   isShown,
   hide,
   modalContent,
-  headerText,
   modalWidth,
   modalHeight
 }) => {
 
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  
   const [isGrabbing, setIsGrabbing] = useState(false);
   
   const handleMouseDown = () => {
@@ -91,12 +90,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
     setIsGrabbing(false);
   };
 
-  const handleDragMove = (e: { movementX: number; movementY: number; }) => {
-    setTranslate({
-      x: translate.x + e.movementX,
-      y: translate.y + e.movementY
-    });
-  };
+ 
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -119,21 +113,18 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
   const modal = (
     <>
       <Wrapper
-        aria-modal
-        aria-labelledby={headerText}
-        tabIndex={-1}
-        role="dialog"
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
       >
-        <DragMove onDragMove={handleDragMove}>
-          <StyledModal $grabbing={isGrabbing} style={{transform: `translateX(${translate.x}px) translateY(${translate.y}px)`}}>
+        <DraggableCore grid={[100, 100]}>
+          <StyledModal $grabbing={isGrabbing}>
               <CloseButton onClick={hide}>
                 <CrossIcon width={8} height={8} fill={Sv.asphalt} />
               </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>
-        </DragMove>
+        </DraggableCore>
+        
       </Wrapper>
     </>
   );

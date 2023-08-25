@@ -6,7 +6,7 @@ import Checkmark from '../../checkmark';
 import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow_back.svg';
 import { ArrowWrapper } from '../DeviceSettings';
 
-export enum OperationalModeOptionsType {
+export enum statusOptions {
   CONNECTED = 'Connected',
   DISCONNECTED = 'Disconnected',
   OUT_OF_ORDER = 'Out of order',
@@ -18,10 +18,10 @@ type Props = {
 };
 
 
-const OperationalModeOptions = ({arrowBackButtonHandler }: Props) => {
+const StatusOptions = ({arrowBackButtonHandler }: Props) => {
   const { state, dispatch } = useContext(AppContext);
   
-  const onChangeEventHandler = (mode: OperationalModeOptionsType) => {
+  const onChangeEventHandler = (mode: statusOptions) => {
     dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: mode });
   };
 
@@ -30,16 +30,16 @@ const OperationalModeOptions = ({arrowBackButtonHandler }: Props) => {
        <ArrowWrapper onClick={arrowBackButtonHandler}>
         <Arrow width={12} height={12}  />
       </ArrowWrapper>
-      {Object.values(OperationalModeOptionsType).map((mode) => (
+      {Object.values(statusOptions).map((mode) => (
         <S.GenericListButton key={mode} onClick={() => { onChangeEventHandler(mode);}}>
           
           {mode}
            
-          <Checkmark isDisplayed={state.operationalModeOption === mode }  width={14} height={11} color={Sv.enzoOrange}/> 
+          <Checkmark isDisplayed={state.statusOption === mode }  width={14} height={11} color={Sv.enzoOrange}/> 
         </S.GenericListButton>
       ))}
     </S.GenericList>
   );
 };
 
-export default OperationalModeOptions;
+export default StatusOptions;

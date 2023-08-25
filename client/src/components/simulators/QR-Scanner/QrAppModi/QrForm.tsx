@@ -2,9 +2,11 @@
 import styled from "styled-components";
 
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import * as Sv from "../../../../styles/stylevariables";
 import { QrAppModi, QrCode } from "..";
+import { AppContext } from "../utils/settingsReducer";
+import ts from "../Translations/translations";
 
 
 
@@ -21,7 +23,7 @@ const QrFormWrapper = styled.form`
 `
 const InputWrapper = styled.div`
   display: grid;
-  padding: 5px 20px 20px;
+  padding: 5px 18px 18px;
   grid-template-rows: 18px 40px 18px 1fr; 
   justify-items: flex-start; 
   align-items: center;
@@ -30,15 +32,16 @@ const InputWrapper = styled.div`
 `
 const StyledLabel = styled.label<{ $animate: boolean }>`
   position: relative;
-  top: 25px;
-  left: 8px;
+  top: 22px;
+  left: 2px;
   padding: 3px 5px;
   background-color: white; 
+  border-radius: 1px;
   font-weight: 600;
   font-size: 0.9em;
   color: #7A7A7A;
   transition: font-size 0.2s, transform 0.2s;
-  transform: ${(props) => (props.$animate ? `translate(-4px, -15px) scale(0.75)` : 'none')};
+  transform: ${(props) => (props.$animate ? `translate(1px, -16px) scale(0.75)` : 'none')};
   & > span {
     color: orange;
   }
@@ -117,9 +120,7 @@ const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, currentModus, qrCod
   const [showQrForm, setShowQrForm] = useState(false);
   const [qrCode, setQrcode] = useState<InitialStateType['qrCodeToEdit']>(initialState.qrCodeToEdit);
   const [isActive, setIsActive] = useState<InitialStateType['activeFields']>(initialState.activeFields);
-  
-
-  
+  const { state } = useContext(AppContext);
 
   // show component
   useEffect(()=>  {
@@ -150,8 +151,6 @@ const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, currentModus, qrCod
     }
   }, [currentModus, qrCodeToEdit])
   
-
-
   const onFocusHandler = (field: keyof typeof isActive) => setIsActive((prev) => ({ ...prev, [field]: true }));
   const onBlurHandler = (field: keyof typeof isActive) => !qrCode.name && !qrCode.data ? setIsActive((prev) => ({ ...prev, [field]: false })) : null;
 
@@ -175,7 +174,7 @@ const QrForm = ({ saveNewQrCodeHandler, updateQrCodeHandler, currentModus, qrCod
     showQrForm &&
     <QrFormWrapper onSubmit={onFormSubmit}>
       <InputWrapper >
-        <StyledLabel $animate={isActive.name} htmlFor={'name'}>Name<span>*</span></StyledLabel>
+        <StyledLabel $animate={isActive.name} htmlFor={'name'}>{ ts('name', state.language) }<span>*</span></StyledLabel>
         <StyledInput
           ref={inputRef}
           id='name'

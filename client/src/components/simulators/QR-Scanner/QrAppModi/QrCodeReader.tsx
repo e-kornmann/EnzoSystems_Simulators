@@ -5,9 +5,8 @@ import { QrAppModi, QrCode } from '..';
 import { GenericFooter } from '../../../shared/DraggableModal/ModalTemplate';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as QrCodeIcon } from '../../../../assets/svgs/qr_code.svg';
-import { ReactComponent as AddIcon } from '../../../../assets/svgs/add.svg';
-import ts from '../Translations/translations';
-import { Lang } from '../../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions';
+import { ReactComponent as QrCodeIconButton } from '../../../../assets/svgs/qrCode_withoutFrame.svg';
+import { ReactComponent as AddIcon } from '../../../../assets/svgs/add_qr_code.svg';
 import { Loading } from '../../../shared/Loading';
 import AnimatedCrossHair from './AnimatedCrossHair';
 import useLogOn from '../../../../hooks/useLogOn';
@@ -18,7 +17,8 @@ import CrossIcon from '../../../shared/Fail';
 import { getSession } from '../utils/getSession';
 import { ReactComponent as SettingsIcon } from '../../../../assets/svgs/settings.svg';
 import { AppContext, SettingModes } from '../utils/settingsReducer';
-import { OperationalModeOptionsType } from './DeviceSettings/AvailableSettings/OperationalModeOptions';
+import ts from '../Translations/translations';
+import { statusOptions } from './DeviceSettings/AvailableSettings/StatusOptions';
 
 const QrScannerWrapper = styled.div`
   display: grid;
@@ -183,16 +183,16 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   const [instructionText, setInstructionText] = useState('');
 
 
-  // This useEffect 'listens' to your changed device settings.
+  // This useEffect 'listens' to clicked device settings.
   useEffect(() => {
-    // connect when Connected settings in initiated.
-    if (state.operationalModeOption === OperationalModeOptionsType.CONNECTED) {
+    // connect when Connected settings has been clicked.
+    if (state.statusOption === statusOptions.CONNECTED) {
       // if you are already logged in
       init ? setDeviceStatus(OperationalState.DEVICE_CONNECT) : setDeviceStatus(OperationalState.DEVICE_START_UP)
     }
-    // disconnect when Connected settings in initiated.
-    if (state.operationalModeOption === OperationalModeOptionsType.DISCONNECTED) setDeviceStatus(OperationalState.DEVICE_DISCONNECT);
-  }, [init, state.operationalModeOption])
+    // disconnect when Disonnected settings has been clicked.
+    if (state.statusOption === statusOptions.DISCONNECTED) setDeviceStatus(OperationalState.DEVICE_DISCONNECT);
+  }, [init, state.statusOption])
 
 
   const getToken = useCallback(async () => {
@@ -213,7 +213,6 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   useEffect(() => {
     let waitTime: number | undefined = undefined;
     let intervalId: NodeJS.Timer | null = null;
-
     let checkCounter = 0; // Counter for the number of checks
 
     switch (deviceStatus) {
@@ -233,28 +232,28 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         waitTime = 1000;
         break;
       case OperationalState.DEVICE_DISCONNECTED:
-        setInstructionText(`Device DISCONNECTED,\nConnect device`);
-        if (state.operationalModeOption !== OperationalModeOptionsType.DISCONNECTED) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: OperationalModeOptionsType.DISCONNECTED })
+        setInstructionText(`DISCONNECTED`);
+        if (state.statusOption !== statusOptions.DISCONNECTED) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: statusOptions.DISCONNECTED })
         }
         break;
       case OperationalState.DEVICE_OUT_OF_ORDER:
-        setInstructionText(ts('outOfOrder', Lang.ENGLISH));
-        if (state.operationalModeOption !== OperationalModeOptionsType.OUT_OF_ORDER) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: OperationalModeOptionsType.OUT_OF_ORDER })
+        setInstructionText(ts('outOfOrder', state.language));
+        if (state.statusOption !== statusOptions.OUT_OF_ORDER) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: statusOptions.OUT_OF_ORDER })
         }
         waitTime = 3000;
         break;
       case OperationalState.DEVICE_CONNECTED:
-        setInstructionText(`Device CONNECTED,\nbut not activated`);
+        setInstructionText(ts('readyToScan', state.language));
         waitTime = 1000;
         break;
       case OperationalState.DEVICE_COULD_NOT_CONNECT:
-        setInstructionText('DEVICE COULD NOT CONNECT');
+        setInstructionText(ts('couldNotConnect', state.language));
         waitTime = 3500;
         break;
       case OperationalState.DEVICE_WAITING_FOR_BARCODE:
-        setInstructionText(ts('readyToScan', Lang.ENGLISH));
+        setInstructionText(ts('readyToScan', state.language));
         waitTime = 1000;
         checkCounter = 0;
         break;
@@ -300,7 +299,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
                 } else if (response.status === 200) {
                   setDeviceStatus(OperationalState.DEVICE_CONNECTED);
                   // update Settings because initial state is OUT_OF_ORDER
-                  dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: OperationalModeOptionsType.CONNECTED })
+                  dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: statusOptions.CONNECTED })
                 }
               // if response is undefined but token is there, maybe device is out of order?
               } else if (response === undefined) {
@@ -431,7 +430,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         clearInterval(intervalId);
       }
     };
-  }, [currentQrCode.data, deviceStatus, dispatch, getToken, init, state.operationalModeOption, token]);
+  }, [currentQrCode.data, deviceStatus, dispatch, getToken, init, state.language, state.statusOption, token]);
 
   const scanQrButtonHandler = async () => {
     setDeviceStatus(OperationalState.DEVICE_IS_SCANNING);
@@ -473,7 +472,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             deviceStatus !== OperationalState.DEVICE_WAITING_FOR_BARCODE
           }
         >
-          <QrCodeIcon width={15} height={15} />
+          <QrCodeIconButton width={15} height={15} />
           <span>
             {!currentQrCode.name
               ? 'No Qr-Codes'
@@ -482,14 +481,13 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         </ScanActionButton>
       </ButtonBox>
       <GenericFooter>
-      <div><SettingsIcon width={13} height={13} onClick={()=>{modusSetterHandler(QrAppModi.SETTINGS)}} /></div>
+      <div onClick={()=>{modusSetterHandler(QrAppModi.SETTINGS)}}><SettingsIcon width={13} height={13} /></div>
       <div onClick={() => modusSetterHandler(QrAppModi.QR_CODES)}>
-          <QrCodeIcon width={14} height={14} fill={'red'} />
+          <QrCodeIcon width={24} height={24} style={{marginRight: '-5px'}}/>
           QRs
         </div>
         <div onClick={() => modusSetterHandler(QrAppModi.NEW_QR)}>
-          <AddIcon width={12} height={12} />
-          New
+          <AddIcon width={24} height={24} />
         </div>
        
       </GenericFooter>

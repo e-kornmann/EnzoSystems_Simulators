@@ -7,11 +7,13 @@ import QrForm from "./QrAppModi/QrForm";
 
 import QrCodeReader from "./QrAppModi/QrCodeReader";
 import QrCodesComponent from "./QrAppModi/QrCodes";
-import { Lang } from '../PaymentDevice/DeviceSettings/AvailableSettings/LanguageOptions';
+
 import { AppContextProvider } from './utils/settingsReducer';
 import DeviceSettings from './QrAppModi/DeviceSettings/DeviceSettings';
 import theme from '../../shared/theme.json';
-import ts from './Translations/translations';
+import HeaderText from './HeaderText';
+
+
 
 
 export enum QrAppModi {
@@ -23,7 +25,7 @@ export enum QrAppModi {
   QR_CODES = 'qrCodes',
   SETTINGS = 'settings',
   SET_LANGUAGE = 'defaultLanguage',
-  SET_MODE = 'operationalMode'
+  SET_MODE = 'status'
 }
 
 export type QrCode = {
@@ -36,8 +38,10 @@ const NavigationHeader = styled(Header)`
   justify-content: space-between;
 `;
 
-const QrScanner = () => {
 
+
+const QrScanner = () => { 
+  
   const [currentModus, setCurrentModus] = useState(QrAppModi.QR_SCANNER);
   const [currentQrCode, setCurrentQrCode] = useState<QrCode>({ name: '', data: '' });
   const [qrCodeToEdit, setQrCodeToEdit] = useState<QrCode>({ name: '', data: '' });
@@ -45,6 +49,7 @@ const QrScanner = () => {
   const [qrCodes, setQrCodes] = useState<QrCode[]>([]);
 
 
+  
 
   useEffect(()=> {
     const getQrCode = localStorage.getItem('qrCodes');
@@ -108,8 +113,6 @@ const QrScanner = () => {
       setCurrentModus(QrAppModi.QR_SCANNER);
   };
 
-    
-
 
   return (
     <AppContextProvider>
@@ -124,7 +127,8 @@ const QrScanner = () => {
               <Arrow width={12} height={12} onClick={() => modusSetterHandler(QrAppModi.QR_CODES)} style={{ top: '2px' }} />}
 
           </div>
-          {ts(currentModus, Lang.ENGLISH)}
+          
+          <HeaderText currentModus={currentModus}/>
           <div>
             {currentModus !== QrAppModi.QR_SCANNER &&
               <CloseIcon width={11} height={11} onClick={() => { setCurrentModus(QrAppModi.QR_SCANNER) }} />}
