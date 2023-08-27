@@ -350,9 +350,9 @@ const PaymentTerminal = () => {
         </Content>
         <Footer>
 
-            <div><SettingsIcon width={13} height={13} onClick={settingsButtonHandler} /></div>
+            <div><SettingsIcon width={16} height={16} onClick={settingsButtonHandler} /></div>
           <div onClick={payProviderButtonHandler}>
-            <PayProvider width={30} height={22} border={true} provider={state.schemeInUse} />
+            <PayProvider width={30} height={21} border={true} provider={state.schemeInUse} />
             <ExpandIcon width={12} height={8} />
           </div>
         </Footer>

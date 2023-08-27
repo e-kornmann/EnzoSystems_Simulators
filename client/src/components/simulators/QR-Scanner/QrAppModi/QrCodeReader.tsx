@@ -481,7 +481,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         </ScanActionButton>
       </ButtonBox>
       <GenericFooter>
-      <div onClick={()=>{modusSetterHandler(QrAppModi.SETTINGS)}}><SettingsIcon width={13} height={13} /></div>
+      <div onClick={() => modusSetterHandler(QrAppModi.SETTINGS)}><SettingsIcon width={16} height={16} /></div>
       <div onClick={() => modusSetterHandler(QrAppModi.QR_CODES)}>
           <QrCodeIcon width={24} height={24} style={{marginRight: '-5px'}}/>
           QRs

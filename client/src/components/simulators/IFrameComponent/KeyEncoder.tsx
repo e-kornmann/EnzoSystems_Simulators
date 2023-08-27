@@ -13,7 +13,7 @@ const DragIconWrapper = styled.div`
  padding: 8px;
  width: 100%;
  height: 50px;
- background-color: ${Sv.gray};
+ background-color: lightgray;
  border-radius: 5px 5px;
  position: absolute;
  top: -40px;
@@ -22,9 +22,10 @@ const DragIconWrapper = styled.div`
   const StyledIframe = styled.iframe`
   width: 100%;
   height: 100%;
-  border: 1px solid #ccc;
+  border: none;
   padding: 0;
   margin: 0;
+  border-radius: 5px;
 `
 
 const KeyEncoderIframe = () => {
@@ -32,7 +33,7 @@ const KeyEncoderIframe = () => {
     
   <IframeContainer>
     <DragIconWrapper>
-      <DragIcon width={20} height={20} />
+      <DragIcon width={14} height={14} />
       </DragIconWrapper>
     <StyledIframe src="http://localhost:6968/" />
   </IframeContainer>

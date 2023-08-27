@@ -49,7 +49,7 @@ export const GenericFooter = styled.footer`
   border-radius: 0 0 5px 5px;
   & > button {
     display: flex;
-    align-items; top;
+    align-items: top;
     padding: 2px;
     justify-content: center;
     color: ${Sv.enzoOrange};

@@ -2,12 +2,16 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 // axios
 import axios from 'axios';
 // styled components
-import styled, { ThemeProvider } from 'styled-components';
+import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+// reset css 
+import './style.css'
 // components
 import Footer from './components/Footer/Footer';
 import Header from './components/Header/Header';
+import LocalAddKey from './components/LocalAddKey/LocalAddKey';
 import KeyContent from './components/KeyContent/KeyContent';
 import Settings from './components/Settings/Settings';
+import ViewKeys from './components/ViewKeys/ViewKeys';
 // contexts
 import AppDispatchContext from './contexts/dispatch/appDispatchContext';
 import TokenContext from './contexts/data/tokenContext';
@@ -18,8 +22,16 @@ import ProcessStatuses from './enums/ProcessStatuses';
 // theme
 import theme from './theme/theme.json';
 
+const GlobalStyle = createGlobalStyle`
+::-webkit-scrollbar {
+  width: 10px;
+}
 
-
+::-webkit-scrollbar-thumb {
+  background: #707070;
+  border-radius: 5px;
+}
+`;
 
 const StyledWrapper = styled('div')({
   alignItems: 'center',
@@ -29,26 +41,23 @@ const StyledWrapper = styled('div')({
   width: '100vw'
 });
 const StyledApp = styled('div')({
-  display: 'grid',
-  gridTemplateRows: '60px 1fr 60px',
-  width: '100%'
+  display: "grid",
+  gridTemplateRows: "35px 1fr 40px",
+  fontFamily: "'Inter', sans-serif",
+  fontSize: "13px",
+  width: "100%",
+  height: "100%",
+  minHeight: "420px",
+  overflowY: 'hidden',
+  borderRadius: '5px',
 });
-const StyledContentWrapper = styled('div')({
-  height: 'calc(100vh - 120px)',
-  position: 'relative'
-});
+
 const StyledContent = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
-  display: 'grid',
-  gridTemplateColumns: '1fr',
-  gridTemplateRows: '1fr 26px',
-  height: 'max-content',
+  height: '100%',
   justifyContent: 'center',
-  minHeight: '100%',
-  maxHeight: '100%',
   overflowX: 'hidden',
   overflowY: 'scroll',
-  width: '100%'
 }));
 
 const initialState = {
@@ -57,13 +66,16 @@ const initialState = {
   deviceStatus: DeviceStatuses.CONNECTED,
   headerTitle: 'Room Key Encoder',
   initialized: false,
+  localKeys: null,
   processStatus: ProcessStatuses.WAITING,
+  saveKeyClicked: false,
   session: null,
   sessionInitialRequest: false,
   sendNextSessionRequest: false,
-  showAddKeyLocal: false,
+  showAddKey: false,
   showBack: false,
   showCross: false,
+  showKeys: false,
   showSettings: false,
   tokens: null,
   tokenPresent: false
@@ -101,8 +113,18 @@ const reducer = (state, action) => {
     case 'toggle-settings': {
       return { ...state, headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle, showCross: !state.showSettings, showSettings: !state.showSettings };
     }
-    case 'add-key-local': {
-      return { ...state, showAddKeyLocal: action.payload };
+    case 'show-add-key': {
+      return { ...state, showAddKey: action.payload };
+    }
+    case 'save-key-clicked': {
+      return { ...state, saveKeyClicked: action.payload };
+    }
+    case 'save-key': {
+      const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
+      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: false };
+    }
+    case 'show-keys': {
+      return { ...state, showKeys: action.payload };
     }
     default:
       console.error(`ERROR: this app reducer action type does not exist: ${action.type}`);
@@ -110,7 +132,7 @@ const reducer = (state, action) => {
   }
 };
 
-const KeyEncoder = () => {
+const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [tick, setTick] = useState(0);
   const initialSessionRequest = useRef(true);
@@ -270,21 +292,31 @@ const KeyEncoder = () => {
   return (
     <ThemeProvider theme={theme}>
       <StyledWrapper>
-    
+        <GlobalStyle styled={theme} />
         <AppDispatchContext.Provider value={dispatch}>
           <TokenContext.Provider value={state.tokens}>
             <StyledApp>
+              
               <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} />
-              <StyledContentWrapper>
-                {!state.showSettings &&
+              
+              <StyledContent>
+                {!state.showSettings && !state.showAddKey && !state.showKeys &&
                   <StyledContent>
-                    {((state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY) && !!state?.session?.metadata?.name) &&
+                    {((state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)) &&
                       <KeyContent session={state.session} type={state.session.metadata.name} />}
+                  </StyledContent>}
+                {!state.showSettings && !state.showKeys && state.showAddKey &&
+                  <StyledContent>
+                    <LocalAddKey saveKeyClicked={state.saveKeyClicked} />
+                  </StyledContent>}
+                {!state.showSettings && !state.showAddKey && state.showKeys &&
+                  <StyledContent>
+                    <ViewKeys keys={state.localKeys} />
                   </StyledContent>}
                 {state.showSettings &&
                   <Settings clickedBack={state.clickedBack} clickedCross={state.clickedCross} deviceStatus={state.deviceStatus} />}
-              </StyledContentWrapper>
-              <Footer showSettings={state.showSettings} />
+              </StyledContent>
+              <Footer showAddKey={state.showAddKey} showSettings={state.showSettings} showKeys={state.showKeys} />
             </StyledApp>
           </TokenContext.Provider>
         </AppDispatchContext.Provider>
@@ -293,4 +325,4 @@ const KeyEncoder = () => {
   );
 };
 
-export default KeyEncoder;
+export default App;

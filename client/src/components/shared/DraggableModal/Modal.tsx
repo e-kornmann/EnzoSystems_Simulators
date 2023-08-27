@@ -4,13 +4,10 @@ import ReactDOM from "react-dom";
 import styled from 'styled-components';
 import * as Sv from '../../../styles/stylevariables';
 import CrossIcon from "../Fail";
-import DraggableCore from "react-draggable";
+import Draggable from "react-draggable";
 
 
 
-type Props = { 
-	$grabbing: boolean;
-}
 
 export const Wrapper = styled.div`
 	position: fixed;
@@ -23,6 +20,12 @@ export const Wrapper = styled.div`
 	transform: translate(-50%, -50%);
 	z-index: 30;
 `
+
+
+type Props = { 
+	$grabbing: boolean;
+}
+
 export const StyledModal = styled.div<Props>`
 	z-index: 70;
 	cursor:  ${(props) => (props.$grabbing ? "grabbing" : "grab")};
@@ -59,9 +62,9 @@ type ContentProps = {
 export const Content = styled.div<ContentProps>`
 	width: ${(props) => props.$width};
 	height: ${(props) => props.$height};
-	border-radius: 5px;	
+  border-radius: 5px;	
 	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-y: hidden;
 	box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
 `
 export interface ModalProps {
@@ -116,14 +119,14 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
       >
-        <DraggableCore grid={[100, 100]}>
+        <Draggable>
           <StyledModal $grabbing={isGrabbing}>
               <CloseButton onClick={hide}>
                 <CrossIcon width={8} height={8} fill={Sv.asphalt} />
               </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>
-        </DraggableCore>
+        </Draggable>
         
       </Wrapper>
     </>
