@@ -3,10 +3,14 @@ import { memo, useCallback, useContext } from 'react';
 import styled from 'styled-components';
 // context
 import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
+// svgs
+import { ReactComponent as ArrowBack } from '../../../images/arrow_back.svg';
+import { ReactComponent as CloseIcon } from '../../../images/close.svg';
 
 export const StyledHeader =  styled('div')(({ theme }) => ({
   display: "flex",
-  justifyContent: "center",
+  padding: "0 8px 0 9px",
+  justifyContent: "space-between",
   alignItems: "center",
   fontWeight: "500",
   borderTopLeftRadius: "5px",
@@ -55,9 +59,15 @@ const Header = ({ showBack, showCross, title }) => {
 
   return (
     <StyledHeader>
-      <StyledBack $showBack={showBack} onClick={() => { handleClickBack(); }} />
-      <StyledTitle>{title}</StyledTitle>
-      <StyledCross $showCross={showCross} onClick={() => { handleClickCross(); }} />
+      <div>
+  { showBack && <ArrowBack width={12} height={12} onClick={handleClickBack} style={{ top: '2px'}}/>  }
+  </div>
+
+  {title}
+  <div>
+  { showCross && <CloseIcon width={11} height={11} onClick={handleClickCross} />}
+  </div>
+  
     </StyledHeader>
   );
 };

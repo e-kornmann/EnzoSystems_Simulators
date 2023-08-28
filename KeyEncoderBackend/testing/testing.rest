@@ -7,7 +7,7 @@ GET http://localhost:9001/api/simulator/key-encoder/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTMyMTU2MjIsImV4cCI6MTY5MzMwMjAyMiwiaXNzIjoiRW56b3N5c3RlbXMifQ.1-Zp1g3ZOaaeAKder2X5fijJZMl3SVWO5NspzRkjLFQ
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkzMjA5OTc0LCJleHAiOjE2OTMyOTYzNzQsImlzcyI6IkVuem9zeXN0ZW1zIn0.tPMl2gvN96OgUeeWx5zmqN95MoZdD6VWuvuBGdEI1xw
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkzMjQyOTgxLCJleHAiOjE2OTMzMjkzODEsImlzcyI6IkVuem9zeXN0ZW1zIn0.4uKicoCi0rGDz9KbokALWKGAqROtyQ_6vAhYy3p9Nro
 
 ### DEVICE
 POST http://localhost:9001/api/simulator/key-encoder/v1/auth
@@ -86,9 +86,6 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
     "additionalAccess": ["ENTREE"]
   }
 }
-
-
-
 
 ### HOST
 POST http://localhost:9001/api/simulator/key-encoder/v1/session

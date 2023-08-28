@@ -9,6 +9,7 @@ import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 import DeviceStatuses from '../../enums/DeviceStatuses';
 import SettingsTypes from '../../enums/SettingsTypes';
 
+
 const StyledWrapper = styled('div')(({ theme }) => ({
   padding: '2px 0',
   display: 'flex',
@@ -23,13 +24,13 @@ const StyledWrapper = styled('div')(({ theme }) => ({
     width: '0.35rem'
   },
   '&::-webkit-scrollbar-thumb': {
-    background: 'gray',
+    background: theme.colors.buttons.gray,
     borderRadius: '5px'
   },
   '&::-webkit-scrollbar-thumb:hover': {
-    background: 'asphalt'
+    background: theme.colors.buttons.asphalt,
   }
-}))
+}));
 
 
 const Settings = ({ clickedBack, clickedCross, deviceStatus }) => {
@@ -41,7 +42,7 @@ const Settings = ({ clickedBack, clickedCross, deviceStatus }) => {
       {
         currentValue: deviceStatus,
         options: [DeviceStatuses.CONNECTED, DeviceStatuses.DISCONNECTED, DeviceStatuses.OUT_OF_ORDER],
-        title: 'Device Status',
+        title: 'Device status',
         type: SettingsTypes.DEVICE_STATUS
       }
     ];

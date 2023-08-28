@@ -134,7 +134,6 @@ export const GenericListButton = styled.button`
     max-width: 82%;
   }
   &:active {
-  &:active {
     background-color: ${Sv.enzoLightOrange};
     fill: ${Sv.enzoOrange};
   }
