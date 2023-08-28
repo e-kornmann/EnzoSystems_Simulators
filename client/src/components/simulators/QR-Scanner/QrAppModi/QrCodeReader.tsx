@@ -97,10 +97,11 @@ const ScanActionButton = styled.button`
 `;
 
 
-const blinkAnimation = keyframes`
+
+const slideAnimation = keyframes`
 0% {
   opacity: 0;
-  transform: translateX(-250px);
+  transform: translateX(-200vw);
 }
 
 10%, 90% {
@@ -126,7 +127,7 @@ const blinkAnimation = keyframes`
 
 100% {
   opacity: 0;
-  transform: translateX(250px);
+  transform: translateX(200vw);
 }
 `;
 
@@ -143,7 +144,7 @@ const AnimatedQr = styled.div<{$animate: boolean}>`
   & > div {
     padding: 20px;
     background-color: white;
-    animation: ${blinkAnimation} 5s ease 0s 1 normal forwards;
+    animation: ${slideAnimation} 2s ease 0s 1 normal forwards;
     border-radius: 3px;
      & > svg {
       width: 100%;
@@ -192,6 +193,8 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
     }
     // disconnect when Disonnected settings has been clicked.
     if (state.statusOption === statusOptions.DISCONNECTED) setDeviceStatus(OperationalState.DEVICE_DISCONNECT);
+    // OUT_OF_ORDER when OUT_OF_ORDER settings has been clicked.
+    if (state.statusOption === statusOptions.OUT_OF_ORDER) setDeviceStatus(OperationalState.DEVICE_OUT_OF_ORDER);
   }, [init, state.statusOption])
 
 
@@ -245,7 +248,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         waitTime = 3000;
         break;
       case OperationalState.DEVICE_CONNECTED:
-        setInstructionText(ts('readyToScan', state.language));
+        setInstructionText(ts('CONNECTED', state.language));
         waitTime = 1000;
         break;
       case OperationalState.DEVICE_COULD_NOT_CONNECT:

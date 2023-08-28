@@ -9,13 +9,28 @@ import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 import DeviceStatuses from '../../enums/DeviceStatuses';
 import SettingsTypes from '../../enums/SettingsTypes';
 
-const StyledWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  margin: 0 10%;
-  row-gap: 10px;
-  width: 80%;
-`;
+const StyledWrapper = styled('div')(({ theme }) => ({
+  padding: '2px 0',
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  overflowY: 'scroll',
+  '&::-webkit-scrollbar': {
+    background: 'transparent',
+    width: '0.35rem'
+  },
+  '&::-webkit-scrollbar-track': {
+    width: '0.35rem'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'gray',
+    borderRadius: '5px'
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    background: 'asphalt'
+  }
+}))
+
 
 const Settings = ({ clickedBack, clickedCross, deviceStatus }) => {
   const appDispatch = useContext(AppDispatchContext);

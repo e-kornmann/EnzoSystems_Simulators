@@ -6,8 +6,8 @@ GET http://localhost:9001/api/simulator/key-encoder/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTI4MTY5OTAsImV4cCI6MTY5MjkwMzM5MCwiaXNzIjoiRW56b3N5c3RlbXMifQ.fZ5iXaeMkmZXaT1UEavzhv4oO_XBwYPc3VxGEb7yMDA
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkzMTQxOTI0LCJleHAiOjE2OTMyMjgzMjQsImlzcyI6IkVuem9zeXN0ZW1zIn0.vZBCLxMbg0h5HQKtdjjXtyEVeKV24iCeTvQN1sa3ZHk
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTMyMTU2MjIsImV4cCI6MTY5MzMwMjAyMiwiaXNzIjoiRW56b3N5c3RlbXMifQ.1-Zp1g3ZOaaeAKder2X5fijJZMl3SVWO5NspzRkjLFQ
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkzMjA5OTc0LCJleHAiOjE2OTMyOTYzNzQsImlzcyI6IkVuem9zeXN0ZW1zIn0.tPMl2gvN96OgUeeWx5zmqN95MoZdD6VWuvuBGdEI1xw
 
 ### DEVICE
 POST http://localhost:9001/api/simulator/key-encoder/v1/auth
@@ -67,12 +67,27 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
   "command": "CREATE_KEY",
   "creationMode": "NEW",
   "data": {
-    "roomAccess": ["123"],
+    "roomAccess": ["123", "343"],
     "additionalAccess": ["SPA"],
     "startDateTime": "2023-12-31T15:00Z",
     "endDateTime": "2023-08-16T11:00:00"
   }
 }
+
+
+### DEVICE, create key
+PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "keyId": "466421384",
+  "data": {
+    "additionalAccess": ["ENTREE"]
+  }
+}
+
+
 
 
 ### HOST
@@ -119,17 +134,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 
-### DEVICE, create key
-PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
-{
-  "keyId": "466421384",
-  "data": {
-    "additionalAccess": ["ENTREE"]
-  }
-}
 
 ### DEVICE, read key
 PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session

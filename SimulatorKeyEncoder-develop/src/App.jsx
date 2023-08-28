@@ -23,14 +23,7 @@ import ProcessStatuses from './enums/ProcessStatuses';
 import theme from './theme/theme.json';
 
 const GlobalStyle = createGlobalStyle`
-::-webkit-scrollbar {
-  width: 10px;
-}
 
-::-webkit-scrollbar-thumb {
-  background: #707070;
-  border-radius: 5px;
-}
 `;
 
 const StyledWrapper = styled('div')({
@@ -38,7 +31,7 @@ const StyledWrapper = styled('div')({
   display: 'flex',
   height: '100vh',
   justifyContent: 'center',
-  width: '100vw'
+  width: '100vw',
 });
 const StyledApp = styled('div')({
   display: "grid",
@@ -57,7 +50,7 @@ const StyledContent = styled('div')(({ theme }) => ({
   height: '100%',
   justifyContent: 'center',
   overflowX: 'hidden',
-  overflowY: 'scroll',
+  overflowY: 'hidden',
 }));
 
 const initialState = {
@@ -275,6 +268,10 @@ const App = () => {
       console.error('ERROR: retrieving scan session: missing token');
     }
   }, [state.tokens]);
+
+
+      // console.log('session: ' + state.session ? state.session.metadata.name: null);
+
 
   useEffect(() => {
     if (state.initialized) {

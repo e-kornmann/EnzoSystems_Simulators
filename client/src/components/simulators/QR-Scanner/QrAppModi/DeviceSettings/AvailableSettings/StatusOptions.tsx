@@ -28,7 +28,7 @@ const StatusOptions = ({arrowBackButtonHandler }: Props) => {
   return (
     <S.GenericList>
        <ArrowWrapper onClick={arrowBackButtonHandler}>
-        <Arrow width={12} height={12}  />
+        <Arrow width={12} height={12} />
       </ArrowWrapper>
       {Object.values(statusOptions).map((mode) => (
         <S.GenericListButton key={mode} onClick={() => { onChangeEventHandler(mode);}}>

@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useMemo, useRef, useState } from 'react'
 // axios
 import axios from 'axios';
 // styled components
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 import TokenContext from '../../contexts/data/tokenContext';
@@ -12,60 +12,128 @@ import KeyProcessStatuses from '../../enums/KeyProcessStatuses';
 // svgs
 import { ReactComponent as CheckmarkIcon } from '../../../images/checkmark.svg';
 import { ReactComponent as PresentKeyIcon } from '../../../images/present_key.svg';
+// dateFormat 
+import { formatDateTime} from '../../utils/formatDateTime'
+
 
 const StyledWrapper = styled('div')(({ theme }) => ({
-  backgroundColor: theme.colors.background.secondary,
   height: '100%',
-  position: 'relative',
-  width: '100%'
+  display: 'grid',
+  gridTemplateRows: '14% 16% 1fr',
+  rowGap: '2%',
+  overflowY: 'hidden'
+  
+
 }));
 const StyledHeader = styled('div')({
-  alignContent: 'center',
-  display: 'grid',
-  gridTemplateRows: '1fr 1fr',
-  justifyContent: 'center'
-});
-const StyledStatus = styled('div')({
-  alignContent: 'center',
-  display: 'flex',
-  height: '100%',
-  justifyContent: 'center',
-  width: '100%'
-});
-const StyledIcon = styled('div')({
-  alignContent: 'center',
-  display: 'flex',
-  height: '100%',
-  justifyContent: 'center',
   width: '100%',
-  '& > svg': {
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-end',
+  '& > span': {
+    whiteSpace: 'pre-line',
+    textAlign: 'center',
+    fontSize: '1.15em',
+    lineHeight: '1.23em',
+    fontWeight: '500'
   }
 });
+const StyledIcon = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+  width: '100%'
+});
 const StyledContent = styled('div')({
-  alignContent: 'center',
-  height: '100%',
+  display: 'flex',
   justifyContent: 'center',
-  width: '100%'
+  alignItems: 'flex-start'
 });
-const StyledCard = styled('div')(({ theme }) => ({
-  backgroundColor: theme.colors.background.primary,
-  borderRadius: '5px',
-  display: 'grid',
-  gridTemplateRows: '1fr 1fr',
-  height: 'fit-content',
-  padding: '20px',
-  width: '80%'
-}));
-const StyledKeyId = styled('div')({
-  fontSize: '16px',
-  fontWeight: '600',
-  justifyContent: 'center',
-  width: '100%'
-});
-const StyledKeyData = styled('div')({
-  justifyContent: 'center',
-  width: '100%'
-});
+
+
+const slideAnimation = keyframes`
+0% {
+  opacity: 0;
+  transform: translateX(-200vw);
+}
+
+8%, 82% {
+  opacity: 1;
+  transform: translateX(0px);
+}
+
+100% {
+  opacity: 1;
+  transform: translateX(200vw);
+}
+`;
+
+const textFadeInAnimation = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const StyledCard = styled.div`
+  position: fixed;
+  display:  ${props => props.$animate ? 'flex' : 'none'};
+  align-items: center;
+  justify-content: center;
+  top: 20%;
+  width: 100%;
+  height: 60%;
+  overflow: hidden;
+  z-index: 300;
+  & > div {
+    animation: ${slideAnimation} 5s ease 0s 1 normal forwards;
+    background-color: ${props => props.theme.colors.background.primary};
+    border-radius: 12px;
+    display: grid;
+    grid-template-rows: 30% 30% 20% 20%;
+    align-items: center;
+    height: 46%;
+    width: 88%;
+    min-height: 100px;
+    max-height: 400px;
+    max-width: 600px;
+    padding: 5%;
+    box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+    & > div {
+      text-align: center;
+      line-height: 1.3em;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: ${props => props.theme.colors.text.primary};
+      opacity: 0;
+      &:nth-child(1) {
+        font-size: 1.5em;
+        font-weight: 600;
+        font-variant-numeric: normal;
+        animation: ${textFadeInAnimation} 0.25s ease 0.75s 1 normal forwards;
+      }
+      &:nth-child(2) {
+        font-size: 0.75em;
+        font-variant-numeric: normal;
+        animation: ${textFadeInAnimation} 0.25s ease 1.25s 1 normal forwards;
+      }
+      &:nth-child(3) {
+        font-variant-numeric: tabular-nums;
+        animation: ${textFadeInAnimation} 0.25s ease 1.5s 1 normal forwards;
+        font-size: 0.95em;
+      }
+      &:nth-child(4) {
+        font-variant-numeric: tabular-nums;
+        animation: ${textFadeInAnimation} 0.25s ease 1.75s 1 normal forwards;
+        font-size: 0.95em;
+      }
+    }
+  }
+`;
+
 
 const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from CommandTypes
   const appDispatch = useContext(AppDispatchContext);
@@ -74,6 +142,8 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
   const [processFinished, setProcessFinished] = useState(false);
   const [processStarted, setProcessStarted] = useState(false);
   const confirmCreateKeyRef = useRef(false);
+  const [createdKeyData, setCreatedKeyData] = useState({});
+  const { roomAccess, additionalAccess, startDateTime, endDateTime } = createdKeyData;
   const pushReadKeyRef = useRef(false);
   const startRef = useRef(false);
 
@@ -109,19 +179,18 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
 
           if (!response?.data) {
             throw Error('No response data');
+          } else {
+            setCreatedKeyData(response.data.metadata.keyData);
+            console.log('CREATE_KEY was confirmed by backend, sending ID of key used: ' + response.data.metadata.keyId);
+            setTimeout(() => { // return to app WAITING status after 5 seconds
+              appDispatch({ type: 'set-session', payload: null });
+            }, 5000);
           }
-
-          console.log('CREATE_KEY was confirmed to backend, sending ID of key used');
-
-          setTimeout(() => { // return to app WAITING status after 5 seconds
-            appDispatch({ type: 'set-session', payload: null });
-          }, 5000);
         } catch (error) {
           console.error('ERROR: confirm CREATE_KEY to backend: ', error);
           setProcessError('Failed to confirm creation of key');
         }
       };
-
       sendToBackend();
     }
   }, [session, tokens]);
@@ -198,10 +267,11 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
       } else {
         return KeyProcessStatuses.PRESENT;
       }
+
     } else {
       return KeyProcessStatuses.ERROR;
     }
-  }, [processStarted, processFinished, type, confirmCreateKey, startProcessing]);
+  }, [type, processStarted, processFinished, processError, startProcessing, confirmCreateKey, sendReadKey]);
 
   const keyProcessTitle = useMemo(() => {
     if (type === CommandTypes.CREATE_KEY) {
@@ -230,6 +300,7 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
         default:
           return 'Error';
       }
+
     } else {
       return 'Error';
     }
@@ -238,24 +309,33 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
   return (
     <StyledWrapper>
       <StyledHeader>
-        <StyledStatus>{keyProcessTitle}</StyledStatus>
-        <StyledIcon>
-          {keyProcessStatus === KeyProcessStatuses.READY &&
-            <CheckmarkIcon />}
-        </StyledIcon>
+        <span>{keyProcessTitle}</span>
       </StyledHeader>
+      <StyledIcon>
+        {keyProcessStatus === KeyProcessStatuses.READY &&
+          <CheckmarkIcon />}
+      </StyledIcon>
+
       <StyledContent>
         {(keyProcessStatus === KeyProcessStatuses.PRESENT) &&
-          <StyledIcon onClick={() => { setProcessStarted(true); }}>
-            <PresentKeyIcon />
-          </StyledIcon>}
-        {(keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY) &&
-          <StyledCard>
-            <StyledKeyId />
-            <StyledKeyData />
-          </StyledCard>}
-      </StyledContent>
-    </StyledWrapper>
+          <PresentKeyIcon onClick={() => { setProcessStarted(true); }} />
+        }
+        
+          <StyledCard $animate={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>
+
+          <div>
+              <div>{roomAccess && roomAccess.join(', ') }</div>
+              <div>{additionalAccess && 'Access to: ' + additionalAccess.join(', ')}</div>
+              <div>{startDateTime && formatDateTime(startDateTime)}</div>
+              <div>{endDateTime && formatDateTime(endDateTime)}</div>
+          </div>
+
+
+
+
+          </StyledCard>
+    </StyledContent>
+    </StyledWrapper >
   );
 };
 

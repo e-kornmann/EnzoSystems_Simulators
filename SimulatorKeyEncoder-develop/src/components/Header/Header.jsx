@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { memo, useCallback, useContext } from 'react';
 // styled components
 import styled from 'styled-components';
 // context
@@ -62,4 +62,4 @@ const Header = ({ showBack, showCross, title }) => {
   );
 };
 
-export default Header;
+export default memo(Header);
