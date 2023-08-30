@@ -1,5 +1,5 @@
 
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import { AppContext, SettingModes } from '../../../utils/settingsReducer';
 import Checkmark from '../../checkmark';
 import * as S from '../../../../../shared/DraggableModal/ModalTemplate';
@@ -8,6 +8,7 @@ import * as Sv from '../../../../../../styles/stylevariables';
 import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow_back.svg';
 import { ArrowWrapper } from '../DeviceSettings';
 import ts from '../../../Translations/translations';
+import { QrAppModi } from '../../..';
 
 
 
@@ -18,15 +19,18 @@ enum LangEnum {
 
 type Props = {
   arrowBackButtonHandler: () => void;
+  modusSetterHandler: (modus: QrAppModi) => void;
 };
 
-const LanguageOptions = ({arrowBackButtonHandler}: Props) => {
+const LanguageOptions = ({arrowBackButtonHandler, modusSetterHandler}: Props) => {
   const { state, dispatch } = useContext(AppContext);
   
-  const onChangeEventHandler = (mode: LangEnum) => {
+  const onChangeEventHandler = useCallback((mode: LangEnum) => {
     dispatch({ type: SettingModes.LANGUAGE, payload: mode });
-  };
+    modusSetterHandler(QrAppModi.QR_SCANNER);
+    }, [dispatch, modusSetterHandler])
 
+    
   return (
     <S.GenericList>
 

@@ -13,18 +13,16 @@ import KeyProcessStatuses from '../../enums/KeyProcessStatuses';
 import { ReactComponent as CheckmarkIcon } from '../../../images/checkmark.svg';
 import { ReactComponent as PresentKeyIcon } from '../../../images/present_key.svg';
 // dateFormat 
-import { formatDateTime} from '../../utils/formatDateTime'
-
+import { parseISO, format } from 'date-fns';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   height: '100%',
   display: 'grid',
-  gridTemplateRows: '14% 16% 1fr',
+  gridTemplateRows: '18% 16% 1fr',
   rowGap: '2%',
   overflowY: 'hidden'
-  
-
 }));
+
 const StyledHeader = styled('div')({
   width: '100%',
   height: '100%',
@@ -39,12 +37,26 @@ const StyledHeader = styled('div')({
     fontWeight: '500'
   }
 });
+
 const StyledIcon = styled('div')({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'flex-start',
   width: '100%'
 });
+
+const StyledPresentKeyButton = styled('button')(({theme, $disabled}) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+  width: '100%',
+  cursor: $disabled ? 'cursor' : 'pointer', 
+  '& > svg': {
+    fill: $disabled ? theme.colors.buttons.lightgray : theme.colors.text.primary,
+  }
+
+}));
+
 const StyledContent = styled('div')({
   display: 'flex',
   justifyContent: 'center',
@@ -54,11 +66,11 @@ const StyledContent = styled('div')({
 
 const slideAnimation = keyframes`
 0% {
-  opacity: 0;
+  opacity: 0.5;
   transform: translateX(-200vw);
 }
 
-8%, 82% {
+5%, 90% {
   opacity: 1;
   transform: translateX(0px);
 }
@@ -80,7 +92,7 @@ const textFadeInAnimation = keyframes`
 
 const StyledCard = styled.div`
   position: fixed;
-  display:  ${props => props.$animate ? 'flex' : 'none'};
+  display:  ${props => props.$show ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
   top: 20%;
@@ -89,7 +101,7 @@ const StyledCard = styled.div`
   overflow: hidden;
   z-index: 300;
   & > div {
-    animation: ${slideAnimation} 5s ease 0s 1 normal forwards;
+    animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
     background-color: ${props => props.theme.colors.background.primary};
     border-radius: 12px;
     display: grid;
@@ -108,34 +120,35 @@ const StyledCard = styled.div`
       font-variant-numeric: tabular-nums;
       font-weight: 500;
       color: ${props => props.theme.colors.text.primary};
-      opacity: 0;
+      opacity: ${props => props.$animateText ? 0 : 1 };
       &:nth-child(1) {
         font-size: 1.5em;
         font-weight: 600;
         font-variant-numeric: normal;
-        animation: ${textFadeInAnimation} 0.25s ease 0.75s 1 normal forwards;
+        animation: ${textFadeInAnimation} 0.2s ease 0.75s 1 normal forwards;
       }
       &:nth-child(2) {
         font-size: 0.75em;
         font-variant-numeric: normal;
-        animation: ${textFadeInAnimation} 0.25s ease 1.25s 1 normal forwards;
+        animation: ${textFadeInAnimation} 0.2s ease 1.25s 1 normal forwards;
       }
       &:nth-child(3) {
         font-variant-numeric: tabular-nums;
-        animation: ${textFadeInAnimation} 0.25s ease 1.5s 1 normal forwards;
+        animation: ${textFadeInAnimation} 0.2s ease 1.5s 1 normal forwards;
         font-size: 0.95em;
       }
       &:nth-child(4) {
         font-variant-numeric: tabular-nums;
-        animation: ${textFadeInAnimation} 0.25s ease 1.75s 1 normal forwards;
+        animation: ${textFadeInAnimation} 0.2s ease 1.75s 1 normal forwards;
         font-size: 0.95em;
       }
     }
   }
 `;
 
+ 
 
-const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from CommandTypes
+const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { // type = CREATE_KEY / READ_KEY from CommandTypes
   const appDispatch = useContext(AppDispatchContext);
   const tokens = useContext(TokenContext);
   const [processError, setProcessError] = useState('');
@@ -143,7 +156,6 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
   const [processStarted, setProcessStarted] = useState(false);
   const confirmCreateKeyRef = useRef(false);
   const [createdKeyData, setCreatedKeyData] = useState({});
-  const { roomAccess, additionalAccess, startDateTime, endDateTime } = createdKeyData;
   const pushReadKeyRef = useRef(false);
   const startRef = useRef(false);
 
@@ -196,7 +208,7 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
   }, [session, tokens]);
 
   const sendReadKey = useCallback(() => {
-    if (!pushReadKeyRef.current) {
+     if (!pushReadKeyRef.current) {
       pushReadKeyRef.current = true;
 
       const config = {
@@ -205,15 +217,16 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
           authorization: `Bearer ${tokens.accessToken}`
         },
         method: 'put',
-        data: {
-          keyId: '123456789',
-          data: {
-            additionalAccess: ['ENTREE', 'PARKING', 'GYM'],
-            roomAccess: ['123'],
-            startDateTime: '2023-12-31T15:00Z',
-            endDateTime: '2023-08-16T11:00:00'
-          }
-        },
+
+        data: selectedKey
+          // keyId: '123456789',
+          // data: {
+          //   additionalAccess: selectedKey.data.additionalAccess,
+          //   roomAccess: selectedKey.data.roomAccess,
+          //   startDateTime: selectedKey.data.startDateTime,
+          //   endDateTime: selectedKey.data.endDateTime
+          // }
+        ,
         timeout: import.meta.env.VITE_TIMEOUT
       };
 
@@ -292,6 +305,9 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
         case KeyProcessStatuses.ERROR:
           return 'Error';
         case KeyProcessStatuses.PRESENT:
+          if (!selectedKey) {
+            return `There is no key\n available to scan` 
+          }
           return 'Scan your key';
         case KeyProcessStatuses.PROCESSING:
           return 'Please wait';
@@ -300,11 +316,10 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
         default:
           return 'Error';
       }
-
     } else {
       return 'Error';
     }
-  }, [keyProcessStatus, type]);
+  }, [keyProcessStatus, selectedKey, type]);
 
   return (
     <StyledWrapper>
@@ -312,31 +327,33 @@ const KeyContent = ({ session, type }) => { // type = CREATE_KEY / READ_KEY from
         <span>{keyProcessTitle}</span>
       </StyledHeader>
       <StyledIcon>
-        {keyProcessStatus === KeyProcessStatuses.READY &&
-          <CheckmarkIcon />}
+      {/* Still have to put in a conditionally failure icon */}
+       {keyProcessStatus === KeyProcessStatuses.READY && <CheckmarkIcon/>}
       </StyledIcon>
 
       <StyledContent>
-        {(keyProcessStatus === KeyProcessStatuses.PRESENT) &&
-          <PresentKeyIcon onClick={() => { setProcessStarted(true); }} />
-        }
-        
-          <StyledCard $animate={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>
+      {(keyProcessStatus === KeyProcessStatuses.PRESENT) && (
+
+
+        <StyledPresentKeyButton type="button" disabled={!selectedKey && type === CommandTypes.READ_KEY } $disabled={!selectedKey && type === CommandTypes.READ_KEY} onClick={() => { setProcessStarted(true); }}>
+          <PresentKeyIcon  />
+        </StyledPresentKeyButton>
+
+)}
+          <StyledCard $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY} $animateText={type === CommandTypes.CREATE_KEY}>
 
           <div>
-              <div>{roomAccess && roomAccess.join(', ') }</div>
-              <div>{additionalAccess && 'Access to: ' + additionalAccess.join(', ')}</div>
-              <div>{startDateTime && formatDateTime(startDateTime)}</div>
-              <div>{endDateTime && formatDateTime(endDateTime)}</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.roomAccess.join(', ') : createdKeyData.roomAccess && createdKeyData.roomAccess.join(', ') }</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.additionalAccess.join(', ') : createdKeyData.additionalAccess && 'Access to: ' + createdKeyData.additionalAccess.join(', ')}</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.startDateTime : createdKeyData.startDateTime && format(parseISO(createdKeyData.startDateTime), 'yyyy-MM-dd | HH:mm')}</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.endDateTime : createdKeyData.endDateTime && format(parseISO(createdKeyData.endDateTime), 'yyyy-MM-dd | HH:mm')}</div>
           </div>
-
-
-
-
           </StyledCard>
+
+
     </StyledContent>
     </StyledWrapper >
   );
-};
+});
 
-export default memo(KeyContent);
+export default KeyContent;

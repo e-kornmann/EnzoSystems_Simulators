@@ -2,7 +2,6 @@ import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crossha
 import styled, { css, keyframes } from 'styled-components';
 import * as Sv from '../../../../styles/stylevariables';
 
-
 const popAnimation = keyframes`
   0%, 100% {
     transform: scale(1);
@@ -33,8 +32,6 @@ const QrIconWrapper = styled.div<{$animate: boolean}>`
       : 'none'};
   fill: ${Sv.lightgray};
 `
-
-
 type Props = {
     animate: boolean;
 }

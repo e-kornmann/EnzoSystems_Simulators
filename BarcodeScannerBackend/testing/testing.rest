@@ -3,7 +3,7 @@ GET http://localhost:9003/api/simulator/barcode-scanner/v1/health
 
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkJhcmNvZGVTY2FubmVyIiwiaWF0IjoxNjkyNzQ0MzEwLCJleHAiOjE2OTI4MzA3MTAsImlzcyI6IkVuem9zeXN0ZW1zIn0.ZSOHS1LE0XeBKImd4tf0QtTPH6sxfYQkODLn_YvrWTs
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkyOTQ5NDgwLCJleHAiOjE2OTMwMzU4ODAsImlzcyI6IkVuem9zeXN0ZW1zIn0.LfeHrhSPsKlrikddOISPqGvNeYW6O3pHUpYEHzt8aJ4
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkzNDA0NTExLCJleHAiOjE2OTM0OTA5MTEsImlzcyI6IkVuem9zeXN0ZW1zIn0.oHoS91pKvuBmM6kGtjCUPiCg2Q2UjTtPyO6bH4bHQ7A
 
 ####################################################################################
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)

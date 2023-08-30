@@ -8,9 +8,6 @@ import { QrAppModi, QrCode } from "..";
 import { AppContext } from "../utils/settingsReducer";
 import ts from "../Translations/translations";
 
-
-
-
 const QrFormWrapper = styled.form`
   position: absolute;
   top: 35px;
@@ -102,7 +99,6 @@ type InitialStateType = {
   qrCodeToEdit: QrCode;
   activeFields: { name: boolean, data: boolean };
 }
-
 
 const initialState: InitialStateType = { 
   qrCodeToEdit: { 

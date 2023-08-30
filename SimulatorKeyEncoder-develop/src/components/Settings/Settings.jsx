@@ -33,7 +33,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
 }));
 
 
-const Settings = ({ clickedBack, clickedCross, deviceStatus }) => {
+const Settings = memo(function Settings({ clickedBack, clickedCross, deviceStatus }) {
   const appDispatch = useContext(AppDispatchContext);
   const [settingClicked, setSettingClicked] = useState(false);
 
@@ -54,6 +54,8 @@ const Settings = ({ clickedBack, clickedCross, deviceStatus }) => {
     appDispatch({ type: 'show-back', payload: true });
   }, []);
 
+
+  // when in clicked setting you can click an option
   const handleOptionClicked = useCallback((option, setting) => { // clicked an option for a setting
     if (setting) {
       if (setting.type === SettingsTypes.DEVICE_STATUS) {
@@ -93,6 +95,6 @@ const Settings = ({ clickedBack, clickedCross, deviceStatus }) => {
         <SettingControl key={settingClicked.type} clicked setting={settingClicked} onOptionClicked={handleOptionClicked} onSettingClicked={handleSettingClicked} />}
     </StyledWrapper>
   );
-};
+});
 
-export default memo(Settings);
+export default Settings;

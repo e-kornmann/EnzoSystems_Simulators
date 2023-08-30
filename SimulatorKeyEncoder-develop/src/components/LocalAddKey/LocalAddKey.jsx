@@ -52,6 +52,11 @@ const reducer = (state, action) => {
     case 'set-key': {
       return { ...state, initialized: true, key: action.payload };
     }
+    case 'input-array-value': {
+      const changedKey = state.key ? { ...state.key } : {};
+      changedKey[action.field.source] = action.payload;
+      return { ...state, key: changedKey };
+    }
     case 'input-value': {
       const changedKey = state.key ? { ...state.key } : {};
       changedKey[action.field.source] = action.payload;
@@ -81,6 +86,8 @@ const LocalAddKey = ({ saveKeyClicked }) => {
     dispatch({ type: 'set-today', payload: format(new Date(), 'yyyy-MM-dd') });
     return format(new Date(), 'yyyy-MM-dd');
   }, []);
+
+  
 
   const tomorrow = useMemo(() => {
     dispatch({ type: 'set-tomorrow', payload: format(addDays(new Date(), 1), 'yyyy-MM-dd') });
@@ -139,8 +146,12 @@ const LocalAddKey = ({ saveKeyClicked }) => {
     ];
   }, []);
 
+  const handleArrayInput = useCallback((value, field) => {
+    dispatch({ type: 'input-array-value', field: field, payload: [value] });
+  }, []);
+
   const handleInput = useCallback((value, field) => {
-    dispatch({ type: 'input-value', field: field, payload: value });
+    dispatch({ type: 'input-array-value', field: field, payload: value });
   }, []);
 
   useEffect(() => {
@@ -169,12 +180,12 @@ const LocalAddKey = ({ saveKeyClicked }) => {
             {field.type === AddKeyFieldTypes.ROOM_ACCESS &&
               <StyledControl>
                 <StyledLabel>{field.name}:</StyledLabel>
-                <EnzoDropdown defaultValue='' field={field} label='Room Number' options={availableRooms} onOptionClicked={handleInput} />
+                <EnzoDropdown defaultValue='' field={field} label='Room Number' options={availableRooms} onOptionClicked={handleArrayInput} />
               </StyledControl>}
             {field.type === AddKeyFieldTypes.ADDITIONAL_ACCESS &&
               <StyledControl>
                 <StyledLabel>{field.name}:</StyledLabel>
-                <EnzoDropdown defaultValue='' field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleInput} />
+                <EnzoDropdown defaultValue='' field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleArrayInput} />
               </StyledControl>}
             {field.type === AddKeyFieldTypes.START_DATE_TIME &&
               <StyledControl>

@@ -22,7 +22,7 @@ const SelectScheme = ({ hide, onHide }: Props) => {
 
   const onChangeEventHandler = (mode: SupportedSchemesType) => {
     dispatch({ type: SettingModes.SELECT_SCHEME, payload: mode });
-    setTimeout(()=>onHide(), 500);
+    setTimeout(()=> onHide(), 200);
   };
 
   return (

@@ -56,11 +56,11 @@ const DeviceSettings = ({ modusSetterHandler }: Props) => {
         setList(<Settings menuToggler={menuToggler} />);
         break;
       case SettingModes.OPERATIONAL_MODE:
-        setList(<StatusOptions arrowBackButtonHandler={arrowBackButtonHandler} />);
+        setList(<StatusOptions arrowBackButtonHandler={arrowBackButtonHandler} modusSetterHandler={modusSetterHandler} />);
         modusSetterHandler(QrAppModi.SET_MODE);
         break;
       case SettingModes.LANGUAGE:
-        setList(<LanguageOptions arrowBackButtonHandler={arrowBackButtonHandler} />)
+        setList(<LanguageOptions arrowBackButtonHandler={arrowBackButtonHandler} modusSetterHandler={modusSetterHandler} />)
         modusSetterHandler(QrAppModi.SET_LANGUAGE);
         break;
       default:

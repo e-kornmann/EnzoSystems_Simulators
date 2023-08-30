@@ -9,8 +9,6 @@ import { ReactComponent as KeysIcon } from '../../../images/keys.svg';
 import { ReactComponent as SettingsIcon } from '../../../images/settings.svg';
 
 
-
-
 const StyledSaveKeyButton = styled('div')({});
 const StyledPlaceholder = styled.div``;
 
@@ -21,7 +19,6 @@ const StyledFooter = styled('footer')(({ theme }) => ({
   justifyContent: 'center',
   padding: '6px 13px 10px',
   backgroundColor:  theme.colors.background.primary,
-
 
   '& > button': {
     display: 'flex',
@@ -70,8 +67,6 @@ const StyledAddKeyButton = styled('div')(({ theme })=>({
   marginBottom: '3px',
   }
 }));
-
-
 
 const Footer = ({ showAddKey, showSettings }) => {
   const appDispatch = useContext(AppDispatchContext);

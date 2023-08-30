@@ -3,7 +3,7 @@ import * as Sv from "../../../styles/stylevariables";
 
 export const Container = styled.main`
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 35px 1fr;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   width: 100%;
@@ -11,6 +11,28 @@ export const Container = styled.main`
   min-height: 420px;
   background-color: ${Sv.appBackground};
 `;
+
+export const SharedStyledHeader = styled('div')(({ theme }) => ({
+  display: "flex",
+  padding: "0 8px 0 9px",
+  justifyContent: "space-between",
+  alignItems: "center",
+  fontWeight: "500",
+  borderTopLeftRadius: "5px",
+  borderTopRightRadius: "5px",
+  backgroundColor: theme.colors.background.primary,
+  color: theme.colors.text.secondary,
+  '& > button': {
+    cursor: "pointer",
+    width: "13px",
+    height: "13px",
+    display: "grid",
+    alignItems: "flex-end",
+    '& > svg': {
+      fill: theme.colors.text.primary,
+    }
+  }
+}));
 
 export const Header = styled.div`
   height: 35px;
@@ -22,13 +44,11 @@ export const Header = styled.div`
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background-color: white;
-
   & > svg {
     position: relative;
     fill: ${Sv.asphalt}; 
     cursor: pointer;
   }
-
   & > div {
     & > svg {
       position: relative;
@@ -37,7 +57,6 @@ export const Header = styled.div`
     }
   }
 `;
-
 
 export const GenericFooter = styled.footer`
   height: 40px;
@@ -68,7 +87,6 @@ export const GenericFooter = styled.footer`
     cursor: pointer;
     width: 100%;
     height: 100%;
-  
     display: flex;
     justify-content: center;
     column-gap: 8px;
@@ -85,7 +103,6 @@ export const GenericFooter = styled.footer`
     }
   }
 `;
-
 
 export const GenericList = styled.div`
   padding: 2px 0;

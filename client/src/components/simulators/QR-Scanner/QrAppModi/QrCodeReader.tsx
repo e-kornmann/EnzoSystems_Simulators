@@ -1,11 +1,11 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import SuccessIcon from '../../../shared/Success';
 import * as Sv from '../../../../styles/stylevariables';
 import { QrAppModi, QrCode } from '..';
 import { GenericFooter } from '../../../shared/DraggableModal/ModalTemplate';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as QrCodeIcon } from '../../../../assets/svgs/qr_code.svg';
-import { ReactComponent as QrCodeIconButton } from '../../../../assets/svgs/qrCode_withoutFrame.svg';
+import { ReactComponent as QrCodeIconNoCanvas } from '../../../../assets/svgs/qrCode_withoutFrame.svg';
 import { ReactComponent as AddIcon } from '../../../../assets/svgs/add_qr_code.svg';
 import { Loading } from '../../../shared/Loading';
 import AnimatedCrossHair from './AnimatedCrossHair';
@@ -20,139 +20,132 @@ import { AppContext, SettingModes } from '../utils/settingsReducer';
 import ts from '../Translations/translations';
 import { statusOptions } from './DeviceSettings/AvailableSettings/StatusOptions';
 
-const QrScannerWrapper = styled.div`
-  display: grid;
-  grid-template-rows: 14% 16% 1fr 20% auto;
-  row-gap: 2%;
-`;
+const QrScannerWrapper = styled('div')({
+  display: 'grid',
+  gridTemplateRows: '14% 16% 1fr 20% auto',
+  rowGap: '2%'
+});
 
+const InstructionBox = styled('div')({
+  const: '100%',
+  height: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-end',
+  '& > span': {
+    whiteSpace: 'pre-line',
+    textAlign: 'center',
+    fontSize: '1.15em',
+    lineHeight: '1.23em',
+    fontWeight: '500'
+  }
+});
 
-const InstructionBox = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  & > span {
-    white-space: pre-line;
-    text-align: center;
-    font-size: 1.15em;
-    line-height: 1.23em;
-    font-weight: 500;
-  }
-`;
-const IconBox = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-`;
-const ScannerBox = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-`;
-const ButtonBox = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-y: hidden;
-`;
-const ScanActionButton = styled.button`
-  background-color: ${Sv.enzoOrange};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 85%;
-  height: 50%;
-  border-radius: 2px;
-  cursor: pointer;
-  z-index: 300;
-  border-radius: 6px;
-  &:active {
-    background-color: ${Sv.enzoDarkOrange};
-  }
-  & > span {
-    font-weight: 300;
-    font-size: 0.9em;
-    color: white;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 70%;
-  }
-  & > svg {
-    position: relative;
-    top: -1px;
-    fill: white;
-    margin-right: 8px;
-  }
-  &:disabled {
-    background-color: ${Sv.gray};
-    cursor: inherit;
-    &:active {
-      background-color: ${Sv.gray};
-    }
-  }
-`;
+const IconBox = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+  width: '100%'
+});
 
+const ScannerBox = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-start'
+});
+const ButtonBox = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflowY: 'hidden'
+});
 
+const ScanActionButton = styled('button')(({ theme } ) => ({
+  backgroundColor: 'orange',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '85%',
+  height: '50%',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  zIndex: '300',
+  '&:active': {
+    backgroundColor: theme.colors.brandColors.enzoOrange,
+  },
+  '& > span': {
+    fontWeight: '300',
+    fontSize: '0.9em',
+    color: 'white',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    maxWidth: '70%'
+  },
+  '& > svg': {
+    position: 'relative',
+    top: '-1px',
+    fill: 'white',
+    marginRight: '8px'
+  },
+  '&:disabled': {
+    backgroundColor: theme.colors.buttons.gray,
+    cursor: 'inherit',
+  }
+}))
 
 const slideAnimation = keyframes`
-0% {
-  opacity: 0;
-  transform: translateX(-200vw);
-}
-
-10%, 90% {
-  opacity: 1;
-  transform: translateX(0px);
-}
-
-35%, 65% {
-  animation-timing-function: ease-out;
-  transform: scale(1);
-  transform-origin: center center;
-}
-
-45%, 55% {
-  animation-timing-function: ease-in-out;
-  transform: scale(0.91);
-}
-
-50% {
-  animation-timing-function: ease-in-out;
-  transform: scale(0.98);
-}
-
-100% {
-  opacity: 0;
-  transform: translateX(200vw);
-}
+  0% {
+    opacity: 0.5;
+    transform: translateX(-200vw);
+  }
+  10%, 80% {
+    opacity: 1;
+    transform: translateX(0px);
+  }
+  40%, 60% {
+    animation-timing-function: ease-out;
+    transform: scale(1);
+    transform-origin: center center;
+  }
+  45%, 55% {
+    animation-timing-function: ease-in-out;
+    transform: scale(0.91);
+  }
+  50% {
+    animation-timing-function: ease-in-out;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(200vw);
+  }
 `;
 
 const AnimatedQr = styled.div<{$animate: boolean}>`
-  position: absolute;
-  display: ${ props => props.$animate ? 'flex' : 'none' };
-  align-items: center;
-  justify-content: center;
-  top: 30%;
-  width: 100%;
-  height: 40%;
-  overflow: hidden;
-  z-index: 300;
-  & > div {
-    padding: 20px;
-    background-color: white;
-    animation: ${slideAnimation} 2s ease 0s 1 normal forwards;
-    border-radius: 3px;
-     & > svg {
-      width: 100%;
-      height: 100%;
-     }
-    }
+position: absolute;
+display: ${ props => props.$animate ? 'flex' : 'none' };
+align-items: center;
+justify-content: center;
+top: 30%;
+width: 100%;
+height: 40%;
+overflow: hidden;
+z-index: 300;
+& > div {
+  width: 60%;
+  padding: 7%;
+  background-color: white;
+  animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
+  border-radius: 3px;
+   & > svg {
+    width: 100%;
+    height: 100%;
+    fill: ${ props => props.theme.colors.text.black};
+   }
+  }
 
-`;
+`
 
 export enum OperationalState {
   DEVICE_START_UP,
@@ -248,7 +241,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         waitTime = 3000;
         break;
       case OperationalState.DEVICE_CONNECTED:
-        setInstructionText(ts('CONNECTED', state.language));
+        setInstructionText('CONNECTED');
         waitTime = 1000;
         break;
       case OperationalState.DEVICE_COULD_NOT_CONNECT:
@@ -270,7 +263,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         break;
       case OperationalState.DEVICE_IS_SCANNING:
         setInstructionText('Scanning...');
-        waitTime = 5500;
+        waitTime = 3500;
         break;
       case OperationalState.API_SCAN_FAILED:
         setInstructionText('Scan failed');
@@ -457,8 +450,8 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
       </IconBox>
       <ScannerBox>
         
-          <AnimatedQr $animate={deviceStatus === OperationalState.DEVICE_IS_SCANNING}>
-            <div><QrCodeIcon width={130} height={130} /></div>
+          <AnimatedQr $animate={deviceStatus === OperationalState.DEVICE_IS_SCANNING || deviceStatus === OperationalState.API_SCAN_SUCCESS || deviceStatus === OperationalState.API_SCAN_FAILED}>
+            <div><QrCodeIconNoCanvas /></div>
           </AnimatedQr>
         
         <AnimatedCrossHair
@@ -475,7 +468,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             deviceStatus !== OperationalState.DEVICE_WAITING_FOR_BARCODE
           }
         >
-          <QrCodeIconButton width={15} height={15} />
+          <QrCodeIconNoCanvas width={15} height={15} />
           <span>
             {!currentQrCode.name
               ? 'No Qr-Codes'

@@ -7,7 +7,7 @@ import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 import { ReactComponent as ArrowBack } from '../../../images/arrow_back.svg';
 import { ReactComponent as CloseIcon } from '../../../images/close.svg';
 
-export const StyledHeader =  styled('div')(({ theme }) => ({
+export const StyledHeader = styled('div')(({ theme }) => ({
   display: "flex",
   padding: "0 8px 0 9px",
   justifyContent: "space-between",
@@ -17,36 +17,19 @@ export const StyledHeader =  styled('div')(({ theme }) => ({
   borderTopRightRadius: "5px",
   backgroundColor: "white",
   color: theme.colors.text.secondary,
-
-  '& > svg': {
-    position: "relative",
-    fill: theme.colors.text.primary, 
+  '& > button': {
     cursor: "pointer",
-  },
-
-  '& > div':  {
+    width: "13px",
+    height: "13px",
+    display: "grid",
+    alignItems: "flex-end",
     '& > svg': {
-      position: "relative",
-      fill: theme.colors.text.primary,  
-      cursor: "pointer",
+      fill: theme.colors.text.primary,
     }
   }
 }));
-const StyledTitle = styled('div')(({ theme }) => ({
-  alignItems: 'center',
-  color: theme.colors.text.secondary,
-  cursor: 'pointer',
-  display: 'flex',
-  fontSize: '1.0em',
-  height: '100%',
-  justifyContent: 'center',
-  width: '100%'
-}));
 
-const StyledBack = styled('div')(({ $showBack }) => ({}));
-const StyledCross = styled('div')(({ $showCross }) => ({}));
-
-const Header = ({ showBack, showCross, title }) => {
+const Header = memo(function Header({ showBack, showCross, title }) {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleClickBack = useCallback(() => {
@@ -59,17 +42,16 @@ const Header = ({ showBack, showCross, title }) => {
 
   return (
     <StyledHeader>
-      <div>
-  { showBack && <ArrowBack width={12} height={12} onClick={handleClickBack} style={{ top: '2px'}}/>  }
-  </div>
-
-  {title}
-  <div>
-  { showCross && <CloseIcon width={11} height={11} onClick={handleClickCross} />}
-  </div>
-  
+      <button disabled={!showBack} type="button" onClick={handleClickBack}>
+        {showBack && <ArrowBack width={12} height={12} />}
+      </button>
+      {title}
+      <button disabled={!showCross} type="button" onClick={handleClickCross}>
+        {showCross && <CloseIcon width={11} height={11} />}
+      </button>
     </StyledHeader>
   );
-};
+})
 
-export default memo(Header);
+export default Header;
+

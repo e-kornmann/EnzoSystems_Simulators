@@ -3,9 +3,8 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import axios from 'axios';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-// reset css 
-import './style.css'
 // components
+import InitialScreen from './components/InitialScreen/InititialScreen'
 import Footer from './components/Footer/Footer';
 import Header from './components/Header/Header';
 import LocalAddKey from './components/LocalAddKey/LocalAddKey';
@@ -23,7 +22,74 @@ import ProcessStatuses from './enums/ProcessStatuses';
 import theme from './theme/theme.json';
 
 const GlobalStyle = createGlobalStyle`
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: ${props => props.theme.colors.text.black};
+  font-family: 'Inter', -apple-system, Helvetica, Arial, sans-serif;
+}
 
+html {
+  line-height: 1.15; /* 1 */
+  text-size-adjust: 100%; /* 2 */
+  font-size: 14px;
+ }
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background-color: white;
+}
+
+hr {
+  box-sizing: content-box; /* 1 */
+  height: 0; /* 1 */
+  overflow: visible; /* 2 */;
+}
+
+pre {
+  font-family: monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+*, ::before, ::after {box-sizing: border-box;}
+
+body, button, ul, ol, li, input { 
+  margin: 0; padding: 0; 
+}
+
+button, input {
+  max-width: 100%; font: inherit; outline: none; box-shadow: none; line-height: 1.5;
+}
+
+button {
+  background-color: transparent; border: 0;
+}
+
+a {
+  text-decoration: none; outline: none;
+}
+
+a:hover, a:focus, a:active, a:visited {
+  text-decoration: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  appearance: textield;
+  -moz-appearance: textfield;
+}
+
+.wrap {
+  height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+}
 `;
 
 const StyledWrapper = styled('div')({
@@ -53,13 +119,13 @@ const StyledContent = styled('div')(({ theme }) => ({
   overflowY: 'hidden',
 }));
 
+
 const initialState = {
-  clickedBack: false,
-  clickedCross: false,
   deviceStatus: DeviceStatuses.CONNECTED,
   headerTitle: 'Room Key Encoder',
   initialized: false,
   localKeys: null,
+  selectedKey: null,
   processStatus: ProcessStatuses.WAITING,
   saveKeyClicked: false,
   session: null,
@@ -68,6 +134,8 @@ const initialState = {
   showAddKey: false,
   showBack: false,
   showCross: false,
+  clickedBack: false,
+  clickedCross: false,
   showKeys: false,
   showSettings: false,
   tokens: null,
@@ -103,21 +171,33 @@ const reducer = (state, action) => {
     case 'show-cross': {
       return { ...state, showCross: action.payload };
     }
+    case 'clicked-back': {
+      return { ...state, clickedBack: action.payload, showBack: false,};
+    }
+    case 'clicked-cross': {
+      return { ...state, clickedCross: action.payload, showCross: false, showBack: false, showSettings: false, headerTitle: 'Room Key Encoder', readOrCreate: undefined, showKeys: false, showAddKey: false };
+    }
     case 'toggle-settings': {
       return { ...state, headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle, showCross: !state.showSettings, showSettings: !state.showSettings };
     }
     case 'show-add-key': {
-      return { ...state, showAddKey: action.payload };
+      return { ...state, showAddKey: action.payload, showCross: true };
     }
     case 'save-key-clicked': {
       return { ...state, saveKeyClicked: action.payload };
     }
+    case 'read-or-create': {
+      return { ...state, readOrCreate: action.payload };
+    }
+    case 'select-key': {
+      return { ...state, selectedKey: action.payload };
+    }
     case 'save-key': {
       const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
-      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: false };
+      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: false, selectedKey: action.payload };
     }
     case 'show-keys': {
-      return { ...state, showKeys: action.payload };
+      return { ...state, showKeys: action.payload, showCross: true};
     }
     default:
       console.error(`ERROR: this app reducer action type does not exist: ${action.type}`);
@@ -160,6 +240,10 @@ const App = () => {
 
     getAuthenticationToken();
   }, []);
+
+  // /* Handle Read or Create Button */
+  // const handleReadButton = useCallback(() => dispatch({ type: 'read-or-create', payload: 'READ' }), []);
+  // const handleCreateButton = useCallback(() => dispatch({ type: 'read-or-create', payload: 'CREATE' }), []);
 
   /* Call Get Token Until We Have One */
   useEffect(() => {
@@ -270,7 +354,7 @@ const App = () => {
   }, [state.tokens]);
 
 
-      // console.log('session: ' + state.session ? state.session.metadata.name: null);
+  // console.log('session: ' + state.session ? state.session.metadata.name: null);
 
 
   useEffect(() => {
@@ -289,18 +373,26 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <StyledWrapper>
-        <GlobalStyle styled={theme} />
+        <GlobalStyle />
         <AppDispatchContext.Provider value={dispatch}>
           <TokenContext.Provider value={state.tokens}>
             <StyledApp>
-              
+
               <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} />
-              
+
               <StyledContent>
+
                 {!state.showSettings && !state.showAddKey && !state.showKeys &&
                   <StyledContent>
+
+                   
+
+                   
+{((state.processStatus !== ProcessStatuses.SCANNING && state.processStatus !== ProcessStatuses.CREATE_KEY)) &&
+
+                  <InitialScreen selectedKey={state.selectedKey} deviceStatus={state.deviceStatus} />}
                     {((state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)) &&
-                      <KeyContent session={state.session} type={state.session.metadata.name} />}
+                      <KeyContent session={state.session} type={state.session.metadata.name} selectedKey={state.selectedKey} readOrCreate={state.readOrCreate} />}
                   </StyledContent>}
                 {!state.showSettings && !state.showKeys && state.showAddKey &&
                   <StyledContent>
@@ -308,7 +400,7 @@ const App = () => {
                   </StyledContent>}
                 {!state.showSettings && !state.showAddKey && state.showKeys &&
                   <StyledContent>
-                    <ViewKeys keys={state.localKeys} />
+                    <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} />
                   </StyledContent>}
                 {state.showSettings &&
                   <Settings clickedBack={state.clickedBack} clickedCross={state.clickedCross} deviceStatus={state.deviceStatus} />}
