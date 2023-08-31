@@ -1,9 +1,8 @@
-import * as Sv from "../../../../styles/stylevariables";
-import styled from "styled-components";
-import { MessageContentType, PinTerminalStatus } from "../types";
+import styled from 'styled-components';
 import { memo } from 'react';
-import { SharedSuccesOrFailIcon } from "../../../shared/CheckAndCrossIcon";
-
+import * as Sv from '../../../../styles/stylevariables';
+import { MessageContentType, PinTerminalStatus } from '../types';
+import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
 
 export const MessageContainer = styled.div`    
     display: flex;
@@ -48,27 +47,35 @@ export const IconContainer = styled.div`
 `;
 
 type Props = {
-    content: MessageContentType;
-    terminalState: PinTerminalStatus;
-}
+  content: MessageContentType;
+  terminalState: PinTerminalStatus;
+};
 
-const MessageBlock = ({content, terminalState}: Props) => {
-    const { mainline, subline, failicon, successicon } = content;
+const MessageBlock = ({ content, terminalState }: Props) => {
+  const {
+    mainline, subline, failicon, successicon,
+  } = content;
 
-    return (
-      <>
+  return (
+    <>
       <MessageContainer>
-  
-        { successicon && <IconContainer><SharedSuccesOrFailIcon isSuccess={true} width={53} height={53} /></IconContainer> }
-        { failicon && <IconContainer><SharedSuccesOrFailIcon isFailed={true} width={53} height={53} /></IconContainer> }
-      
-        { (terminalState === PinTerminalStatus.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine> :  
-     <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>       
-  
-    }
+
+        {successicon
+          && <IconContainer>
+            <SharedSuccesOrFailIcon isSuccess={true} width={53} height={53} />
+          </IconContainer>}
+        {failicon
+          && <IconContainer>
+            <SharedSuccesOrFailIcon isFailed={true} width={53} height={53} />
+          </IconContainer>}
+
+        {(terminalState === PinTerminalStatus.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine>
+          : <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>
+
+        }
       </MessageContainer>
-      </>
-    )
-  }
-  
-  export const Message = memo(MessageBlock);
+    </>
+  );
+};
+
+export const Message = memo(MessageBlock);

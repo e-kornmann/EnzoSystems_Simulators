@@ -5,13 +5,9 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "paths": {
-      "SimulatorKeyEncoder/*": ["./src/components/simulators/SimulatorKeyEncoder/src/*"]
-    },
 
-    
     /* Debugging */
-    "outDir": "dist",
+    "outDir": "out",
     "sourceMap": true,
 
     /* Bundler mode */
@@ -28,6 +24,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "vite.config.ts", "typings/custom.d.ts", "./tests/*.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "vite.config.ts", "custom.d.ts", "./tests/*.ts"],
+  "exclude": [""],
+  "references": [{ "path": "./tsconfig.node.json" }],
 }

@@ -1,6 +1,5 @@
-import { CurrencyCode } from "../../../../types/CurrencyTypes";
-import { Locale } from "../../../../types/LocaleTypes";
-
+import { CurrencyCode } from '../../../../types/CurrencyTypes';
+import { Locale } from '../../../../types/LocaleTypes';
 
 export enum PinTerminalStatus {
   START_UP,
@@ -21,6 +20,7 @@ export enum PinTerminalStatus {
   AMOUNT_ERROR,
   SUCCESS,
   STOPPED,
+  UNKNOWN,
 }
 
 export enum PayMethod {
@@ -49,7 +49,7 @@ export type UpdateResponseTransaction = {
   merchantId: string,
   terminalId: string,
   reference: string,
-}
+};
 
 export type GetTransactionDetails = {
   terminalId: string,
@@ -61,12 +61,11 @@ export type GetTransactionDetails = {
   locale: Locale,
   receipt: string,
   status: string
-}
-
+};
 
 export type MessageContentType = {
   mainline: string;
   subline: string | undefined;
   failicon: boolean | undefined;
   successicon: boolean | undefined;
-}
+};

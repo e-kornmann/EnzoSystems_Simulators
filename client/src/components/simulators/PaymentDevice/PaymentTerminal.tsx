@@ -1,17 +1,23 @@
-import React from 'react';
+import React, {
+  useCallback, useContext, useEffect, useMemo, useState,
+} from 'react';
+import styled from 'styled-components';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/Expand';
 import useLogOn from '../../../hooks/useLogOn';
-import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
+import {
+  cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody,
+} from './Config';
 import useStopTransaction from '../../../hooks/useStopTransaction';
 import { rejectTransaction } from './utils/rejectTransaction';
 import { updateTransaction } from './utils/updateTransaction';
-import { AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus } from './types';
+import {
+  AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus,
+} from './types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
 import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
-import styled from 'styled-components';
 import { Container, GenericFooter, Header } from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon';
 import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
@@ -19,7 +25,6 @@ import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 import { AppContext } from './utils/settingsReducer';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SharedLoading } from '../../shared/Loading';
 
 const Content = styled.div`
@@ -35,7 +40,9 @@ const Footer = styled(GenericFooter)`
   bottom: 0px;
 `;
 
-const initialMessage = { mainline: '', subline: undefined, failicon: undefined, successicon: undefined }
+const initialMessage = {
+  mainline: '', subline: undefined, failicon: undefined, successicon: undefined,
+};
 
 const PaymentTerminal = () => {
   const { state } = useContext(AppContext);
@@ -51,8 +58,7 @@ const PaymentTerminal = () => {
   const [hidePayProviders, setHidePayProviders] = useState(true);
   const [init, setInit] = useState(false);
   const [messageContent, setMessageContent] = useState<MessageContentType>(initialMessage);
-  
-  
+
   useEffect(() => {
     if (init === false) {
       const doLogOn = async () => {
@@ -60,11 +66,11 @@ const PaymentTerminal = () => {
         setInit(logOnSucceeded);
       };
       doLogOn();
-
-  }}, [init, logOn, stopTransaction])
+    }
+  }, [init, logOn, stopTransaction])
   ;
 
-  // Fetch transaction details at regular intervals (1 second) if the terminalState is not idle, 
+  // Fetch transaction details at regular intervals (1 second) if the terminalState is not idle,
   // and put the response in transactionDetails:
   useEffect(() => {
     if (terminalState !== PinTerminalStatus.IDLE && terminalState !== PinTerminalStatus.START_UP) {
@@ -93,7 +99,6 @@ const PaymentTerminal = () => {
     }
   }, [pincode]);
 
-
   const handlePincodeSetter = React.useCallback((value: string) => {
     if (pincode.length < 4) {
       setPincode(pincode + value);
@@ -107,37 +112,41 @@ const PaymentTerminal = () => {
       setPinAttempts(pinAttempts + 1);
       setTerminalState(PinTerminalStatus.CHECK_PIN);
     }
-  }
+  };
 
-  const settingsButtonHandler = useCallback(() => setHideSettings((prev) => !prev), []);
-  const payProviderButtonHandler = useCallback(() => setHidePayProviders((prev) => !prev), []);
+  const settingsButtonHandler = useCallback(() => setHideSettings(prev => !prev), []);
+  const payProviderButtonHandler = useCallback(() => setHidePayProviders(prev => !prev), []);
 
   useEffect(() => {
-
-    let waitTime: number | undefined = undefined;
+    let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
-    let acceptTransactionStatusCode: number | undefined = undefined;
-    let updateTransactionStatusCode: number | undefined = undefined;
+    let acceptTransactionStatusCode: number | undefined;
+    let updateTransactionStatusCode: number | undefined;
 
     switch (terminalState) {
       case PinTerminalStatus.START_UP:
         waitTime = 1000;
         break;
       case PinTerminalStatus.OUT_OF_ORDER:
-        setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), failicon: true })
+        setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), failicon: true });
         break;
       case PinTerminalStatus.IDLE:
-        setMessageContent({ ...initialMessage, mainline: ts('welcome', state.language) })
+        setMessageContent({ ...initialMessage, mainline: ts('welcome', state.language) });
         setPinAttempts(0);
         setActivePayMethod(PayMethod.NONE);
         setPincode('');
         waitTime = 1000;
         break;
       case PinTerminalStatus.SERVER_ERROR:
-        updateTransactionStatusCode === 409 ?
-          setMessageContent({ ...initialMessage, mainline: ts('serverError409', state.language), subline: ts('serverError409', state.language, 1), failicon: true }) :
-          // if response status code is not 409, set message with a regular serverError;
-          setMessageContent({ ...initialMessage, mainline: ts('serverError', state.language), subline: ts('serverError', state.language, 1), failicon: true });
+        if (updateTransactionStatusCode === 409) {
+          setMessageContent({
+            ...initialMessage, mainline: ts('serverError409', state.language), subline: ts('serverError409', state.language, 1), failicon: true,
+          });
+        } else { // if response status code is not 409, set message with a regular serverError;
+          setMessageContent({
+            ...initialMessage, mainline: ts('serverError', state.language), subline: ts('serverError', state.language, 1), failicon: true,
+          });
+        }
         waitTime = 4500;
         break;
       case PinTerminalStatus.CHOOSE_METHOD:
@@ -150,7 +159,7 @@ const PaymentTerminal = () => {
         waitTime = 7000;
         break;
       case PinTerminalStatus.STOP_TRANSACTION:
-        setMessageContent({ ...initialMessage, subline: ts('stopTransaction', state.language), failicon: true })
+        setMessageContent({ ...initialMessage, subline: ts('stopTransaction', state.language), failicon: true });
         waitTime = 4500;
         break;
       case PinTerminalStatus.PIN_ENTRY:
@@ -161,34 +170,36 @@ const PaymentTerminal = () => {
         waitTime = 1500;
         break;
       case PinTerminalStatus.TIMED_OUT:
-        setMessageContent({ ...initialMessage, mainline: ts('timedOut', state.language), subline: ts('timedOut', state.language, 1) })
+        setMessageContent({ ...initialMessage, mainline: ts('timedOut', state.language), subline: ts('timedOut', state.language, 1) });
         waitTime = 2000;
         break;
       case PinTerminalStatus.CHECK_AMOUNT:
-        setMessageContent({ ...initialMessage, subline: ts('oneMoment', state.language) })
+        setMessageContent({ ...initialMessage, subline: ts('oneMoment', state.language) });
         waitTime = 1000;
         break;
       case PinTerminalStatus.PIN_ERROR:
-        rejectTransaction(token, transactionState.transactionId, 'FAIL')
-        setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), failicon: true })
+        rejectTransaction(token, transactionState.transactionId, 'FAIL');
+        setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), failicon: true });
         waitTime = 4500;
         break;
       case PinTerminalStatus.AMOUNT_ERROR:
-        rejectTransaction(token, transactionState.transactionId, 'DECLINE')
-        setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), failicon: true })
+        rejectTransaction(token, transactionState.transactionId, 'DECLINE');
+        setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), failicon: true });
         waitTime = 4500;
         break;
       case PinTerminalStatus.UPDATE_TRANSACTION:
-        setMessageContent({ ...initialMessage, subline: ts('oneMoment', state.language) })
+        setMessageContent({ ...initialMessage, subline: ts('oneMoment', state.language) });
         waitTime = 500;
         break;
       case PinTerminalStatus.SUCCESS:
-        setMessageContent({ ...initialMessage, subline: ts('paymentAccepted', state.language), successicon: true })
+        setMessageContent({ ...initialMessage, subline: ts('paymentAccepted', state.language), successicon: true });
         waitTime = 3500;
         break;
       case PinTerminalStatus.STOPPED:
         setTerminalState(PinTerminalStatus.OUT_OF_ORDER);
         break;
+      default:
+        setTerminalState(PinTerminalStatus.UNKNOWN);
     }
     if (intervalId) {
       clearInterval(intervalId);
@@ -198,7 +209,11 @@ const PaymentTerminal = () => {
       intervalId = setInterval(async () => {
         switch (terminalState) {
           case PinTerminalStatus.START_UP:
-            init === false ? setTerminalState(PinTerminalStatus.OUT_OF_ORDER) : setTerminalState(PinTerminalStatus.IDLE)
+            if (init === false) { 
+              setTerminalState(PinTerminalStatus.OUT_OF_ORDER);
+            } else {
+              setTerminalState(PinTerminalStatus.IDLE);
+            }
             break;
           case PinTerminalStatus.IDLE:
             acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
@@ -216,7 +231,7 @@ const PaymentTerminal = () => {
             break;
           case PinTerminalStatus.STOP_TRANSACTION:
             stopTransaction();
-            setTerminalState(PinTerminalStatus.IDLE);  // hier ook misschien nog samenvoegen.
+            setTerminalState(PinTerminalStatus.IDLE); // hier ook misschien nog samenvoegen.
             break;
           case PinTerminalStatus.SERVER_ERROR:
             stopTransaction();
@@ -269,6 +284,8 @@ const PaymentTerminal = () => {
           case PinTerminalStatus.SUCCESS:
             setTerminalState(PinTerminalStatus.IDLE);
             break;
+          default:
+            break;
         }
       }, waitTime);
     }
@@ -281,25 +298,24 @@ const PaymentTerminal = () => {
   }, [activePayMethod, pincode, init, pinAttempts, setMessageContent, state.language, stopTransaction, terminalState, token, transactionState.amountToPay, transactionState.transactionId]);
 
   const showMessage = useMemo(() => {
-    if (terminalState === PinTerminalStatus.OUT_OF_ORDER ||
-      terminalState === PinTerminalStatus.IDLE ||
-      terminalState === PinTerminalStatus.SERVER_ERROR ||
-      terminalState === PinTerminalStatus.STOP_TRANSACTION ||
-      terminalState === PinTerminalStatus.TIMED_OUT ||
-      terminalState === PinTerminalStatus.CHECK_AMOUNT ||
-      terminalState === PinTerminalStatus.PIN_ERROR ||
-      terminalState === PinTerminalStatus.AMOUNT_ERROR ||
-      terminalState === PinTerminalStatus.UPDATE_TRANSACTION ||
-      terminalState === PinTerminalStatus.SUCCESS) {
+    if (terminalState === PinTerminalStatus.OUT_OF_ORDER
+      || terminalState === PinTerminalStatus.IDLE
+      || terminalState === PinTerminalStatus.SERVER_ERROR
+      || terminalState === PinTerminalStatus.STOP_TRANSACTION
+      || terminalState === PinTerminalStatus.TIMED_OUT
+      || terminalState === PinTerminalStatus.CHECK_AMOUNT
+      || terminalState === PinTerminalStatus.PIN_ERROR
+      || terminalState === PinTerminalStatus.AMOUNT_ERROR
+      || terminalState === PinTerminalStatus.UPDATE_TRANSACTION
+      || terminalState === PinTerminalStatus.SUCCESS) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }, [terminalState]);
 
   return (
-  
-<>
+
+    <>
       <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
       <Container>
@@ -310,12 +326,11 @@ const PaymentTerminal = () => {
           {/* {Show loading dots by start-up} */}
           {terminalState === PinTerminalStatus.START_UP && <MessageContainer><SharedLoading /></MessageContainer>}
 
-
           {/* {Show window without numpad OR numpad} */}
           {
-            showMessage ?
-              <Message content={messageContent} terminalState={terminalState}/> :
-              <ActiveTransaction
+            showMessage
+              ? <Message content={messageContent} terminalState={terminalState} />
+              : <ActiveTransaction
                 chooseMethodHandler={chooseMethodHandler}
                 activePayMethod={activePayMethod}
                 handlePincodeSetter={handlePincodeSetter}
@@ -330,16 +345,15 @@ const PaymentTerminal = () => {
         </Content>
         <Footer>
 
-            <div><SettingsIcon width={16} height={16} onClick={settingsButtonHandler} /></div>
+          <div><SettingsIcon width={16} height={16} onClick={settingsButtonHandler} /></div>
           <div onClick={payProviderButtonHandler}>
             <PayProvider width={30} height={21} border={true} provider={state.schemeInUse} />
             <ExpandIcon width={12} height={8} />
           </div>
         </Footer>
       </Container>
-      </>
+    </>
   );
 };
 
 export default PaymentTerminal;
-
