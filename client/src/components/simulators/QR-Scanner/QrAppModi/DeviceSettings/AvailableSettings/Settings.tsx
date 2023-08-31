@@ -16,8 +16,8 @@ const Settings = ({menuToggler}: Props) => {
   
   return (
 <S.GenericList>
-  <S.GenericListButton onClick={() => menuToggler(SettingModes.OPERATIONAL_MODE)} >{ts('status', state.language)}<Arrow height={11} /></S.GenericListButton>
-  <S.GenericListButton onClick={() => menuToggler(SettingModes.LANGUAGE)} >{ts('defaultLanguage', state.language)}<Arrow height={11}/></S.GenericListButton>
+  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.OPERATIONAL_MODE)} >{ts('status', state.language)}<Arrow height={11} /></S.GenericListButtonWithArrow>
+  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.LANGUAGE)} >{ts('defaultLanguage', state.language)}<Arrow height={11}/></S.GenericListButtonWithArrow>
 </S.GenericList>
 )}
 

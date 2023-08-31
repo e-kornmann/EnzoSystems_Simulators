@@ -1,8 +1,9 @@
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark';
+import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
 import ts from '../../Translations/translations';
+
 
 export enum OperationalModeOptionsType {
   NORMAL = 'normal',
@@ -25,7 +26,7 @@ const OperationalModeOptions = () => {
           
           {ts(mode, state.language)}
            
-          <Checkmark isDisplayed={state.operationalModeOption === mode }/> 
+          <SharedCheckMark isDisplayed={state.operationalModeOption === mode } width={14} height={11} /> 
         </S.GenericListButton>
       ))}
     </S.GenericList>

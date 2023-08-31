@@ -1,29 +1,28 @@
-import { useContext, useState, useEffect } from 'react';
+import { memo, useContext, useState, useEffect } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark';
-
 import styled from 'styled-components';
 import { GenericFooter } from '../../../../shared/DraggableModal/ModalTemplate';
+import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
 
-const Footer = styled(GenericFooter)`
-  position: absolute;
-  height: 40px;
-  bottom: 0px;
-`;
+const Footer = styled(GenericFooter)({
+  position: 'absolute',
+  height: '40px',
+  bottom: '0px',
+})
 
-export const Wrap = styled.div`
-  display: flex;
-  align-items: center;
-  column-gap: 8px;
-`;
+export const Wrap = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  columnGap: '8px',
+})
 
 type Props = {
   onHide: () => void;
 };
 
-const SchemeOptions = ({ onHide }: Props) => {
+const SchemeOptionsScreen = ({ onHide }: Props) => {
   const { state, dispatch } = useContext(AppContext);
   const [updateOfSelectedSchemes, setUpdateOfSelectedSchemes] = useState(state.selectedSchemes);
   const [allSelected, setAllSelected] = useState(false);
@@ -91,10 +90,13 @@ const SchemeOptions = ({ onHide }: Props) => {
         {Object.values(SupportedSchemesType).map((scheme) => (
           <S.GenericListButton key={scheme} onClick={() => toggleScheme(scheme)}>
             <Wrap>
+            <S.SharedStyledCheckBox $isSelected={isSchemeSelected(scheme)}>
+            <SharedCheckMark isDisplayed={isSchemeSelected(scheme)} width={9} height={6} />
+            </S.SharedStyledCheckBox>
               <PayProvider width={30} height={22} provider={scheme} border={false} />
               {scheme}
             </Wrap>
-            <Checkmark isDisplayed={isSchemeSelected(scheme)} />
+        
           </S.GenericListButton>
         ))}
       </S.GenericList>
@@ -110,4 +112,5 @@ const SchemeOptions = ({ onHide }: Props) => {
   );
 };
 
-export default SchemeOptions;
+export const SchemeOptions = memo(SchemeOptionsScreen);
+

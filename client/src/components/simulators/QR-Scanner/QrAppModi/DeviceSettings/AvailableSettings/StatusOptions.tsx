@@ -1,11 +1,10 @@
-import { useCallback, useContext } from 'react';
+import { memo, useContext } from 'react';
 import { AppContext, SettingModes } from '../../../utils/settingsReducer';
 import * as S from '../../../../../shared/DraggableModal/ModalTemplate';
-import * as Sv from '../../../../../../styles/stylevariables';
-import Checkmark from '../../checkmark';
 import { ReactComponent as Arrow } from '../../../../../../assets/svgs/arrow_back.svg';
 import { ArrowWrapper } from '../DeviceSettings';
 import { QrAppModi } from '../../..';
+import { SharedCheckMark } from '../../../../../shared/CheckAndCrossIcon';
 
 export enum statusOptions {
   CONNECTED = 'Connected',
@@ -18,7 +17,7 @@ type Props = {
   modusSetterHandler: (modus: QrAppModi) => void;
 };
 
-const StatusOptions = ({arrowBackButtonHandler, modusSetterHandler }: Props) => {
+const DeviceStatuses = ({arrowBackButtonHandler, modusSetterHandler }: Props) => {
   const { state, dispatch } = useContext(AppContext);
   
   const onChangeEventHandler = (mode: statusOptions) => {
@@ -34,11 +33,11 @@ const StatusOptions = ({arrowBackButtonHandler, modusSetterHandler }: Props) => 
       {Object.values(statusOptions).map((mode) => (
         <S.GenericListButton key={mode} onClick={() => { onChangeEventHandler(mode);}}>
           {mode}
-          <Checkmark isDisplayed={state.statusOption === mode }  width={14} height={11} color={Sv.enzoOrange}/> 
+          <SharedCheckMark isDisplayed={state.statusOption === mode }  width={14} height={11} /> 
         </S.GenericListButton>
       ))}
     </S.GenericList>
   );
 };
 
-export default StatusOptions;
+export const StatusOptions = memo(DeviceStatuses);

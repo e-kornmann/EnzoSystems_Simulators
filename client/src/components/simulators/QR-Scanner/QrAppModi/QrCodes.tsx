@@ -1,12 +1,13 @@
 import styled from "styled-components";
 import * as S from "../../../shared/DraggableModal/ModalTemplate";
-import Checkmark from "./checkmark";
+
 import { useCallback, useContext, useEffect, useState } from "react";
 import * as Sv from "../../../../styles/stylevariables";
 import { QrAppModi, QrCode } from "..";
 import { DeleteDialog } from "./DeleteDialog";
 import { AppContext } from "../utils/settingsReducer";
 import ts from "../Translations/translations";
+import { SharedCheckMark } from "../../../shared/CheckAndCrossIcon";
 
 const QrCodesWrapper = styled.div`
   position: absolute;
@@ -37,20 +38,6 @@ export const Wrap = styled.div`
   display: flex;
   align-items: center;
   column-gap: 8px;
-`;
-
-const SelectionDiv = styled.div<{$isSelected: boolean}>`
-  display: flex;
-  align-items: center;
-  width: 12px;
-  height: 12px;
-  border: 1px solid ${props => props.$isSelected ? Sv.enzoOrange : Sv.asphalt};
-  border-radius: 1px;
-  cursor: pointer;
-  background-color: ${props => props.$isSelected ? Sv.enzoOrange : 'white'};
-  & > svg {
-    margin-left: 1px;
-  }
 `;
 
 type Props = {
@@ -121,17 +108,13 @@ const QrCodesComponent = ({ qrCodes, modusSetterHandler, selectQrCodeHandler, cu
           <S.GenericListButton type="button" key={`${qr}_${index}`} onClick={() => (currentModus === QrAppModi.DEL_QR) ? toggleSelectedQrCodeForDeletion(qr) : selectQrCodeHandler(qr)}>
             <Wrap>
               {currentModus === QrAppModi.DEL_QR && (
-                <SelectionDiv
-                  onClick={() => {
-                    toggleSelectedQrCodeForDeletion(qr);
-                  }}
-                  $isSelected={selectedQrCodesForDeletion.includes(qr)}
-                ><Checkmark isDisplayed={selectedQrCodesForDeletion.includes(qr)} width={9} height={6} color={Sv.asphalt}/>
-                </SelectionDiv>
+                <S.SharedStyledCheckBox $isSelected={selectedQrCodesForDeletion.includes(qr)}
+                ><SharedCheckMark isDisplayed={selectedQrCodesForDeletion.includes(qr)} width={9} height={6} />
+                </S.SharedStyledCheckBox>
               )}
               <span>{qr.name}</span>
             </Wrap>
-            {currentModus !== QrAppModi.EDIT_LIST && currentModus !== QrAppModi.DEL_QR && <Checkmark isDisplayed={currentQrCode === qr } width={14} height={11} color={Sv.enzoOrange}/> }
+            {currentModus !== QrAppModi.EDIT_LIST && currentModus !== QrAppModi.DEL_QR && <SharedCheckMark isDisplayed={currentQrCode === qr } width={14} height={11} /> }
           </S.GenericListButton>
         ))}
       </S.GenericList>

@@ -4,10 +4,10 @@ import { AppContext } from '../utils/settingsReducer';
 import { PayMethod, PinTerminalStatus } from '../types';
 import * as Sv from '../../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
-import { LoadingDots } from '../../../shared/Loading';
+import { SharedLoading } from '../../../shared/Loading';
 import PinDigits from './PinDigits/PinDigits';
-import CrossIcon from '../../../shared/Fail';
 import ts from '../Translations/translations';
+import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
 
 type ShowProp = {
   $show: boolean;
@@ -236,9 +236,9 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
     <>
     <ActiveTransactionContainer>
       <AmountBox $show={transactionIsActive}>
-      { currentState === PinTerminalStatus.CHECK_PIN ? <LoadingDotsContainer><LoadingDots>...</LoadingDots></LoadingDotsContainer> :  
+      { currentState === PinTerminalStatus.CHECK_PIN ? <LoadingDotsContainer><SharedLoading /></LoadingDotsContainer> :  
         <>
-        <IconContainer>{ currentState === PinTerminalStatus.WRONG_PIN ? <CrossIcon width={15} height={15} fill={Sv.red} /> : ''}</IconContainer>
+        <IconContainer><SharedSuccesOrFailIcon isFailed={currentState === PinTerminalStatus.WRONG_PIN} width={15} height={15}/></IconContainer>
         <AmountText>{ ts('amountToPay', state.language) }</AmountText>
         <Price>{amountText}</Price>
         <Instruction>

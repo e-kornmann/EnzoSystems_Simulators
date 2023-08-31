@@ -1,6 +1,6 @@
 
 
-import api from '../../../../api/pinApi';
+import pinApi from '../../../../api/pinApi';
 import { IntlConfigType } from '../../../../types/IntlConfigType';
 
 function processAmount(amountToPay: string | undefined): number {
@@ -27,7 +27,7 @@ return 0
           authorization: `Bearer ${accessToken}`,
         }
       };
-      const response = await api.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
+      const response = await pinApi.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
         amountToPay: processAmount(amountToPay),
         locale: intlConfig.locale,
         currency: intlConfig.currency,

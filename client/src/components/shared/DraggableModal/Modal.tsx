@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 
 import styled from 'styled-components';
 import * as Sv from '../../../styles/stylevariables';
-import CrossIcon from "../Fail";
 import Draggable from "react-draggable";
+import { SharedCross } from "../CheckAndCrossIcon";
 
 
 
@@ -122,7 +122,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         <Draggable>
           <StyledModal $grabbing={isGrabbing}>
               <CloseButton onClick={hide}>
-                <CrossIcon width={8} height={8} fill={Sv.asphalt} />
+                <SharedCross width={8} height={8} />
               </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>

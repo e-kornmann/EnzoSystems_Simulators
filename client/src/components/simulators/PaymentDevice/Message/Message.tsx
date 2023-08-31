@@ -1,9 +1,9 @@
 import * as Sv from "../../../../styles/stylevariables";
-import SuccessIcon from "../../../shared/Success";
 import styled from "styled-components";
 import { MessageContentType, PinTerminalStatus } from "../types";
 import { memo } from 'react';
-import CrossIcon from "../../../shared/Fail";
+import { SharedSuccesOrFailIcon } from "../../../shared/CheckAndCrossIcon";
+
 
 export const MessageContainer = styled.div`    
     display: flex;
@@ -58,10 +58,13 @@ const MessageBlock = ({content, terminalState}: Props) => {
     return (
       <>
       <MessageContainer>
-        { successicon && <IconContainer><SuccessIcon width={53} height={53} fill={Sv.green}/></IconContainer> }
-        { failicon && <IconContainer><CrossIcon width={53} height={53} fill={Sv.red}/></IconContainer> }
+  
+        { successicon && <IconContainer><SharedSuccesOrFailIcon isSuccess={true} width={53} height={53} /></IconContainer> }
+        { failicon && <IconContainer><SharedSuccesOrFailIcon isFailed={true} width={53} height={53} /></IconContainer> }
+      
         { (terminalState === PinTerminalStatus.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine> :  
-     <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>
+     <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>       
+  
     }
       </MessageContainer>
       </>

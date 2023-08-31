@@ -1,5 +1,4 @@
 
-// import { ReactComponent as SuccessIcon } from '../../../../assets/svgs/success.svg';
 import styled from "styled-components";
 import * as Sv from "../../../../../styles/stylevariables";
 import { ReactComponent as PhoneIcon } from '../../../../../assets/svgs/phone.svg';

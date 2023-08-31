@@ -2,13 +2,12 @@ import { useContext } from 'react';
 import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/close.svg';
-import Checkmark from '../checkmark';
 import { Container } from '../../../../shared/DraggableModal/ModalTemplate';
-
 import { SettingHeader, SettingsWrapper } from '../DeviceSettings';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import { Wrap } from './SchemeOptions';
 import ts from '../../Translations/translations';
+import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
 
 
 type Props = {
@@ -37,7 +36,7 @@ const SelectScheme = ({ hide, onHide }: Props) => {
           {state.selectedSchemes.map(scheme => (
             <S.GenericListButton key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
-              <Checkmark isDisplayed={ state.schemeInUse === scheme }/> 
+              <SharedCheckMark isDisplayed={ state.schemeInUse === scheme } width={14} height={11} /> 
             </S.GenericListButton>
           ))}
         </S.GenericList>

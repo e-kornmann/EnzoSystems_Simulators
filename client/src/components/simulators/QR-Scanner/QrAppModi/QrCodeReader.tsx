@@ -1,24 +1,22 @@
-import styled, { css, keyframes } from 'styled-components';
-import SuccessIcon from '../../../shared/Success';
-import * as Sv from '../../../../styles/stylevariables';
+import styled, { keyframes } from 'styled-components';
 import { QrAppModi, QrCode } from '..';
 import { GenericFooter } from '../../../shared/DraggableModal/ModalTemplate';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as QrCodeIcon } from '../../../../assets/svgs/qr_code.svg';
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../../assets/svgs/qrCode_withoutFrame.svg';
 import { ReactComponent as AddIcon } from '../../../../assets/svgs/add_qr_code.svg';
-import { Loading } from '../../../shared/Loading';
+import { SharedLoading } from '../../../shared/Loading';
 import AnimatedCrossHair from './AnimatedCrossHair';
 import useLogOn from '../../../../hooks/useLogOn';
 import { reqBody, scannerCredentials } from '../config';
 import { changeDeviceStatus } from '../utils/changeDeviceStatus';
 import { putScannedData } from '../utils/putScannedData';
-import CrossIcon from '../../../shared/Fail';
 import { getSession } from '../utils/getSession';
 import { ReactComponent as SettingsIcon } from '../../../../assets/svgs/settings.svg';
 import { AppContext, SettingModes } from '../utils/settingsReducer';
 import ts from '../Translations/translations';
 import { statusOptions } from './DeviceSettings/AvailableSettings/StatusOptions';
+import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
 
 const QrScannerWrapper = styled('div')({
   display: 'grid',
@@ -45,7 +43,7 @@ const IconBox = styled('div')({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'flex-start',
-  width: '100%'
+  width: '100%',
 });
 
 const ScannerBox = styled('div')({
@@ -436,17 +434,13 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
     <QrScannerWrapper>
       <InstructionBox>
         {/* {Show loading dots by start-up} */}
-        {deviceStatus === OperationalState.DEVICE_START_UP ||
-          (deviceStatus === OperationalState.DEVICE_CONNECT && <Loading />)}
+        {deviceStatus === OperationalState.DEVICE_START_UP || deviceStatus === OperationalState.DEVICE_CONNECT 
+        && <SharedLoading/>}
         <span> {instructionText}</span>
       </InstructionBox>
       <IconBox>
-        {deviceStatus === OperationalState.API_SCAN_SUCCESS && (
-          <SuccessIcon width={30} height={30} fill={Sv.green} />
-        )}
-        {deviceStatus === OperationalState.API_SCAN_FAILED && (
-          <CrossIcon width={30} height={30} fill={Sv.red} />
-        )}
+        { deviceStatus === OperationalState.API_SCAN_SUCCESS && <SharedSuccesOrFailIcon isSuccess={true} width={30} height={30} /> }
+        { deviceStatus === OperationalState.API_SCAN_FAILED && <SharedSuccesOrFailIcon isSuccess={false} width={30} height={30} /> }
       </IconBox>
       <ScannerBox>
         

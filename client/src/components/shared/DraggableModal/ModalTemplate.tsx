@@ -34,6 +34,24 @@ export const SharedStyledHeader = styled('div')(({ theme }) => ({
   }
 }));
 
+
+export const SharedStyledCheckBox = styled('div')<{$isSelected: boolean}>(({$isSelected, theme}) => ({
+  display: 'flex',
+  alignItems: 'center',
+  width: '12px',
+  height: '12px',
+  border: '1px solid' + $isSelected ? theme.colors.brandColors.enzoOrange : theme.colors.text.primary,
+  borderRadius: '1px',
+  cursor: 'pointer',
+  backgroundColor: $isSelected ? theme.colors.brandColors.enzoOrange : theme.colors.background.primary,
+  '& > svg': {
+    marginLeft: '1px',
+    fill: theme.colors.text.primary
+  }
+}));
+
+
+
 export const Header = styled.div`
   height: 35px;
   display: flex;
@@ -141,8 +159,10 @@ export const GenericListButton = styled.button`
   font-size: 0.9em;
   padding: 11px;
   column-gap: 20px;
+  fill: ${Sv.enzoOrange};
   & > svg {
     min-width: 14px;
+
   }
   & > span {
     overflow: hidden;
@@ -155,3 +175,8 @@ export const GenericListButton = styled.button`
     fill: ${Sv.enzoOrange};
   }
 `;
+
+
+export const GenericListButtonWithArrow = styled(GenericListButton)`
+    fill: ${Sv.asphalt}
+`

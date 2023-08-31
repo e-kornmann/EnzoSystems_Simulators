@@ -2,7 +2,8 @@ import { useContext } from 'react';
 import { CurrencyCode } from '../../../../../types/CurrencyTypes';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark';
+import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
+
 
 
 const CurrencyOptions = () => {
@@ -25,7 +26,7 @@ const CurrencyOptions = () => {
       {currencies.map((currency) => (
         <S.GenericListButton key={currency} onClick={() => onChangeEventHandler(currency)}>
           {currency}
-          <Checkmark isDisplayed={state.currency === currency }/> 
+          <SharedCheckMark isDisplayed={state.currency === currency } width={14} height={11} /> 
         </S.GenericListButton>
       ))}
     </S.GenericList>

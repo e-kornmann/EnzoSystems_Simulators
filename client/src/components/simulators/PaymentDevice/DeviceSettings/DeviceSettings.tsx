@@ -7,7 +7,7 @@ import Settings from "./AvailableSettings/Settings";
 import CurrencyOptions from "./AvailableSettings/CurrencyOptions";
 import LanguageOptions from "./AvailableSettings/LanguageOptions";
 import PinOptions from "./AvailableSettings/PinOptions";
-import SchemeOptions from "./AvailableSettings/SchemeOptions";
+import { SchemeOptions } from "./AvailableSettings/SchemeOptions";
 import { AppContext, SettingModes } from "../utils/settingsReducer";
 import styled from "styled-components";
 import { Container, Header } from '../../../shared/DraggableModal/ModalTemplate';

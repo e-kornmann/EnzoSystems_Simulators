@@ -1,8 +1,9 @@
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import Checkmark from '../checkmark';
+
 import ts from '../../Translations/translations';
+import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
 
 const PinOptions = () => {
 
@@ -17,11 +18,11 @@ const PinOptions = () => {
     <S.GenericList>
       <S.GenericListButton key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
       {ts('yes', state.language)}
-        <Checkmark isDisplayed={ state.askForPin === true }/> 
+        <SharedCheckMark isDisplayed={ state.askForPin === true } width={14} height={11} /> 
       </S.GenericListButton>
       <S.GenericListButton key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
       {ts('no', state.language)}
-        <Checkmark isDisplayed={ state.askForPin === false }/> 
+        <SharedCheckMark isDisplayed={ state.askForPin === false } width={14} height={11} /> 
       </S.GenericListButton>
     </S.GenericList>
   );

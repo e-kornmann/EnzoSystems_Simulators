@@ -15,7 +15,9 @@ try {
 
   const app = express();
 
-  app.use(cors());
+  app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+  }));
   app.use(helmet());
   app.use(express.json({ limit: process.env.EXPRESS_JSON_LIMIT }));
 

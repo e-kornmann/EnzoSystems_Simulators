@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { QrAppModi } from '../..';
 import { SettingModes } from '../../utils/settingsReducer';
 import * as Sv from '../../../../../styles/stylevariables';
-import StatusOptions from "./AvailableSettings/StatusOptions";
+import { StatusOptions } from "./AvailableSettings/StatusOptions";
 
 export const SettingsWrapper = styled.div`
   position: absolute;
