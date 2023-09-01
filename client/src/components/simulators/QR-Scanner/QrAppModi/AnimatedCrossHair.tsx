@@ -1,5 +1,5 @@
-import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg';
 import styled, { css, keyframes } from 'styled-components';
+import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg';
 import * as Sv from '../../../../styles/stylevariables';
 
 const popAnimation = keyframes`
@@ -24,24 +24,21 @@ const popAnimation = keyframes`
      transform: scale(1);
      fill:${Sv.green};
   }
-`
-const QrIconWrapper = styled.div<{$animate: boolean}>`
-  animation: ${(props) =>
-    props.$animate
-      ? css`${popAnimation} 1.0s ease-in-out infinite`
-      : 'none'};
+`;
+const QrIconWrapper = styled.div<{ $animate: boolean }>`
+  animation: ${props => (props.$animate
+    ? css`${popAnimation} 1.0s ease-in-out infinite`
+    : 'none')};
   fill: ${Sv.lightgray};
-`
+`;
 type Props = {
-    animate: boolean;
-}
+  animate: boolean;
+};
 
-const AnimatedCrossHair = ({animate}: Props) => {
-  return (
+const AnimatedCrossHair = ({ animate }: Props) => (
     <QrIconWrapper $animate={animate}>
       <CrossHairIcon />
     </QrIconWrapper>
-  );
-};
+);
 
 export default AnimatedCrossHair;

@@ -1,4 +1,4 @@
-import { CredentialType, ReqLogOnType } from '../../../../types/LogOnTypes';
+import { CredentialType, ReqLogOnType } from '../../../../../types/LogOnTypes';
 
 export const scannerCredentials: CredentialType = {
   userName: import.meta.env.VITE_SCAN_DEVICE_USERNAME,

@@ -28,7 +28,7 @@ const StyledExplanation = styled('div')(({ theme }) => ({
   height: '19px',
   borderRadius: '2px 2px 0 0',
   maxWidth: '600px',
-  width: '100%'
+  width: '100%',
 }));
 
 const StyledDeleteButton = styled('div')(({ theme }) => ({
@@ -43,9 +43,8 @@ const StyledDeleteButton = styled('div')(({ theme }) => ({
   justifyContent: 'center',
   borderRadius: '0 0 2px 2px',
   maxWidth: '600px',
-  width: '100%'
+  width: '100%',
 }));
-
 
 const StyledCancelButton = styled(StyledDeleteButton)(({ theme }) => ({
   color: theme.colors.buttons.blue,
@@ -59,33 +58,32 @@ type Props = {
   toggleShowComponent: () => void,
   showComponent: boolean,
   selectedQrCodesForDeletion: QrCode[],
-}
+};
 
-const DeleteDialogWrapper = ({ deleteQrCodesHandler, toggleShowComponent, showComponent, selectedQrCodesForDeletion }: Props) => {
-
-
+const DeleteDialogWrapper = ({
+  deleteQrCodesHandler, toggleShowComponent, showComponent, selectedQrCodesForDeletion,
+}: Props) => {
   const deleteConfirmHandler = useCallback(() => {
     deleteQrCodesHandler(selectedQrCodesForDeletion);
     toggleShowComponent();
-  }, [deleteQrCodesHandler, selectedQrCodesForDeletion, toggleShowComponent]
-  )
+  }, [deleteQrCodesHandler, selectedQrCodesForDeletion, toggleShowComponent]);
   return (
 
-    showComponent &&
-    <StyledWrapper>
+    showComponent
+    && <StyledWrapper>
 
-
-      <StyledExplanation>{selectedQrCodesForDeletion.length > 1 ? 'These QR-codes will be deleted.' : 'This QR-code will be deleted.'}</StyledExplanation>
+      <StyledExplanation>
+        {selectedQrCodesForDeletion.length > 1 ? 'These QR-codes will be deleted.' : 'This QR-code will be deleted.'}
+      </StyledExplanation>
       <StyledDeleteButton onClick={deleteConfirmHandler}>Delete</StyledDeleteButton>
-
 
       <StyledCancelButton onClick={toggleShowComponent}>Cancel</StyledCancelButton>
 
-
     </StyledWrapper>
 
-  )
-}
+  );
+};
 
-export const DeleteDialog = memo(DeleteDialogWrapper);
+const DeleteDialog = memo(DeleteDialogWrapper);
 
+export default DeleteDialog;

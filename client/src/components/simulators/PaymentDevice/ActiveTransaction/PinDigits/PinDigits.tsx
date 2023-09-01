@@ -1,12 +1,12 @@
-import styled from "styled-components";
-import * as Sv from "../../../../../styles/stylevariables";
+import styled from 'styled-components';
+import * as Sv from '../../../../../styles/stylevariables';
 
 type DigitProps = {
   $showPinEntry: boolean;
 };
 
 const Digit = styled.div<DigitProps>`
-  display: ${(props) => (props.$showPinEntry ? 'block' : 'none')};
+  display: ${props => (props.$showPinEntry ? 'block' : 'none')};
   border: none;
   background-color: transparent;
   color: ${Sv.asphalt};
@@ -22,18 +22,15 @@ const Digit = styled.div<DigitProps>`
 type Props = {
   pincode: string;
   $showPinEntry: boolean;
-}
-
-const PinDigits = ({pincode, $showPinEntry}:Props) => {
-
-  return (
- <>   
-   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 1 ? "*" : ''}</Digit>
-   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 2 ? "*" : ''}</Digit>
-   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 3 ? "*" : ''}</Digit>
-   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 4 ? "*" : ''}</Digit>
-  </>
-  );
 };
+
+const PinDigits = ({ pincode, $showPinEntry }:Props) => (
+ <>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 1 ? '*' : ''}</Digit>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 2 ? '*' : ''}</Digit>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 3 ? '*' : ''}</Digit>
+   <Digit $showPinEntry={$showPinEntry}>{pincode.length >= 4 ? '*' : ''}</Digit>
+  </>
+);
 
 export default PinDigits;

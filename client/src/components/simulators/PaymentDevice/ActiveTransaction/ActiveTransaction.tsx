@@ -4,14 +4,15 @@ import { AppContext } from '../utils/settingsReducer';
 import { PayMethod, PinTerminalStatus } from '../types';
 import * as Sv from '../../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
-import { SharedLoading } from '../../../shared/Loading';
+import SharedLoading from '../../../shared/Loading';
 import PinDigits from './PinDigits/PinDigits';
 import ts from '../Translations/translations';
 import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
+import ShowIcon from '../../../shared/sharedTypes/ShowIcon';
 
 type ShowProp = {
   $show: boolean;
-}
+};
 
 const ActiveTransactionContainer = styled.div` 
   display: grid;
@@ -20,20 +21,20 @@ const ActiveTransactionContainer = styled.div`
   max-width: 400px;
   margin: auto;
   height: 100%;
-`
+`;
 const AmountBox = styled.div<ShowProp>`
-  display: ${(props) => (props.$show ? 'grid' : 'none')};
+  display: ${props => (props.$show ? 'grid' : 'none')};
   grid-template-rows: 30% 10% 30% 30%;
   flex-direction: column;
   height: 100%;
-`
+`;
 const IconContainer = styled.div`
   grid-row: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding-top: 5px;
-`
+`;
 const AmountText = styled.div`
   grid-row: 2;
   display: flex;
@@ -44,7 +45,7 @@ const AmountText = styled.div`
   font-weight: 500;
   text-align: center;
   white-space: pre-line;
-`
+`;
 const Price = styled.div`
   grid-row: 3;
   display: flex;
@@ -54,19 +55,19 @@ const Price = styled.div`
   font-weight: 600;
   font-size: 1.5em;
   color: ${Sv.enzoOrange};
-`
+`;
 const Instruction = styled(AmountText)`
   display: block;
   grid-row: 4;
   font-size: 1.0em;
   line-height: 1.15em;
-`
+`;
 const PincodeContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   padding-bottom: 10%;
-`
+`;
 const Pads = styled.button`
   display: flex;
   justify-content: center;
@@ -78,18 +79,18 @@ const Pads = styled.button`
   font-weight: 600;
   cursor: pointer;
   height: 100%;
-`
+`;
 const LoadingDotsContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   grid-row: 3;
-`
+`;
 const StyledContent = styled.div`
   height: 100%;
-`
+`;
 const StyledNumpad = styled.div<ShowProp>`
-  display: ${(props) => (props.$show ? 'grid' : 'none')};
+  display: ${props => (props.$show ? 'grid' : 'none')};
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
   max-height: 340px;
@@ -97,31 +98,31 @@ const StyledNumpad = styled.div<ShowProp>`
   height: 100%;
   column-gap: 5%;
   row-gap: 5%;
-`
+`;
 const NumPadButton = styled(Pads)`
   background: ${Sv.enzoOrange};  
   &:active {
     background-color: ${Sv.enzoDarkOrange};
     border: none;
   }
-`
+`;
 const ZeroButton = styled(NumPadButton)`
   grid-column: 2;
-`
+`;
 const StyledFooter = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   height: 100%;
   max-height: 78px;
   column-gap: 5%;
-`
+`;
 type BottomButtonProps = {
   $showBottomButtons: boolean;
   $hideButtons?: boolean;
-}
+};
 
 const StopButton = styled(Pads) <BottomButtonProps>`
-  display: ${(props) => (props.$showBottomButtons ? 'flex' : 'none')};
+  display: ${props => (props.$showBottomButtons ? 'flex' : 'none')};
   height: 90%;
   margin-top: 10%;
   background: ${Sv.red};
@@ -129,9 +130,9 @@ const StopButton = styled(Pads) <BottomButtonProps>`
     background-color: ${Sv.darkred};
     border: none;
   }
-`
+`;
 const CorrectButton = styled(Pads) <BottomButtonProps>`
-  display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
+  display: ${props => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
   height: 90%;
   margin-top: 10%;
   background: ${Sv.yellow};
@@ -139,9 +140,9 @@ const CorrectButton = styled(Pads) <BottomButtonProps>`
     background-color: ${Sv.darkyellow};
     border: none;
   }
-`
+`;
 const OkButton = styled(Pads) <BottomButtonProps>`
-  display: ${(props) => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
+  display: ${props => (props.$showBottomButtons && !props.$hideButtons ? 'flex' : 'none')};
   height: 90%;
   margin-top: 10%;
   background: ${Sv.green};
@@ -149,7 +150,7 @@ const OkButton = styled(Pads) <BottomButtonProps>`
     background-color: ${Sv.darkgreen};
     border: none;
   }
-`
+`;
 type Props = {
   chooseMethodHandler: (method: PayMethod) => void;
   activePayMethod: PayMethod;
@@ -161,12 +162,23 @@ type Props = {
   handleCorrectionEvent: ()=>void;
   currentState: PinTerminalStatus;
   init: boolean;
-}
+};
 
-const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleStopEvent, handleConfirmEvent, handlePincodeSetter, handleCorrectionEvent, pincode, currentState, amount }: Props) => {
+const ActiveTransaction = ({
+  chooseMethodHandler,
+  init,
+  activePayMethod,
+  handleStopEvent,
+  handleConfirmEvent,
+  handlePincodeSetter,
+  handleCorrectionEvent,
+  pincode,
+  currentState,
+  amount,
+}: Props) => {
   const { state } = useContext(AppContext);
   const amountFormat = new Intl.NumberFormat(state.currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const amountText = state.currency + ' ' + amountFormat.format(amount/100);
+  const amountText = `${state.currency} ${amountFormat.format(amount / 100)}`;
 
   let instruction: string;
   switch (currentState) {
@@ -184,27 +196,23 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
       break;
   }
 
-  const transactionIsActive: boolean =
-    currentState === PinTerminalStatus.CHOOSE_METHOD ||
-    currentState === PinTerminalStatus.ACTIVE_METHOD ||
-    currentState === PinTerminalStatus.PIN_CONFIRM ||
-    currentState === PinTerminalStatus.PIN_ENTRY ||
-    currentState === PinTerminalStatus.CHECK_PIN ||
-    currentState === PinTerminalStatus.WRONG_PIN;
+  const transactionIsActive: boolean = currentState === PinTerminalStatus.CHOOSE_METHOD
+    || currentState === PinTerminalStatus.ACTIVE_METHOD
+    || currentState === PinTerminalStatus.PIN_CONFIRM
+    || currentState === PinTerminalStatus.PIN_ENTRY
+    || currentState === PinTerminalStatus.CHECK_PIN
+    || currentState === PinTerminalStatus.WRONG_PIN;
 
-  const showPayMethodButtons: boolean =
-    currentState === PinTerminalStatus.CHOOSE_METHOD ||
-    currentState === PinTerminalStatus.ACTIVE_METHOD;
+  const showPayMethodButtons: boolean = currentState === PinTerminalStatus.CHOOSE_METHOD
+    || currentState === PinTerminalStatus.ACTIVE_METHOD;
 
-  const showNumPad: boolean =
-    currentState === PinTerminalStatus.PIN_ENTRY ||
-    currentState === PinTerminalStatus.WRONG_PIN ||
-    currentState === PinTerminalStatus.PIN_CONFIRM ||
-    currentState === PinTerminalStatus.CHECK_PIN;
+  const showNumPad: boolean = currentState === PinTerminalStatus.PIN_ENTRY
+    || currentState === PinTerminalStatus.WRONG_PIN
+    || currentState === PinTerminalStatus.PIN_CONFIRM
+    || currentState === PinTerminalStatus.CHECK_PIN;
 
-  const hideCorrectAndOkButton: boolean =
-    currentState === PinTerminalStatus.CHOOSE_METHOD ||
-    currentState === PinTerminalStatus.ACTIVE_METHOD;
+  const hideCorrectAndOkButton: boolean = currentState === PinTerminalStatus.CHOOSE_METHOD
+    || currentState === PinTerminalStatus.ACTIVE_METHOD;
 
   // This useEffect listens to KeyEvents and initiates the corrsponding functions.
   useEffect(() => {
@@ -219,7 +227,7 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
       if (event.key === 'Escape' && showNumPad) {
         handleStopEvent();
       }
-      if (event.key === 'Backspace' && showNumPad || event.key === 'Delete' && showNumPad) {
+      if (((event.key === 'Backspace') && showNumPad) || ((event.key === 'Delete') && showNumPad)) {
         handleCorrectionEvent();
       }
     };
@@ -229,16 +237,18 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, [handleConfirmEvent, handleStopEvent, handleCorrectionEvent, init, showNumPad, handlePincodeSetter]);
-  
+
   const numpadArray = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
     <>
     <ActiveTransactionContainer>
       <AmountBox $show={transactionIsActive}>
-      { currentState === PinTerminalStatus.CHECK_PIN ? <LoadingDotsContainer><SharedLoading /></LoadingDotsContainer> :  
-        <>
-        <IconContainer><SharedSuccesOrFailIcon isFailed={currentState === PinTerminalStatus.WRONG_PIN} width={15} height={15}/></IconContainer>
+      { currentState === PinTerminalStatus.CHECK_PIN ? <LoadingDotsContainer><SharedLoading /></LoadingDotsContainer>
+        : <>
+        <IconContainer><SharedSuccesOrFailIcon
+          checkOrCrossIcon={currentState === PinTerminalStatus.WRONG_PIN ? ShowIcon.CROSS : undefined } width={15} height={15}/>
+        </IconContainer>
         <AmountText>{ ts('amountToPay', state.language) }</AmountText>
         <Price>{amountText}</Price>
         <Instruction>
@@ -251,12 +261,12 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
         <PincodeContainer><PinDigits pincode={pincode} $showPinEntry={showNumPad} /></PincodeContainer>
 
         <StyledContent>
-          { showPayMethodButtons ?
-            (
+          { showPayMethodButtons
+            ? (
               <ChoosePayMethod chooseMethodHandler={chooseMethodHandler} activePayMethod={activePayMethod} currentState={currentState} />
             ) : (
-              <StyledNumpad $show={showNumPad}> 
-                { numpadArray.map((num) => <NumPadButton key={num} onClick={() => handlePincodeSetter(num)}>{num}</NumPadButton>) }
+              <StyledNumpad $show={showNumPad}>
+                { numpadArray.map(num => <NumPadButton key={num} onClick={() => handlePincodeSetter(num)}>{num}</NumPadButton>) }
                 <ZeroButton key={'0'} onClick={() => handlePincodeSetter('0')} >{'0'}</ZeroButton>
               </StyledNumpad>
             )
@@ -266,13 +276,15 @@ const ActiveTransaction = ({ chooseMethodHandler, init, activePayMethod, handleS
 
         <StyledFooter>
           <StopButton $showBottomButtons={transactionIsActive} onClick={handleStopEvent}>Stop</StopButton>
-          <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>Cor</CorrectButton>
-          <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type='button' onClick={handleConfirmEvent}>OK</OkButton>
+          <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>
+            Cor</CorrectButton>
+          <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type='button' onClick={handleConfirmEvent}>
+            OK</OkButton>
         </StyledFooter>
 
       </ActiveTransactionContainer>
     </>
-  )
-}
+  );
+};
 
 export default ActiveTransaction;

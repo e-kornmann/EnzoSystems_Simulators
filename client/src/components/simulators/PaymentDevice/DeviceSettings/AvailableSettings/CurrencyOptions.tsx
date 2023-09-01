@@ -1,19 +1,17 @@
 import { useContext } from 'react';
-import { CurrencyCode } from '../../../../../types/CurrencyTypes';
+import CurrencyCode from '../../../../../types/CurrencyTypes';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
-
-
 
 const CurrencyOptions = () => {
   const { state, dispatch } = useContext(AppContext);
 
   const currencies = [
-    CurrencyCode.EUR, 
+    CurrencyCode.EUR,
     CurrencyCode.USD,
     CurrencyCode.GBP,
-    CurrencyCode.CHF
+    CurrencyCode.CHF,
   ];
 
   const onChangeEventHandler = (currency: CurrencyCode) => {
@@ -23,13 +21,13 @@ const CurrencyOptions = () => {
 
   return (
     <S.GenericList>
-      {currencies.map((currency) => (
+      {currencies.map(currency => (
         <S.GenericListButton key={currency} onClick={() => onChangeEventHandler(currency)}>
           {currency}
-          <SharedCheckMark isDisplayed={state.currency === currency } width={14} height={11} /> 
+          <SharedCheckMark isDisplayed={state.currency === currency } width={14} height={11} />
         </S.GenericListButton>
       ))}
     </S.GenericList>
-  )
-}
+  );
+};
 export default CurrencyOptions;

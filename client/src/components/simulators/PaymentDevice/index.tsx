@@ -1,12 +1,10 @@
-import PaymentTerminal from './PaymentTerminal'
-import { AppContextProvider } from './utils/settingsReducer'
+import PaymentTerminal from './PaymentTerminal';
+import { AppContextProvider } from './utils/settingsReducer';
 
-const PaymentTerminalSimulator = () => {
-  return (
+const PaymentTerminalSimulator = () => (
     <AppContextProvider>
     <PaymentTerminal/>
     </AppContextProvider>
-  )
-}
+);
 
-export default PaymentTerminalSimulator
+export default PaymentTerminalSimulator;

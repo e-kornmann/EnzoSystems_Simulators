@@ -9,11 +9,9 @@ const useStopTransaction = (accessToken: string, reqBody: ReqLogOnType, transact
         headers: {
           contentType: 'application/json',
           authorization: `Bearer ${accessToken}`,
-        }
+        },
       };
-      await api.put(`/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`, {
-        action: "STOP"
-      }, config);
+      await api.put(`/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`, { action: 'STOP' }, config);
     } catch (error) {
       console.error('Unable to stop transaction:', error);
     }

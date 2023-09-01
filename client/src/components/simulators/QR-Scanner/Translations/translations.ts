@@ -1,9 +1,6 @@
-
-
-
 type Translations = {
   [key: string]: { [key in string]: string; }[];
-}
+};
 
 const translations: Translations = {
   qrCodeReader: [
@@ -128,7 +125,7 @@ const translations: Translations = {
       english: 'Name',
     },
   ],
-}
+};
 
 // Use indexed if you need a second line in a different element, i.e., a subline.
 const ts = (id: string, language: string, indexed?: number): string => {
@@ -141,6 +138,3 @@ const ts = (id: string, language: string, indexed?: number): string => {
 };
 
 export default ts;
-
-
-

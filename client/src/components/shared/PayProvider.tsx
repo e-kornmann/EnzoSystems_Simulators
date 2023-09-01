@@ -20,7 +20,7 @@ import { ReactComponent as MastercardDebit } from '../../assets/svgs/PayProvider
 
 import { ReactComponent as MasterPass } from '../../assets/svgs/PayProviders/masterpass.svg';
 import { ReactComponent as PayPal } from '../../assets/svgs/PayProviders/paypal.svg';
-import { ReactComponent as SwissPost } from '../../assets/svgs/PayProviders/swisspost.svg' ;
+import { ReactComponent as SwissPost } from '../../assets/svgs/PayProviders/swisspost.svg';
 import { ReactComponent as SwissReka } from '../../assets/svgs/PayProviders/swissreka.svg';
 
 import { ReactComponent as Twint } from '../../assets/svgs/PayProviders/twint.svg';
@@ -32,41 +32,40 @@ import { ReactComponent as VisaDebit } from '../../assets/svgs/PayProviders/visa
 import { ReactComponent as VPay } from '../../assets/svgs/PayProviders/vpay.svg';
 import { ReactComponent as Wechat } from '../../assets/svgs/PayProviders/wechatpay.svg';
 
-
 export enum SupportedSchemesType {
-  ALIPAY = "Alipay",
-  AMEX = "AMEX",
-  APPLEPAY = "ApplePay",
-  BANCONTACT = "Bancontact",
+  ALIPAY = 'Alipay',
+  AMEX = 'AMEX',
+  APPLEPAY = 'ApplePay',
+  BANCONTACT = 'Bancontact',
 
-  CARTESBANCAIRES = "Cartes Bancaires",
-  DINERS = "Diners Club",
-  DISCOVER = "Discover",
-  GIROCARD = "Girocard",
+  CARTESBANCAIRES = 'Cartes Bancaires',
+  DINERS = 'Diners Club',
+  DISCOVER = 'Discover',
+  GIROCARD = 'Girocard',
 
-  GIROPAY = "Giropay",
-  GOOGLEPAY = "Google Pay",
-  IDEAL = "iDEAL",
-  INTERAC = "Interac",
+  GIROPAY = 'Giropay',
+  GOOGLEPAY = 'Google Pay',
+  IDEAL = 'iDEAL',
+  INTERAC = 'Interac',
 
-  JCB_BANK = "JCB",
-  MAESTRO = "Maestro",
-  MASTERCARD = "Mastercard",
-  MASTERCARDDEBIT = "Mastercard Debit",
+  JCB_BANK = 'JCB',
+  MAESTRO = 'Maestro',
+  MASTERCARD = 'Mastercard',
+  MASTERCARDDEBIT = 'Mastercard Debit',
 
-  MASTERPASS = "Masterpass",
-  PAYPAL = "PayPal",
-  SWISSPOST = "Swiss Post",
-  SWISSREKA = "Swiss Reka",
+  MASTERPASS = 'Masterpass',
+  PAYPAL = 'PayPal',
+  SWISSPOST = 'Swiss Post',
+  SWISSREKA = 'Swiss Reka',
 
-  TWINT = "Twint",
-  UNIONPAY = "UnionPay",
-  VISA = "Visa",
-  VISAELECTRON = "Visa Electron",
+  TWINT = 'Twint',
+  UNIONPAY = 'UnionPay',
+  VISA = 'Visa',
+  VISAELECTRON = 'Visa Electron',
 
-  VISADEBIT = "Visa Debit",
-  VPAY = "V PAY",
-  WECHATPAY = "WeChat Pay",
+  VISADEBIT = 'Visa Debit',
+  VPAY = 'V PAY',
+  WECHATPAY = 'WeChat Pay',
 }
 
 type Props = {
@@ -76,10 +75,11 @@ type Props = {
   border: boolean;
 };
 
-const PayProvider = ({ width, height, provider, border }: Props) => {
-  
+const PayProvider = ({
+  width, height, provider, border,
+}: Props) => {
   const PayProviderStyle: React.CSSProperties = {
-    width, height, border: border ? '1px solid lightgray' : 'none', color: 'gray', borderRadius: '4px'
+    width, height, border: border ? '1px solid lightgray' : 'none', color: 'gray', borderRadius: '4px',
   };
 
   switch (provider) {
@@ -91,7 +91,7 @@ const PayProvider = ({ width, height, provider, border }: Props) => {
       return <ApplePay style={PayProviderStyle} />;
     case SupportedSchemesType.BANCONTACT:
       return <Bancontact style={PayProviderStyle} />;
-    
+
     case SupportedSchemesType.CARTESBANCAIRES:
       return <CartesBancaires style={PayProviderStyle} />;
     case SupportedSchemesType.DINERS:
@@ -100,7 +100,7 @@ const PayProvider = ({ width, height, provider, border }: Props) => {
       return <Discover style={PayProviderStyle} />;
     case SupportedSchemesType.GIROCARD:
       return <GiroCard style={PayProviderStyle} />;
-  
+
     case SupportedSchemesType.GIROPAY:
       return <Giropay style={PayProviderStyle} />;
     case SupportedSchemesType.GOOGLEPAY:
@@ -109,25 +109,25 @@ const PayProvider = ({ width, height, provider, border }: Props) => {
       return <IDeal style={PayProviderStyle} />;
     case SupportedSchemesType.INTERAC:
       return <Interac style={PayProviderStyle} />;
-    
+
     case SupportedSchemesType.JCB_BANK:
       return <JcbBank style={PayProviderStyle} />;
     case SupportedSchemesType.MAESTRO:
       return <Maestro style={PayProviderStyle} />;
     case SupportedSchemesType.MASTERCARD:
-       return <Mastercard style={PayProviderStyle} />;
+      return <Mastercard style={PayProviderStyle} />;
     case SupportedSchemesType.MASTERCARDDEBIT:
-       return <MastercardDebit style={PayProviderStyle} />;
-  
+      return <MastercardDebit style={PayProviderStyle} />;
+
     case SupportedSchemesType.MASTERPASS:
       return <MasterPass style={PayProviderStyle} />;
     case SupportedSchemesType.PAYPAL:
-        return <PayPal style={PayProviderStyle} />;
+      return <PayPal style={PayProviderStyle} />;
     case SupportedSchemesType.SWISSPOST:
       return <SwissPost style={PayProviderStyle} />;
     case SupportedSchemesType.SWISSREKA:
       return <SwissReka style={PayProviderStyle} />;
-    
+
     case SupportedSchemesType.TWINT:
       return <Twint style={PayProviderStyle} />;
     case SupportedSchemesType.UNIONPAY:
@@ -140,15 +140,13 @@ const PayProvider = ({ width, height, provider, border }: Props) => {
     case SupportedSchemesType.VISADEBIT:
       return <VisaDebit style={PayProviderStyle} />;
     case SupportedSchemesType.VPAY:
-        return <VPay style={PayProviderStyle} />;
+      return <VPay style={PayProviderStyle} />;
     case SupportedSchemesType.WECHATPAY:
       return <Wechat style={PayProviderStyle} />;
-    
-    
+
     default:
-      return <div style={PayProviderStyle}> ○ </div> 
+      return <div style={PayProviderStyle}> ○ </div>;
   }
 };
 
 export default PayProvider;
-

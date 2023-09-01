@@ -5,15 +5,15 @@ import { escapeRegExp } from './escapeRegExp';
 import { CurrencyInputProps } from '../CurrencyInputProps';
 
 export type CleanValueOptions = Pick<
-  CurrencyInputProps,
-  | 'decimalSeparator'
-  | 'groupSeparator'
-  | 'allowDecimals'
-  | 'decimalsLimit'
-  | 'allowNegativeValue'
-  | 'disableAbbreviations'
-  | 'prefix'
-  | 'transformRawValue'
+CurrencyInputProps,
+| 'decimalSeparator'
+| 'groupSeparator'
+| 'allowDecimals'
+| 'decimalsLimit'
+| 'allowNegativeValue'
+| 'disableAbbreviations'
+| 'prefix'
+| 'transformRawValue'
 > & { value: string };
 
 /**
@@ -28,7 +28,7 @@ export const cleanValue = ({
   allowNegativeValue = true,
   disableAbbreviations = false,
   prefix = '',
-  transformRawValue = (rawValue) => rawValue,
+  transformRawValue = rawValue => rawValue,
 }: CleanValueOptions): string => {
   const transformedValue = transformRawValue(value);
 
@@ -42,11 +42,16 @@ export const cleanValue = ({
 
   // Is there a digit before the prefix? eg. 1$
   const [prefixWithValue, preValue] = RegExp(`(\\d+)-?${escapeRegExp(prefix)}`).exec(value) || [];
-  const withoutPrefix = prefix
-    ? prefixWithValue
-      ? transformedValue.replace(prefixWithValue, '').concat(preValue)
-      : transformedValue.replace(prefix, '')
-    : transformedValue;
+  let withoutPrefix = transformedValue;
+
+  if (prefix) {
+    if (prefixWithValue) {
+      withoutPrefix = transformedValue.replace(prefixWithValue, '').concat(preValue);
+    } else {
+      withoutPrefix = transformedValue.replace(prefix, '');
+    }
+  }
+
   const withoutSeparators = removeSeparators(withoutPrefix, groupSeparator);
   const withoutInvalidChars = removeInvalidChars(withoutSeparators, [
     groupSeparator,
@@ -60,7 +65,7 @@ export const cleanValue = ({
     // disallow letter without number
     if (
       abbreviations.some(
-        (letter) => letter === withoutInvalidChars.toLowerCase().replace(decimalSeparator, '')
+        letter => letter === withoutInvalidChars.toLowerCase().replace(decimalSeparator, ''),
       )
     ) {
       return '';

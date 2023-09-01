@@ -6,8 +6,9 @@
     "salt-typescript"], 
   "rules": {
     "no-console": "off",
-    "import/extensions": ["error", "never", { "svg": "always" }],
-    "react-refresh/only-export-components": "warn"
+    "import/extensions": ["error", "never", { "svg": "always", "json": "always" }],
+    "react-refresh/only-export-components": "warn",
+    "max-len": ["error", { "code": 150 }]
   },
   "parser": "@typescript-eslint/parser",
   "plugins": ["react-refresh"],

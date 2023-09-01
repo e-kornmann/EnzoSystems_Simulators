@@ -1,6 +1,5 @@
-import styled from "styled-components";
-import * as Sv from "../../styles/stylevariables";
-
+import styled from 'styled-components';
+import * as Sv from '../../styles/stylevariables';
 
 const Wrap = styled.div<{ $isLoggedIn: boolean }>`
   position: absolute;
@@ -31,7 +30,7 @@ const Wrap = styled.div<{ $isLoggedIn: boolean }>`
 
     & > div {
       position: absolute;
-      left: ${(props) => props.$isLoggedIn ? '9px' : '2px'};
+      left: ${props => (props.$isLoggedIn ? '9px' : '2px')};
       height: 5px;
       width: 5px;
       border-radius: 3px;
@@ -55,17 +54,13 @@ type Props = {
   standByText? : string;
 };
 
-const TurnOnDevice = ({ init, logInButtonHandler, standByText}: Props) => {
-
-  return (
+const TurnOnDevice = ({ init, logInButtonHandler, standByText }: Props) => (
     <Wrap $isLoggedIn={init}>
       <button type="button" onClick={logInButtonHandler}>
         <div></div>
       </button>
       <span>{standByText}</span>
     </Wrap>
-  );
-};
+);
 
 export default TurnOnDevice;
- 

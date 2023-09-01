@@ -6,7 +6,7 @@ import * as S from '../../../shared/DraggableModal/ModalTemplate';
 
 import * as Sv from '../../../../styles/stylevariables';
 import { QrAppModi, QrCode } from '..';
-import { DeleteDialog } from './DeleteDialog';
+import DeleteDialog from './DeleteDialog';
 import { AppContext } from '../utils/settingsReducer';
 import ts from '../Translations/translations';
 import { SharedCheckMark } from '../../../shared/CheckAndCrossIcon';
@@ -116,7 +116,8 @@ const QrCodesComponent = ({
            { qrCodes.length === 0 && <NoQrCodesMessage>{ 'You don\'t have\n any QR-codes '}</NoQrCodesMessage>}
       <S.GenericList>
         {qrCodes.map((qr, index) => (
-          <S.GenericListButton type="button" key={`${qr}_${index}`} onClick={() => ((currentModus === QrAppModi.DEL_QR) ? toggleSelectedQrCodeForDeletion(qr) : selectQrCodeHandler(qr))}>
+          <S.GenericListButton type="button" key={`${qr}_${index}`}
+          onClick={() => ((currentModus === QrAppModi.DEL_QR) ? toggleSelectedQrCodeForDeletion(qr) : selectQrCodeHandler(qr))}>
             <Wrap>
               {currentModus === QrAppModi.DEL_QR && (
                 <S.SharedStyledCheckBox $isSelected={selectedQrCodesForDeletion.includes(qr)}>
@@ -135,11 +136,20 @@ const QrCodesComponent = ({
       </S.GenericList>
       {currentModus !== QrAppModi.EDIT_LIST && (
         <S.GenericFooter>
-        { currentModus !== QrAppModi.DEL_QR && <button type="button" onClick={() => modusSetterHandler(QrAppModi.NEW_QR)}>{ts('new', state.language)}</button> }
-        { currentModus !== QrAppModi.DEL_QR && <button onClick={() => modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>{ts('edit', state.language)}</button> }
-        { currentModus !== QrAppModi.DEL_QR && <button onClick={() => modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>{ts('delete', state.language)}</button> }
-        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={selectOrDeselectAllHandler}>{ allSelected ? 'Deselect all' : 'Select all' }</button>}
-        { currentModus === QrAppModi.DEL_QR && <button type="button" onClick={toggleShowComponent} disabled={selectedQrCodesForDeletion.length === 0 }>{ts('delete', state.language)}</button>}
+        { currentModus !== QrAppModi.DEL_QR
+        && <button type="button" onClick={() => modusSetterHandler(QrAppModi.NEW_QR)}>
+          {ts('new', state.language)}</button> }
+        { currentModus !== QrAppModi.DEL_QR
+        && <button onClick={() => modusSetterHandler(QrAppModi.EDIT_LIST)} disabled={qrCodes.length === 0 }>
+          {ts('edit', state.language)}</button> }
+        { currentModus !== QrAppModi.DEL_QR
+        && <button onClick={() => modusSetterHandler(QrAppModi.DEL_QR)} disabled={qrCodes.length === 0 }>
+          {ts('delete', state.language)}</button> }
+        { currentModus === QrAppModi.DEL_QR
+        && <button type="button" onClick={selectOrDeselectAllHandler}>{ allSelected ? 'Deselect all' : 'Select all' }</button>}
+        { currentModus === QrAppModi.DEL_QR
+        && <button type="button" onClick={toggleShowComponent} disabled={selectedQrCodesForDeletion.length === 0 }>
+          {ts('delete', state.language)}</button>}
         <DeleteDialog
           deleteQrCodesHandler={deleteQrCodesHandler}
           toggleShowComponent={toggleShowComponent}

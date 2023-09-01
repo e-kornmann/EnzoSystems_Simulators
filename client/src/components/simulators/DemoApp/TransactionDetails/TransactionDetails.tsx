@@ -1,11 +1,13 @@
 import { GetTransactionDetails } from '../../PaymentDevice/types';
 
 type Prop = {
-    transactionDetails: GetTransactionDetails;
-}
+  transactionDetails: GetTransactionDetails;
+};
 
-const TransactionDetails = ({transactionDetails}:Prop) => {
-    const { terminalId, merchantId, reference, amountToPay, amountPaid, currency, locale } = transactionDetails;
+const TransactionDetails = ({ transactionDetails }:Prop) => {
+  const {
+    terminalId, merchantId, reference, amountToPay, amountPaid, currency, locale,
+  } = transactionDetails;
   return (
     <>
     Transaction details:<br />
@@ -16,7 +18,7 @@ const TransactionDetails = ({transactionDetails}:Prop) => {
     Amount Paid: {amountPaid}<br />
     Currency: {currency}<br />
     Locale: {locale}<br />
-  </>  )
-}
+  </>);
+};
 
 export default TransactionDetails;

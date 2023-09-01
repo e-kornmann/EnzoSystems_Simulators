@@ -1,12 +1,12 @@
-import api from '../../../../api/pinApi';
 import axios from 'axios';
+import pinApi from '../../../../api/pinApi';
 import { AcceptTransactionStateType } from '../types';
 
-const acceptTransaction = async(
+const acceptTransaction = async (
   token: string,
   setTransactionState: React.Dispatch<
-    React.SetStateAction<AcceptTransactionStateType>
-  >
+  React.SetStateAction<AcceptTransactionStateType>
+  >,
 ): Promise<number | undefined> => {
   try {
     const config = {
@@ -15,14 +15,12 @@ const acceptTransaction = async(
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await api.post(
-      `/${import.meta.env.VITE_MERCHANT_ID}/${
-        import.meta.env.VITE_TERMINAL_ID
-      }/transactions`,
+    const response = await pinApi.post(
+      `/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`,
       {
         action: 'RUN',
       },
-      config
+      config,
     );
     setTransactionState({
       transactionId: response.data.transactionId,
@@ -36,6 +34,6 @@ const acceptTransaction = async(
     console.error('Unable to accept transaction:', error);
     return undefined;
   }
-}
+};
 
 export default acceptTransaction;

@@ -1,18 +1,18 @@
-import styled, { keyframes } from "styled-components";
-import * as Sv from '../../../styles/stylevariables';
-import { hostCredentials, reqBody } from './config'
-import InputAmount from './input/InputAmount';
+import styled, { keyframes } from 'styled-components';
 import { useState, useEffect, useCallback } from 'react';
+import * as Sv from '../../../styles/stylevariables';
+import { hostCredentials, reqBody } from './config';
+import InputAmount from './input/InputAmount';
 import createTransaction from './utils/createTransaction';
 import useLogOn from '../../../hooks/useLogOn';
-import { options } from './settings/settings';
+import options from './settings/settings';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import { Container, Header } from '../../shared/DraggableModal/ModalTemplate';
-import TransactionDetails from "./TransactionDetails/TransactionDetails";
-import { IntlConfigType } from "../../../types/IntlConfigType";
-import TurnOnDevice from "../../shared/TurnOnDevice";
-import useStopTransaction from "../../../hooks/useStopTransaction";
-import ScanQr from "./host/ScanQr";
+import TransactionDetails from './TransactionDetails/TransactionDetails';
+import { IntlConfigType } from '../../../types/IntlConfigType';
+import TurnOnDevice from '../../shared/TurnOnDevice';
+import useStopTransaction from '../../../hooks/useStopTransaction';
+import ScanQr from './host/ScanQr';
 
 const DemoAppContainer = styled.div`
   display: grid;
@@ -20,13 +20,13 @@ const DemoAppContainer = styled.div`
   margin: auto;
   width: 83%;
   height: 87%;
-`
+`;
 const Content = styled.div`
   padding: 0 4px 10px;
   display: flex;
   flex-direction: column;
   overflow-y: sunset;
-`
+`;
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -35,7 +35,7 @@ const ButtonContainer = styled.div`
   justify-content: center;
   align-items: flex-start;
   padding-top: 15px;
-`
+`;
 const OkButton = styled.button`
   cursor: pointer;
   color: ${Sv.black};
@@ -55,13 +55,13 @@ const OkButton = styled.button`
     background-color: ${Sv.gray};
     color: gray;
   }
-`
+`;
 const StopButton = styled(OkButton)`
   background-color: ${Sv.red}; 
   &:active {
     background-color: ${Sv.darkred};
   }
-`
+`;
 const TransactionDetailsHeader = styled.div`
   color: white;
   width: 100%;
@@ -72,7 +72,7 @@ const TransactionDetailsHeader = styled.div`
   border-bottom: 1px solid  ${Sv.appBackground};
   border-radius: 3px 3px 0 0;
   
-`
+`;
 const TransactionDetailsContent = styled.div`
   color: white;
   width: 100%;
@@ -80,7 +80,7 @@ const TransactionDetailsContent = styled.div`
   padding: 4px 6px;
   font-size: 0.82em;
   background-color: ${Sv.asphalt}; 
-`
+`;
 const TransactionDetailsFooter = styled.div`
   display: flex;
   width: 100%;
@@ -90,7 +90,7 @@ const TransactionDetailsFooter = styled.div`
   background-color: ${Sv.asphalt}; 
   border-top: 1px solid ${Sv.appBackground};
   border-radius: 0 0 3px 3px;
-`
+`;
 const blinkAnimation = keyframes`
   90%, 100% {
     opacity: 1;
@@ -98,28 +98,27 @@ const blinkAnimation = keyframes`
   10% {
     opacity: 0;
   }
-`
+`;
 const StatusText = styled.div<{ $isActive: boolean }>`
-  color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
-`
+  color: ${props => (props.$isActive ? Sv.green : Sv.red)};
+`;
 const BlinkingDot = styled(StatusText)`
   width: 6px;
   height: 6px;
-  background-color: ${(props) => (props.$isActive ? Sv.green : Sv.red)};
+  background-color: ${props => (props.$isActive ? Sv.green : Sv.red)};
   border-radius: 100px;
   margin: 10px 7px;
   animation-name: ${blinkAnimation};
   animation-duration: 1.0s;
   animation-iteration-count: infinite;
   }
-`
-
+`;
 
 const DemoApp = () => {
   const [init, setInit] = useState(false);
   const { token, logOn } = useLogOn(hostCredentials, reqBody, 'payment-terminal');
-  const [standByText, setStandByText] = useState<string>('OFF')
-    
+  const [standByText, setStandByText] = useState<string>('OFF');
+
   const [isActive, setIsActive] = useState(false);
   const [transactionIdApp, setTransactionIdApp] = useState('');
   const { stopTransaction } = useStopTransaction(token, reqBody, transactionIdApp);
@@ -128,8 +127,8 @@ const DemoApp = () => {
   const [intlConfig, setIntlConfig] = useState<IntlConfigType>(options[0]);
   const [value, setValue] = useState<string | undefined>('123');
 
-  const handleOnValueChange = (value: string | undefined): void => {
-    setValue(value);
+  const handleOnValueChange = (givenValue: string | undefined): void => {
+    setValue(givenValue);
   };
 
   const handleIntlSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -144,7 +143,6 @@ const DemoApp = () => {
     setTransactionIdApp('');
     getTransaction();
   }, [getTransaction]);
-  
 
   const stopHandler = useCallback(() => {
     stopTransaction();
@@ -156,33 +154,31 @@ const DemoApp = () => {
     if (!init) {
       try {
         await logOn()
-          .then((success) => {
+          .then(success => {
             if (success) {
-              setStandByText(' • •');  
-              setTimeout(() => {setStandByText('ON')}, 500);   
-              setInit(true); 
+              setStandByText(' • •');
+              setInit(true);
+              setStandByText('ON');
             } else {
-              setStandByText('ERROR');  
+              setStandByText('ERROR');
               setTimeout(() => {
-                  setStandByText('OFF');   
-              }, 4000); 
+                setStandByText('OFF');
+              }, 4000);
               setInit(false);
-            } 
+            }
           });
       } catch (error) {
-        console.error("Error during login:", error);
+        console.error('Error during login:', error);
       }
     } else {
       setInit(false);
       setStandByText('OFF');
       stopHandler();
-      }
+    }
   }, [init, logOn, stopHandler]);
 
-
-  
-
   // update transactionDetails with transaction ID with the same hook
+  // eslint-disable-next-line consistent-return
   useEffect(() => {
     if (transactionIdApp !== '' && token !== '') {
       const interval = setInterval(() => {
@@ -197,12 +193,12 @@ const DemoApp = () => {
   // check if app is active
   useEffect(() => {
     if (
-      transactionIdApp !== '' &&
-      (transactionDetails.status !== 'FAILED' &&
-        transactionDetails.status !== 'STOPPED' &&
-        transactionDetails.status !== 'TIMEDOUT' &&
-        transactionDetails.status !== 'DECLINED' &&
-        transactionDetails.status !== 'FINISHED')
+      transactionIdApp !== ''
+      && (transactionDetails.status !== 'FAILED'
+        && transactionDetails.status !== 'STOPPED'
+        && transactionDetails.status !== 'TIMEDOUT'
+        && transactionDetails.status !== 'DECLINED'
+        && transactionDetails.status !== 'FINISHED')
     ) {
       setTimeout(() => setIsActive(true), 2000);
     } else {
@@ -225,19 +221,20 @@ const DemoApp = () => {
           <InputAmount value={value} handleOnValueChange={handleOnValueChange} intlConfig={intlConfig} handleIntlSelect={handleIntlSelect} />
 
           <ButtonContainer>
-            {isActive ? <StopButton type="button" onClick={stopHandler} >Stop</StopButton> :
-              <OkButton type="button" onClick={() => createTransaction(token, value, setTransactionIdApp, intlConfig)} disabled={!init}>OK</OkButton>}
+            {isActive ? <StopButton type="button" onClick={stopHandler} >Stop</StopButton>
+              : <OkButton type="button" onClick={() => createTransaction(token, value, setTransactionIdApp, intlConfig)} disabled={!init}>
+                OK</OkButton>}
           </ButtonContainer>
 
           <TransactionDetailsHeader>
-            TransactionId:<br/> 
+            TransactionId:<br/>
             {transactionIdApp}
             </TransactionDetailsHeader>
 
            <TransactionDetailsContent>
-            
-            {isActive ? ( <TransactionDetails transactionDetails={transactionDetails} />
-            ): ''}
+
+            {isActive ? (<TransactionDetails transactionDetails={transactionDetails} />
+            ) : ''}
 
           </TransactionDetailsContent>
           <TransactionDetailsFooter>
@@ -251,10 +248,3 @@ const DemoApp = () => {
 };
 
 export default DemoApp;
-
-
-
-
-
-
-

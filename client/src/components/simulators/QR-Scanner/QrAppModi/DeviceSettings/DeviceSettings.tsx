@@ -1,14 +1,13 @@
+import { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
+import Settings from './AvailableSettings/Settings';
 
-import { useCallback, useEffect, useState } from "react";
-import Settings from "./AvailableSettings/Settings";
-
-import LanguageOptions from "./AvailableSettings/LanguageOptions";
-import styled from "styled-components";
+import LanguageOptions from './AvailableSettings/LanguageOptions';
 
 import { QrAppModi } from '../..';
 import { SettingModes } from '../../utils/settingsReducer';
 import * as Sv from '../../../../../styles/stylevariables';
-import { StatusOptions } from "./AvailableSettings/StatusOptions";
+import { StatusOptions } from './AvailableSettings/StatusOptions';
 
 export const SettingsWrapper = styled.div`
   position: absolute;
@@ -30,24 +29,20 @@ export const ArrowWrapper = styled.div`
   & > svg {
     fill: ${Sv.asphalt}; 
   }
-`
+`;
 type Props = {
   modusSetterHandler: (modus: QrAppModi) => void;
 };
 
 const DeviceSettings = ({ modusSetterHandler }: Props) => {
-  const menuToggler = (listItem: SettingModes) => setSettingMode(listItem);
   const [list, setList] = useState(<></>);
   const [settingMode, setSettingMode] = useState(SettingModes.SETTINGS);
-  
-  
+  const menuToggler = (listItem: SettingModes) => setSettingMode(listItem);
+
   const arrowBackButtonHandler = useCallback(() => {
     modusSetterHandler(QrAppModi.SETTINGS);
     setSettingMode(SettingModes.SETTINGS);
-  }, [modusSetterHandler])
-
-
-
+  }, [modusSetterHandler]);
 
   useEffect(() => {
     switch (settingMode) {
@@ -60,22 +55,21 @@ const DeviceSettings = ({ modusSetterHandler }: Props) => {
         modusSetterHandler(QrAppModi.SET_MODE);
         break;
       case SettingModes.LANGUAGE:
-        setList(<LanguageOptions arrowBackButtonHandler={arrowBackButtonHandler} modusSetterHandler={modusSetterHandler} />)
+        setList(<LanguageOptions arrowBackButtonHandler={arrowBackButtonHandler} modusSetterHandler={modusSetterHandler} />);
         modusSetterHandler(QrAppModi.SET_LANGUAGE);
         break;
       default:
         modusSetterHandler(QrAppModi.QR_SCANNER);
         break;
     }
-  }, [arrowBackButtonHandler, modusSetterHandler, settingMode])
+  }, [arrowBackButtonHandler, modusSetterHandler, settingMode]);
 
   return (
 
     <SettingsWrapper>
          {list}
     </SettingsWrapper>
-  )
-
-}
+  );
+};
 
 export default DeviceSettings;

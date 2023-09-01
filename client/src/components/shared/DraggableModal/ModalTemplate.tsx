@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import * as Sv from "../../../styles/stylevariables";
+import styled from 'styled-components';
+import * as Sv from '../../../styles/stylevariables';
 
 export const Container = styled.main`
   display: grid;
@@ -13,44 +13,47 @@ export const Container = styled.main`
 `;
 
 export const SharedStyledHeader = styled('div')(({ theme }) => ({
-  display: "flex",
-  padding: "0 8px 0 9px",
-  justifyContent: "space-between",
-  alignItems: "center",
-  fontWeight: "500",
-  borderTopLeftRadius: "5px",
-  borderTopRightRadius: "5px",
+  display: 'flex',
+  padding: '0 8px 0 9px',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  fontWeight: '500',
+  borderTopLeftRadius: '5px',
+  borderTopRightRadius: '5px',
   backgroundColor: theme.colors.background.primary,
   color: theme.colors.text.secondary,
   '& > button': {
-    cursor: "pointer",
-    width: "13px",
-    height: "13px",
-    display: "grid",
-    alignItems: "flex-end",
+    cursor: 'pointer',
+    width: '13px',
+    height: '13px',
+    display: 'grid',
+    alignItems: 'flex-end',
     '& > svg': {
       fill: theme.colors.text.primary,
-    }
-  }
+    },
+  },
 }));
 
-
-export const SharedStyledCheckBox = styled('div')<{$isSelected: boolean}>(({$isSelected, theme}) => ({
-  display: 'flex',
-  alignItems: 'center',
-  width: '12px',
-  height: '12px',
-  border: '1px solid' + $isSelected ? theme.colors.brandColors.enzoOrange : theme.colors.text.primary,
-  borderRadius: '1px',
-  cursor: 'pointer',
-  backgroundColor: $isSelected ? theme.colors.brandColors.enzoOrange : theme.colors.background.primary,
-  '& > svg': {
-    marginLeft: '1px',
-    fill: theme.colors.text.primary
-  }
-}));
-
-
+export const SharedStyledCheckBox = styled('div')<{ $isSelected: boolean }>(
+  ({ $isSelected, theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    width: '12px',
+    height: '12px',
+    border: `1px solid ${$isSelected
+      ? theme.colors.brandColors.enzoOrange
+      : theme.colors.text.primary}`,
+    borderRadius: '1px',
+    cursor: 'pointer',
+    backgroundColor: $isSelected
+      ? theme.colors.brandColors.enzoOrange
+      : theme.colors.background.primary,
+    '& > svg': {
+      marginLeft: '1px',
+      fill: theme.colors.text.primary,
+    },
+  }),
+);
 
 export const Header = styled.div`
   height: 35px;
@@ -176,7 +179,6 @@ export const GenericListButton = styled.button`
   }
 `;
 
-
 export const GenericListButtonWithArrow = styled(GenericListButton)`
     fill: ${Sv.asphalt}
-`
+`;

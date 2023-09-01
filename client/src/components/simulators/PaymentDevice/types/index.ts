@@ -1,5 +1,6 @@
-import { CurrencyCode } from '../../../../types/CurrencyTypes';
-import { Locale } from '../../../../types/LocaleTypes';
+import CurrencyCode from '../../../../types/CurrencyTypes';
+import Locale from '../../../../types/LocaleTypes';
+import ShowIcon from '../../../shared/sharedTypes/ShowIcon';
 
 export enum PinTerminalStatus {
   START_UP,
@@ -66,6 +67,5 @@ export type GetTransactionDetails = {
 export type MessageContentType = {
   mainline: string;
   subline: string | undefined;
-  failicon: boolean | undefined;
-  successicon: boolean | undefined;
+  checkOrCrossIcon: ShowIcon | undefined;
 };

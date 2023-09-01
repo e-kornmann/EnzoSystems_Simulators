@@ -6,7 +6,7 @@ import { ArrowWrapper } from '../DeviceSettings';
 import { QrAppModi } from '../../..';
 import { SharedCheckMark } from '../../../../../shared/CheckAndCrossIcon';
 
-export enum statusOptions {
+export enum DeviceStatusOptions {
   CONNECTED = 'Connected',
   DISCONNECTED = 'Disconnected',
   OUT_OF_ORDER = 'Out of order',
@@ -17,23 +17,23 @@ type Props = {
   modusSetterHandler: (modus: QrAppModi) => void;
 };
 
-const DeviceStatuses = ({arrowBackButtonHandler, modusSetterHandler }: Props) => {
+const DeviceStatuses = ({ arrowBackButtonHandler, modusSetterHandler }: Props) => {
   const { state, dispatch } = useContext(AppContext);
-  
-  const onChangeEventHandler = (mode: statusOptions) => {
+
+  const onChangeEventHandler = (mode: DeviceStatusOptions) => {
     dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: mode });
-    setTimeout(()=>modusSetterHandler(QrAppModi.QR_SCANNER), 200);
-  }
-  
+    setTimeout(() => modusSetterHandler(QrAppModi.QR_SCANNER), 200);
+  };
+
   return (
     <S.GenericList>
        <ArrowWrapper onClick={arrowBackButtonHandler}>
         <Arrow width={12} height={12} />
       </ArrowWrapper>
-      {Object.values(statusOptions).map((mode) => (
-        <S.GenericListButton key={mode} onClick={() => { onChangeEventHandler(mode);}}>
+      {Object.values(DeviceStatusOptions).map(mode => (
+        <S.GenericListButton key={mode} onClick={() => { onChangeEventHandler(mode); }}>
           {mode}
-          <SharedCheckMark isDisplayed={state.statusOption === mode }  width={14} height={11} /> 
+          <SharedCheckMark isDisplayed={state.statusOption === mode } width={14} height={11} />
         </S.GenericListButton>
       ))}
     </S.GenericList>

@@ -1,5 +1,5 @@
-import { memo } from "react";
-import styled from "styled-components";
+import { memo } from 'react';
+import styled from 'styled-components';
 
 const LoadingDots = styled.div`
   font-weight: bold;
@@ -17,7 +17,9 @@ const LoadingDots = styled.div`
   }
 `;
 
-const Loading = ({ isDisplayed }: { isDisplayed?: boolean }) => isDisplayed !== false && <LoadingDots>...</LoadingDots >;
+const Loading = ({ isDisplayed }: { isDisplayed?: boolean }) => isDisplayed !== false
+  && <LoadingDots>...</LoadingDots >;
 
+const SharedLoading = memo(Loading);
 
-export const SharedLoading = memo(Loading);
+export default SharedLoading;

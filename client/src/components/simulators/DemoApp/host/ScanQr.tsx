@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
+import styled, { keyframes } from 'styled-components';
 import * as Sv from '../../../../styles/stylevariables';
-import { Header } from '../../../shared/DraggableModal/ModalTemplate'
-import styled, { keyframes } from "styled-components";
+import { Header } from '../../../shared/DraggableModal/ModalTemplate';
 import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg';
 import TurnOnDevice from '../../../shared/TurnOnDevice';
 import useLogOn from '../../../../hooks/useLogOn';
-import { hostCredentials, reqBody } from '../config';
-import { getStatus } from './utils/getStatus';
-import { changeDeviceMode } from './utils/setDeviceMode';
-import { getScannedData } from './utils/getScannedData';
+import { scannerCredentials, reqBody } from './config/ScanConfig';
+import { changeDeviceMode, getScannedData, getStatus } from './utils/scanApiRequests';
 
 const DemoAppContainer = styled.div`
   display: grid;
@@ -21,7 +21,7 @@ const DemoAppContainer = styled.div`
   border-radius: 5px;
   overflow-y: sunset;
   background-color: ${Sv.appBackground};
-`
+`;
 const blinkAnimation = keyframes`
   90%, 100% {
     opacity: 1;
@@ -29,19 +29,19 @@ const blinkAnimation = keyframes`
   10% {
     opacity: 0;
   }
-`
+`;
 const BlinkingDot = styled.div<{ $isActive: boolean }>`
   position: absolute;
   width: 6px;
   height: 6px;
-  background-color: ${(props) => (props.$isActive ? Sv.green : 'transparent')};
+  background-color: ${props => (props.$isActive ? Sv.green : 'transparent')};
   border-radius: 100px;
   margin: 5px 4px;
   animation-name: ${blinkAnimation};
   animation-duration: 1.0s;
   animation-iteration-count: infinite;
   }
-`
+`;
 
 const Content = styled.div`
   display: flex;
@@ -50,7 +50,7 @@ const Content = styled.div`
   align-items: center;
   flex-direction: column;
   overflow-y: sunset;
-`
+`;
 
 const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
     display: flex;
@@ -79,7 +79,7 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
         & > svg {
           height: 18px;
           width: 18px;
-          fill: ${(props) => (props.$isEnabled ? 'limegreen' : Sv.gray)};
+          fill: ${props => (props.$isEnabled ? 'limegreen' : Sv.gray)};
         }
     
         &:disabled { 
@@ -90,9 +90,9 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
           }
         }
     }
-    `
+    `;
 
-  const GetDeviceStatusText = styled.div`
+const GetDeviceStatusText = styled.div`
     display: flex;
     font-size: 0.75em;    
     font-weight: 400;
@@ -101,32 +101,29 @@ const Wrap = styled.div<{ $isActive: boolean, $isEnabled: boolean }>`
     margin-top: 10px;
     align-items: center;
     white-space: pre-line; 
-  `
+  `;
 
-
-  const QrData = styled.div`
+const QrData = styled.div`
     display: grid;
     grid-template-rows: 20px 160px;
     padding: 10px;
-  `
+  `;
 
-  const QrDataHeader = styled.div`
+const QrDataHeader = styled.div`
     color: white;
     padding: 4px 6px;
     font-size: 0.82em;
     background-color: ${Sv.asphalt}; 
     border-bottom: 1px solid  ${Sv.appBackground};
     border-radius: 3px 3px 0 0;
-  `
-  const QrDataContent = styled.div`
+  `;
+const QrDataContent = styled.div`
     color: white;
     padding: 4px 6px;
     font-size: 0.82em;
     background-color: ${Sv.asphalt}; 
     border-radius: 0 0 3px 3px;
-  `
-
-
+  `;
 
 export enum DeviceMode {
   DEVICE_ENABLED,
@@ -134,10 +131,10 @@ export enum DeviceMode {
 }
 
 const ScanQr = () => {
-  const { token, logOn } = useLogOn(hostCredentials, reqBody, 'barcode-scanner');
+  const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'barcode-scanner');
   const [deviceStatus, setDeviceStatus] = useState('disconnected');
   const [deviceMode, setDeviceMode] = useState(DeviceMode.DEVICE_DISABLED);
-  const [standByText, setStandByText] = useState<string>('OFF')
+  const [standByText, setStandByText] = useState<string>('OFF');
   const [init, setInit] = useState(false);
   const [scannedData, setScannedData] = useState('');
   // use this ref for the first useEffect below
@@ -146,10 +143,10 @@ const ScanQr = () => {
   const logInButtonHandler = useCallback(async () => {
     if (!init) {
       await logOn()
-        .then((success) => {
+        .then(success => {
           if (success) {
             setStandByText(' • •');
-            setTimeout(() => { setStandByText('ON') }, 500);
+            setTimeout(() => { setStandByText('ON'); }, 500);
             setInit(true);
           } else {
             setStandByText('ERROR');
@@ -157,118 +154,111 @@ const ScanQr = () => {
               setStandByText('OFF');
             }, 2000);
             setInit(false);
-            }
-          })
-      } else {
-        setInit(false);
-        setStandByText('OFF');
-      }
-    }, [init, logOn]);
+          }
+        });
+    } else {
+      setInit(false);
+      setStandByText('OFF');
+    }
+  }, [init, logOn]);
 
+  // automatically initiate logInButtonHandler ONCE when component is rendered.
+  useEffect(() => {
+    if (!initRef.current) {
+      initRef.current = true;
+      setTimeout(async () => logInButtonHandler(), 3500);
+    }
+  }, [logInButtonHandler]);
 
-    // automatically initiate logInButtonHandler ONCE when component is rendered.
-    useEffect(() => {
-      if (!initRef.current) {
-        initRef.current = true;
-        setTimeout(async() => await logInButtonHandler(), 3500);
-      }
-    }, [logInButtonHandler]);
-  
-  
   const enableDeviceButtonHandler = async () => {
     if (token) {
       if (init && deviceMode === DeviceMode.DEVICE_DISABLED) {
         const enableResponse = await changeDeviceMode(token, 'enabled');
         if (enableResponse === 200) {
           setDeviceMode(DeviceMode.DEVICE_ENABLED);
-  
+
           // After a successful enable, automatically disable the devive after 12 seconds
           setTimeout(async () => {
             const disableResponse = await changeDeviceMode(token, 'disabled');
             if (disableResponse === 200) {
               setDeviceMode(DeviceMode.DEVICE_DISABLED);
             }
-          }, 12000);      
+          }, 12000);
         }
       } else if (init && deviceMode === DeviceMode.DEVICE_ENABLED) {
         const disableResponse = await changeDeviceMode(token, 'disabled');
         if (disableResponse === 200) {
           setDeviceMode(DeviceMode.DEVICE_DISABLED);
-        } 
+        }
       }
     }
   };
-  
-  // check for changes in the device status with an interval of 500 miliseconds 
+
+  // check for changes in the device status with an interval of 500 miliseconds
   useEffect(() => {
     if (token) {
-      setTimeout( async() => {
+      setTimeout(async () => {
         const newDeviceStatus = await getStatus(token, deviceStatus);
         setDeviceStatus(newDeviceStatus);
-       }, 500); 
-   }
+      }, 500);
+    }
   }, [deviceStatus, token]);
-
 
   // if device mode is enabled, retrieve QRdata if available
   useEffect(() => {
     if (token) {
-      setTimeout( async() => {
-      if (init && deviceMode === DeviceMode.DEVICE_ENABLED) {
-        const qrData = await getScannedData(token);
-        if (qrData && qrData.status === 200 ) {
-          if (scannedData === qrData.data.scannedData) {
-          setScannedData('This QR code has already been scanned, please try another one.')
-          } else { 
-          setScannedData(qrData.data.scannedData);  
+      setTimeout(async () => {
+        if (init && deviceMode === DeviceMode.DEVICE_ENABLED) {
+          const qrData = await getScannedData(token);
+          if (qrData && qrData.status === 200) {
+            if (scannedData === qrData.data.scannedData) {
+              setScannedData('This QR code has already been scanned, please try another one.');
+            } else {
+              setScannedData(qrData.data.scannedData);
+            }
           }
-          
-          } 
           // disable device after a 200 repsose
           const disableResponse = await changeDeviceMode(token, 'disabled');
           if (disableResponse === 200) {
             setDeviceMode(DeviceMode.DEVICE_DISABLED);
-        } else {
-          setScannedData('');  
-          return null
+          } else {
+            setScannedData('');
+          }
         }
-      }
-     
-      }, 1000); 
+      }, 1000);
     }
-  }, [deviceMode, init, scannedData, token])
-
+  }, [deviceMode, init, scannedData, token]);
 
   return (
     <DemoAppContainer>
       <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
       <Header>Demo App</Header>
-      <Content>
-      <GetDeviceStatusText>{'QR-Scanner\nis ' + deviceStatus}</GetDeviceStatusText>
-        <Wrap $isActive={init} $isEnabled={deviceMode === DeviceMode.DEVICE_ENABLED}>
-       
-          <button type="button" disabled={!init} onClick={enableDeviceButtonHandler}>
-            <CrossHairIcon /><BlinkingDot $isActive={deviceMode === DeviceMode.DEVICE_ENABLED} /></button>
 
-          {(init && deviceStatus === 'connected') &&
-            <span>
+      <Content>
+
+        <GetDeviceStatusText>
+          {`QR-Scanner\nis ${deviceStatus}`}
+        </GetDeviceStatusText>
+
+        <Wrap $isActive={init} $isEnabled={deviceMode === DeviceMode.DEVICE_ENABLED}>
+          <button type="button" disabled={!init} onClick={enableDeviceButtonHandler}>
+            <CrossHairIcon />
+            <BlinkingDot $isActive={deviceMode === DeviceMode.DEVICE_ENABLED} />
+          </button>
+          {(init && deviceStatus === 'connected')
+            && <span>
               {deviceMode !== DeviceMode.DEVICE_ENABLED ? 'ACTIVATE' : 'DEACTIVATE'}<br />scan device</span>
           }
-
-    
         </Wrap>
 
-        
       </Content>
 
       <QrData>
-          <QrDataHeader>Scanned data: </QrDataHeader>
-          <QrDataContent>
-          {scannedData}
-          </QrDataContent>
-          </QrData>
+        <QrDataHeader>Scanned data: </QrDataHeader>
+        <QrDataContent>{scannedData}</QrDataContent>
+      </QrData>
     </DemoAppContainer>
-  )
-}
+  );
+};
 
 export default ScanQr;

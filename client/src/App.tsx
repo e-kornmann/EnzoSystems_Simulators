@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 // create GlobalStyle
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { DndContext } from '@dnd-kit/core';
 import theme from './theme/theme.json';
 
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
-import { DndContext } from '@dnd-kit/core';
 
 import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner';
@@ -92,54 +92,52 @@ const StyledOpenModalButtonsContainer = styled('div')({
   flexDirection: 'row',
   rowGap: '15px',
   columnGap: '5px',
-  padding: '4px'
+  padding: '4px',
 });
 
-const StyledOpenModelButton = styled('button')<{$isActive: boolean}>(({$isActive}) => ({
-    appearance: 'none',
-    border: '1px solid rgba(27, 31, 35, 0.15)',
-    borderRadius: '6px',
-    boxShadow: 'rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset',
-    boxSizing: 'border-box',
-    color: '#24292E',
-    cursor: 'pointer',
-    display: 'inline-block',
-    fontSize: '14px',
-    fontWeight: '500',
-    lineHeight: '20px',
-    listStyle: 'none',
-    padding: '6px 16px',
-    position: 'relative',
-    transition: 'background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1)',
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
-    touchAction: 'manipulation',
-    verticalAlign: 'middle',
-    whiteSpace: 'nowrap',
-    wordWrap: 'break-word',
-    backgroundColor: $isActive ? theme.colors.buttons.lightgray : theme.colors.background.primary,
-    '&:active': {
-        backgroundColor: 'darkgray',
-        transition: 'none 0s',
-        boxShadow: 'gray 1px 1px 0 0',
-        transform: 'translate(1px, 1px)'
-      },
-      '&:hover': {
-        background: 'gray',
-        color: '#fff'
-      }
-    }));
+const StyledOpenModelButton = styled('button')<{ $isActive: boolean }>(({ $isActive }) => ({
+  appearance: 'none',
+  border: '1px solid rgba(27, 31, 35, 0.15)',
+  borderRadius: '6px',
+  boxShadow: 'rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset',
+  boxSizing: 'border-box',
+  color: '#24292E',
+  cursor: 'pointer',
+  display: 'inline-block',
+  fontSize: '14px',
+  fontWeight: '500',
+  lineHeight: '20px',
+  listStyle: 'none',
+  padding: '6px 16px',
+  position: 'relative',
+  transition: 'background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1)',
+  userSelect: 'none',
+  WebkitUserSelect: 'none',
+  touchAction: 'manipulation',
+  verticalAlign: 'middle',
+  whiteSpace: 'nowrap',
+  wordWrap: 'break-word',
+  backgroundColor: $isActive ? theme.colors.buttons.lightgray : theme.colors.background.primary,
+  '&:active': {
+    backgroundColor: 'darkgray',
+    transition: 'none 0s',
+    boxShadow: 'gray 1px 1px 0 0',
+    transform: 'translate(1px, 1px)',
+  },
+  '&:hover': {
+    background: 'gray',
+    color: '#fff',
+  },
+}));
 
 type SimulatorsType = {
-    paymentDevice: boolean;
-    demoApp: boolean;
-    QrScanner: boolean;
-    roomKeyEncoder: boolean;
-  };
+  paymentDevice: boolean;
+  demoApp: boolean;
+  QrScanner: boolean;
+  roomKeyEncoder: boolean;
+};
 
 const App = () => {
-
-
   const [simulators, setSimulators] = useState<SimulatorsType>({
     paymentDevice: false,
     demoApp: false,
@@ -148,7 +146,7 @@ const App = () => {
   });
 
   const showSimulatorHandler = useCallback((simulator: keyof SimulatorsType) => {
-    setSimulators((prevSimulators) => ({
+    setSimulators(prevSimulators => ({
       ...prevSimulators,
       [simulator]: !prevSimulators[simulator],
     }));
@@ -159,26 +157,26 @@ const App = () => {
     <ThemeProvider theme={theme}>
     <GlobalStyle />
       <StyledOpenModalButtonsContainer>
-        <StyledOpenModelButton 
-          onClick={() => showSimulatorHandler('paymentDevice')} 
+        <StyledOpenModelButton
+          onClick={() => showSimulatorHandler('paymentDevice')}
           $isActive={simulators.paymentDevice}
         >
           Open payment modal
         </StyledOpenModelButton>
-        <StyledOpenModelButton 
-          onClick={() => showSimulatorHandler('demoApp')} 
+        <StyledOpenModelButton
+          onClick={() => showSimulatorHandler('demoApp')}
           $isActive={simulators.demoApp}
         >
           Demo app
         </StyledOpenModelButton>
-        <StyledOpenModelButton 
-          onClick={() => showSimulatorHandler('QrScanner')} 
+        <StyledOpenModelButton
+          onClick={() => showSimulatorHandler('QrScanner')}
           $isActive={simulators.QrScanner}
         >
           Qr Scanner
         </StyledOpenModelButton>
-        <StyledOpenModelButton 
-          onClick={() => showSimulatorHandler('roomKeyEncoder')} 
+        <StyledOpenModelButton
+          onClick={() => showSimulatorHandler('roomKeyEncoder')}
           $isActive={simulators.roomKeyEncoder}
         >
           Room Key Encoder
@@ -217,7 +215,7 @@ const App = () => {
       </DndContext>
     </ThemeProvider>
     </>
-  )
-}
+  );
+};
 
 export default App;

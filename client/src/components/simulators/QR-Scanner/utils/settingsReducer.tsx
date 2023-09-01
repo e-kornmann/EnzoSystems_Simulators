@@ -1,8 +1,8 @@
-import { ReactNode, Reducer, createContext, useReducer } from "react";
-import React from "react";
+import React, {
+  ReactNode, Reducer, createContext, useReducer,
+} from 'react';
 
-import { statusOptions } from "../QrAppModi/DeviceSettings/AvailableSettings/StatusOptions";
-
+import { DeviceStatusOptions } from '../QrAppModi/DeviceSettings/AvailableSettings/StatusOptions';
 
 export enum SettingModes {
   SETTINGS,
@@ -11,18 +11,18 @@ export enum SettingModes {
 }
 
 export type AllAppSettings = {
-  statusOption: statusOptions;
+  statusOption: DeviceStatusOptions;
   language: string;
 };
 
 const intitialSettingState: AllAppSettings = {
-  statusOption: statusOptions.OUT_OF_ORDER,
+  statusOption: DeviceStatusOptions.OUT_OF_ORDER,
   language: 'english',
 };
 
 export type OperationalModeActionType = {
   type: SettingModes.OPERATIONAL_MODE;
-  payload: statusOptions;
+  payload: DeviceStatusOptions;
 };
 
 export type LanguageActionType = {
@@ -32,12 +32,12 @@ export type LanguageActionType = {
 
 export type SettingsAction =
   | OperationalModeActionType
-  | LanguageActionType
+  | LanguageActionType;
 
 export type StateDispatchProps = {
   state: AllAppSettings;
   dispatch: React.Dispatch<SettingsAction>;
-}
+};
 
 const settingsReducer: Reducer<AllAppSettings, SettingsAction> = (state, action) => {
   switch (action.type) {
@@ -63,17 +63,14 @@ type AppContextValue = {
   dispatch: React.Dispatch<SettingsAction>;
 };
 
-
 export const AppContext = createContext<AppContextValue>({
   state: intitialSettingState,
-  dispatch: () => void {},
+  dispatch: () => null,
 });
-
-
 
 type AppContextProviderProps = {
   children: ReactNode;
-}
+};
 
 export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [state, dispatch] = useReducer(settingsReducer, intitialSettingState);

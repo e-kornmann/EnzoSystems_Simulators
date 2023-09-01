@@ -53,21 +53,24 @@ type Props = {
 
 const MessageBlock = ({ content, terminalState }: Props) => {
   const {
-    mainline, subline, failicon, successicon,
+    mainline, subline, checkOrCrossIcon,
   } = content;
 
   return (
     <>
       <MessageContainer>
 
-        {successicon
+      <IconContainer>
+      <SharedSuccesOrFailIcon checkOrCrossIcon={checkOrCrossIcon} width={53} height={53} />
+      </IconContainer>
+        {/* {successicon
           && <IconContainer>
-            <SharedSuccesOrFailIcon isSuccess={true} width={53} height={53} />
+            <SharedSuccesOrFailIcon CheckOrCrossIcon={CheckOrCrossIcon} width={53} height={53} />
           </IconContainer>}
         {failicon
           && <IconContainer>
             <SharedSuccesOrFailIcon isFailed={true} width={53} height={53} />
-          </IconContainer>}
+          </IconContainer>} */}
 
         {(terminalState === PinTerminalStatus.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine>
           : <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>

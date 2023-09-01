@@ -1,9 +1,8 @@
-import { Lang } from "../DeviceSettings/AvailableSettings/LanguageOptions";
-
+import { Lang } from '../DeviceSettings/AvailableSettings/LanguageOptions';
 
 type Translations = {
   [key: string]: { [key in Lang]: string; }[];
-}
+};
 
 const translations: Translations = {
   welcome: [
@@ -31,14 +30,14 @@ const translations: Translations = {
     },
   ],
   timedOut: [
-    //mainline
+    // mainline
     {
       [Lang.DUTCH]: 'Geen betaling',
       [Lang.ENGLISH]: 'Nothing paid',
       [Lang.FRENCH]: 'Rien payé',
       [Lang.GERMAN]: 'Keine Zahlung erfolgt',
     },
-    //subline
+    // subline
     {
       [Lang.DUTCH]: 'Betaling verlopen',
       [Lang.ENGLISH]: 'Payment timed out',
@@ -47,14 +46,14 @@ const translations: Translations = {
     },
   ],
   serverError: [
-    //mainline
+    // mainline
     {
       [Lang.DUTCH]: 'Serverfout',
       [Lang.ENGLISH]: 'Server error',
       [Lang.FRENCH]: 'Erreur du serveur.',
       [Lang.GERMAN]: 'Serverfehler',
     },
-    //subline
+    // subline
     {
       [Lang.DUTCH]: 'Kan geen betaling uitvoeren',
       [Lang.ENGLISH]: 'Unable to make payment',
@@ -63,14 +62,14 @@ const translations: Translations = {
     },
   ],
   serverError409: [
-    //mainline
+    // mainline
     {
       [Lang.DUTCH]: 'Conflict',
       [Lang.ENGLISH]: 'Conflict',
       [Lang.FRENCH]: 'Conflit',
       [Lang.GERMAN]: 'Konflikt',
     },
-    //subline
+    // subline
     {
       [Lang.DUTCH]: 'Een andere betaling is al bezig',
       [Lang.ENGLISH]: 'Another payment was already in progress',
@@ -82,14 +81,14 @@ const translations: Translations = {
     {
       [Lang.DUTCH]: 'Een moment geduld aub...',
       [Lang.ENGLISH]: 'One Moment please...',
-      [Lang.FRENCH]: `Un instant s'il vous plaît...`,
+      [Lang.FRENCH]: 'Un instant s\'il vous plaît...',
       [Lang.GERMAN]: 'Einen Moment bitte...',
     },
   ],
   pinError: [
     {
       [Lang.DUTCH]: 'PIN limiet overschreden.\nKaartgebruik beperkt.',
-      [Lang.ENGLISH]: `PIN Limit Exceeded.\nCard Usage Restricted.`,
+      [Lang.ENGLISH]: 'PIN Limit Exceeded.\nCard Usage Restricted.',
       [Lang.FRENCH]: 'Limite de code confidentiel dépassée.\nUtilisation de la carte restreinte.',
       [Lang.GERMAN]: 'PIN-Limit überschritten.\nKartennutzung eingeschränkt.',
     },
@@ -97,7 +96,7 @@ const translations: Translations = {
   amountError: [
     {
       [Lang.DUTCH]: 'Niet mogelijk om transactie te voltooien: laag saldo',
-      [Lang.ENGLISH]: `Unable to Complete\nTransaction: Low Balance`,
+      [Lang.ENGLISH]: 'Unable to Complete\nTransaction: Low Balance',
       [Lang.FRENCH]: 'Impossible de terminer la transaction : solde insuffisant',
       [Lang.GERMAN]: 'Transaktion kann nicht abgeschlossen werden: niedriger Kontostand',
     },
@@ -120,10 +119,10 @@ const translations: Translations = {
   ],
   wrongPin: [
     {
-      [Lang.DUTCH]: `Verkeerde PIN.\nProbeer opnieuw.`,
+      [Lang.DUTCH]: 'Verkeerde PIN.\nProbeer opnieuw.',
       [Lang.ENGLISH]: 'Wrong PIN. Try again.',
       [Lang.FRENCH]: 'PIN incorrect. Réessayez.',
-      [Lang.GERMAN]: `Falsche PIN.\nBitte erneut versuchen.`,
+      [Lang.GERMAN]: 'Falsche PIN.\nBitte erneut versuchen.',
     },
   ],
   enterPin: [
@@ -247,7 +246,7 @@ const translations: Translations = {
       [Lang.GERMAN]: 'Währung',
     },
   ],
-  
+
   supportedSchemes: [
     {
       [Lang.DUTCH]: 'Ondersteunde schema\'s',
@@ -282,8 +281,8 @@ const translations: Translations = {
   ],
 };
 
-  // Use indexed if you need a second line in a different element, i.e., a subline.
-  const ts = (id: string, language: Lang, indexed?: number): string => {
+// Use indexed if you need a second line in a different element, i.e., a subline.
+const ts = (id: string, language: Lang, indexed?: number): string => {
   const translation = translations[id];
 
   // If 'indexed' is valid use it, otherwise use the first index '[0]' as default if no index or invalid idex is given.

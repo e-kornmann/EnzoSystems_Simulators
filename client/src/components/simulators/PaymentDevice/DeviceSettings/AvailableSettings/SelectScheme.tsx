@@ -9,7 +9,6 @@ import { Wrap } from './SchemeOptions';
 import ts from '../../Translations/translations';
 import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
 
-
 type Props = {
   hide: boolean;
   onHide: () => void;
@@ -17,11 +16,10 @@ type Props = {
 
 const SelectScheme = ({ hide, onHide }: Props) => {
   const { state, dispatch } = useContext(AppContext);
-  
 
   const onChangeEventHandler = (mode: SupportedSchemesType) => {
     dispatch({ type: SettingModes.SELECT_SCHEME, payload: mode });
-    setTimeout(()=> onHide(), 200);
+    setTimeout(() => onHide(), 200);
   };
 
   return (
@@ -36,13 +34,13 @@ const SelectScheme = ({ hide, onHide }: Props) => {
           {state.selectedSchemes.map(scheme => (
             <S.GenericListButton key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
-              <SharedCheckMark isDisplayed={ state.schemeInUse === scheme } width={14} height={11} /> 
+              <SharedCheckMark isDisplayed={ state.schemeInUse === scheme } width={14} height={11} />
             </S.GenericListButton>
           ))}
         </S.GenericList>
       </Container>
     </SettingsWrapper>
-  )
-}
+  );
+};
 
 export default SelectScheme;

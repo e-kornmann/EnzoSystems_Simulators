@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import styled from "styled-components";
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
 const Container = styled.div`
   position: absolute;
@@ -16,26 +16,26 @@ const Container = styled.div`
 `;
 
 const TimeRibbon = () => {
-    const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
-    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-          setCurrentTime(new Date().toLocaleTimeString());
-          setCurrentDate(new Date().toLocaleDateString());
-        }, 1000);
-    
-        return () => {
-          clearInterval(timer);
-        };
-    }, []);
-    
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+      setCurrentDate(new Date().toLocaleDateString());
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
   return (
     <Container>
         <div>{currentDate}</div>
         <div>{currentTime}</div>
     </Container>
-  )
-}
+  );
+};
 
-export default TimeRibbon
+export default TimeRibbon;

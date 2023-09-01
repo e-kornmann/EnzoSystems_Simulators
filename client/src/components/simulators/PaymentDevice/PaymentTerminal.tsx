@@ -9,8 +9,8 @@ import {
   cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody,
 } from './Config';
 import useStopTransaction from '../../../hooks/useStopTransaction';
-import { rejectTransaction } from './utils/rejectTransaction';
-import { updateTransaction } from './utils/updateTransaction';
+import rejectTransaction from './utils/rejectTransaction';
+import updateTransaction from './utils/updateTransaction';
 import {
   AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus,
 } from './types';
@@ -25,7 +25,8 @@ import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 import { AppContext } from './utils/settingsReducer';
-import { SharedLoading } from '../../shared/Loading';
+import SharedLoading from '../../shared/Loading';
+import ShowIcon from '../../shared/sharedTypes/ShowIcon';
 
 const Content = styled.div`
   padding: 0 10px 50px;
@@ -41,7 +42,9 @@ const Footer = styled(GenericFooter)`
 `;
 
 const initialMessage = {
-  mainline: '', subline: undefined, failicon: undefined, successicon: undefined,
+  mainline: '',
+  subline: undefined,
+  checkOrCrossIcon: undefined,
 };
 
 const PaymentTerminal = () => {
@@ -67,11 +70,11 @@ const PaymentTerminal = () => {
       };
       doLogOn();
     }
-  }, [init, logOn, stopTransaction])
-  ;
+  }, [init, logOn, stopTransaction]);
 
   // Fetch transaction details at regular intervals (1 second) if the terminalState is not idle,
   // and put the response in transactionDetails:
+  // eslint-disable-next-line consistent-return
   useEffect(() => {
     if (terminalState !== PinTerminalStatus.IDLE && terminalState !== PinTerminalStatus.START_UP) {
       const interval = setInterval(() => {
@@ -82,6 +85,7 @@ const PaymentTerminal = () => {
       };
     }
   }, [terminalState, getTransaction]);
+
   // check if the transactionDetails.Status is 'STOPPED' and go back to IDLE mode with:
   useEffect(() => {
     if (transactionDetails.status === 'STOPPED') {
@@ -105,7 +109,10 @@ const PaymentTerminal = () => {
     }
   }, [setPincode, pincode]);
 
-  const chooseMethodHandler = (method: PayMethod) => { setTerminalState(PinTerminalStatus.ACTIVE_METHOD); setActivePayMethod(method); };
+  const chooseMethodHandler = (method: PayMethod) => {
+    setTerminalState(PinTerminalStatus.ACTIVE_METHOD);
+    setActivePayMethod(method);
+  };
 
   const handleConfirmEvent = () => {
     if (pincode.length === 4) {
@@ -125,10 +132,11 @@ const PaymentTerminal = () => {
 
     switch (terminalState) {
       case PinTerminalStatus.START_UP:
+        setMessageContent(initialMessage);
         waitTime = 1000;
         break;
       case PinTerminalStatus.OUT_OF_ORDER:
-        setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), failicon: true });
+        setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         break;
       case PinTerminalStatus.IDLE:
         setMessageContent({ ...initialMessage, mainline: ts('welcome', state.language) });
@@ -140,11 +148,17 @@ const PaymentTerminal = () => {
       case PinTerminalStatus.SERVER_ERROR:
         if (updateTransactionStatusCode === 409) {
           setMessageContent({
-            ...initialMessage, mainline: ts('serverError409', state.language), subline: ts('serverError409', state.language, 1), failicon: true,
+            ...initialMessage,
+            mainline: ts('serverError409', state.language),
+            subline: ts('serverError409', state.language, 1),
+            checkOrCrossIcon: ShowIcon.CROSS,
           });
         } else { // if response status code is not 409, set message with a regular serverError;
           setMessageContent({
-            ...initialMessage, mainline: ts('serverError', state.language), subline: ts('serverError', state.language, 1), failicon: true,
+            ...initialMessage,
+            mainline: ts('serverError', state.language),
+            subline: ts('serverError', state.language, 1),
+            checkOrCrossIcon: ShowIcon.CROSS,
           });
         }
         waitTime = 4500;
@@ -159,7 +173,11 @@ const PaymentTerminal = () => {
         waitTime = 7000;
         break;
       case PinTerminalStatus.STOP_TRANSACTION:
-        setMessageContent({ ...initialMessage, subline: ts('stopTransaction', state.language), failicon: true });
+        setMessageContent({
+          ...initialMessage,
+          subline: ts('stopTransaction', state.language),
+          checkOrCrossIcon: ShowIcon.CROSS,
+        });
         waitTime = 4500;
         break;
       case PinTerminalStatus.PIN_ENTRY:
@@ -179,12 +197,12 @@ const PaymentTerminal = () => {
         break;
       case PinTerminalStatus.PIN_ERROR:
         rejectTransaction(token, transactionState.transactionId, 'FAIL');
-        setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), failicon: true });
+        setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         waitTime = 4500;
         break;
       case PinTerminalStatus.AMOUNT_ERROR:
         rejectTransaction(token, transactionState.transactionId, 'DECLINE');
-        setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), failicon: true });
+        setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         waitTime = 4500;
         break;
       case PinTerminalStatus.UPDATE_TRANSACTION:
@@ -192,7 +210,7 @@ const PaymentTerminal = () => {
         waitTime = 500;
         break;
       case PinTerminalStatus.SUCCESS:
-        setMessageContent({ ...initialMessage, subline: ts('paymentAccepted', state.language), successicon: true });
+        setMessageContent({ ...initialMessage, subline: ts('paymentAccepted', state.language), checkOrCrossIcon: ShowIcon.CHECK });
         waitTime = 3500;
         break;
       case PinTerminalStatus.STOPPED:
@@ -209,7 +227,7 @@ const PaymentTerminal = () => {
       intervalId = setInterval(async () => {
         switch (terminalState) {
           case PinTerminalStatus.START_UP:
-            if (init === false) { 
+            if (init === false) {
               setTerminalState(PinTerminalStatus.OUT_OF_ORDER);
             } else {
               setTerminalState(PinTerminalStatus.IDLE);
@@ -217,13 +235,14 @@ const PaymentTerminal = () => {
             break;
           case PinTerminalStatus.IDLE:
             acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
-            (acceptTransactionStatusCode === 200) ? setTerminalState(PinTerminalStatus.CHOOSE_METHOD) : null;
+            if (acceptTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.CHOOSE_METHOD);
             break;
           case PinTerminalStatus.CHOOSE_METHOD:
             setTerminalState(PinTerminalStatus.TIMED_OUT);
             break;
           case PinTerminalStatus.ACTIVE_METHOD:
-            if ((activePayMethod === PayMethod.CONTACTLESS && transactionState.amountToPay <= cardlessSecurityPoint) || activePayMethod === PayMethod.SMARTPHONE) {
+            if ((activePayMethod === PayMethod.CONTACTLESS && transactionState.amountToPay <= cardlessSecurityPoint)
+             || activePayMethod === PayMethod.SMARTPHONE) {
               setTerminalState(PinTerminalStatus.CHECK_AMOUNT);
             } else {
               setTerminalState(PinTerminalStatus.PIN_ENTRY);
@@ -272,8 +291,14 @@ const PaymentTerminal = () => {
             }
             break;
           case PinTerminalStatus.UPDATE_TRANSACTION:
-            updateTransactionStatusCode = await updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setTerminalState);
-            (updateTransactionStatusCode === 200) ? setTerminalState(PinTerminalStatus.SUCCESS) : setTerminalState(PinTerminalStatus.SERVER_ERROR);
+            updateTransactionStatusCode = await updateTransaction(
+              token,
+              transactionState.transactionId,
+              transactionState.amountToPay,
+              setTerminalState,
+            );
+            if (updateTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.SUCCESS);
+            else setTerminalState(PinTerminalStatus.SERVER_ERROR);
             break;
           case PinTerminalStatus.PIN_ERROR || PinTerminalStatus.AMOUNT_ERROR:
             setTerminalState(PinTerminalStatus.IDLE);
@@ -295,7 +320,17 @@ const PaymentTerminal = () => {
         clearInterval(intervalId);
       }
     };
-  }, [activePayMethod, pincode, init, pinAttempts, setMessageContent, state.language, stopTransaction, terminalState, token, transactionState.amountToPay, transactionState.transactionId]);
+  }, [activePayMethod,
+    pincode,
+    init,
+    pinAttempts,
+    setMessageContent,
+    state.language,
+    stopTransaction,
+    terminalState,
+    token,
+    transactionState.amountToPay,
+    transactionState.transactionId]);
 
   const showMessage = useMemo(() => {
     if (terminalState === PinTerminalStatus.OUT_OF_ORDER

@@ -1,27 +1,29 @@
 import styled, { keyframes } from 'styled-components';
+import {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
 import { QrAppModi, QrCode } from '..';
 import { GenericFooter } from '../../../shared/DraggableModal/ModalTemplate';
-import { useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as QrCodeIcon } from '../../../../assets/svgs/qr_code.svg';
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../../assets/svgs/qrCode_withoutFrame.svg';
 import { ReactComponent as AddIcon } from '../../../../assets/svgs/add_qr_code.svg';
-import { SharedLoading } from '../../../shared/Loading';
+import SharedLoading from '../../../shared/Loading';
 import AnimatedCrossHair from './AnimatedCrossHair';
 import useLogOn from '../../../../hooks/useLogOn';
 import { reqBody, scannerCredentials } from '../config';
-import { changeDeviceStatus } from '../utils/changeDeviceStatus';
-import { putScannedData } from '../utils/putScannedData';
-import { getSession } from '../utils/getSession';
+
 import { ReactComponent as SettingsIcon } from '../../../../assets/svgs/settings.svg';
 import { AppContext, SettingModes } from '../utils/settingsReducer';
 import ts from '../Translations/translations';
-import { statusOptions } from './DeviceSettings/AvailableSettings/StatusOptions';
+import { DeviceStatusOptions } from './DeviceSettings/AvailableSettings/StatusOptions';
 import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
+import { changeDeviceStatus, getSession, putScannedData } from '../utils/scanApiRequests';
+import ShowIcon from '../../../shared/sharedTypes/ShowIcon';
 
 const QrScannerWrapper = styled('div')({
   display: 'grid',
   gridTemplateRows: '14% 16% 1fr 20% auto',
-  rowGap: '2%'
+  rowGap: '2%',
 });
 
 const InstructionBox = styled('div')({
@@ -35,8 +37,8 @@ const InstructionBox = styled('div')({
     textAlign: 'center',
     fontSize: '1.15em',
     lineHeight: '1.23em',
-    fontWeight: '500'
-  }
+    fontWeight: '500',
+  },
 });
 
 const IconBox = styled('div')({
@@ -49,16 +51,16 @@ const IconBox = styled('div')({
 const ScannerBox = styled('div')({
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'flex-start'
+  alignItems: 'flex-start',
 });
 const ButtonBox = styled('div')({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  overflowY: 'hidden'
+  overflowY: 'hidden',
 });
 
-const ScanActionButton = styled('button')(({ theme } ) => ({
+const ScanActionButton = styled('button')(({ theme }) => ({
   backgroundColor: 'orange',
   display: 'flex',
   justifyContent: 'center',
@@ -78,19 +80,19 @@ const ScanActionButton = styled('button')(({ theme } ) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    maxWidth: '70%'
+    maxWidth: '70%',
   },
   '& > svg': {
     position: 'relative',
     top: '-1px',
     fill: 'white',
-    marginRight: '8px'
+    marginRight: '8px',
   },
   '&:disabled': {
     backgroundColor: theme.colors.buttons.gray,
     cursor: 'inherit',
-  }
-}))
+  },
+}));
 
 const slideAnimation = keyframes`
   0% {
@@ -120,9 +122,9 @@ const slideAnimation = keyframes`
   }
 `;
 
-const AnimatedQr = styled.div<{$animate: boolean}>`
+const AnimatedQr = styled.div<{ $animate: boolean }>`
 position: absolute;
-display: ${ props => props.$animate ? 'flex' : 'none' };
+display: ${props => (props.$animate ? 'flex' : 'none')};
 align-items: center;
 justify-content: center;
 top: 30%;
@@ -139,11 +141,11 @@ z-index: 300;
    & > svg {
     width: 100%;
     height: 100%;
-    fill: ${ props => props.theme.colors.text.black};
+    fill: ${props => props.theme.colors.text.black};
    }
   }
 
-`
+`;
 
 export enum OperationalState {
   DEVICE_START_UP,
@@ -174,43 +176,43 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   const [deviceStatus, setDeviceStatus] = useState<OperationalState>(OperationalState.DEVICE_START_UP);
   const [instructionText, setInstructionText] = useState('');
 
-
   // This useEffect 'listens' to clicked device settings.
   useEffect(() => {
     // connect when Connected settings has been clicked.
-    if (state.statusOption === statusOptions.CONNECTED) {
+    if (state.statusOption === DeviceStatusOptions.CONNECTED) {
       // if you are already logged in
-      init ? setDeviceStatus(OperationalState.DEVICE_CONNECT) : setDeviceStatus(OperationalState.DEVICE_START_UP)
+      if (init) setDeviceStatus(OperationalState.DEVICE_CONNECT);
+      else setDeviceStatus(OperationalState.DEVICE_START_UP);
     }
     // disconnect when Disonnected settings has been clicked.
-    if (state.statusOption === statusOptions.DISCONNECTED) setDeviceStatus(OperationalState.DEVICE_DISCONNECT);
+    if (state.statusOption === DeviceStatusOptions.DISCONNECTED) setDeviceStatus(OperationalState.DEVICE_DISCONNECT);
     // OUT_OF_ORDER when OUT_OF_ORDER settings has been clicked.
-    if (state.statusOption === statusOptions.OUT_OF_ORDER) setDeviceStatus(OperationalState.DEVICE_OUT_OF_ORDER);
-  }, [init, state.statusOption])
-
+    if (state.statusOption === DeviceStatusOptions.OUT_OF_ORDER) setDeviceStatus(OperationalState.DEVICE_OUT_OF_ORDER);
+  }, [init, state.statusOption]);
 
   const getToken = useCallback(async () => {
     if (!init) {
-      await logOn().then((success) => {
+      await logOn().then(success => {
         if (success) {
           setTimeout(() => {
             setInit(true);
             setDeviceStatus(OperationalState.DEVICE_CONNECT);
           }, 500);
         } else {
-            setDeviceStatus(OperationalState.API_ERROR);
+          setDeviceStatus(OperationalState.API_ERROR);
         }
       });
     }
   }, [init, logOn]);
 
   useEffect(() => {
-    let waitTime: number | undefined = undefined;
+    let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
     let checkCounter = 0; // Counter for the number of checks
 
     switch (deviceStatus) {
       case OperationalState.DEVICE_START_UP:
+        setInstructionText('');
         getToken();
         break;
       case OperationalState.API_ERROR:
@@ -226,15 +228,15 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         waitTime = 1000;
         break;
       case OperationalState.DEVICE_DISCONNECTED:
-        setInstructionText(`DISCONNECTED`);
-        if (state.statusOption !== statusOptions.DISCONNECTED) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: statusOptions.DISCONNECTED })
+        setInstructionText('DISCONNECTED');
+        if (state.statusOption !== DeviceStatusOptions.DISCONNECTED) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.DISCONNECTED });
         }
         break;
       case OperationalState.DEVICE_OUT_OF_ORDER:
         setInstructionText(ts('outOfOrder', state.language));
-        if (state.statusOption !== statusOptions.OUT_OF_ORDER) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: statusOptions.OUT_OF_ORDER })
+        if (state.statusOption !== DeviceStatusOptions.OUT_OF_ORDER) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.OUT_OF_ORDER });
         }
         waitTime = 3000;
         break;
@@ -271,19 +273,21 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         setInstructionText('SUCCESS');
         waitTime = 2500;
         break;
+      default:
+        break;
     }
     if (intervalId) {
       clearInterval(intervalId);
     }
     // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
     if (waitTime) {
-      let response = undefined;
+      let response;
 
       intervalId = setInterval(async () => {
         switch (deviceStatus) {
           case OperationalState.API_ERROR:
-            setDeviceStatus(OperationalState.DEVICE_START_UP)
-            break;   
+            setDeviceStatus(OperationalState.DEVICE_START_UP);
+            break;
           case OperationalState.DEVICE_CONNECT:
             if (token) {
               response = await changeDeviceStatus(token, 'CONNECTED');
@@ -293,7 +297,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
                 } else if (response.status === 200) {
                   setDeviceStatus(OperationalState.DEVICE_CONNECTED);
                   // update Settings because initial state is OUT_OF_ORDER
-                  dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: statusOptions.CONNECTED })
+                  dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.CONNECTED });
                 }
               // if response is undefined but token is there, maybe device is out of order?
               } else if (response === undefined) {
@@ -301,12 +305,12 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
               }
             } else {
             // if there is no token try again to get one.
-               setDeviceStatus(OperationalState.DEVICE_START_UP);
-              }
+              setDeviceStatus(OperationalState.DEVICE_START_UP);
+            }
             break;
           case OperationalState.DEVICE_DISCONNECT:
             if (token) {
-              const response = await changeDeviceStatus(token, 'DISCONNECTED');
+              response = await changeDeviceStatus(token, 'DISCONNECTED');
               if (response) {
                 if (response.status === 200) {
                   setDeviceStatus(OperationalState.DEVICE_DISCONNECTED);
@@ -314,9 +318,9 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
               }
             } else {
               // if there is no token try again to get one.
-                 setDeviceStatus(OperationalState.DEVICE_START_UP);
-              }
-            break;      
+              setDeviceStatus(OperationalState.DEVICE_START_UP);
+            }
+            break;
           case OperationalState.DEVICE_CONNECTED:
             if (token) {
               // If still connected look if scanner needs to be activated
@@ -324,9 +328,9 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
               if (newMode.status === 'WAITING_FOR_BARCODE') {
                 setDeviceStatus(OperationalState.DEVICE_WAITING_FOR_BARCODE);
               } else {
-                checkCounter++;
+                checkCounter += 1;
               }
-              // This endpoint need to be called by the device on a regular base to stay in connected state. 
+              // This endpoint need to be called by the device on a regular base to stay in connected state.
               // In case the status is not updated in time, the internal status will fallback to "not_found"
               // Timeout is set to 60000 on backend. Maybe to put checkcounter dynamically
               if (checkCounter >= 50) {
@@ -336,17 +340,17 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
                     setDeviceStatus(OperationalState.DEVICE_COULD_NOT_CONNECT);
                   }
                 } else {
-                // also if response is undefined. 
-                setDeviceStatus(OperationalState.DEVICE_COULD_NOT_CONNECT);
+                // also if response is undefined.
+                  setDeviceStatus(OperationalState.DEVICE_COULD_NOT_CONNECT);
                 }
               }
             } else {
-                // if there is no token try again to get one.
-                   setDeviceStatus(OperationalState.DEVICE_START_UP);
-                  }
+              // if there is no token try again to get one.
+              setDeviceStatus(OperationalState.DEVICE_START_UP);
+            }
             break;
           case OperationalState.DEVICE_COULD_NOT_CONNECT:
-            // If you cannot connect you probarly also cannot set to DISCONNECT... 
+            // If you cannot connect you probarly also cannot set to DISCONNECT...
             // either way i put the code here maybe this state can be deleted.
             if (token) {
               response = await changeDeviceStatus(token, 'DISCONNECTED');
@@ -360,7 +364,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
               }
             } else {
             // if there is no token try again to get one.
-            setDeviceStatus(OperationalState.DEVICE_START_UP);
+              setDeviceStatus(OperationalState.DEVICE_START_UP);
             }
             break;
           case OperationalState.DEVICE_OUT_OF_ORDER:
@@ -373,7 +377,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
               }
             } else {
               // if there is no token try again to get one.
-                 setDeviceStatus(OperationalState.DEVICE_START_UP);
+              setDeviceStatus(OperationalState.DEVICE_START_UP);
             }
             break;
           case OperationalState.DEVICE_WAITING_FOR_BARCODE:
@@ -386,7 +390,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
                 setDeviceStatus(OperationalState.DEVICE_TIMED_OUT);
               }
             } else {
-              checkCounter++;
+              checkCounter += 1;
             }
             // either way set to TIMEDOUT
             if (checkCounter >= 13000) {
@@ -402,18 +406,19 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
                 console.log(res);
                 setDeviceStatus(OperationalState.API_SCAN_FAILED);
               }
-              } else {
-                // if there is no token try again to get one. (and start over)
-                setDeviceStatus(OperationalState.DEVICE_START_UP);
-              }
+            } else {
+              // if there is no token try again to get one. (and start over)
+              setDeviceStatus(OperationalState.DEVICE_START_UP);
+            }
             break;
           case OperationalState.DEVICE_STOPPED:
           case OperationalState.DEVICE_TIMED_OUT:
           case OperationalState.API_SCAN_SUCCESS:
           case OperationalState.API_SCAN_FAILED:
-            init === false
-              ? setDeviceStatus(OperationalState.API_ERROR)
-              : setDeviceStatus(OperationalState.DEVICE_CONNECT);
+            if (init === false) setDeviceStatus(OperationalState.API_ERROR);
+            else setDeviceStatus(OperationalState.DEVICE_CONNECT);
+            break;
+          default:
             break;
         }
       }, waitTime);
@@ -434,22 +439,28 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
     <QrScannerWrapper>
       <InstructionBox>
         {/* {Show loading dots by start-up} */}
-        {deviceStatus === OperationalState.DEVICE_START_UP || deviceStatus === OperationalState.DEVICE_CONNECT 
+        {((deviceStatus === OperationalState.DEVICE_START_UP) || (deviceStatus === OperationalState.DEVICE_CONNECT))
         && <SharedLoading/>}
         <span> {instructionText}</span>
       </InstructionBox>
       <IconBox>
-        { deviceStatus === OperationalState.API_SCAN_SUCCESS && <SharedSuccesOrFailIcon isSuccess={true} width={30} height={30} /> }
-        { deviceStatus === OperationalState.API_SCAN_FAILED && <SharedSuccesOrFailIcon isSuccess={false} width={30} height={30} /> }
+        { deviceStatus === OperationalState.API_SCAN_SUCCESS && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CHECK} width={30} height={30} /> }
+        { deviceStatus === OperationalState.API_SCAN_FAILED && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CROSS} width={30} height={30} /> }
       </IconBox>
       <ScannerBox>
-        
-          <AnimatedQr $animate={deviceStatus === OperationalState.DEVICE_IS_SCANNING || deviceStatus === OperationalState.API_SCAN_SUCCESS || deviceStatus === OperationalState.API_SCAN_FAILED}>
+
+          <AnimatedQr $animate={
+            deviceStatus === OperationalState.DEVICE_IS_SCANNING
+            || deviceStatus === OperationalState.API_SCAN_SUCCESS
+            || deviceStatus === OperationalState.API_SCAN_FAILED
+            }>
             <div><QrCodeIconNoCanvas /></div>
           </AnimatedQr>
-        
+
         <AnimatedCrossHair
-          animate={deviceStatus === OperationalState.DEVICE_WAITING_FOR_BARCODE || deviceStatus === OperationalState.DEVICE_IS_SCANNING}
+          animate={
+            deviceStatus === OperationalState.DEVICE_WAITING_FOR_BARCODE
+            || deviceStatus === OperationalState.DEVICE_IS_SCANNING}
         />
       </ScannerBox>
       <ButtonBox>
@@ -457,34 +468,32 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
           type="button"
           onClick={scanQrButtonHandler}
           disabled={
-            !currentQrCode.name ||
-            !currentQrCode.data ||
-            deviceStatus !== OperationalState.DEVICE_WAITING_FOR_BARCODE
+            !currentQrCode.name
+            || !currentQrCode.data
+            || deviceStatus !== OperationalState.DEVICE_WAITING_FOR_BARCODE
           }
         >
           <QrCodeIconNoCanvas width={15} height={15} />
           <span>
             {!currentQrCode.name
               ? 'No Qr-Codes'
-              : 'Scan: ' + currentQrCode.name}
+              : `Scan: ${currentQrCode.name}`}
           </span>
         </ScanActionButton>
       </ButtonBox>
       <GenericFooter>
       <div onClick={() => modusSetterHandler(QrAppModi.SETTINGS)}><SettingsIcon width={16} height={16} /></div>
       <div onClick={() => modusSetterHandler(QrAppModi.QR_CODES)}>
-          <QrCodeIcon width={24} height={24} style={{marginRight: '-5px'}}/>
+          <QrCodeIcon width={24} height={24} style={{ marginRight: '-5px' }}/>
           QRs
         </div>
         <div onClick={() => modusSetterHandler(QrAppModi.NEW_QR)}>
           <AddIcon width={24} height={24} />
         </div>
-       
+
       </GenericFooter>
     </QrScannerWrapper>
   );
 };
 
 export default QrCodeReader;
-
-   
