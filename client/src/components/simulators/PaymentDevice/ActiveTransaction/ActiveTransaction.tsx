@@ -278,7 +278,7 @@ const ActiveTransaction = ({
           <StopButton $showBottomButtons={transactionIsActive} onClick={handleStopEvent}>Stop</StopButton>
           <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>
             Cor</CorrectButton>
-          <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type='button' onClick={handleConfirmEvent}>
+          <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type="button" onClick={handleConfirmEvent}>
             OK</OkButton>
         </StyledFooter>
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import axios from 'axios';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+import './style.css';
 // components
 import InitialScreen from './components/InitialScreen/InititialScreen'
 import Footer from './components/Footer/Footer';
