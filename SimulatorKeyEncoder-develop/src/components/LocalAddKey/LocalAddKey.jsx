@@ -23,34 +23,85 @@ const StyledWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '100%'
 }));
-const StyledForm = styled('div')({
-  display: 'grid',
-  justifyContent: 'center',
-  margin: '10px 0 0 0',
-  rowGap: '5px'
-});
-const StyledControl = styled('div')({
-  columnGap: '5px',
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  padding: '0 5px'
-});
-const StyledLabel = styled('div')({
+
+const StyledForm = styled('form')({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  border: '1px solid pink',
+  padding: '5px 18px 18px',
+  justifyItems: 'flex-start',
   alignItems: 'center',
-  display: 'flex'
+  height: '100%',
+  overflow: 'hidden'
 });
-const StyledInput = styled('input')({});
+
+const StyledControl = styled('div')(({ theme, $hasValue }) => ({
+  marginTop: '18px',
+  height: '40px',
+  width: '100%',
+  position: 'relative', 
+  '& > label': {
+    transform: $hasValue ? 'translate(1px, -16px) scale(0.75)' : 'none',
+  },
+  '&:focus-within > label': {
+    transform: 'translate(0px, -16px) scale(0.75)',
+  },
+}));
+
+const StyledLabel = styled('label')(({ theme, $animate }) => ({
+  position: 'absolute', 
+  top: '6px',
+  left: '2px',
+  padding: '3px 5px',
+  backgroundColor: 'white',
+  borderRadius: '1px',
+  fontWeight: '600',
+  fontSize: '0.9em',
+  color: '#7A7A7A',
+  transition: 'font-size 0.2s, transform 0.2s',
+  pointerEvents: 'none',
+  '& > span': {
+    color: theme.colors.text.secondary,
+  },
+}));
+
+const StyledInput = styled('input')(({ theme }) => ({
+  color: theme.colors.text.primary,
+  fontSize: '1.0em',
+  fontWeight: '500',
+  border: '0.12em solid',
+  borderColor: theme.colors.buttons.gray,
+  borderRadius: '3px',
+  padding: '8px',
+  width: '100%',
+  height: '100%',
+  '&:focus': {
+    borderColor: theme.colors.brandColors.enzoOrange,
+    outline: 'none',
+  },
+}));
+
 const StyledDateTimeInput = styled('input')({});
 
 const initialState = {
   initialized: false,
-  key: null
+  key: null,
+  rooms: [130],
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case 'set-key': {
       return { ...state, initialized: true, key: action.payload };
+    }
+    case 'add-room': {
+      const newRooms = [...state.rooms, '']; // Add a new empty room
+      return {
+        ...state,
+        rooms: newRooms,
+      };
     }
     case 'input-array-value': {
       const changedKey = state.key ? { ...state.key } : {};
@@ -78,7 +129,7 @@ const reducer = (state, action) => {
   }
 };
 
-const LocalAddKey = ({ saveKeyClicked }) => {
+const LocalAddKeyForm = ({ saveKeyClicked }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useContext(AppDispatchContext);
 
@@ -88,6 +139,31 @@ const LocalAddKey = ({ saveKeyClicked }) => {
   }, []);
 
   
+  const addRoom = () => {
+    dispatch({ type: 'add-room' });
+  };
+
+  const handleRoomInput = (event, index) => {
+    const newRooms = [...state.rooms];
+    newRooms[index] = event.target.value;
+    dispatch({ type: 'input-array-value', field: fields.find(f => f.type === AddKeyFieldTypes.ROOM_ACCESS), payload: newRooms });
+  };
+
+  const removeRoom = (index) => {
+    const newRooms = [...state.rooms];
+    newRooms.splice(index, 1);
+    dispatch({ type: 'input-array-value', field: fields.find(f => f.type === AddKeyFieldTypes.ROOM_ACCESS), payload: newRooms });
+  };
+
+    const handleArrayInput = useCallback((value, field) => {
+    dispatch({ type: 'input-array-value', field: field, payload: [value] });
+  }, []);
+
+  const handleInput = useCallback((value, field) => {
+    dispatch({ type: 'input-array-value', field: field, payload: value });
+  }, []);
+
+
 
   const tomorrow = useMemo(() => {
     dispatch({ type: 'set-tomorrow', payload: format(addDays(new Date(), 1), 'yyyy-MM-dd') });
@@ -124,19 +200,6 @@ const LocalAddKey = ({ saveKeyClicked }) => {
     ];
   }, []);
 
-  const availableRooms = useMemo(() => {
-    return [
-      { name: '100', value: '100' },
-      { name: '101', value: '101' },
-      { name: '102', value: '102' },
-      { name: '203', value: '203' },
-      { name: '204', value: '204' },
-      { name: '207', value: '207' },
-      { name: '301', value: '301' },
-      { name: '422', value: '422' },
-      { name: '696', value: '696' }
-    ];
-  }, []);
 
   const availableAdditionalAccess = useMemo(() => {
     return [
@@ -146,13 +209,6 @@ const LocalAddKey = ({ saveKeyClicked }) => {
     ];
   }, []);
 
-  const handleArrayInput = useCallback((value, field) => {
-    dispatch({ type: 'input-array-value', field: field, payload: [value] });
-  }, []);
-
-  const handleInput = useCallback((value, field) => {
-    dispatch({ type: 'input-array-value', field: field, payload: value });
-  }, []);
 
   useEffect(() => {
     if (saveKeyClicked) {
@@ -170,18 +226,30 @@ const LocalAddKey = ({ saveKeyClicked }) => {
   return (
     <StyledWrapper>
       <StyledForm>
-        {fields && fields.map((field) => (
+          {fields && fields.map((field) => (
           <React.Fragment key={field.name}>
             {field.type === AddKeyFieldTypes.ID &&
-              <StyledControl>
+              <StyledControl $hasValue={state?.key?.[field.source]?.length > 0}> 
                 <StyledLabel>{field.name}:</StyledLabel>
-                <StyledInput value={state?.key?.[field.source] || ''} onChange={(e) => { handleInput(e.target.value, field); }} />
+                <StyledInput onChange={(e) => { handleInput(e.target.value, field); }} />
               </StyledControl>}
-            {field.type === AddKeyFieldTypes.ROOM_ACCESS &&
-              <StyledControl>
-                <StyledLabel>{field.name}:</StyledLabel>
-                <EnzoDropdown defaultValue='' field={field} label='Room Number' options={availableRooms} onOptionClicked={handleArrayInput} />
-              </StyledControl>}
+            {field.type === AddKeyFieldTypes.ROOM_ACCESS && 
+             
+             <>
+             {state.rooms.map((room, index) => (
+               <StyledControl key={index}>
+                 <StyledLabel>{field.name + index}:</StyledLabel>
+                 <StyledInput
+                   value={room}
+                   onChange={(e) => handleRoomInput(e, index)} // Pass the index to identify the room
+                 />
+                 <button onClick={() => removeRoom(index)}>Remove</button>
+               </StyledControl>
+             ))}
+             <div onClick={() => addRoom()}>Add new room</div>
+           </>
+    
+}
             {field.type === AddKeyFieldTypes.ADDITIONAL_ACCESS &&
               <StyledControl>
                 <StyledLabel>{field.name}:</StyledLabel>
@@ -204,4 +272,6 @@ const LocalAddKey = ({ saveKeyClicked }) => {
   );
 };
 
-export default memo(LocalAddKey);
+const LocalAddKey = memo(LocalAddKeyForm)
+
+export default LocalAddKey

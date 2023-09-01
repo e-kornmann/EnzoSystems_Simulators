@@ -9,16 +9,17 @@ import { QrAppModi, QrCode } from '..';
 import { AppContext } from '../utils/settingsReducer';
 import ts from '../Translations/translations';
 
-const QrFormWrapper = styled.form`
-  position: absolute;
-  top: 35px;
-  height: calc(100% - 35px);
-  border-radius: 0 0 5px 5px;
-  background-color: ${Sv.appBackground};
-  display: grid;
-  grid-template-rows: 1fr auto; 
-  z-index: 400;
-`;
+const QrFormWrapper = styled('form')(({ theme }) => ({
+  position: 'absolute',
+  top: '35px',
+  height: 'calc(100% - 35px)',
+  borderRadius: '0 0 5px 5px',
+  backgroundColor: theme.colors.background.secondary,
+  display: 'grid',
+  gridTemplateRows: '1fr auto',
+  zIndex: '400',
+}));
+
 const InputWrapper = styled.div`
   display: grid;
   padding: 5px 18px 18px;
@@ -28,36 +29,40 @@ const InputWrapper = styled.div`
   height: 100%;
   overflow: hidden;
 `;
-const StyledLabel = styled.label<{ $animate: boolean }>`
-  position: relative;
-  top: 22px;
-  left: 2px;
-  padding: 3px 5px;
-  background-color: white; 
-  border-radius: 1px;
-  font-weight: 600;
-  font-size: 0.9em;
-  color: #7A7A7A;
-  transition: font-size 0.2s, transform 0.2s;
-  transform: ${props => (props.$animate ? 'translate(1px, -16px) scale(0.75)' : 'none')};
-  & > span {
-    color: orange;
-  }
-`;
-const StyledInput = styled.input`
-  color: ${Sv.asphalt};
-  font-size: 1.0em;
-  font-weight: 500;
-  border: 0.12em solid ${Sv.lightgray};
-  border-radius: 3px;
-  padding: 8px;
-  width: 100%;
-  height: 100%;
-  &:focus {
-    border-color: ${Sv.enzoOrange};
-    outline: none;
-  }
-`;
+
+const StyledLabel = styled('label')<{ $animate: boolean }>(({ theme, $animate }) => ({
+  position: 'relative',
+  top: '22px',
+  left: '2px',
+  padding: '3px 5px',
+  backgroundColor: 'white',
+  borderRadius: '1px',
+  fontWeight: '600',
+  fontSize: '0.9em',
+  color: '#7A7A7A',
+  transition: 'font-size 0.2s, transform 0.2s',
+  transform: $animate ? 'translate(1px, -16px) scale(0.75)' : 'none',
+  '& > span': {
+    color: theme.colors.text.secondary,
+  },
+}));
+
+const StyledInput = styled('input')(({ theme }) => ({
+  color: theme.colors.text.primary,
+  fontSize: '1.0em',
+  fontWeight: '500',
+  border: '0.12em solid',
+  borderColor: theme.colors.buttons.gray,
+  borderRadius: '3px',
+  padding: '8px',
+  width: '100%',
+  height: '100%',
+  '&:focus': {
+    borderColor: theme.colors.brandColors.enzoOrange,
+    outline: 'none',
+  },
+}));
+
 const StyledTextArea = styled.textarea`
   color: ${Sv.asphalt};
   font-size: 1.0em;
@@ -172,11 +177,11 @@ const QrForm = ({
     showQrForm
     && <QrFormWrapper onSubmit={onFormSubmit}>
       <InputWrapper >
-        <StyledLabel $animate={isActive.name} htmlFor={'name'}>{ ts('name', state.language) }<span>*</span></StyledLabel>
+        <StyledLabel $animate={isActive.name} htmlFor={'name'}>{ts('name', state.language)}<span>*</span></StyledLabel>
         <StyledInput
           ref={inputRef}
-          id='name'
-          type='text'
+          id="name"
+          type="text"
           value={qrCode.name}
           onChange={handleNameInput}
           autoComplete="off"
