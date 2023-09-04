@@ -29,6 +29,20 @@ const GlobalStyle = createGlobalStyle`
   box-sizing: border-box;
   color: ${props => props.theme.colors.text.black};
   font-family: 'Inter', -apple-system, Helvetica, Arial, sans-serif;
+  &::-webkit-scrollbar {
+    background: transparent; 
+    width: 0.35rem;
+  }
+  &::-webkit-scrollbar-track {
+    width: 0.35rem;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.theme.colors.buttons.gray}; 
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${props => props.theme.colors.text.primary}; 
+  };
 }
 
 html {
