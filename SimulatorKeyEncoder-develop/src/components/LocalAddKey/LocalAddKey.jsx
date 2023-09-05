@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useState, useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
 // date-fns
-import { format, parseISO, addDays, setHours, setMinutes } from 'date-fns';
+import { format, getYear, getMonth, getDate, parseISO, addDays, setHours, setMinutes, parse } from 'date-fns';
 // styled components
 import styled from 'styled-components';
 // components
@@ -34,7 +34,6 @@ const StyledForm = styled('form')({
   padding: '8px 18px 18px',
   justifyItems: 'flex-start',
   alignItems: 'center',
-  height: '100%',
   overflow: 'hidden'
 });
 
@@ -71,8 +70,6 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     top: $hasValue ? '-5px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
-    backgroundColor: 'white',
-    padding: '3px 5px',
     color: '#7A7A7A',
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
@@ -141,6 +138,16 @@ const reducer = (state, action) => {
       newKey.endDateTime = action.payload;
       return { ...state, key: newKey };
     }
+    case 'set-today': {
+      const newKey = state.key ? { ...state.key } : {};
+      newKey.startDateTime = action.payload;
+      return { ...state, key: newKey };
+    }
+    case 'set-tomorrow': {
+      const newKey = state.key ? { ...state.key } : {};
+      newKey.endDateTime = action.payload;
+      return { ...state, key: newKey };
+    }
     default:
       console.error(`ERROR: this add key reducer action type does not exist: ${action.type}`);
       return initialState;
@@ -149,13 +156,31 @@ const reducer = (state, action) => {
 
 const LocalAddKeyForm = ({ saveKeyClicked }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(addDays(new Date(), 1));
-
-
-  
   const appDispatch = useContext(AppDispatchContext);
+
+  const initialCheckInTime = { hours: '15', minutes: '00' };
+  const initialCheckOutTime = { hours: '11', minutes: '00' };
+
+  const today = useMemo(() => {
+    const day = new Date();
+    day.setHours(Number(initialCheckInTime.hours));
+    day.setMinutes(Number(initialCheckInTime.minutes));
+    dispatch({ type: 'set-today', payload: day.toISOString() });
+    return format(day, 'yyyy-MM-dd');
+  }, [initialCheckInTime.hours, initialCheckInTime.minutes]);
+
+  const tomorrow = useMemo(() => {
+    const day = new Date();
+    const dayPlusOne = addDays(day, 1);
+    dayPlusOne.setHours(Number(initialCheckOutTime.hours));
+    dayPlusOne.setMinutes(Number(initialCheckOutTime.minutes));
+    const tomorrowISO = dayPlusOne.toISOString();
+    dispatch({ type: 'set-tomorrow', payload: tomorrowISO });
+    return format(dayPlusOne, 'yyyy-MM-dd');
+  }, [initialCheckOutTime.hours, initialCheckOutTime.minutes]);
+
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(tomorrow);
 
 
   const handleRoomInput = useCallback((value, field) => {
@@ -166,56 +191,64 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
     dispatch({ type: 'input-array-value', field: field, payload: [value] });
   }, []);
 
- const handleInput = useCallback((value, field) => {
-  dispatch({ type: 'input-value', field: field, payload: value });
-}, []);
+  const handleInput = useCallback((value, field) => {
+    dispatch({ type: 'input-value', field: field, payload: value });
+  }, []);
 
-  
-const handleStartDateInput = (e) => {
-  const dateStr = e.target.value; 
-  const dateObj = new Date(dateStr);
-  setStartDate(dateObj);
-}
+  const handleDateInput = useCallback((value, field) => {
+    if (state.key) {
+      const dateString = value;
+      if (field.type === AddKeyFieldTypes.START_DATE_TIME) setStartDate(dateString);
+      else if (field.type === AddKeyFieldTypes.END_DATE_TIME) setEndDate(dateString);
+      const year = getYear(new Date(dateString));
+      const month = getMonth(new Date(dateString));
+      const day = getDate(new Date(dateString));
 
-const handleEndDateInput = (e) => {
-  const dateStr = e.target.value; 
-  const dateObj = new Date(dateStr);
-  setEndDate(dateObj);
-}
+      const updatedStartDate = new Date(state.key.startDateTime);
+      updatedStartDate.setFullYear(year);
+      updatedStartDate.setMonth(month);
+      updatedStartDate.setDate(day);
+      const updatedStartDateTimeIso = updatedStartDate.toISOString();
 
-  const handleStartTimeHourInput = useCallback((value) => {
-    setStartDate((prevStartDate) => {
-      const updatedStartDate = new Date(prevStartDate);
+      dispatch({ type: 'input-value', field: field, payload: updatedStartDateTimeIso });
+    }
+  }, [state.key, dispatch]);
+
+  const handleStartTimeHourInput = useCallback((value, field) => {
+    if (state.key) {
+      const updatedStartDate = new Date(state.key.startDateTime);
       updatedStartDate.setHours(Number(value));
-      return updatedStartDate;
-    });
-  }, []);
-  
-  const handleEndTimeHourInput = useCallback((value) => {
-    setEndDate((prevEndDate) => {
-      const updatedEndDate = new Date(prevEndDate);
-      updatedEndDate.setHours(Number(value));
-      return updatedEndDate;
-    });
-  }, []);
-  
-  const handleStartTimeMinuteInput = useCallback((value) => {
-    setStartDate((prevStartDate) => {
-      const updatedStartDate = new Date(prevStartDate);
+      const updatedStartDateTimeIso = updatedStartDate.toISOString();
+      dispatch({ type: 'set-start-time', field: field, payload: updatedStartDateTimeIso });
+    }
+  }, [state.key, dispatch]);
+
+  const handleStartTimeMinuteInput = useCallback((value, field) => {
+    if (state.key) {
+      const updatedStartDate = new Date(state.key.startDateTime);
       updatedStartDate.setMinutes(Number(value));
-      return updatedStartDate;
-    });
-  }, []);
-  
+      const updatedStartDateTimeIso = updatedStartDate.toISOString();
+      dispatch({ type: 'set-start-time', field: field, payload: updatedStartDateTimeIso });
+    }
+  }, [state.key, dispatch]);
 
-  const handleEndTimeMinuteInput = useCallback((value) => {
-    setEndDate((prevEndDate) => {
-      const updatedEndDate = new Date(prevEndDate);
+  const handleEndTimeHourInput = useCallback((value, field) => {
+    if (state.key) {
+      const updatedEndDate = new Date(state.key.endDateTime);
+      updatedEndDate.setHours(Number(value));
+      const updatedEndDateTimeIso = updatedEndDate.toISOString();
+      dispatch({ type: 'set-end-time', field: field, payload: updatedEndDateTimeIso });
+    }
+  }, [state.key, dispatch]);
+
+  const handleEndTimeMinuteInput = useCallback((value, field) => {
+    if (state.key) {
+      const updatedEndDate = new Date(state.key.endDateTime);
       updatedEndDate.setMinutes(Number(value));
-      return updatedEndDate;
-    });
-  }, []);
-
+      const updatedEndDateTimeIso = updatedEndDate.toISOString();
+      dispatch({ type: 'set-end-time', field: field, payload: updatedEndDateTimeIso });
+    }
+  }, [state.key, dispatch]);
 
 
   const fields = useMemo(() => {
@@ -245,9 +278,9 @@ const handleEndDateInput = (e) => {
         source: 'endDateTime',
         type: AddKeyFieldTypes.END_DATE_TIME
       }
+
     ];
   }, []);
-
 
   const availableAdditionalAccess = useMemo(() => {
     return [
@@ -310,14 +343,14 @@ const handleEndDateInput = (e) => {
 
       const newKey = {
         keyId: keyId,
-        data: { ...rest, startDate, endDate }
+        data: { ...rest }
       };
 
       appDispatch({ type: 'save-key', payload: newKey });
     }
-  }, [fields, saveKeyClicked, state.key]);
+  }, [appDispatch, fields, saveKeyClicked, state.key]);
 
-console.log(state.key);
+  console.log(state.key);
 
   return (
     <StyledWrapper>
@@ -348,37 +381,37 @@ console.log(state.key);
             }
 
             {field.type === AddKeyFieldTypes.START_DATE_TIME &&
-            <>
-              <StyledControl>
-                <div>Starts:</div>
-                <StyledDateInput type='date' value={format(startDate, 'yyyy-MM-dd')} onChange={handleStartDateInput} />
-              </StyledControl>
-            
-              <StyledTimeWrapper>
-                <EnzoTimeDropDown defaultValue={format(startDate, 'HH')} label='' options={hours} onOptionClicked={handleStartTimeHourInput} />
-                <EnzoTimeDropDown defaultValue={'00'} label='' options={minutes} onOptionClicked={handleStartTimeMinuteInput} />
-              </StyledTimeWrapper>
+              <>
+                <StyledControl>
+                  <div>Starts:</div>
+                  <StyledDateInput type='date' value={startDate} onChange={(e) => { handleDateInput(e.target.value, field); }} />
+                </StyledControl>
+
+                <StyledTimeWrapper>
+                  <EnzoTimeDropDown defaultValue={initialCheckInTime.hours} label='' field={field} options={hours} onOptionClicked={handleStartTimeHourInput} />
+                  <EnzoTimeDropDown defaultValue={initialCheckInTime.minutes} label='' options={minutes} onOptionClicked={handleStartTimeMinuteInput} />
+                </StyledTimeWrapper>
               </>
-}
-                 
+            }
+
 
             {field.type === AddKeyFieldTypes.END_DATE_TIME &&
-            <>
-              <StyledControl >
-                <div>Ends:</div>
-                <StyledDateInput type='date' value={format(endDate, 'yyyy-MM-dd')} onChange={handleEndDateInput} />
-              </StyledControl>
-            
-            <StyledTimeWrapper>
-              <EnzoTimeDropDown defaultValue={format(endDate, 'HH')} label='' options={hours} onOptionClicked={handleEndTimeHourInput} />
-              <EnzoTimeDropDown defaultValue={'00'} label='' options={minutes} onOptionClicked={handleEndTimeMinuteInput} />
-            </StyledTimeWrapper>
-            </>
-}
+              <>
+                <StyledControl >
+                  <div>Ends:</div>
+                  <StyledDateInput type='date' value={endDate} onChange={(e) => { handleDateInput(e.target.value, field); }} />
+                </StyledControl>
+
+                <StyledTimeWrapper>
+                  <EnzoTimeDropDown defaultValue={initialCheckOutTime.hours} label='' options={hours} onOptionClicked={handleEndTimeHourInput} />
+                  <EnzoTimeDropDown defaultValue={initialCheckOutTime.minutes} label='' options={minutes} onOptionClicked={handleEndTimeMinuteInput} />
+                </StyledTimeWrapper>
+              </>
+            }
           </React.Fragment>
         ))}
 
-        
+
       </StyledForm>
     </StyledWrapper>
   );

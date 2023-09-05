@@ -22,8 +22,6 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
       top: $hasValue ? '-5px' : '50%',
       left: '5px',
       fontSize: $hasValue ? '0.6em' : '0.9em',
-      backgroundColor: 'white',
-      padding: '3px 5px',
       color: '#7A7A7A',
       pointerEvents: 'none',
       transform: $hasValue ? 'translateY(0)' : 'translateY(-50%)',
@@ -99,7 +97,6 @@ const StyledOptions = styled('div')(({ theme }) => ({
     border: `1px solid ${theme.colors.buttons.lightgray}`,
     borderRadius: '2px',
     width: '100%',
-    zIndex: '2',
     height: '100%',
     zIndex: '2',
     overflowY: 'scroll',
@@ -127,8 +124,8 @@ const EnzoTimeDropDown = ({ defaultValue, field, label, options, onOptionClicked
     const handleOptionClicked = useCallback((option) => {
         setShowTimeOptions(false);
         setSelectedValue(option.value);
-        onOptionClicked(option.value);
-      }, [field]);
+        onOptionClicked(option.value, field);
+      }, [field, onOptionClicked]);
   
     const handleClick = useCallback(() => {
       setShowTimeOptions((prev) => !prev);

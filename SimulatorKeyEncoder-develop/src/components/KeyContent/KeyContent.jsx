@@ -349,6 +349,7 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
               <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.endDateTime : createdKeyData.endDateTime && format(parseISO(createdKeyData.endDateTime), 'yyyy-MM-dd | HH:mm')}</div>
           </div>
           </StyledCard>
+          
 
 
     </StyledContent>

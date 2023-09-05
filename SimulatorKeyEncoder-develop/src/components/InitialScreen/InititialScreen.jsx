@@ -110,8 +110,8 @@ if (selectedKey) {
             <div>
             <StyledRoomNumber $showAddMark={false}>{selectedKey.data.roomAccess[0]}</StyledRoomNumber>
             <StyledDates>
-                {/* <span>{format(parseISO(selectedKey.data.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
-                <span>{format(parseISO(selectedKey.data.endDateTime), 'yyyy-MM-dd | HH:mm')}</span> */}
+                <span>{format(parseISO(selectedKey.data.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
+                <span>{format(parseISO(selectedKey.data.endDateTime), 'yyyy-MM-dd | HH:mm')}</span>
             </StyledDates>
             </div>
         </StyledAvailableKeyBox>
