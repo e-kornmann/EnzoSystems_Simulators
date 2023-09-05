@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // enums 
 import DeviceStatuses from '../../enums/DeviceStatuses';
+import { format, parseISO, addDays, setHours, setMinutes } from 'date-fns';
 
 
 const StyledWrapper = styled('div')({
@@ -85,11 +86,17 @@ const InitialScreen = ({ selectedKey, deviceStatus }) => {
     const [header, setHeader] = useState("Waiting for \n command 'READ_KEY' \n or 'CREATE_KEY'");
 
     useEffect(()=> {
+        
+if (selectedKey) {
+    console.log(selectedKey.startDateTime);
+    console.log(selectedKey);
+};
         if (deviceStatus === DeviceStatuses.DISCONNECTED) {
         setHeader('Disconnected')
         } else if ((deviceStatus === DeviceStatuses.OUT_OF_ORDER))
         setHeader('Out of order')
     }, [deviceStatus])
+
 
     return (
         <StyledWrapper>
@@ -103,8 +110,8 @@ const InitialScreen = ({ selectedKey, deviceStatus }) => {
             <div>
             <StyledRoomNumber $showAddMark={false}>{selectedKey.data.roomAccess[0]}</StyledRoomNumber>
             <StyledDates>
-                <span>{selectedKey.data.startDateTime} | 16.00</span>
-                <span>{selectedKey.data.endDateTime} | 11.00</span>
+                {/* <span>{format(parseISO(selectedKey.data.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
+                <span>{format(parseISO(selectedKey.data.endDateTime), 'yyyy-MM-dd | HH:mm')}</span> */}
             </StyledDates>
             </div>
         </StyledAvailableKeyBox>

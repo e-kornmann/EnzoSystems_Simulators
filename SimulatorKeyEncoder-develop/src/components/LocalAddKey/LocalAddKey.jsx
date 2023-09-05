@@ -1,11 +1,11 @@
 import React, { memo, useCallback, useState, useContext, useEffect, useMemo, useReducer } from 'react';
 // date-fns
-import { format, addDays, addHours, addMinutes } from 'date-fns';
+import { format, parseISO, addDays, setHours, setMinutes } from 'date-fns';
 // styled components
 import styled from 'styled-components';
 // components
 import EnzoDropdown from '../EnzoInputControls/EnzoDropdown';
-import EnzoTimeDropdown from '../EnzoInputControls/EnzoTimeDropDown';
+import EnzoTimeDropDown from '../EnzoInputControls/EnzoTimeDropDown';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 
@@ -17,18 +17,6 @@ const AddKeyFieldTypes = {
   START_DATE_TIME: 'START_DATE_TIME',
 };
 
-
-// const StyledDropDownContainer = styled('div') ({
-//   position: 'relative',
-//   width: '100%',
-//   height: '100%',
-//   display: 'flex',
-//   flexDirection: 'column',
-//   justifyItems: 'flex-start',
-//   alignItems: 'center',
-//   height: '100%',
-
-// });
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -115,14 +103,12 @@ const StyledTimeWrapper = styled('div')({
 
 
 const StyledDateInput = styled('input')({
-
   maxWidth: '70%',
 });
 
 const initialState = {
   initialized: false,
   key: null,
-  rooms: [130],
 };
 
 const reducer = (state, action) => {
@@ -164,15 +150,11 @@ const reducer = (state, action) => {
 const LocalAddKeyForm = ({ saveKeyClicked }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [endDate, setEndDate] = useState(format(addDays(new Date(), 1), 'yyyy-MM-dd'));
-
-  const [startHour, setStartHour] = useState('15');
-  const [startMinute, setStartMinute] = useState('00');
-  const [endHour, setEndHour] = useState('11');
-  const [endMinute, setEndMinute] = useState('00');
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(addDays(new Date(), 1));
 
 
+  
   const appDispatch = useContext(AppDispatchContext);
 
 
@@ -184,50 +166,56 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
     dispatch({ type: 'input-array-value', field: field, payload: [value] });
   }, []);
 
-  const handleInput = useCallback((value, field) => {
-    dispatch({ type: 'input-array-value', field: field, payload: value });
-  }, []);
-
-
-
-  const handleStartDateInput = useCallback((e) => {
-    setStartDate(e.target.value);
-    const formattedTime = `${startDate}'T'${startHour}:${startMinute}:${startMinute}:00`;
-    dispatch({ type: 'set-start-time', payload: formattedTime });
-  }, []);
-
-
-  const handleStartTimeHourInput = useCallback((e) => {
-    setStartHour(e.target.value);
-    const formattedTime = `${startDate}'T'${startHour}:${startMinute}:${startMinute}:00`;
-    dispatch({ type: 'set-start-time', payload: formattedTime });
-  }, []);
+ const handleInput = useCallback((value, field) => {
+  dispatch({ type: 'input-value', field: field, payload: value });
+}, []);
 
   
-  const handleStartTimeMinuteInput = useCallback((minute) => {
-    setStartMinute(e.target.value);
-    const formattedTime = `${startDate}'T'${startHour}:${startMinute}:${startMinute}:00`;
-    dispatch({ type: 'set-start-time', payload: formattedTime });
+const handleStartDateInput = (e) => {
+  const dateStr = e.target.value; 
+  const dateObj = new Date(dateStr);
+  setStartDate(dateObj);
+}
+
+const handleEndDateInput = (e) => {
+  const dateStr = e.target.value; 
+  const dateObj = new Date(dateStr);
+  setEndDate(dateObj);
+}
+
+  const handleStartTimeHourInput = useCallback((value) => {
+    setStartDate((prevStartDate) => {
+      const updatedStartDate = new Date(prevStartDate);
+      updatedStartDate.setHours(Number(value));
+      return updatedStartDate;
+    });
   }, []);
   
-  const handleEndDateInput = useCallback((e) => {
-    setEndDate(e.target.value);
-    const formattedTime = `${startDate}'T'${startHour}:${startMinute}:${startMinute}:00`;
-    dispatch({ type: 'set-start-time', payload: formattedTime });
-  }, []);
-
-
-  const handleEndTimeHourInput = useCallback((hour) => {
-    setEndHour(e.target.value);
-    const formattedTime = `${startDate}'T'${startHour}:${startMinute}:${startMinute}:00`;
-    dispatch({ type: 'set-start-time', payload: formattedTime });
+  const handleEndTimeHourInput = useCallback((value) => {
+    setEndDate((prevEndDate) => {
+      const updatedEndDate = new Date(prevEndDate);
+      updatedEndDate.setHours(Number(value));
+      return updatedEndDate;
+    });
   }, []);
   
-  const handleEndTimeMinuteInput = useCallback((minute) => {
-    setEndMinute(e.target.value);
-    const formattedTime = `${startDate}'T'${startHour}:${startMinute}:${startMinute}:00`;
-    dispatch({ type: 'set-start-time', payload: formattedTime });
+  const handleStartTimeMinuteInput = useCallback((value) => {
+    setStartDate((prevStartDate) => {
+      const updatedStartDate = new Date(prevStartDate);
+      updatedStartDate.setMinutes(Number(value));
+      return updatedStartDate;
+    });
   }, []);
+  
+
+  const handleEndTimeMinuteInput = useCallback((value) => {
+    setEndDate((prevEndDate) => {
+      const updatedEndDate = new Date(prevEndDate);
+      updatedEndDate.setMinutes(Number(value));
+      return updatedEndDate;
+    });
+  }, []);
+
 
 
   const fields = useMemo(() => {
@@ -313,10 +301,8 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
       { name: '45', value: '45' },
       { name: '50', value: '50' },
       { name: '55', value: '55' },
-  
     ];
   }, []);
-
 
   useEffect(() => {
     if (saveKeyClicked) {
@@ -324,12 +310,14 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
 
       const newKey = {
         keyId: keyId,
-        data: { ...rest }
+        data: { ...rest, startDate, endDate }
       };
 
       appDispatch({ type: 'save-key', payload: newKey });
     }
   }, [fields, saveKeyClicked, state.key]);
+
+console.log(state.key);
 
   return (
     <StyledWrapper>
@@ -363,37 +351,34 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
             <>
               <StyledControl>
                 <div>Starts:</div>
-                <StyledDateInput type='date' value={startDate} onChange={handleStartDateInput} />
+                <StyledDateInput type='date' value={format(startDate, 'yyyy-MM-dd')} onChange={handleStartDateInput} />
               </StyledControl>
             
               <StyledTimeWrapper>
-                <EnzoTimeDropdown defaultValue={startHour} label='' options={hours} onOptionClicked={handleStartTimeHourInput} />
-                <EnzoTimeDropdown defaultValue={startMinute} label='' options={minutes} onOptionClicked={handleStartTimeMinuteInput} />
+                <EnzoTimeDropDown defaultValue={format(startDate, 'HH')} label='' options={hours} onOptionClicked={handleStartTimeHourInput} />
+                <EnzoTimeDropDown defaultValue={'00'} label='' options={minutes} onOptionClicked={handleStartTimeMinuteInput} />
               </StyledTimeWrapper>
               </>
 }
-              
-          
-    
-
-
-
+                 
 
             {field.type === AddKeyFieldTypes.END_DATE_TIME &&
             <>
               <StyledControl >
                 <div>Ends:</div>
-                <StyledDateInput type='date' value={endDate} onChange={handleEndDateInput} />
+                <StyledDateInput type='date' value={format(endDate, 'yyyy-MM-dd')} onChange={handleEndDateInput} />
               </StyledControl>
             
             <StyledTimeWrapper>
-              <EnzoTimeDropdown defaultValue={endHour} label='' options={hours} onOptionClicked={handleEndTimeHourInput} />
-              <EnzoTimeDropdown defaultValue={endMinute} label='' options={minutes} onOptionClicked={handleEndTimeMinuteInput} />
+              <EnzoTimeDropDown defaultValue={format(endDate, 'HH')} label='' options={hours} onOptionClicked={handleEndTimeHourInput} />
+              <EnzoTimeDropDown defaultValue={'00'} label='' options={minutes} onOptionClicked={handleEndTimeMinuteInput} />
             </StyledTimeWrapper>
             </>
 }
           </React.Fragment>
         ))}
+
+        
       </StyledForm>
     </StyledWrapper>
   );

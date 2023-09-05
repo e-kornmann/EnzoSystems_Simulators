@@ -1,14 +1,15 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { ReactComponent as CheckMarkIcon } from '../../../images/checkmark.svg';
+import { ReactComponent as ArrowIcon } from '../../../images/arrow_up-down.svg';
 // styled components
 import styled from 'styled-components';
 
 const StyledControl = styled('div')(({ theme, $hasValue }) => ({
-  marginTop: '10px',
-  height: '36px',
+  marginTop: '12px',
+  height: '35px',
   width: '100%',
   display: 'flex',
-  justifyContent: 'flex-start',
+  justifyContent: 'space-between',
   alignItems: 'flex-start',
   position: 'relative',
   '& > label': {
@@ -17,14 +18,14 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     backgroundColor: 'white',
     borderRadius: '1px',
     fontWeight: '600',
-    top: $hasValue ? '-5px' : '50%',
+    top: $hasValue ? '-5px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
     backgroundColor: 'white',
     padding: '3px 5px',
     color: '#7A7A7A',
     pointerEvents: 'none',
-    transform: $hasValue ? 'translateY(0)' : 'translateY(-50%)',
+    transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
     transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
   },
   '&:focus-within > label': {
@@ -33,8 +34,27 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     fontSize: '0.6em',
     transform: 'translateY(0)',
   },
+
 }));
 
+
+export const StyledArrow = styled('div')(({ theme, $arrowDown }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '20px',
+  height: '20px',
+  position: 'absolute',
+  right: '5px',
+  top: '8px',
+  rotate: $arrowDown ? '0deg' : '180deg',
+  '& > svg': {
+    fill: theme.colors.text.primary,
+    width: '13px',
+    height: '6px'
+  },
+  pointerEvents: 'none',
+}));
 
 const StyledSelect = styled('div')(({ theme, $isFocus }) => ({
   backgroundColor: theme.colors.background.primary,
@@ -59,9 +79,6 @@ const Wrap = styled.div`
   column-gap: 8px;
 `;
 
-const CheckMark = ({ isDisplayed, width, height }) => isDisplayed !== false
-  && <CheckMarkIcon width={width} height={height} />;
-
 const StyledCheckBox = styled('div')(
   ({ $isSelected, theme }) => ({
     display: 'flex',
@@ -78,26 +95,40 @@ const StyledCheckBox = styled('div')(
       : theme.colors.background.primary,
     '& > svg': {
       marginLeft: '1px',
-      fill: theme.colors.text.primary,
+      fill: $isSelected ? theme.colors.text.primary : 'transparent',
     },
   }),
 );
 
+const StyledClickableContainer =  styled('div')({
+  display: 'flex',
+  height: '36px',
+  justifyContent: 'flex-end',
+  width: '100%',
+  cursor: 'pointer',
+  });
+
 const StyledOptions = styled('div')(({ theme, $showOptions }) => ({
-  backgroundColor: theme.colors.background.primary,
+  backgroundColor: 'transparent',
   display: $showOptions ? 'block' : 'none',
   borderRadius: '0 0 3px 3px',
   height: 'fit-content',
-  padding: '4px',
+  padding: '0 4px',
   position: 'absolute',
-  top: '36px',
   width: '100%',
-  zIndex: '2'
+  zIndex: '2',
+  '& > :nth-child(2)': {
+   padding: '15px 9px 5px',
+  },
+  '& > :last-child': {
+    padding: '5px 9px 10px',
+   }
 }));
 
 const StyledOption = styled('div')(({ theme, $isSelected }) => ({
+  backgroundColor: theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.secondary : theme.colors.text.primary,
-  padding: '4px',
+  padding: '5px 9px',
   cursor: 'pointer',
 }));
 
@@ -127,12 +158,13 @@ const EnzoDropdown = ({ defaultValue, field, options, onOptionClicked }) => {
     onOptionClicked(option, field);
   }, [field, selectedValue, onOptionClicked]);
 
+
   const handleClickedArrow = useCallback(() => setShowOptions((prev) => !prev), []);
 
   useEffect(() => {
     const checkIfClickedOutside = (e) => {
       if (showOptions && optionsRef.current && !optionsRef.current.contains(e.target)) {
-        // setShowOptions(false);
+        setShowOptions(false);
       }
     };
 
@@ -142,32 +174,31 @@ const EnzoDropdown = ({ defaultValue, field, options, onOptionClicked }) => {
     };
   }, [showOptions]);
 
-   
 
+
+ 
   return (
 
-    <>
-      <StyledControl $hasValue={selectedValue[0]} ref={selectRef}>
+ 
+      <StyledControl $hasValue={selectedValue[0]} ref={selectRef} >
         <label>{field.name}</label>
-        <StyledSelect onClick={handleClickedArrow} $isFocus={showOptions} >{selectedValue.join(', ')}</StyledSelect> 
+        <StyledSelect ref={selectRef} onClick={handleClickedArrow} $isFocus={showOptions} >{selectedValue.join(', ')} </StyledSelect> 
       
       <StyledOptions ref={optionsRef} $showOptions={showOptions}>
+        <StyledClickableContainer onClick={handleClickedArrow} />
         {options.map((option) => (
           <StyledOption key={option.name} value={option.value} $isSelected={selectedValue === option.value} onClick={() => { handleOptionClicked(option); }}>
             <Wrap>
               <StyledCheckBox $isSelected={selectedValue.includes(option.value)}>
-                <CheckMark
-                  isDisplayed={selectedValue.includes(option.value)}
-                  width={9} height={6}
-                />
+                <CheckMarkIcon width={9} height={6}/>
               </StyledCheckBox>
               <span>{option.name}</span>
-
             </Wrap></StyledOption>
         ))}
       </StyledOptions>
+         <StyledArrow $arrowDown={showOptions}><ArrowIcon /></StyledArrow>
       </StyledControl>
-    </>
+ 
   );
 };
 

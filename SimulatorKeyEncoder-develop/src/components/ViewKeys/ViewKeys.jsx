@@ -1,6 +1,7 @@
 import { memo, useContext } from 'react';
 // styled components
 import styled from 'styled-components';
+import { parseISO, format, addDays } from 'date-fns';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 // svgs
@@ -135,8 +136,8 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey }) {
             <StyledItem>
             <StyledRoomNumber $showAddMark={key?.data?.roomAccess.length > 1}>{key?.data?.roomAccess[0]}</StyledRoomNumber>
             <StyledDates>
-              <span>{key?.data?.startDateTime} | 16.00</span>
-              <span>{key?.data?.endDateTime} | 11.00</span>
+              <span>{format(key?.data?.startDateTime, 'yyyy-MM-dd | HH:mm')}</span>
+              <span>{format(key?.data?.endDateTime, 'yyyy-MM-dd | HH:mm')} | 11.00</span>
             </StyledDates>
             </StyledItem>
             { key === selectedKey && <StyledCheckMark/> }
