@@ -108,7 +108,7 @@ if (selectedKey) {
         <StyledAvailableKeyBox>
             <span>Available Key</span>
             <div>
-            <StyledRoomNumber $showAddMark={false}>{selectedKey.data.roomAccess[0]}</StyledRoomNumber>
+            <StyledRoomNumber $showAddMark={selectedKey.data.roomAccess.length > 1}>{selectedKey.data.roomAccess[0]}</StyledRoomNumber>
             <StyledDates>
                 <span>{format(parseISO(selectedKey.data.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
                 <span>{format(parseISO(selectedKey.data.endDateTime), 'yyyy-MM-dd | HH:mm')}</span>

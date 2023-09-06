@@ -12,6 +12,7 @@ import LocalAddKey from './components/LocalAddKey/LocalAddKey';
 import KeyContent from './components/KeyContent/KeyContent';
 import Settings from './components/Settings/Settings';
 import ViewKeys from './components/ViewKeys/ViewKeys';
+import DeleteDialog from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/appDispatchContext';
 import TokenContext from './contexts/data/tokenContext';
@@ -146,12 +147,14 @@ const initialState = {
   session: null,
   sessionInitialRequest: false,
   sendNextSessionRequest: false,
-  showAddKey: false,
+  showAddKey: { showComponent: false, editMode: false},
+  EditKeysMode_AddKey: false,
+  showDeleteDialog: false,
   showBack: false,
   showCross: false,
   clickedBack: false,
   clickedCross: false,
-  showKeys: false,
+  showKeys: { showComponent: false, editMode: false, deleteMode: false },
   showSettings: false,
   tokens: null,
   tokenPresent: false
@@ -190,13 +193,16 @@ const reducer = (state, action) => {
       return { ...state, clickedBack: action.payload, showBack: false,};
     }
     case 'clicked-cross': {
-      return { ...state, clickedCross: action.payload, showCross: false, showBack: false, showSettings: false, headerTitle: 'Room Key Encoder', readOrCreate: undefined, showKeys: false, showAddKey: false };
+      return { ...state, clickedCross: action.payload, showCross: false, showBack: false, showSettings: false, headerTitle: initialState.headerTitle, readOrCreate: undefined, showKeys: initialState.showKeys, showAddKey: initialState.showAddKey };
     }
     case 'toggle-settings': {
       return { ...state, headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle, showCross: !state.showSettings, showSettings: !state.showSettings };
     }
     case 'show-add-key': {
-      return { ...state, showAddKey: action.payload, showCross: true };
+      return { ...state, showAddKey: {...state.showAddkey, showComponent: action.payload}, showCross: true, showKeys: initialState.showKeys};
+    }
+    case 'edit-key': {
+      return { ...state, showAddKey: {...state.showAddkey, showComponent: action.payload, editMode: action.payload}, showCross: true, showKeys: initialState.showKeys};
     }
     case 'save-key-clicked': {
       return { ...state, saveKeyClicked: action.payload };
@@ -209,10 +215,16 @@ const reducer = (state, action) => {
     }
     case 'save-key': {
       const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
-      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: false, selectedKey: action.payload };
+      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: initialState.showAddKey, selectedKey: action.payload };
     }
     case 'show-keys': {
-      return { ...state, showKeys: action.payload, showCross: true};
+      return { ...state, showKeys: { ...state.showKeys, showComponent: action.payload}, showCross: true, headerTitle: 'Keys' };
+    }
+    case 'edit-keys-mode': {
+      return { ...state, showKeys: { ...state.showKeys, editMode: action.payload}, headerTitle: 'Edit Keys'};
+    }
+    case 'show-delete-dialog': {
+      return { ...state, showDeleteDialog: action.payload, showCross: false};
     }
     default:
       console.error(`ERROR: this app reducer action type does not exist: ${action.type}`);
@@ -396,8 +408,8 @@ const App = () => {
               <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} />
 
               <StyledContent>
-
-                {!state.showSettings && !state.showAddKey && !state.showKeys &&
+         
+                {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent &&
                   <StyledContent>
 
                    
@@ -409,18 +421,20 @@ const App = () => {
                     {((state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)) &&
                       <KeyContent session={state.session} type={state.session.metadata.name} selectedKey={state.selectedKey} readOrCreate={state.readOrCreate} />}
                   </StyledContent>}
-                {!state.showSettings && !state.showKeys && state.showAddKey &&
+                {!state.showSettings && !state.showKeys.showComponent && state.showAddKey.showComponent &&
                   <StyledContent>
-                    <LocalAddKey saveKeyClicked={state.saveKeyClicked} />
+                    <LocalAddKey saveKeyClicked={state.saveKeyClicked} selectedKey={state.selectedKey} editMode={state.showAddKey.editMode} />
                   </StyledContent>}
-                {!state.showSettings && !state.showAddKey && state.showKeys &&
+                { (!state.showSettings && !state.showAddKey.showComponent && state.showKeys.showComponent ) &&
                   <StyledContent>
-                    <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} />
+                    <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} editMode={state.showKeys.editMode} deleteMode={state.showKeys.deleteMode}/>
+                    { state.showDeleteDialog && <DeleteDialog/>  }
                   </StyledContent>}
                 {state.showSettings &&
                   <Settings clickedBack={state.clickedBack} clickedCross={state.clickedCross} deviceStatus={state.deviceStatus} />}
               </StyledContent>
-              <Footer showAddKey={state.showAddKey} showSettings={state.showSettings} showKeys={state.showKeys} />
+              <Footer showAddKey={state.showAddKey.showComponent} showSettings={state.showSettings} showKeys={state.showKeys.showComponent} editMode={state.showKeys.editMode || state.showAddKey.editMode} />
+             
             </StyledApp>
           </TokenContext.Provider>
         </AppDispatchContext.Provider>

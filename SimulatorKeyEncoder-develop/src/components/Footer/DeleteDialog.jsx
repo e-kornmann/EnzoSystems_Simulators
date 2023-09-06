@@ -1,6 +1,6 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import { QrCode } from '..';
+import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.transparent,
@@ -12,7 +12,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   padding: '9% 5%',
   width: '100%',
-  zIndex: '5',
+  zIndex: '15',
   borderRadius: '5px',
   alignItems: 'center',
   justifyContent: 'flex-end',
@@ -54,32 +54,25 @@ const StyledCancelButton = styled(StyledDeleteButton)(({ theme }) => ({
   borderRadius: '2px',
 }));
 
-type Props = {
-  deleteQrCodesHandler: (qrCodesToDelete: QrCode[]) => void,
-  toggleShowComponent: () => void,
-  showComponent: boolean,
-  selectedQrCodesForDeletion: QrCode[],
-};
 
-const DeleteDialogWrapper = ({
-  deleteQrCodesHandler, toggleShowComponent, showComponent, selectedQrCodesForDeletion,
-}: Props) => {
-  const deleteConfirmHandler = useCallback(() => {
-    deleteQrCodesHandler(selectedQrCodesForDeletion);
-    toggleShowComponent();
-  }, [deleteQrCodesHandler, selectedQrCodesForDeletion, toggleShowComponent]);
+
+const DeleteDialogWrapper = () => {
+  const appDispatch = useContext(AppDispatchContext);
+
+  const handleClickCancel = useCallback(() => {
+      appDispatch({ type: 'show-delete-dialog', payload: false });
+    }, [appDispatch]);
+  
+
+
   return (
 
-    showComponent
-    && <StyledWrapper>
-
-      <StyledExplanation>
-        {selectedQrCodesForDeletion.length > 1 ? 'These QR-codes will be deleted.' : 'This QR-code will be deleted.'}
+    <StyledWrapper>
+    <StyledExplanation>
+        This Key will be deleted.
       </StyledExplanation>
-      <StyledDeleteButton onClick={deleteConfirmHandler}>Delete</StyledDeleteButton>
-
-      <StyledCancelButton onClick={toggleShowComponent}>Cancel</StyledCancelButton>
-
+      <StyledDeleteButton >Delete</StyledDeleteButton>
+      <StyledCancelButton type="button" onClick={handleClickCancel}>Cancel</StyledCancelButton>
     </StyledWrapper>
 
   );

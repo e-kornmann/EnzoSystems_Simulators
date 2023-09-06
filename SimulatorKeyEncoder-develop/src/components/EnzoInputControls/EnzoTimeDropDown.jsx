@@ -1,13 +1,13 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // styled components
 import styled from 'styled-components';
-// import StyledArrow from './EnzoDropdown';
+// import StyledArrow from './EnzoCheckBoxDropDown';
 import { ReactComponent as ArrowIcon } from '../../../images/arrow_up-down.svg';
 
 
 const StyledControl = styled('div')(({ theme, $hasValue }) => ({
-    marginTop: '10px',
-    height: '36px',
+    marginTop: '4px',
+    height: '34px',
     width: '100%',
     display: 'flex',
     justifyContent: 'flex-start',
@@ -35,6 +35,7 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     },
   }));
 
+
 const StyledSelect = styled('div')(({ theme, $isFocus }) => ({
     backgroundColor: theme.colors.background.primary,
     color: theme.colors.text.primary,
@@ -43,7 +44,7 @@ const StyledSelect = styled('div')(({ theme, $isFocus }) => ({
     border: '0.12em solid',
     borderColor: $isFocus ? theme.colors.brandColors.enzoOrange : theme.colors.buttons.gray,
     borderRadius: '3px',
-    padding: '11px 8px 0px',
+    padding: '9px 8px 0px',
     width: '100%',
     height: '100%',
     cursor: 'pointer',
@@ -62,31 +63,31 @@ const StyledArrow = styled('div')(({ theme, $arrowDown }) => ({
     position: 'absolute',
     right: '5px',
     top: '8px',
-    transform: $arrowDown ? 'rotate(0deg)' : 'rotate(180deg)',
+    transform: $arrowDown ? 'rotate(180deg)' : 'rotate(0deg)',
     '& > svg': {
-      fill: theme.colors.text.primary,
+      fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
       width: '13px',
       height: '6px'
     },
     pointerEvents: 'none',
   }));
   
-const StyledOptionsContainer = styled('div')(({ theme, $showTimeOptions }) => ({
+const StyledOptionsContainer = styled('div')(({ theme, $showOptions }) => ({
     backgroundColor: 'transparent',
-    display: $showTimeOptions ? 'flex' : 'none',
+    display: $showOptions ? 'flex' : 'none',
     position: 'absolute',
     flexDirection: 'column',
-    top: '0',
+    top: '14px',
     width: '100%',
     zIndex: '2',
-    height: '150px',
+    height: '100px',
 }));
 
 
 const StyledClickableContainer =  styled('div')({
     backgroundColor: 'transparent',
     display: 'flex',
-    height: '36px',
+    height: '30px',
     width: '100%',
     cursor: 'pointer',
     });
@@ -98,47 +99,64 @@ const StyledOptions = styled('div')(({ theme }) => ({
     borderRadius: '2px',
     width: '100%',
     height: '100%',
+    marginBottom: '10px',
     zIndex: '2',
     overflowY: 'scroll',
     overflowX: 'hidden',
-     '& > :first-child': {
-        padding: '10px 9px 5px',
-    },
-     '& > :last-child': {
-    padding: '5px 9px 10px',
-   }
+
 }));
 
 const StyledOption = styled('div')(({ theme, $isSelected }) => ({
   backgroundColor: $isSelected ? theme.colors.brandColors.enzoOrange : theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
-  padding: '5px 9px',
+  padding: '3px 9px',
   cursor: 'pointer',
+  '&:first-child': {
+    padding: '7px 9px 3px',
+  },
+  '&:last-child': {
+    padding: '3px 9px 7px',
+  }
 }));
 
 const EnzoTimeDropDown = ({ defaultValue, field, label, options, onOptionClicked }) => {
     const [selectedValue, setSelectedValue] = useState(defaultValue);
-    const [showTimeOptions, setShowTimeOptions] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
+    const optionsRef = useRef(null);
     const selectRef = useRef(null);
   
     const handleOptionClicked = useCallback((option) => {
-        setShowTimeOptions(false);
+        setShowOptions(false);
         setSelectedValue(option.value);
         onOptionClicked(option.value, field);
       }, [field, onOptionClicked]);
   
     const handleClick = useCallback(() => {
-      setShowTimeOptions((prev) => !prev);
+      setShowOptions((prev) => !prev);
     }, []);
 
+
+    useEffect(() => {
+      const checkIfClickedOutside = (e) => {
+        if (showOptions && optionsRef.current && !optionsRef.current.contains(e.target)) {
+          setShowOptions(false);
+        }
+      };
+  
+      document.addEventListener('mousedown', checkIfClickedOutside);
+      return () => {
+        document.removeEventListener('mousedown', checkIfClickedOutside);
+      };
+    }, [showOptions]);
+  
   
     return (
       <StyledControl>
-        <StyledSelect $isFocus={showTimeOptions} ref={selectRef} onClick={handleClick}>
+        <StyledSelect $isFocus={showOptions} ref={selectRef} onClick={handleClick}>
           {options?.find((option) => option.value === selectedValue)?.name || label}
         </StyledSelect>
-  
-        <StyledOptionsContainer $showTimeOptions={showTimeOptions}>
+     
+        <StyledOptionsContainer ref={optionsRef} $showOptions={showOptions}>
           <StyledClickableContainer onClick={handleClick} />
           <StyledOptions>
             {options.map((option) => (
@@ -156,7 +174,7 @@ const EnzoTimeDropDown = ({ defaultValue, field, label, options, onOptionClicked
           </StyledOptions>
         </StyledOptionsContainer>
   
-        <StyledArrow $arrowDown={showTimeOptions}>
+        <StyledArrow $arrowDown={showOptions}>
           <ArrowIcon />
         </StyledArrow>
       </StyledControl>

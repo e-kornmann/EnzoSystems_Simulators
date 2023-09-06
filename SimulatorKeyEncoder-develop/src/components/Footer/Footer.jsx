@@ -9,27 +9,25 @@ import { ReactComponent as KeysIcon } from '../../../images/keys.svg';
 import { ReactComponent as SettingsIcon } from '../../../images/settings.svg';
 
 
-const StyledSaveKeyButton = styled('div')({});
-const StyledPlaceholder = styled.div``;
-
 const StyledFooter = styled('footer')(({ theme }) => ({
-  height: '100%',
+  height: '40px',
   width: '100%',
   display: 'flex',
-  justifyContent: 'center',
+  justifyContent: 'space-between',
   padding: '6px 13px 10px',
-  backgroundColor:  theme.colors.background.primary,
-
+  backgroundColor: 'white',
+  borderRadius: '0 0 5px 5px',
   '& > button': {
     display: 'flex',
     alignItems: 'top',
     padding: '2px',
     justifyContent: 'center',
-    color: theme.colors.text.secondary,
+    color: 'orange',
     fontSize: '0.80em',
     cursor: 'pointer',
     '&:disabled': {
-      color: theme.colors.buttons.gray,
+      color: 'gray',
+      cursor: 'inherit',
     }
   },
   '& > svg': {
@@ -40,9 +38,19 @@ const StyledFooter = styled('footer')(({ theme }) => ({
     width: '100%',
     height: '100%',
     display: 'flex',
+    justifyContent: 'center',
     columnGap: '8px',
     alignItems: 'center',
-    color: theme.colors.text.primary,
+    color: 'asphalt',
+    '&:first-of-type': {
+      justifyContent: 'flex-start'
+    },
+    '&:last-of-type': {
+      justifyContent: 'flex-end'
+    },
+    '& > svg': {
+      fill: 'asphalt'
+    }
   }
 }));
 
@@ -55,20 +63,20 @@ const StyledSettingsButton = styled('div')(({ theme }) => ({
 const StyledKeysButton = styled('div')(({ theme }) => ({
   justifyContent: 'center',
   "& > svg": {
-  fill: theme.colors.text.primary,
-  marginBottom: '3px',
-  marginRight: '-2px', 
+    fill: theme.colors.text.primary,
+    marginBottom: '3px',
+    marginRight: '-2px',
   }
 }));
-const StyledAddKeyButton = styled('div')(({ theme })=>({
+const StyledAddKeyButton = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
   "& > svg": {
-  fill: theme.colors.text.primary,
-  marginBottom: '3px',
+    fill: theme.colors.text.primary,
+    marginBottom: '3px',
   }
 }));
 
-const Footer = ({ showAddKey, showSettings }) => {
+const Footer = ({ showAddKey, showSettings, showKeys, editMode }) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleAddKey = useCallback(() => {
@@ -87,29 +95,53 @@ const Footer = ({ showAddKey, showSettings }) => {
     appDispatch({ type: 'show-keys', payload: true });
   }, [appDispatch]);
 
+  const handleDeleteDialog = useCallback(() => {
+    appDispatch({ type: 'show-delete-dialog', payload: true });
+  }, [appDispatch]);
+
+
+  const handleEditKey = useCallback(() => {
+    appDispatch({ type: 'edit-keys-mode', payload: true });
+  }, [appDispatch]);
+
   return (
-    <StyledFooter>
-      
-      {!showAddKey &&
-        <>
-          <StyledSettingsButton onClick={handleToggleSettings}>
-            <SettingsIcon width={16} height={16} />
-          </StyledSettingsButton>
-          <StyledKeysButton onClick={handleViewKeys}>
-            <KeysIcon  width={25} height={19}/> Keys
-          </StyledKeysButton>
-          <StyledAddKeyButton onClick={handleAddKey}>
-            <AddKeyIcon width={25} height={19}/>
-          </StyledAddKeyButton>
-        </>}
-      {showAddKey &&
-        <>
-          <StyledPlaceholder />
-          <StyledSaveKeyButton onClick={handleSaveKey}>            Save
-          </StyledSaveKeyButton>
-          <StyledPlaceholder />
-        </>}
-    </StyledFooter>
+    <>
+      <StyledFooter>
+
+        {(!showAddKey && !showSettings && !showKeys) &&
+          <>
+            <StyledSettingsButton onClick={handleToggleSettings}>
+              <SettingsIcon width={16} height={16} />
+            </StyledSettingsButton>
+            <StyledKeysButton onClick={handleViewKeys}>
+              <KeysIcon width={25} height={19} /> Keys
+            </StyledKeysButton>
+            <StyledAddKeyButton onClick={handleAddKey}>
+              <AddKeyIcon width={25} height={19} />
+            </StyledAddKeyButton>
+          </>
+        }
+        {showAddKey &&
+          <button type="submit" onClick={handleSaveKey} style={{ marginLeft: 'auto' }}>
+            {!editMode ? 'Save' : 'Update'}
+          </button>
+        }
+        {showKeys &&
+          <>
+            {!editMode ? <>
+              <button type="button" onClick={handleAddKey}>
+                New</button>
+              <button type="button" onClick={handleEditKey} >
+                Edit</button>
+              <button type="button" onClick={handleDeleteDialog} >
+                Delete</button>
+            </>
+              : <button disabled>Select key to edit</button>}
+
+          </>
+        }
+      </StyledFooter>
+    </>
   );
 };
 

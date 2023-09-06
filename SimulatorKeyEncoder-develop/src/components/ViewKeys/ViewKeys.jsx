@@ -13,20 +13,6 @@ const StyledWrapper = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   height: '100%',
   overflowY: 'scroll',
-  '&::-webkit-scrollbar': {
-    background: 'transparent',
-    width: '0.35rem'
-  },
-  '&::-webkit-scrollbar-track': {
-    width: '0.35rem'
-  },
-  '&::-webkit-scrollbar-thumb': {
-    background: theme.colors.buttons.gray,
-    borderRadius: '5px'
-  },
-  '&::-webkit-scrollbar-thumb:hover': {
-    background: theme.colors.buttons.asphalt,
-  }
 }));
 
 const StyledButton = styled('button')(({ theme })=> ({
@@ -99,12 +85,18 @@ const StyledDates = styled('div')({
   }
 });
 
-const ViewKeys = memo(function ViewKeys({ keys, selectedKey }) {
+const ViewKeys = memo(function ViewKeys({ keys, selectedKey, editMode, deleteMode }) {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleKeySelect = (key) => {
     appDispatch({ type: 'select-key', payload: key });
+    if (editMode) {
+      appDispatch({ type: 'edit-key', payload: true });
+    } else {
+      appDispatch({ type: 'clicked-cross', payload: true });
+    }
   }
+
 
 
   console.log(selectedKey);

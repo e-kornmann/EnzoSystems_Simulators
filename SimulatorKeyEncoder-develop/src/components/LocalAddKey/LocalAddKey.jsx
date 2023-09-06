@@ -1,10 +1,10 @@
 import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
 // date-fns
-import { format, getYear, getMonth, getDate, parseISO, addDays, setHours, setMinutes, parse } from 'date-fns';
+import { format, getYear, getMonth, getDate, addDays, setMinutes, parse } from 'date-fns';
 // styled components
 import styled from 'styled-components';
 // components
-import EnzoDropdown from '../EnzoInputControls/EnzoDropdown';
+import EnzoCheckBoxDropdown from '../EnzoInputControls/EnzoCheckBoxDropdown';
 import EnzoTimeDropDown from '../EnzoInputControls/EnzoTimeDropDown';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
@@ -17,12 +17,11 @@ const AddKeyFieldTypes = {
   START_DATE_TIME: 'START_DATE_TIME',
 };
 
-
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
   height: '100%',
   position: 'relative',
-  width: '100%'
+  width: '100%',
 }));
 
 const StyledForm = styled('form')({
@@ -34,11 +33,11 @@ const StyledForm = styled('form')({
   padding: '8px 18px 18px',
   justifyItems: 'flex-start',
   alignItems: 'center',
-  overflow: 'hidden'
+  overflowY: 'scroll',
 });
 
 const StyledControl = styled('div')(({ theme, $hasValue }) => ({
-  marginTop: '12px',
+  marginTop: '8px',
   height: '35px',
   width: '100%',
   display: 'flex',
@@ -73,7 +72,7 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     color: '#7A7A7A',
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
-    transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
+    transition: 'transform 0.05s, font-size 0.05s, top 0.05s',
   },
   '&:focus-within > label': {
     top: '-5px',
@@ -89,15 +88,21 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
   }
 }));
 
-
 const StyledTimeWrapper = styled('div')({
-  display: 'flex',
+  position: 'relative',
+  display: 'grid',
   marginLeft: '30%',
   width: '70%',
-  gap: '10%',
-  justifyContent: 'flex-start',
+  gridTemplateColumns: '45% 10% 45%',
 });
 
+const StyledColon = styled('div')({ 
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  fontSize: '1.35em',
+  width: '100%',
+})
 
 const StyledDateInput = styled('input')({
   maxWidth: '70%',
@@ -154,12 +159,18 @@ const reducer = (state, action) => {
   }
 };
 
-const LocalAddKeyForm = ({ saveKeyClicked }) => {
+const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useContext(AppDispatchContext);
 
   const initialCheckInTime = { hours: '15', minutes: '00' };
   const initialCheckOutTime = { hours: '11', minutes: '00' };
+
+
+  useEffect(()=> {
+    if (editMode && selectedKey) dispatch({ type: 'set-key', payload: selectedKey });
+    },[editMode, selectedKey]);
+  
 
   const today = useMemo(() => {
     const day = new Date();
@@ -187,8 +198,8 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
     dispatch({ type: 'add-rooms', field, payload: value.join(', ') });
   }, []);
 
-  const handleArrayInput = useCallback((value, field) => {
-    dispatch({ type: 'input-array-value', field: field, payload: [value] });
+  const handleArrayInput = useCallback((option, field) => {
+    dispatch({ type: 'input-array-value', field: field, payload: option });
   }, []);
 
   const handleInput = useCallback((value, field) => {
@@ -350,7 +361,7 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
     }
   }, [appDispatch, fields, saveKeyClicked, state.key]);
 
-  console.log(state.key);
+  console.log(state);
 
   return (
     <StyledWrapper>
@@ -361,14 +372,14 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
             {field.type === AddKeyFieldTypes.ID &&
               <StyledControl key={field.name} $hasValue={state?.key?.[field.source]?.length > 0}>
                 <label>{field.name}:</label>
-                <input type="text" onChange={(e) => { handleInput(e.target.value, field); }} />
+                <input type="text" value={state.initialized ? state.key.keyId : state?.key?.[field.source] } onChange={(e) => { handleInput(e.target.value, field); }} />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ROOM_ACCESS &&
-              <StyledControl key={field.name} $hasValue={state?.key?.[field.source]?.[0].length > 0}>
+              <StyledControl key={field.name} $hasValue={state?.key?.[field.source]?.[0].length > 0 || state.initialized}>
                 <label>{field.name}:</label>
                 <input type="text"
-                  value={state?.key?.[field.source]?.join(', ') || ''}
+                  value={state.initialized ? state.key.data.roomAccess.join(', ') : state?.key?.[field.source] }
                   onChange={(e) => {
                     const roomNumbers = e.target.value.split(',').map((room) => room.trim());
                     handleRoomInput(roomNumbers, field);
@@ -377,23 +388,23 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ADDITIONAL_ACCESS &&
-              <EnzoDropdown defaultValue={""} field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleArrayInput} />
+              <EnzoCheckBoxDropdown data={state.initialized && state.key.data.additionalAccess} field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleArrayInput} />
             }
 
             {field.type === AddKeyFieldTypes.START_DATE_TIME &&
               <>
-                <StyledControl>
+                <StyledControl style={{marginTop: '15px'}}>
                   <div>Starts:</div>
-                  <StyledDateInput type='date' value={startDate} onChange={(e) => { handleDateInput(e.target.value, field); }} />
+                  <StyledDateInput type='date' value={startDate} onChange={(e) => { handleDateInput(e.target.value, field); }}/>
                 </StyledControl>
 
                 <StyledTimeWrapper>
                   <EnzoTimeDropDown defaultValue={initialCheckInTime.hours} label='' field={field} options={hours} onOptionClicked={handleStartTimeHourInput} />
+                  <StyledColon>:</StyledColon>
                   <EnzoTimeDropDown defaultValue={initialCheckInTime.minutes} label='' options={minutes} onOptionClicked={handleStartTimeMinuteInput} />
                 </StyledTimeWrapper>
               </>
             }
-
 
             {field.type === AddKeyFieldTypes.END_DATE_TIME &&
               <>
@@ -404,14 +415,13 @@ const LocalAddKeyForm = ({ saveKeyClicked }) => {
 
                 <StyledTimeWrapper>
                   <EnzoTimeDropDown defaultValue={initialCheckOutTime.hours} label='' options={hours} onOptionClicked={handleEndTimeHourInput} />
+                  <StyledColon>:</StyledColon>
                   <EnzoTimeDropDown defaultValue={initialCheckOutTime.minutes} label='' options={minutes} onOptionClicked={handleEndTimeMinuteInput} />
                 </StyledTimeWrapper>
               </>
             }
           </React.Fragment>
         ))}
-
-
       </StyledForm>
     </StyledWrapper>
   );
