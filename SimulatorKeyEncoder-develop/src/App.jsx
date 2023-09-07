@@ -140,23 +140,33 @@ const initialState = {
   deviceStatus: DeviceStatuses.CONNECTED,
   headerTitle: 'Room Key Encoder',
   initialized: false,
-  localKeys: null,
+  localKeys: [],
   selectedKey: null,
   processStatus: ProcessStatuses.WAITING,
   saveKeyClicked: false,
-  deleteKeyClicked: false,
   session: null,
   sessionInitialRequest: false,
   sendNextSessionRequest: false,
   showAddKey: { showComponent: false, editMode: false},
+  // footer
   saveButtonIsEnabled: false,
   deleteButtonIsEnabled: false,
+  allKeysAreSelected: false,
+  noKeys: true,
+  // --
   showDeleteDialog: false,
   showBack: false,
   showCross: false,
   clickedBack: false,
   clickedCross: false,
-  showKeys: { showComponent: false, editMode: false, deleteMode: false },
+  showKeys: { 
+    showComponent: false,
+    editMode: false,
+    deleteMode: false,
+    selectAllKeyClicked: false,
+    deselectAllKeyClicked: false,
+    deleteKeyClicked: false,
+  },
   showSettings: false,
   tokens: null,
   tokenPresent: false
@@ -201,12 +211,15 @@ const reducer = (state, action) => {
         localKeys: state.localKeys,
         selectedKey: state.selectedKey,
         deviceStatus: state.deviceStatus,
-        headerTitle: 'Room Key Encoder',
         initialized: state.initialized,
+        noKeys: state.noKeys
       }
     }
     case 'toggle-settings': {
       return { ...state, headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle, showCross: !state.showSettings, showSettings: !state.showSettings };
+    }
+    case 'set-NoKeys': {
+      return { ...state, noKeys: action.payload };
     }
     case 'show-add-key': {
       return { ...state, showAddKey: {...state.showAddkey, showComponent: action.payload}, showCross: true, showKeys: initialState.showKeys};
@@ -218,7 +231,10 @@ const reducer = (state, action) => {
       return { ...state, saveKeyClicked: action.payload };
     }
     case 'delete-key-clicked': {
-      return { ...state, deleteKeyClicked: true };
+      return { ...state, showKeys: { ...state.showKeys, deleteKeyClicked: true } };
+    }
+    case 'new-key-set-after-deletion': {
+      return { ...state, localKeys: action.payload};
     }
     case 'read-or-create': {
       return { ...state, readOrCreate: action.payload };
@@ -226,9 +242,14 @@ const reducer = (state, action) => {
     case 'select-key': {
       return { ...state, selectedKey: action.payload };
     }
+    case 'select-all-key-clicked': {
+      return { ...state, showKeys: { ...state.showKeys, selectAllKeyClicked: true, deselectAllKeyClicked: false} };
+    }
+    case 'deselect-all-key-clicked': {
+      return { ...state, showKeys: { ...state.showKeys, selectAllKeyClicked: false, deselectAllKeyClicked: true} };
+    }
     case 'save-key': {
-      const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
-      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: initialState.showAddKey, selectedKey: action.payload };
+      return { ...state, localKeys: [...state.localKeys, action.payload], saveKeyClicked: false, showKeys: { ...state.showKeys, showComponent: true}, selectedKey: action.payload, headerTitle: 'Keys', showAddKey: initialState.showAddKey };
     }
     case 'set-save-button': {
       return { ...state, saveButtonIsEnabled: action.payload };
@@ -251,6 +272,9 @@ const reducer = (state, action) => {
     }
     case 'show-keys': {
       return { ...state, showKeys: { ...state.showKeys, showComponent: action.payload}, showCross: true, headerTitle: 'Keys' };
+    }
+    case 'all-keys-are-selected': {
+      return { ...state, allKeysAreSelected: action.payload };
     }
     case 'edit-keys-mode': {
       return { ...state, showKeys: { ...state.showKeys, editMode: action.payload}, headerTitle: 'Edit Keys'};
@@ -303,9 +327,15 @@ const App = () => {
     getAuthenticationToken();
   }, []);
 
-  // /* Handle Read or Create Button */
-  // const handleReadButton = useCallback(() => dispatch({ type: 'read-or-create', payload: 'READ' }), []);
-  // const handleCreateButton = useCallback(() => dispatch({ type: 'read-or-create', payload: 'CREATE' }), []);
+
+  // set NoKeys to false if Keys are no longer null
+  useEffect(()=> {
+    if (state.localKeys) {
+      dispatch({ type: 'set-NoKeys', payload: false})
+    } else if (!state.localKeys) {
+      dispatch({ type: 'set-NoKeys', payload: true})
+    }
+  }, [state.localKeys, state.localKeyskeys])
 
   /* Call Get Token Until We Have One */
   useEffect(() => {
@@ -459,7 +489,7 @@ const App = () => {
                   </StyledContent>}
                 { (!state.showSettings && !state.showAddKey.showComponent && state.showKeys.showComponent ) &&
                   <StyledContent>
-                    <ViewKeys deleteKeyClicked={state.deleteKeyClicked} keys={state.localKeys} selectedKey={state.selectedKey} editMode={state.showKeys.editMode} deleteMode={state.showKeys.deleteMode}/>
+                    <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} showKeys={state.showKeys} />
                     { state.showDeleteDialog && <DeleteDialog/>  }
                   </StyledContent>}
                 {state.showSettings &&
@@ -470,8 +500,9 @@ const App = () => {
                 showSettings={state.showSettings}
                 showKeys={state.showKeys}
                 saveButtonIsEnabled={state.saveButtonIsEnabled}
-                deleteButtonIsEnabled={state.deleteButtonIsEnabled} />
-            
+                deleteButtonIsEnabled={state.deleteButtonIsEnabled}
+                allKeysAreSelected={state.allKeysAreSelected}
+                enableEditandDeleteButton={state.noKeys}  />
              
             </StyledApp>
           </TokenContext.Provider>

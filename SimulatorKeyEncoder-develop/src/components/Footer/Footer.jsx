@@ -76,7 +76,7 @@ const StyledAddKeyButton = styled('div')(({ theme }) => ({
   }
 }));
 
-const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, deleteButtonIsEnabled }) => {
+const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, deleteButtonIsEnabled, allKeysAreSelected, enableEditandDeleteButton }) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleAddKey = useCallback(() => {
@@ -107,6 +107,14 @@ const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, delet
     appDispatch({ type: 'edit-keys-mode', payload: true });
   }, [appDispatch]);
 
+  const handleDeselectAllKey = useCallback(() => {
+    appDispatch({ type: 'deselect-all-key-clicked'});
+  }, [appDispatch]);
+
+  const handleSelectAllKey = useCallback(() => {
+    appDispatch({ type: 'select-all-key-clicked'});
+  }, [appDispatch]);
+
   return (
     <>
       <StyledFooter>
@@ -135,15 +143,15 @@ const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, delet
             <>
               <button type="button" onClick={handleAddKey}>
                 New</button>
-              <button type="button" onClick={handleEditKey} >
+              <button type="button" onClick={handleEditKey} disabled={enableEditandDeleteButton} >
                 Edit</button>
-              <button type="button" onClick={setToDeleteMode} >
+              <button type="button" onClick={setToDeleteMode} disabled={enableEditandDeleteButton} >
                 Delete</button>
             </>
             }
             {!showKeys.editMode && showKeys.deleteMode &&
             <>
-              <button disabled>Select all</button>
+              <button type="button" onClick={()=> allKeysAreSelected ? handleDeselectAllKey() : handleSelectAllKey() }>{ allKeysAreSelected ? 'Deselect all' : 'Select all' }</button>
               <button type="button" onClick={handleDeleteDialog} disabled={!deleteButtonIsEnabled}>Delete</button>
             </>
             }

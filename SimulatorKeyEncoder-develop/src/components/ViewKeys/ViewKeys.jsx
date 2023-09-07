@@ -15,7 +15,7 @@ const StyledWrapper = styled('div')({
   overflowY: 'scroll',
 });
 
-const StyledButton = styled('button')(({ theme })=> ({
+const StyledButton = styled('button')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   cursor: 'pointer',
@@ -39,11 +39,11 @@ const StyledButton = styled('button')(({ theme })=> ({
   },
   '&:active': {
     backgroundColor: theme.colors.brandColors.enzoLightOrange,
-    fill :theme.colors.brandColors.enzoOrange
+    fill: theme.colors.brandColors.enzoOrange
   }
 }));
 
-const StyledCheckMark = styled(CheckmarkIcon)(({ theme })=> ({
+const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
   width: '14px',
   height: '11px',
   fill: theme.colors.brandColors.enzoOrange,
@@ -58,12 +58,12 @@ const StyledItem = styled('div')({
 
 });
 
-const StyledRoomNumber = styled('div')(({ $showAddMark} ) => ({
+const StyledRoomNumber = styled('div')(({ $showAddMark }) => ({
   display: 'flex',
   fontWeight: '600',
   fontVariantNumeric: 'tabular-nums',
   '&::after': {
-    content:  $showAddMark ? '" +"' : '" "', 
+    content: $showAddMark ? '" +"' : '" "',
     fontSize: '0.8em',
     position: 'relative',
     bottom: '6px',
@@ -113,50 +113,10 @@ const SharedStyledCheckBox = styled('div')(
 );
 
 
-const ViewKeys = memo(function ViewKeys({ deleteKeyClicked, keys, selectedKey, editMode, deleteMode }) {
-
+const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
+  const { deleteKeyClicked, selectAllKeyClicked, deselectAllKeyClicked, editMode, deleteMode } = showKeys;
   const [selectedKeysForDeletion, setSelectedKeysForDeletion] = useState([]);
-  const [allSelected, setAllSelected] = useState(false);
-
   const appDispatch = useContext(AppDispatchContext);
-
-  const handleKeySelect = (key) => {
-    appDispatch({ type: 'select-key', payload: key });
-    if (editMode) {
-      appDispatch({ type: 'edit-key', payload: true });
-    } else if (deleteMode) {
-      toggleSelectedKeyForDeletion(key);
-    } else {
-      // if not in editMode nor deleteMode go back to initialScreen
-      appDispatch({ type: 'clicked-cross', payload: true });
-    }
-  }
-
-
-  
-
-  useEffect(() => {
-    if (deleteKeyClicked) {
-      const newKeys = keys.filter(k => !selectedKeysForDeletion.includes(k))
-      appDispatch({ type: 'set-key', payload: newKeys });
-     
-     if (!selectedKeysForDeletion.includes(selectedKey)) {
-     appDispatch({ type: 'select-key', payload: newKeys[0] });
-    }
-    appDispatch({ type: 'clicked-cross', payload: true });
-     
-    }
-    }, [appDispatch, deleteKeyClicked, keys, selectedKey, selectedKeysForDeletion]);
-
-
-  const deleteQrCodesHandler = (qrCodesToDelete) => {
-    const updatedQrCodes = qrCodes.filter(qrCode => !qrCodesToDelete.includes(qrCode));
-    // take the first qrCode from the list if the currentQr code where the deleted one
-    if (!updatedQrCodes.includes(currentQrCode)) setCurrentQrCode(qrCodes[0]);
-    setQrCodes(updatedQrCodes);
-    setCurrentModus(QrAppModi.QR_SCANNER);
-  };
-
 
   const toggleSelectedKeyForDeletion = useCallback((key) => {
     if (selectedKeysForDeletion.includes(key)) {
@@ -166,85 +126,111 @@ const ViewKeys = memo(function ViewKeys({ deleteKeyClicked, keys, selectedKey, e
     }
   }, [selectedKeysForDeletion]);
 
-
-  const selectOrDeselectAllHandler = useCallback(() => {
-    if (allSelected) {
-      // Deselect all
-      setSelectedKeysForDeletion([]);
+  const handleKeySelect = useCallback((key) => {
+    appDispatch({ type: 'select-key', payload: key });
+    if (editMode) {
+      appDispatch({ type: 'edit-key', payload: true });
+    } else if (deleteMode) {
+      toggleSelectedKeyForDeletion(key);
     } else {
-      // Select all
-      setSelectedKeysForDeletion(keys);
+      // if not in editMode nor deleteMode go back to initialScreen
+      appDispatch({ type: 'clicked-cross', payload: true });
     }
-  }, [allSelected, keys]);
+  },[appDispatch, deleteMode, editMode, toggleSelectedKeyForDeletion])
+  
+  useEffect(() => {
+    if (deleteKeyClicked) {
+      const newKeys = keys.filter(k => !selectedKeysForDeletion.includes(k))
+      appDispatch({ type: 'new-key-set-after-deletion', payload: newKeys });
+
+      if (!newKeys.includes(selectedKey)) {
+        appDispatch({ type: 'select-key', payload: newKeys[0] });
+      }
+      appDispatch({ type: 'clicked-cross', payload: true });
+
+    }
+  }, [appDispatch, deleteKeyClicked, keys, selectedKey, selectedKeysForDeletion]);
+
+
+  // this is the footer button listener
+  useEffect(() => {
+    if (selectAllKeyClicked) {
+      setSelectedKeysForDeletion(keys);
+    } else if (deselectAllKeyClicked) {
+      setSelectedKeysForDeletion([]);
+    }
+  }, [keys, deselectAllKeyClicked, selectAllKeyClicked]);
 
 
   useEffect(() => {
     // Check if all Keys are selected
-    const allKeys = Object.values(keys);
-    const areAllSchemesSelected = allKeys.every(k => selectedKeysForDeletion.includes(k));
-    if (areAllSchemesSelected) {
-      setAllSelected(true);
-    } else {
-      setAllSelected(false);
+    if (keys) {
+      const allKeys = Object.values(keys);
+      const areAllSchemesSelected = allKeys.every(k => selectedKeysForDeletion.includes(k));
+      if (areAllSchemesSelected) {
+        appDispatch({ type: 'all-keys-are-selected', payload: true });
+      } else {
+        appDispatch({ type: 'all-keys-are-selected', payload: false });
+      }
     }
-  }, [keys, selectedKeysForDeletion]);
+  }, [appDispatch, keys, selectedKeysForDeletion]);
 
 
- // this useEffects Enables AND Disables the Delete button   
- useEffect(() => {
+  // this useEffects Enables AND Disables the Delete button   
+  useEffect(() => {
     if (selectedKeysForDeletion.length > 0) {
-    appDispatch({ type: 'set-delete-button', payload: true });
-    } else if (selectedKeysForDeletion.length === 0) {
+      appDispatch({ type: 'set-delete-button', payload: true });
+    } else if (selectedKeysForDeletion.length === 0 && !keys) {
       appDispatch({ type: 'set-delete-button', payload: false });
     }
-}, [appDispatch, selectedKeysForDeletion]);
+  }, [appDispatch, selectedKeysForDeletion]);
 
 
 
   return (
     <StyledWrapper>
-        <StyledButton>
-          <StyledItem>
+      <StyledButton>
+        <StyledItem>
           <StyledRoomNumber>
             400
           </StyledRoomNumber>
-            Invalid card
-          </StyledItem>
-          { false && <StyledCheckMark/> }
-        </StyledButton>      
-        <StyledButton>
+          Invalid card
+        </StyledItem>
+        {false && <StyledCheckMark />}
+      </StyledButton>
+      <StyledButton>
         <StyledItem>
           <StyledRoomNumber>
             410
           </StyledRoomNumber>
           Expired card
-          </StyledItem>
-          { false && <StyledCheckMark/> }
-        </StyledButton>  
+        </StyledItem>
+        {false && <StyledCheckMark />}
+      </StyledButton>
 
-        { keys && keys.map((key) => (
-          <StyledButton key={key.keyId} type="button" onClick={()=> handleKeySelect(key)}>
-            <StyledItem>
-            
-            { deleteMode &&
-            <Wrap>
-            <SharedStyledCheckBox $isSelected={selectedKeysForDeletion.includes(key)}>
-            <CheckmarkIcon width={9} height={6} />
-            </SharedStyledCheckBox>
-           
-          
-            </Wrap>
+      {keys && keys.map((key) => (
+        <StyledButton key={key.keyId} type="button" onClick={() => handleKeySelect(key)}>
+          <StyledItem>
+
+            {deleteMode &&
+              <Wrap>
+                <SharedStyledCheckBox $isSelected={selectedKeysForDeletion.includes(key)}>
+                  <CheckmarkIcon width={9} height={6} />
+                </SharedStyledCheckBox>
+
+
+              </Wrap>
             }
 
-        <StyledRoomNumber $showAddMark={key?.data?.roomAccess.length > 1}>{key?.data?.roomAccess[0]}</StyledRoomNumber>     
+            <StyledRoomNumber $showAddMark={key?.data?.roomAccess.length > 1}>{key?.data?.roomAccess[0]}</StyledRoomNumber>
             <StyledDates>
               <span>{format(parseISO(key?.data?.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
               <span>{format(parseISO(key?.data?.endDateTime), 'yyyy-MM-dd | HH:mm')}</span>
             </StyledDates>
-            </StyledItem>
-            { key === selectedKey && <StyledCheckMark/> }
-          </StyledButton>
-        ))}
+          </StyledItem>
+          {key === selectedKey && <StyledCheckMark />}
+        </StyledButton>
+      ))}
 
     </StyledWrapper>
   );
