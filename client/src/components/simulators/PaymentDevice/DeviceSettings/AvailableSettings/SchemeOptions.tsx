@@ -90,7 +90,7 @@ const SchemeOptionsScreen = ({ onHide }: Props) => {
           <S.GenericListButton key={scheme} onClick={() => toggleScheme(scheme)}>
             <Wrap>
             <S.SharedStyledCheckBox $isSelected={isSchemeSelected(scheme)}>
-            <SharedCheckMark isDisplayed={isSchemeSelected(scheme)} width={9} height={6} />
+            <SharedCheckMark width={9} height={6} />
             </S.SharedStyledCheckBox>
               <PayProvider width={30} height={22} provider={scheme} border={false} />
               {scheme}

@@ -76,7 +76,7 @@ const StyledAddKeyButton = styled('div')(({ theme }) => ({
   }
 }));
 
-const Footer = ({ showAddKey, showSettings, showKeys, editMode }) => {
+const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, deleteButtonIsEnabled }) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleAddKey = useCallback(() => {
@@ -95,10 +95,13 @@ const Footer = ({ showAddKey, showSettings, showKeys, editMode }) => {
     appDispatch({ type: 'show-keys', payload: true });
   }, [appDispatch]);
 
+  const setToDeleteMode =  useCallback(() => {
+    appDispatch({ type: 'delete-keys-mode', payload: true });
+  }, [appDispatch]);
+
   const handleDeleteDialog = useCallback(() => {
     appDispatch({ type: 'show-delete-dialog', payload: true });
   }, [appDispatch]);
-
 
   const handleEditKey = useCallback(() => {
     appDispatch({ type: 'edit-keys-mode', payload: true });
@@ -108,7 +111,7 @@ const Footer = ({ showAddKey, showSettings, showKeys, editMode }) => {
     <>
       <StyledFooter>
 
-        {(!showAddKey && !showSettings && !showKeys) &&
+        {(!showAddKey.showComponent  && !showSettings && !showKeys.showComponent ) &&
           <>
             <StyledSettingsButton onClick={handleToggleSettings}>
               <SettingsIcon width={16} height={16} />
@@ -121,23 +124,35 @@ const Footer = ({ showAddKey, showSettings, showKeys, editMode }) => {
             </StyledAddKeyButton>
           </>
         }
-        {showAddKey &&
-          <button type="submit" onClick={handleSaveKey} style={{ marginLeft: 'auto' }}>
-            {!editMode ? 'Save' : 'Update'}
+        {showAddKey.showComponent &&
+          <button type="submit" onClick={handleSaveKey} style={{ marginLeft: 'auto' }} disabled={saveButtonIsEnabled}>
+            {!showAddKey.editMode ? 'Save' : 'Update'}
           </button>
         }
-        {showKeys &&
+        {showKeys.showComponent &&
           <>
-            {!editMode ? <>
+            {!showKeys.editMode && !showKeys.deleteMode && 
+            <>
               <button type="button" onClick={handleAddKey}>
                 New</button>
               <button type="button" onClick={handleEditKey} >
                 Edit</button>
-              <button type="button" onClick={handleDeleteDialog} >
+              <button type="button" onClick={setToDeleteMode} >
                 Delete</button>
             </>
-              : <button disabled>Select key to edit</button>}
+            }
+            {!showKeys.editMode && showKeys.deleteMode &&
+            <>
+              <button disabled>Select all</button>
+              <button type="button" onClick={handleDeleteDialog} disabled={!deleteButtonIsEnabled}>Delete</button>
+            </>
+            }
 
+            {!showKeys.deleteMode && showKeys.editMode &&
+            <button disabled>Select key to edit</button>
+          }
+            
+    
           </>
         }
       </StyledFooter>

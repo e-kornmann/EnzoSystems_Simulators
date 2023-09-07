@@ -119,11 +119,17 @@ const StyledOption = styled('div')(({ theme, $isSelected }) => ({
   }
 }));
 
-const EnzoTimeDropDown = ({ defaultValue, field, label, options, onOptionClicked }) => {
-    const [selectedValue, setSelectedValue] = useState(defaultValue);
+const EnzoTimeDropDown = ({ initialValue, field, label, options, onOptionClicked }) => {
+    const [selectedValue, setSelectedValue] = useState('');
     const [showOptions, setShowOptions] = useState(false);
     const optionsRef = useRef(null);
     const selectRef = useRef(null);
+
+    useEffect(() => {
+      if (initialValue) {
+        setSelectedValue(initialValue);
+      }
+    }, [initialValue]);
   
     const handleOptionClicked = useCallback((option) => {
         setShowOptions(false);
@@ -162,7 +168,7 @@ const EnzoTimeDropDown = ({ defaultValue, field, label, options, onOptionClicked
             {options.map((option) => (
               <StyledOption
                 key={option.name}
-                value={option.value}
+                value={option.value}      
                 $isSelected={selectedValue === option.value}
                 onClick={() => {
                   handleOptionClicked(option);

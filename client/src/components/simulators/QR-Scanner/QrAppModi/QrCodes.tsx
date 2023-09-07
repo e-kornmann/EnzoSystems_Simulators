@@ -99,7 +99,7 @@ const QrCodesComponent = ({
   };
 
   useEffect(() => {
-    // Check if all schemes are selected
+    // Check if all QRcode are selected
     const allQrCodes = Object.values(qrCodes);
     const areAllSchemesSelected = allQrCodes.every(qr => selectedQrCodesForDeletion.includes(qr));
     if (areAllSchemesSelected) {

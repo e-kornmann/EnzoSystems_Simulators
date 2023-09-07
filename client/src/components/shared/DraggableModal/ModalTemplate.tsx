@@ -50,7 +50,7 @@ export const SharedStyledCheckBox = styled('div')<{ $isSelected: boolean }>(
       : theme.colors.background.primary,
     '& > svg': {
       marginLeft: '1px',
-      fill: theme.colors.text.primary,
+      fill: $isSelected ? theme.colors.text.primary : 'transparent',
     },
   }),
 );

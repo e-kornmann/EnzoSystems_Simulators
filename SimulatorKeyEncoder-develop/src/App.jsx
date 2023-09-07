@@ -144,11 +144,13 @@ const initialState = {
   selectedKey: null,
   processStatus: ProcessStatuses.WAITING,
   saveKeyClicked: false,
+  deleteKeyClicked: false,
   session: null,
   sessionInitialRequest: false,
   sendNextSessionRequest: false,
   showAddKey: { showComponent: false, editMode: false},
-  EditKeysMode_AddKey: false,
+  saveButtonIsEnabled: false,
+  deleteButtonIsEnabled: false,
   showDeleteDialog: false,
   showBack: false,
   showCross: false,
@@ -193,7 +195,15 @@ const reducer = (state, action) => {
       return { ...state, clickedBack: action.payload, showBack: false,};
     }
     case 'clicked-cross': {
-      return { ...state, clickedCross: action.payload, showCross: false, showBack: false, showSettings: false, headerTitle: initialState.headerTitle, readOrCreate: undefined, showKeys: initialState.showKeys, showAddKey: initialState.showAddKey };
+      return { ...initialState, 
+        tokens: state.tokens,
+        tokenPresent: state.tokenPresent,
+        localKeys: state.localKeys,
+        selectedKey: state.selectedKey,
+        deviceStatus: state.deviceStatus,
+        headerTitle: 'Room Key Encoder',
+        initialized: state.initialized,
+      }
     }
     case 'toggle-settings': {
       return { ...state, headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle, showCross: !state.showSettings, showSettings: !state.showSettings };
@@ -202,10 +212,13 @@ const reducer = (state, action) => {
       return { ...state, showAddKey: {...state.showAddkey, showComponent: action.payload}, showCross: true, showKeys: initialState.showKeys};
     }
     case 'edit-key': {
-      return { ...state, showAddKey: {...state.showAddkey, showComponent: action.payload, editMode: action.payload}, showCross: true, showKeys: initialState.showKeys};
+      return { ...state, showAddKey: {...state.showAddkey, showComponent: action.payload, editMode: action.payload}, showCross: true, showKeys: initialState.showKeys, headerTitle: 'Edit Key'};
     }
     case 'save-key-clicked': {
       return { ...state, saveKeyClicked: action.payload };
+    }
+    case 'delete-key-clicked': {
+      return { ...state, deleteKeyClicked: true };
     }
     case 'read-or-create': {
       return { ...state, readOrCreate: action.payload };
@@ -217,14 +230,36 @@ const reducer = (state, action) => {
       const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
       return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: initialState.showAddKey, selectedKey: action.payload };
     }
+    case 'set-save-button': {
+      return { ...state, saveButtonIsEnabled: action.payload };
+    }
+    case 'set-delete-button': {
+      return { ...state, deleteButtonIsEnabled: action.payload };
+    }
+    case 'update-key': {
+      const newKeys = state.localKeys ? [...state.localKeys] : [];
+      const index = newKeys.findIndex(key => key.keyId === action.payload.keyId);
+      
+      if (index !== -1) {
+        newKeys[index] = action.payload;
+      } else {
+        console.log('Key is added becouse of new keyId')
+        newKeys.push(action.payload);
+      }
+    
+      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: initialState.showAddKey, selectedKey: action.payload };
+    }
     case 'show-keys': {
       return { ...state, showKeys: { ...state.showKeys, showComponent: action.payload}, showCross: true, headerTitle: 'Keys' };
     }
     case 'edit-keys-mode': {
       return { ...state, showKeys: { ...state.showKeys, editMode: action.payload}, headerTitle: 'Edit Keys'};
     }
+    case 'delete-keys-mode': {
+      return { ...state, showKeys: { ...state.showKeys, editMode: false, deleteMode: true}, headerTitle: 'Delete Keys'};
+    }
     case 'show-delete-dialog': {
-      return { ...state, showDeleteDialog: action.payload, showCross: false};
+      return { ...state, showDeleteDialog: action.payload, showCross: !action.payload};
     }
     default:
       console.error(`ERROR: this app reducer action type does not exist: ${action.type}`);
@@ -381,9 +416,6 @@ const App = () => {
   }, [state.tokens]);
 
 
-  // console.log('session: ' + state.session ? state.session.metadata.name: null);
-
-
   useEffect(() => {
     if (state.initialized) {
       if (state.processStatus === ProcessStatuses.WAITING && state.tokens?.accessToken && !state.sessionInitialRequest && initialSessionRequest.current) { // while WAITING, send a new "long" poll for a new session (1st request)
@@ -427,13 +459,19 @@ const App = () => {
                   </StyledContent>}
                 { (!state.showSettings && !state.showAddKey.showComponent && state.showKeys.showComponent ) &&
                   <StyledContent>
-                    <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} editMode={state.showKeys.editMode} deleteMode={state.showKeys.deleteMode}/>
+                    <ViewKeys deleteKeyClicked={state.deleteKeyClicked} keys={state.localKeys} selectedKey={state.selectedKey} editMode={state.showKeys.editMode} deleteMode={state.showKeys.deleteMode}/>
                     { state.showDeleteDialog && <DeleteDialog/>  }
                   </StyledContent>}
                 {state.showSettings &&
                   <Settings clickedBack={state.clickedBack} clickedCross={state.clickedCross} deviceStatus={state.deviceStatus} />}
               </StyledContent>
-              <Footer showAddKey={state.showAddKey.showComponent} showSettings={state.showSettings} showKeys={state.showKeys.showComponent} editMode={state.showKeys.editMode || state.showAddKey.editMode} />
+              <Footer 
+                showAddKey={state.showAddKey}
+                showSettings={state.showSettings}
+                showKeys={state.showKeys}
+                saveButtonIsEnabled={state.saveButtonIsEnabled}
+                deleteButtonIsEnabled={state.deleteButtonIsEnabled} />
+            
              
             </StyledApp>
           </TokenContext.Provider>

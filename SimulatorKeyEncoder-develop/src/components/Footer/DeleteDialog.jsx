@@ -59,10 +59,13 @@ const StyledCancelButton = styled(StyledDeleteButton)(({ theme }) => ({
 const DeleteDialogWrapper = () => {
   const appDispatch = useContext(AppDispatchContext);
 
-  const handleClickCancel = useCallback(() => {
+  const handleClickCancelButton = useCallback(() => {
       appDispatch({ type: 'show-delete-dialog', payload: false });
     }, [appDispatch]);
   
+  const handleClickDeleteButton = useCallback(() => {
+      appDispatch({ type: 'delete-key-clicked' });
+    }, [appDispatch]);
 
 
   return (
@@ -71,8 +74,8 @@ const DeleteDialogWrapper = () => {
     <StyledExplanation>
         This Key will be deleted.
       </StyledExplanation>
-      <StyledDeleteButton >Delete</StyledDeleteButton>
-      <StyledCancelButton type="button" onClick={handleClickCancel}>Cancel</StyledCancelButton>
+      <StyledDeleteButton type="button" onClick={handleClickDeleteButton}>Delete</StyledDeleteButton>
+      <StyledCancelButton type="button" onClick={handleClickCancelButton}>Cancel</StyledCancelButton>
     </StyledWrapper>
 
   );
