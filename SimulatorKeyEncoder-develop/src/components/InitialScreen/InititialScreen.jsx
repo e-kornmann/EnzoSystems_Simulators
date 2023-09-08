@@ -148,5 +148,4 @@ const WaitingScreen = ({ selectedKey, deviceStatus }) => {
 }
 
 const InitialScreen = memo(WaitingScreen);
-
 export default InitialScreen

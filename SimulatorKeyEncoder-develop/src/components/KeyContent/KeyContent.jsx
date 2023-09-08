@@ -15,13 +15,13 @@ import { ReactComponent as PresentKeyIcon } from '../../../images/present_key.sv
 // date fns
 import { parseISO, format } from 'date-fns';
 
-const StyledWrapper = styled('div')(({ theme }) => ({
+const StyledWrapper = styled('div')({
   height: '100%',
   display: 'grid',
   gridTemplateRows: '18% 16% 1fr',
   rowGap: '2%',
   overflowY: 'hidden',
-}));
+});
 
 const StyledHeader = styled('div')({
   width: '100%',
@@ -169,7 +169,7 @@ const StyledCard = styled.div`
 
  
 
-const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { // type = CREATE_KEY / READ_KEY from CommandTypes
+const KeyContentAnimation = ({ type, selectedKey }) => { // type = CREATE_KEY / READ_KEY from CommandTypes
   const appDispatch = useContext(AppDispatchContext);
   const tokens = useContext(TokenContext);
   const [processError, setProcessError] = useState('');
@@ -362,7 +362,6 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
 
 )}
           <StyledCard $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY} $animateText={type === CommandTypes.CREATE_KEY}>
-
           <div>
               <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.roomAccess.join(', ') : createdKeyData.roomAccess && createdKeyData.roomAccess.join(', ') }</div>
               <div>{type !== CommandTypes.CREATE_KEY ? 'Access to: ' + selectedKey?.data?.additionalAccess.join(', ') : createdKeyData.additionalAccess && 'Access to: ' + createdKeyData.additionalAccess.join(', ')}</div>
@@ -370,12 +369,11 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
               <div>{type !== CommandTypes.CREATE_KEY ? format(parseISO(selectedKey?.data?.endDateTime), 'yyyy-MM-dd | HH:mm') : createdKeyData.endDateTime && format(parseISO(createdKeyData.endDateTime), 'yyyy-MM-dd | HH:mm')}</div>
           </div>
           </StyledCard>
-          
-
-
+  
     </StyledContent>
     </StyledWrapper >
   );
-});
+};
 
+const KeyContent = memo(KeyContentAnimation);
 export default KeyContent;

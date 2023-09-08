@@ -1,10 +1,13 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
+// svgs
 import { ReactComponent as CheckMarkIcon } from '../../../images/checkmark.svg';
 import { ReactComponent as ArrowIcon } from '../../../images/arrow_up-down.svg';
 // styled components
 import styled from 'styled-components';
 
-const StyledControl = styled('div')(({ theme, $hasValue }) => ({
+const StyledControl = styled('div')(({ $hasValue }) => ({
   marginTop: '8px',
   height: '34px',
   width: '100%',
@@ -33,7 +36,6 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     transform: 'translateY(0)',
   },
 }));
-
 
 const StyledArrow = styled('div')(({ theme, $arrowDown }) => ({
   display: 'flex',
@@ -68,7 +70,6 @@ const StyledSelect = styled('div')(({ theme, $isFocus }) => ({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
-  
 }));
 
 const Wrap = styled.div`
@@ -98,7 +99,7 @@ const StyledCheckBox = styled('div')(
   }),
 );
 
-const StyledOptionsContainer = styled('div')(({ theme, $showOptions }) => ({
+const StyledOptionsContainer = styled('div')(({ $showOptions }) => ({
   backgroundColor: 'transparent',
   display: $showOptions ? 'flex' : 'none',
   position: 'absolute',
@@ -109,7 +110,6 @@ const StyledOptionsContainer = styled('div')(({ theme, $showOptions }) => ({
   height: '80px',
 }));
 
-
 const StyledClickableContainer =  styled('div')({
   backgroundColor: 'transparent',
   display: 'flex',
@@ -117,7 +117,6 @@ const StyledClickableContainer =  styled('div')({
   width: '100%',
   cursor: 'pointer',
   });
-
 
 const StyledOptions = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -142,7 +141,10 @@ const StyledOption = styled('div')(({ theme, $isSelected }) => ({
   cursor: 'pointer',
 }));
 
-const EnzoCheckBoxDropDown = ({ data, field, options, onOptionClicked }) => {
+
+
+
+const DropDownWithCheckBox = ({ data, field, options, onOptionClicked }) => {
   const [selectedValue, setSelectedValue] = useState(['']);
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef(null);
@@ -227,9 +229,16 @@ const EnzoCheckBoxDropDown = ({ data, field, options, onOptionClicked }) => {
   );
 };
 
-export default memo(EnzoCheckBoxDropDown);
+const EnzoCheckBoxDropDown = memo(DropDownWithCheckBox)
+export default EnzoCheckBoxDropDown;
 
-
+// Props
+DropDownWithCheckBox.propTypes = {
+  data: PropTypes.array,
+  field: PropTypes.object,
+  options: PropTypes.object,
+  onOptionClicked: PropTypes.bool,
+}
 
 
 

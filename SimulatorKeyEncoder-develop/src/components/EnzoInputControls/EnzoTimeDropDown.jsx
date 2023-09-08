@@ -1,11 +1,12 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 // import StyledArrow from './EnzoCheckBoxDropDown';
 import { ReactComponent as ArrowIcon } from '../../../images/arrow_up-down.svg';
 
-
-const StyledControl = styled('div')(({ theme, $hasValue }) => ({
+const StyledControl = styled('div')(({ $hasValue }) => ({
     marginTop: '4px',
     height: '34px',
     width: '100%',
@@ -35,7 +36,6 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     },
   }));
 
-
 const StyledSelect = styled('div')(({ theme, $isFocus }) => ({
     backgroundColor: theme.colors.background.primary,
     color: theme.colors.text.primary,
@@ -52,7 +52,6 @@ const StyledSelect = styled('div')(({ theme, $isFocus }) => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
 }));
-
 
 const StyledArrow = styled('div')(({ theme, $arrowDown }) => ({
     display: 'flex',
@@ -72,7 +71,7 @@ const StyledArrow = styled('div')(({ theme, $arrowDown }) => ({
     pointerEvents: 'none',
   }));
   
-const StyledOptionsContainer = styled('div')(({ theme, $showOptions }) => ({
+const StyledOptionsContainer = styled('div')(({ $showOptions }) => ({
     backgroundColor: 'transparent',
     display: $showOptions ? 'flex' : 'none',
     position: 'absolute',
@@ -83,7 +82,6 @@ const StyledOptionsContainer = styled('div')(({ theme, $showOptions }) => ({
     height: '100px',
 }));
 
-
 const StyledClickableContainer =  styled('div')({
     backgroundColor: 'transparent',
     display: 'flex',
@@ -92,7 +90,6 @@ const StyledClickableContainer =  styled('div')({
     cursor: 'pointer',
     });
   
-
 const StyledOptions = styled('div')(({ theme }) => ({
     backgroundColor: 'white',
     border: `1px solid ${theme.colors.buttons.lightgray}`,
@@ -119,7 +116,8 @@ const StyledOption = styled('div')(({ theme, $isSelected }) => ({
   }
 }));
 
-const EnzoTimeDropDown = ({ initialValue, field, label, options, onOptionClicked }) => {
+
+const TimeDropDown = ({ initialValue, field, label, options, onOptionClicked }) => {
     const [selectedValue, setSelectedValue] = useState('');
     const [showOptions, setShowOptions] = useState(false);
     const optionsRef = useRef(null);
@@ -140,7 +138,6 @@ const EnzoTimeDropDown = ({ initialValue, field, label, options, onOptionClicked
     const handleClick = useCallback(() => {
       setShowOptions((prev) => !prev);
     }, []);
-
 
     useEffect(() => {
       const checkIfClickedOutside = (e) => {
@@ -187,4 +184,14 @@ const EnzoTimeDropDown = ({ initialValue, field, label, options, onOptionClicked
     );
   };
   
-  export default memo(EnzoTimeDropDown);
+const EnzoTimeDropDown = memo(TimeDropDown);
+export default EnzoTimeDropDown;
+
+// Props
+TimeDropDown.propTypes = {
+  initialValue: PropTypes.string,
+  field: PropTypes.object,
+  label: PropTypes.string,
+  options: PropTypes.object,
+  onOptionClicked: PropTypes.bool,
+}

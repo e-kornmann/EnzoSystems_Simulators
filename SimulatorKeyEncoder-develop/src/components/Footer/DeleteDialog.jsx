@@ -1,5 +1,7 @@
 import { memo, useCallback, useContext } from 'react';
+// styled components
 import styled from 'styled-components';
+// contexts
 import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
@@ -82,5 +84,4 @@ const DeleteDialogWrapper = () => {
 };
 
 const DeleteDialog = memo(DeleteDialogWrapper);
-
 export default DeleteDialog;

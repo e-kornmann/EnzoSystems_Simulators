@@ -1,4 +1,6 @@
 import { memo, useCallback, useContext } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 // contexts
@@ -49,7 +51,7 @@ const StyledFooter = styled('footer')(({ theme }) => ({
       justifyContent: 'flex-end'
     },
     '& > svg': {
-      fill: 'asphalt'
+      fill: theme.colors.text.primary,
     }
   }
 }));
@@ -76,7 +78,15 @@ const StyledAddKeyButton = styled('div')(({ theme }) => ({
   }
 }));
 
-const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, deleteButtonIsEnabled, allKeysAreSelected, enableEditandDeleteButton }) => {
+const FooterWithNavigation = ({ 
+  showAddKey,
+  showSettings,
+  showKeys,
+  saveButtonIsEnabled,
+  deleteButtonIsEnabled,
+  allKeysAreSelected,
+  enableEditandDeleteButton
+}) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleAddKey = useCallback(() => {
@@ -168,4 +178,17 @@ const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, delet
   );
 };
 
-export default memo(Footer);
+const Footer = memo(FooterWithNavigation)
+export default Footer;
+
+// Props
+FooterWithNavigation.propTypes = {
+  showAddKey: PropTypes.object,
+  showSettings: PropTypes.bool,
+  showKeys: PropTypes.object,
+  saveButtonIsEnabled: PropTypes.bool,
+  deleteButtonIsEnabled: PropTypes.bool,
+  allKeysAreSelected: PropTypes.bool,
+  enableEditandDeleteButton: PropTypes.bool,
+}
+

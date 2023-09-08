@@ -3,7 +3,6 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import axios from 'axios';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-import './style.css';
 // components
 import InitialScreen from './components/InitialScreen/InititialScreen'
 import Footer from './components/Footer/Footer';
@@ -22,7 +21,6 @@ import DeviceStatuses from './enums/DeviceStatuses';
 import ProcessStatuses from './enums/ProcessStatuses';
 // theme
 import theme from './theme/theme.json';
-import CopyToken from './components/CopyToken/CopyToken';
 
 const GlobalStyle = createGlobalStyle`
 * {
@@ -338,7 +336,6 @@ const App = () => {
     getAuthenticationToken();
   }, []);
 
-
   // set NoKeys to false if Keys are no longer null
   useEffect(() => {
     if (state.localKeys) {
@@ -347,8 +344,6 @@ const App = () => {
       dispatch({ type: 'set-NoKeys', payload: true })
     }
   }, [state.localKeys, state.localKeyskeys])
-
-
 
   // set LocalStorage Keys if update is needed
   useEffect(() => {
@@ -364,7 +359,6 @@ const App = () => {
     }
   }, [state.selectedKey, state.localKeys]);
 
-
   // load LocalStorage Keys if available
   useEffect(() => {
     // get localKeys
@@ -374,9 +368,6 @@ const App = () => {
     const getSelectedRoomKey = localStorage.getItem('selectedRoomKey');
     if (getSelectedRoomKey) dispatch({ type: 'load-localStorage-selectedRoomKeys', payload: JSON.parse(getSelectedRoomKey) })
   }, []);
-
-
-
 
   /* Call Get Token Until We Have One */
   useEffect(() => {
@@ -438,15 +429,15 @@ const App = () => {
 
   /* Process Status */
   useEffect(() => {
-      if (state.showSettings) { 
-        dispatch({ type: 'set-process-status', payload: ProcessStatuses.SETTINGS });
-      } else if (state.session?.metadata?.name === CommandTypes.READ_KEY) {
-        dispatch({ type: 'set-process-status', payload: ProcessStatuses.SCANNING });
-      } else if (state.session?.metadata?.name === CommandTypes.CREATE_KEY) {
-        dispatch({ type: 'set-process-status', payload: ProcessStatuses.CREATE_KEY });
-      } else if (state.deviceStatus === DeviceStatuses.CONNECTED) {
-        dispatch({ type: 'set-process-status', payload: ProcessStatuses.WAITING });
-      }
+    if (state.showSettings) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.SETTINGS });
+    } else if (state.session?.metadata?.name === CommandTypes.READ_KEY) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.SCANNING });
+    } else if (state.session?.metadata?.name === CommandTypes.CREATE_KEY) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.CREATE_KEY });
+    } else if (state.deviceStatus === DeviceStatuses.CONNECTED) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.WAITING });
+    }
   }, [state.deviceStatus, state.session, state.showSettings, state.tokens]);
 
   const getSession = useCallback(() => {
@@ -466,7 +457,7 @@ const App = () => {
 
           if (response?.data && !response.data?.result) {
             dispatch({ type: 'set-session', payload: response.data });
-          }       
+          }
           dispatch({ type: 'set-send-next-session-request', payload: true }); // next long poll
         } catch (error) {
           if (axios.isCancel(error)) { // this means status in frontend has changed, so request has been cancelled
@@ -495,15 +486,12 @@ const App = () => {
       } else if (state.processStatus === ProcessStatuses.WAITING && state.tokens?.accessToken && state.sessionInitialRequest && state.sendNextSessionRequest && !initialSessionRequest.current) { // any subsequent request
         dispatch({ type: 'set-send-next-session-request', payload: false });
 
-      
-          getSession();
-        
+
+        getSession();
+
       }
     }
   }, [getSession, state.initialized, state.processStatus, state.sendNextSessionRequest, state.sessionInitialRequest, state.tokens?.accessToken]);
-
-
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -512,27 +500,19 @@ const App = () => {
         <AppDispatchContext.Provider value={dispatch}>
           <TokenContext.Provider value={state.tokens}>
             <StyledApp>
-              { state.tokens?.accessToken && <CopyToken token={state.tokens.accessToken} /> }
               <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} />
-
               <StyledContent>
-
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent &&
                   <StyledContent>
-
-
-{/* state.processStatus !== ProcessStatuses.SCANNING && state.processStatus !== ProcessStatuses.CREATE_KEY  */}
-
                     {((state.processStatus === ProcessStatuses.WAITING)) &&
-
                       <InitialScreen selectedKey={state.selectedKey} deviceStatus={state.deviceStatus} />}
                     {((state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)) &&
-                    <KeyContent 
-                      session={state.session} 
-                      type={state.session?.metadata?.name} 
-                      selectedKey={state.selectedKey} 
-                      readOrCreate={state.readOrCreate} 
-                  />}
+                      <KeyContent
+                        session={state.session}
+                        type={state.session?.metadata?.name}
+                        selectedKey={state.selectedKey}
+                        readOrCreate={state.readOrCreate}
+                      />}
                   </StyledContent>}
                 {!state.showSettings && !state.showKeys.showComponent && state.showAddKey.showComponent &&
                   <StyledContent>

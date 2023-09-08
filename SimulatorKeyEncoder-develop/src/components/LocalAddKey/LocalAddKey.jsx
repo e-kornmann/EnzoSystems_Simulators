@@ -1,4 +1,6 @@
 import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // date-fns
 import { format, getYear, getMonth, getDate, addDays, parseISO } from 'date-fns';
 // styled components
@@ -115,8 +117,15 @@ const StyledDateInput = styled('input')({
 
 const initialState = {
   initialized: false,
-  key: {data: null},
-};
+  key: { keyId: undefined,
+         data: {
+          roomAccess: undefined,
+          additionalAccess: undefined,
+          startDateTime: undefined,
+          endDateTime: undefined,
+        },
+    },
+  };
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -236,9 +245,6 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
       dispatch({ type: 'input-value', field: field, payload: updatedDateIso });
     }
   }, [state.key, dispatch]);
-
-
-
 
   const fields = useMemo(() => {
     return [
@@ -423,8 +429,12 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
 };
 
 const LocalAddKey = memo(LocalAddKeyForm);
-
 export default LocalAddKey;
 
-
+// Props
+LocalAddKeyForm.propTypes = {
+  saveKeyClicked: PropTypes.bool, 
+  selectedKey: PropTypes.object, 
+  editMode: PropTypes.bool,
+}
 
