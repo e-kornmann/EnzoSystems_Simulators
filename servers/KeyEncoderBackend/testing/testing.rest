@@ -6,9 +6,10 @@ GET http://localhost:9001/api/simulator/key-encoder/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTMyMTU2MjIsImV4cCI6MTY5MzMwMjAyMiwiaXNzIjoiRW56b3N5c3RlbXMifQ.1-Zp1g3ZOaaeAKder2X5fijJZMl3SVWO5NspzRkjLFQ
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjkzOTAyNDQ1LCJleHAiOjE2OTM5ODg4NDUsImlzcyI6IkVuem9zeXN0ZW1zIn0.CW8i07_nNWZE9rNupOrclERuwZNTwEuit5ie61gPyZk
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTQxNzQ5ODIsImV4cCI6MTY5NDI2MTM4MiwiaXNzIjoiRW56b3N5c3RlbXMifQ.KREY0vM3m0HE6sOnZ0tgph1q1v3W2WsqhUs8DPw82nk
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk0MTc5MDAyLCJleHAiOjE2OTQyNjU0MDIsImlzcyI6IkVuem9zeXN0ZW1zIn0.YjAeLVjU4ZUeuaQDkRHgwNhBiMk85vG5m_U-2D3S1hE
 
+@SESSION_ID=5a4f6746-171a-42a9-a4c5-fa6efa7960e4
 ### DEVICE
 POST http://localhost:9001/api/simulator/key-encoder/v1/auth
 Content-type: application/json
@@ -98,7 +99,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 
 ### HOST
-PUT http://localhost:9001/api/simulator/key-encoder/v1/session/686affd2-3395-4768-a18a-cf709a22e1c2
+PUT http://localhost:9001/api/simulator/key-encoder/v1/session/{{SESSION_ID}}
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -108,13 +109,13 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 
 ### HOST
-GET http://localhost:9001/api/simulator/key-encoder/v1/session/b21df204-47bb-4156-9bc2-6d1d751c5fbf
+GET http://localhost:9001/api/simulator/key-encoder/v1/session/{{SESSION_ID}}
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 
 ### HOST
-GET http://localhost:9001/api/simulator/key-encoder/v1/session/f7670583-dc07-4dc9-bd1a-6c3f272a58d0?longPollingMS=2000
+GET http://localhost:9001/api/simulator/key-encoder/v1/session/{{SESSION_ID}?longPollingMS=200}0
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 

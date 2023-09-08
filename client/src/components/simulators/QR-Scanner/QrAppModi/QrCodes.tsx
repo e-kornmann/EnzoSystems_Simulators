@@ -113,7 +113,7 @@ const QrCodesComponent = ({
 
     showQrCodes
     && <QrCodesWrapper>
-           { qrCodes.length === 0 && <NoQrCodesMessage>{ 'You don\'t have\n any QR-codes '}</NoQrCodesMessage>}
+        {qrCodes.length === 0 && <NoQrCodesMessage>{ 'You don\'t have\n any QR-codes '}</NoQrCodesMessage>}
       <S.GenericList>
         {qrCodes.map((qr, index) => (
           <S.GenericListButton type="button" key={`${qr}_${index}`}
@@ -124,7 +124,7 @@ const QrCodesComponent = ({
                   <SharedCheckMark
                     isDisplayed={selectedQrCodesForDeletion.includes(qr)}
                     width={9} height={6}
-                   />
+                  />
                 </S.SharedStyledCheckBox>
               )}
               <span>{qr.name}</span>

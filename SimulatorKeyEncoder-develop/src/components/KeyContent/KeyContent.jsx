@@ -12,7 +12,7 @@ import KeyProcessStatuses from '../../enums/KeyProcessStatuses';
 // svgs
 import { ReactComponent as CheckmarkIcon } from '../../../images/checkmark.svg';
 import { ReactComponent as PresentKeyIcon } from '../../../images/present_key.svg';
-// dateFormat 
+// date fns
 import { parseISO, format } from 'date-fns';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
@@ -20,7 +20,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
   display: 'grid',
   gridTemplateRows: '18% 16% 1fr',
   rowGap: '2%',
-  overflowY: 'hidden'
+  overflowY: 'hidden',
 }));
 
 const StyledHeader = styled('div')({
@@ -38,12 +38,17 @@ const StyledHeader = styled('div')({
   }
 });
 
-const StyledIcon = styled('div')({
+const StyledIcon = styled('div')(({theme}) => ({
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'flex-start',
-  width: '100%'
-});
+  alignItems: 'center',
+  width: '100%',
+  '& > svg': {
+    height: '20px',
+    fill: theme.colors.buttons.green,
+  }
+  
+}));
 
 const StyledPresentKeyButton = styled('button')(({theme, $disabled}) => ({
   display: 'flex',
@@ -100,6 +105,7 @@ const StyledCard = styled.div`
   height: 60%;
   overflow: hidden;
   z-index: 300;
+  font-size: 0.9em;
   & > div {
     animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
     background-color: ${props => props.theme.colors.background.primary};
@@ -112,7 +118,6 @@ const StyledCard = styled.div`
     min-height: 100px;
     max-height: 400px;
     max-width: 600px;
-    padding: 5%;
     box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
     & > div {
       text-align: center;
@@ -122,22 +127,38 @@ const StyledCard = styled.div`
       color: ${props => props.theme.colors.text.primary};
       opacity: ${props => props.$animateText ? 0 : 1 };
       &:nth-child(1) {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.5em;
         font-weight: 600;
         font-variant-numeric: normal;
         animation: ${textFadeInAnimation} 0.2s ease 0.75s 1 normal forwards;
       }
       &:nth-child(2) {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 0.75em;
         font-variant-numeric: normal;
         animation: ${textFadeInAnimation} 0.2s ease 1.25s 1 normal forwards;
+        margin-top: 2%,
       }
       &:nth-child(3) {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-variant-numeric: tabular-nums;
         animation: ${textFadeInAnimation} 0.2s ease 1.5s 1 normal forwards;
         font-size: 0.95em;
       }
       &:nth-child(4) {
+        height: 100%;
+        display: flex;
+        justify-content: center;
         font-variant-numeric: tabular-nums;
         animation: ${textFadeInAnimation} 0.2s ease 1.75s 1 normal forwards;
         font-size: 0.95em;
@@ -189,7 +210,7 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
         try {
           const response = await axios(config);
 
-          if (!response?.data) {
+          if (!response?.data && !response?.data?.metadata) {
             throw Error('No response data');
           } else {
             setCreatedKeyData(response.data.metadata.keyData);
@@ -205,7 +226,7 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
       };
       sendToBackend();
     }
-  }, [session, tokens]);
+  }, [appDispatch, tokens.accessToken]);
 
   const sendReadKey = useCallback(() => {
      if (!pushReadKeyRef.current) {
@@ -251,7 +272,7 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
 
       sendToBackend();
     }
-  }, [tokens]);
+  }, [appDispatch, selectedKey, tokens.accessToken]);
 
   const keyProcessStatus = useMemo(() => {
     if (type === CommandTypes.CREATE_KEY) { // CREATE_KEY command statuses
@@ -344,9 +365,9 @@ const KeyContent = memo(function KeyContent({ session, type, selectedKey }) { //
 
           <div>
               <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.roomAccess.join(', ') : createdKeyData.roomAccess && createdKeyData.roomAccess.join(', ') }</div>
-              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.additionalAccess.join(', ') : createdKeyData.additionalAccess && 'Access to: ' + createdKeyData.additionalAccess.join(', ')}</div>
-              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.startDateTime : createdKeyData.startDateTime && format(parseISO(createdKeyData.startDateTime), 'yyyy-MM-dd | HH:mm')}</div>
-              <div>{type !== CommandTypes.CREATE_KEY ? selectedKey?.data?.endDateTime : createdKeyData.endDateTime && format(parseISO(createdKeyData.endDateTime), 'yyyy-MM-dd | HH:mm')}</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? 'Access to: ' + selectedKey?.data?.additionalAccess.join(', ') : createdKeyData.additionalAccess && 'Access to: ' + createdKeyData.additionalAccess.join(', ')}</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? format(parseISO(selectedKey?.data?.startDateTime), 'yyyy-MM-dd | HH:mm') : createdKeyData.startDateTime && format(parseISO(createdKeyData.startDateTime), 'yyyy-MM-dd | HH:mm')}</div>
+              <div>{type !== CommandTypes.CREATE_KEY ? format(parseISO(selectedKey?.data?.endDateTime), 'yyyy-MM-dd | HH:mm') : createdKeyData.endDateTime && format(parseISO(createdKeyData.endDateTime), 'yyyy-MM-dd | HH:mm')}</div>
           </div>
           </StyledCard>
           

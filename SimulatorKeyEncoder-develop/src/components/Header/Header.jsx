@@ -37,7 +37,7 @@ const Header = memo(function Header({ showBack, showCross, title }) {
   }, [appDispatch]);
 
   const handleClickCross = useCallback(() => {
-    appDispatch({ type: 'clicked-cross', payload: true });
+    appDispatch({ type: 'clicked-cross' });
   }, [appDispatch]);
 
   return (

@@ -1,6 +1,6 @@
 import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
 // date-fns
-import { format, getYear, getMonth, getHours, getMinutes, getDate, addDays, parseISO } from 'date-fns';
+import { format, getYear, getMonth, getDate, addDays, parseISO } from 'date-fns';
 // styled components
 import styled from 'styled-components';
 // components
@@ -73,6 +73,11 @@ const StyledControl = styled('div')(({ theme, $hasValue }) => ({
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
     transition: 'transform 0.05s, font-size 0.05s, top 0.05s',
+    '& > span': {
+      color: theme.colors.text.secondary,
+      position: 'relative',
+      bottom: '3px',
+    },
   },
   '&:focus-within > label': {
     top: '-5px',
@@ -153,8 +158,6 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
 
   const initialCheckInTime = { hours: '15', minutes: '00' };
   const initialCheckOutTime = { hours: '11', minutes: '00' };
-
-
 
   useEffect(() => {
     if (editMode && selectedKey) {
@@ -343,10 +346,6 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
     }
   }, [appDispatch, state.key]);
 
-
-
-
-
   return (
     <StyledWrapper>
       <StyledForm>
@@ -355,13 +354,13 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
           >
             {field.type === AddKeyFieldTypes.ID &&
               <StyledControl key={field.name} $hasValue={state.key && state.key[field.source]}>
-                <label>{field.name}:</label>
+                <label>{field.name}:<span>*</span></label>
                 <input type="text" value={state.initialized ? state.key.keyId : state?.key?.[field.source]} onChange={(e) => { handleInput(e.target.value, field); }} />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ROOM_ACCESS &&
               <StyledControl key={field.name} $hasValue={state.key.data && state.key.data[field.source]}>
-                <label>{field.name}:</label>
+                <label>{field.name}:<span>*</span></label>
                 <input type="text"
                   value={state.initialized ? state.key.data.roomAccess.join(', ') : state?.key?.data?.[field.source]}
                   onChange={(e) => {

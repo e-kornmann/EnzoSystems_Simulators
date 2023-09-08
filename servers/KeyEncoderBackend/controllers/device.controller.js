@@ -38,8 +38,8 @@ async function setStatus (req, res) {
     const previousStatus = req.app.locals.deviceStatus;
     req.app.locals.deviceStatus = req.body.status;
 
-    res.status(httpStatus.StatusCodes.OK).json({ metadate: { previousStatus: previousStatus, status: req.app.locals.deviceStatus, timeoutMS: req.app.locals.connectionTimeoutMS } });
-    console.log(`(${req.authenticationType}: ${req.authenticationUser} - put status) {${JSON.stringify({ metadate: { previousStatus: previousStatus, status: req.app.locals.deviceStatus, timeoutMS: req.app.locals.connectionTimeoutMS } })}}`);
+    res.status(httpStatus.StatusCodes.OK).json({ metadata: { previousStatus: previousStatus, status: req.app.locals.deviceStatus, timeoutMS: req.app.locals.connectionTimeoutMS } });
+    console.log(`(${req.authenticationType}: ${req.authenticationUser} - put status) {${JSON.stringify({ metadata: { previousStatus: previousStatus, status: req.app.locals.deviceStatus, timeoutMS: req.app.locals.connectionTimeoutMS } })}}`);
   } catch (e) {
     console.log(`(${req.authenticationType}: ${req.authenticationUser} - put status) ${e.message}`);
     res.json({ error: e.message });

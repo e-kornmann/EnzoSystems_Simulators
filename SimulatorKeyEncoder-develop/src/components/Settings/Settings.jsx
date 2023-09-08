@@ -33,7 +33,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
 }));
 
 
-const Settings = memo(function Settings({ clickedBack, clickedCross, deviceStatus }) {
+const Settings = memo(function Settings({ clickedBack, deviceStatus }) {
   const appDispatch = useContext(AppDispatchContext);
   const [settingClicked, setSettingClicked] = useState(false);
 
@@ -66,13 +66,6 @@ const Settings = memo(function Settings({ clickedBack, clickedCross, deviceStatu
       }
     }
   }, []);
-
-  useEffect(() => { // Close Settings
-    if (clickedCross) {
-      appDispatch({ type: 'clicked-cross', payload: false });
-      appDispatch({ type: 'toggle-settings' });
-    }
-  }, [clickedCross]);
 
   useEffect(() => { // Return to main Settings menu from an Options list
     if (clickedBack && settingClicked) {

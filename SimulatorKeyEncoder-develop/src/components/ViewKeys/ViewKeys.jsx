@@ -16,6 +16,7 @@ const StyledWrapper = styled('div')({
 });
 
 const StyledButton = styled('button')(({ theme }) => ({
+  position: 'relative', 
   display: 'flex',
   flexDirection: 'row',
   cursor: 'pointer',
@@ -26,7 +27,7 @@ const StyledButton = styled('button')(({ theme }) => ({
   width: '100%',
   height: '40px',
   fontSize: '0.9em',
-  padding: '11px',
+  padding: '11px 20px 11px 11px',
   columnGap: '20px',
   '& > svg': {
     minWidth: '14px'
@@ -44,6 +45,9 @@ const StyledButton = styled('button')(({ theme }) => ({
 }));
 
 const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
+  position: 'absolute',
+  right: '10px',
+  top: '12px',
   width: '14px',
   height: '11px',
   fill: theme.colors.brandColors.enzoOrange,
@@ -51,10 +55,11 @@ const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
 
 const StyledItem = styled('div')({
   display: 'grid',
-  gridTemplateColumns: '20% 80%',
+  gridTemplateColumns: '30% 70%',
   alignItems: 'center',
   columnGap: '8px',
   width: '100%',
+  position: 'relative',
 
 });
 
@@ -62,6 +67,13 @@ const StyledRoomNumber = styled('div')(({ $showAddMark }) => ({
   display: 'flex',
   fontWeight: '600',
   fontVariantNumeric: 'tabular-nums',
+  width: '100%',
+  '& > span': {
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    maxWidth: '72%'
+  },
   '&::after': {
     content: $showAddMark ? '" +"' : '" "',
     fontSize: '0.8em',
@@ -89,6 +101,7 @@ const Wrap = styled('div')({
   display: 'flex',
   alignItems: 'center',
   columnGap: '8px',
+  width: '100%',
 });
 
 const SharedStyledCheckBox = styled('div')(
@@ -132,9 +145,11 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
       appDispatch({ type: 'edit-key', payload: true });
     } else if (deleteMode) {
       toggleSelectedKeyForDeletion(key);
+      appDispatch({ type: 'select-all-key-clicked', payload: false});
+      appDispatch({ type: 'deselect-all-key-clicked', payload: false});
     } else {
       // if not in editMode nor deleteMode go back to initialScreen
-      appDispatch({ type: 'clicked-cross', payload: true });
+      appDispatch({ type: 'clicked-cross' });
     }
   },[appDispatch, deleteMode, editMode, toggleSelectedKeyForDeletion])
   
@@ -146,22 +161,13 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
       if (!newKeys.includes(selectedKey)) {
         appDispatch({ type: 'select-key', payload: newKeys[0] });
       }
-      appDispatch({ type: 'clicked-cross', payload: true });
+      appDispatch({ type: 'clicked-cross' });
 
     }
   }, [appDispatch, deleteKeyClicked, keys, selectedKey, selectedKeysForDeletion]);
 
 
-  // this is the footer button listener
-  useEffect(() => {
-    if (selectAllKeyClicked) {
-      setSelectedKeysForDeletion(keys);
-    } else if (deselectAllKeyClicked) {
-      setSelectedKeysForDeletion([]);
-    }
-  }, [keys, deselectAllKeyClicked, selectAllKeyClicked]);
-
-
+  
   useEffect(() => {
     // Check if all Keys are selected
     if (keys) {
@@ -176,14 +182,29 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
   }, [appDispatch, keys, selectedKeysForDeletion]);
 
 
-  // this useEffects Enables AND Disables the Delete button   
+  // this is the footer button listener
   useEffect(() => {
-    if (selectedKeysForDeletion.length > 0) {
-      appDispatch({ type: 'set-delete-button', payload: true });
-    } else if (selectedKeysForDeletion.length === 0 && !keys) {
-      appDispatch({ type: 'set-delete-button', payload: false });
+    if (selectAllKeyClicked) {
+      setSelectedKeysForDeletion(keys);
     }
-  }, [appDispatch, selectedKeysForDeletion]);
+    if (deselectAllKeyClicked) {
+      setSelectedKeysForDeletion([]);
+    }
+  }, [keys, deselectAllKeyClicked, selectAllKeyClicked]);
+
+
+
+
+  // this useEffects Enables AND Disables the Delete button when in DeleteMode  
+  useEffect(() => {
+    if (deleteMode) {
+      if (selectedKeysForDeletion.length > 0) {
+        appDispatch({ type: 'set-delete-button', payload: true });
+      } else if (selectedKeysForDeletion.length === 0) {
+        appDispatch({ type: 'set-delete-button', payload: false });
+      }
+    }
+  }, [appDispatch, deleteMode, keys, selectedKeysForDeletion]);
 
 
 
@@ -211,24 +232,23 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
       {keys && keys.map((key) => (
         <StyledButton key={key.keyId} type="button" onClick={() => handleKeySelect(key)}>
           <StyledItem>
+          <Wrap>
 
             {deleteMode &&
-              <Wrap>
                 <SharedStyledCheckBox $isSelected={selectedKeysForDeletion.includes(key)}>
                   <CheckmarkIcon width={9} height={6} />
                 </SharedStyledCheckBox>
-
-
-              </Wrap>
             }
 
-            <StyledRoomNumber $showAddMark={key?.data?.roomAccess.length > 1}>{key?.data?.roomAccess[0]}</StyledRoomNumber>
+            <StyledRoomNumber $showAddMark={key?.data?.roomAccess.length > 1}><span>{key?.data?.roomAccess[0]}</span></StyledRoomNumber>
+            </Wrap>
             <StyledDates>
               <span>{format(parseISO(key?.data?.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
               <span>{format(parseISO(key?.data?.endDateTime), 'yyyy-MM-dd | HH:mm')}</span>
             </StyledDates>
+     
           </StyledItem>
-          {key === selectedKey && <StyledCheckMark />}
+          {(key === selectedKey && !editMode && !deleteMode) &&<StyledCheckMark />}
         </StyledButton>
       ))}
 

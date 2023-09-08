@@ -108,11 +108,11 @@ const Footer = ({ showAddKey, showSettings, showKeys, saveButtonIsEnabled, delet
   }, [appDispatch]);
 
   const handleDeselectAllKey = useCallback(() => {
-    appDispatch({ type: 'deselect-all-key-clicked'});
+    appDispatch({ type: 'deselect-all-key-clicked', payload: true});
   }, [appDispatch]);
 
   const handleSelectAllKey = useCallback(() => {
-    appDispatch({ type: 'select-all-key-clicked'});
+    appDispatch({ type: 'select-all-key-clicked', payload: true});
   }, [appDispatch]);
 
   return (
