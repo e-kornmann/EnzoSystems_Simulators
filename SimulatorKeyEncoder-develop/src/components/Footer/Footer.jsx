@@ -90,6 +90,7 @@ const FooterWithNavigation = ({
   const appDispatch = useContext(AppDispatchContext);
 
   const handleAddKey = useCallback(() => {
+    appDispatch({ type: 'show-back', payload: true });
     appDispatch({ type: 'show-add-key', payload: true });
   }, [appDispatch]);
 
@@ -106,6 +107,7 @@ const FooterWithNavigation = ({
   }, [appDispatch]);
 
   const setToDeleteMode =  useCallback(() => {
+    appDispatch({ type: 'show-back', payload: true });
     appDispatch({ type: 'delete-keys-mode', payload: true });
   }, [appDispatch]);
 
@@ -114,6 +116,7 @@ const FooterWithNavigation = ({
   }, [appDispatch]);
 
   const handleEditKey = useCallback(() => {
+    appDispatch({ type: 'show-back', payload: true });
     appDispatch({ type: 'edit-keys-mode', payload: true });
   }, [appDispatch]);
 

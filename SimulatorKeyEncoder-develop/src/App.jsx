@@ -225,7 +225,7 @@ const reducer = (state, action) => {
       return { ...state, noKeys: action.payload };
     }
     case 'show-add-key': {
-      return { ...state, showAddKey: { ...state.showAddkey, showComponent: action.payload }, showCross: true, showKeys: initialState.showKeys };
+      return { ...state, showAddKey: { ...state.showAddkey, showComponent: action.payload }, showCross: true, showKeys: initialState.showKeys, headerTitle: 'Create Key' };
     }
     case 'edit-key': {
       return { ...state, showAddKey: { ...state.showAddkey, showComponent: action.payload, editMode: action.payload }, showCross: true, showKeys: initialState.showKeys, headerTitle: 'Edit Key' };
@@ -277,10 +277,10 @@ const reducer = (state, action) => {
         newKeys.push(action.payload);
       }
 
-      return { ...state, localKeys: newKeys, saveKeyClicked: false, showAddKey: initialState.showAddKey, selectedKey: action.payload };
+      return { ...state, localKeys: newKeys, selectedKey: action.payload };
     }
     case 'show-keys': {
-      return { ...state, showKeys: { ...state.showKeys, showComponent: action.payload }, showCross: true, headerTitle: 'Keys' };
+      return { ...state, showKeys: { ...initialState.showKeys, showComponent: action.payload }, showCross: true, headerTitle: 'Keys', showAddKey: initialState.showAddKey };
     }
     case 'all-keys-are-selected': {
       return { ...state, allKeysAreSelected: action.payload };
@@ -500,7 +500,7 @@ const App = () => {
         <AppDispatchContext.Provider value={dispatch}>
           <TokenContext.Provider value={state.tokens}>
             <StyledApp>
-              <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} />
+              <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} goBackToKeysButton={state.showAddKey.showComponent || state.showKeys.editMode || state.showKeys.deleteMode} />
               <StyledContent>
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent &&
                   <StyledContent>

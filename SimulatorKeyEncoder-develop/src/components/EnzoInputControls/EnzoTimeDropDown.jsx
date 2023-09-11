@@ -192,6 +192,6 @@ TimeDropDown.propTypes = {
   initialValue: PropTypes.string,
   field: PropTypes.object,
   label: PropTypes.string,
-  options: PropTypes.object,
-  onOptionClicked: PropTypes.bool,
+  options: PropTypes.array,
+  onOptionClicked: PropTypes.func,
 }

@@ -1,10 +1,11 @@
 import { memo } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 // svgs
 import { ReactComponent as Arrow } from '../../../images/arrow.svg';
 import { ReactComponent as CheckmarkIcon } from '../../../images/success.svg';
-
 
 const StyledWrapper = styled('div')({});
 const StyledButton = styled('button')(({ theme }) => ({
@@ -41,7 +42,7 @@ const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
   fill: theme.colors.brandColors.enzoOrange,
 }));
 
-const SettingControl = memo(function SettingControl({ clicked, setting, onOptionClicked, onSettingClicked, theme }) {
+const ListOfOptions = ({ clicked, setting, onOptionClicked, onSettingClicked }) => {
   return (
     <StyledWrapper>
       {!clicked &&
@@ -59,9 +60,14 @@ const SettingControl = memo(function SettingControl({ clicked, setting, onOption
       }
     </StyledWrapper>
   );
-});
+};
 
+const SettingControl = memo(ListOfOptions)
 export default SettingControl;
 
-
-
+ListOfOptions.propTypes = {
+  clicked: PropTypes.bool,
+  setting: PropTypes.object,
+  onOptionClicked: PropTypes.bool, 
+  onSettingClicked: PropTypes.bool, 
+}

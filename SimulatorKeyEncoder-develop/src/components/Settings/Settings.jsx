@@ -1,4 +1,6 @@
 import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 // components
@@ -8,7 +10,6 @@ import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
 // enums
 import DeviceStatuses from '../../enums/DeviceStatuses';
 import SettingsTypes from '../../enums/SettingsTypes';
-
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   padding: '2px 0',
@@ -33,7 +34,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
 }));
 
 
-const Settings = memo(function Settings({ clickedBack, deviceStatus }) {
+const AppSettings = ({ clickedBack, deviceStatus }) => {
   const appDispatch = useContext(AppDispatchContext);
   const [settingClicked, setSettingClicked] = useState(false);
 
@@ -52,7 +53,7 @@ const Settings = memo(function Settings({ clickedBack, deviceStatus }) {
     setSettingClicked(setting);
     appDispatch({ type: 'set-header-title', payload: setting.title });
     appDispatch({ type: 'show-back', payload: true });
-  }, []);
+  }, [appDispatch]);
 
 
   // when in clicked setting you can click an option
@@ -65,7 +66,7 @@ const Settings = memo(function Settings({ clickedBack, deviceStatus }) {
         setSettingClicked(newSetting);
       }
     }
-  }, []);
+  }, [appDispatch]);
 
   useEffect(() => { // Return to main Settings menu from an Options list
     if (clickedBack && settingClicked) {
@@ -73,7 +74,7 @@ const Settings = memo(function Settings({ clickedBack, deviceStatus }) {
       appDispatch({ type: 'set-header-title', payload: 'Settings' });
       appDispatch({ type: 'clicked-back', payload: false });
     }
-  }, [clickedBack, settingClicked]);
+  }, [appDispatch, clickedBack, settingClicked]);
 
   useEffect(() => { // initially set header to display 'Settings' as title
     appDispatch({ type: 'set-header-title', payload: 'Settings' });
@@ -88,6 +89,12 @@ const Settings = memo(function Settings({ clickedBack, deviceStatus }) {
         <SettingControl key={settingClicked.type} clicked setting={settingClicked} onOptionClicked={handleOptionClicked} onSettingClicked={handleSettingClicked} />}
     </StyledWrapper>
   );
-});
+};
 
+const Settings = memo(AppSettings)
 export default Settings;
+
+AppSettings.propTypes = {
+  clickedBack: PropTypes.bool,
+  deviceStatus: PropTypes.object,
+}

@@ -1,11 +1,12 @@
 import { useEffect, useState, memo } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 // enums 
 import DeviceStatuses from '../../enums/DeviceStatuses';
 // date fns
 import { format, parseISO } from 'date-fns';
-
 
 const StyledWrapper = styled('div')({
     height: '100%',
@@ -149,3 +150,9 @@ const WaitingScreen = ({ selectedKey, deviceStatus }) => {
 
 const InitialScreen = memo(WaitingScreen);
 export default InitialScreen
+
+// Props
+WaitingScreen.propTypes = {
+    selectedKey: PropTypes.object,
+    deviceStatus: PropTypes.string
+ }

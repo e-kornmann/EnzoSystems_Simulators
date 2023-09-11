@@ -1,4 +1,6 @@
 import { memo, useContext, useState, useEffect, useCallback } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 import { parseISO, format } from 'date-fns';
@@ -126,7 +128,7 @@ const SharedStyledCheckBox = styled('div')(
 );
 
 
-const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
+const RoomKeys = ({ keys, selectedKey, showKeys }) => {
   const { deleteKeyClicked, selectAllKeyClicked, deselectAllKeyClicked, editMode, deleteMode } = showKeys;
   const [selectedKeysForDeletion, setSelectedKeysForDeletion] = useState([]);
   const appDispatch = useContext(AppDispatchContext);
@@ -181,7 +183,6 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
     }
   }, [appDispatch, keys, selectedKeysForDeletion]);
 
-
   // this is the footer button listener
   useEffect(() => {
     if (selectAllKeyClicked) {
@@ -191,9 +192,6 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
       setSelectedKeysForDeletion([]);
     }
   }, [keys, deselectAllKeyClicked, selectAllKeyClicked]);
-
-
-
 
   // this useEffects Enables AND Disables the Delete button when in DeleteMode  
   useEffect(() => {
@@ -205,8 +203,6 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
       }
     }
   }, [appDispatch, deleteMode, keys, selectedKeysForDeletion]);
-
-
 
   return (
     <StyledWrapper>
@@ -254,9 +250,15 @@ const ViewKeys = memo(function ViewKeys({ keys, selectedKey, showKeys }) {
 
     </StyledWrapper>
   );
-});
+};
 
+const ViewKeys = memo(RoomKeys)
 export default ViewKeys;
 
+RoomKeys.propTypes = {
+  keys: PropTypes.array,
+  selectedKey: PropTypes.object,
+  showKeys: PropTypes.object,
+}
 
 

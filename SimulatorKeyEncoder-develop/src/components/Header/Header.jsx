@@ -1,4 +1,6 @@
 import { memo, useCallback, useContext } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // styled components
 import styled from 'styled-components';
 // context
@@ -29,12 +31,15 @@ export const StyledHeader = styled('div')(({ theme }) => ({
   }
 }));
 
-const Header = memo(function Header({ showBack, showCross, title }) {
+const AppHeader = ({ showBack, showCross, title, goBackToKeysButton }) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleClickBack = useCallback(() => {
+    if (goBackToKeysButton) {
+      appDispatch({ type: 'show-keys', payload: true})
+    }
     appDispatch({ type: 'clicked-back', payload: true });
-  }, [appDispatch]);
+  }, [appDispatch, goBackToKeysButton]);
 
   const handleClickCross = useCallback(() => {
     appDispatch({ type: 'clicked-cross' });
@@ -51,7 +56,16 @@ const Header = memo(function Header({ showBack, showCross, title }) {
       </button>
     </StyledHeader>
   );
-})
+};
 
+const Header = memo(AppHeader)
 export default Header;
+
+// Props
+AppHeader.propTypes = {
+  showBack: PropTypes.object,
+  showCross: PropTypes.bool,
+  title: PropTypes.string,
+  goBackToKeysButton: PropTypes.string,
+}
 

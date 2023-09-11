@@ -117,12 +117,12 @@ const StyledDateInput = styled('input')({
 
 const initialState = {
   initialized: false,
-  key: { keyId: undefined,
+  key: { keyId: '',
          data: {
-          roomAccess: undefined,
-          additionalAccess: undefined,
-          startDateTime: undefined,
-          endDateTime: undefined,
+          roomAccess: '',
+          additionalAccess: '',
+          startDateTime: '',
+          endDateTime: '',
         },
     },
   };
@@ -336,9 +336,12 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
     if (saveKeyClicked) {
       if (editMode && state.key) {
       appDispatch({ type: 'update-key', payload: state.key });
+        // go back to initial screen.
+        appDispatch({ type: 'clicked-cross' });
       } else {
-      appDispatch({ type: 'save-key', payload: state.key });
+        appDispatch({ type: 'save-key', payload: state.key });
       }
+    
     }
   }, [appDispatch, editMode, fields, saveKeyClicked, state.key]);
 
@@ -377,7 +380,7 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ADDITIONAL_ACCESS &&
-              <EnzoCheckBoxDropdown data={state.initialized && state.key.data.additionalAccess} field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleArrayInput} />
+              <EnzoCheckBoxDropdown data={state.initialized ? state.key.data.additionalAccess : null } field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleArrayInput} />
             }
 
             {field.type === AddKeyFieldTypes.START_DATE_TIME &&

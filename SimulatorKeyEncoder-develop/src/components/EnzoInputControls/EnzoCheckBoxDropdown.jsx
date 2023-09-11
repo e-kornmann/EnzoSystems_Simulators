@@ -141,9 +141,6 @@ const StyledOption = styled('div')(({ theme, $isSelected }) => ({
   cursor: 'pointer',
 }));
 
-
-
-
 const DropDownWithCheckBox = ({ data, field, options, onOptionClicked }) => {
   const [selectedValue, setSelectedValue] = useState(['']);
   const [showOptions, setShowOptions] = useState(false);
@@ -155,9 +152,7 @@ const DropDownWithCheckBox = ({ data, field, options, onOptionClicked }) => {
     }
   }, [data]);
 
-
-
-  const handleOptionClicked = useCallback((option) => {
+const handleOptionClicked = useCallback((option) => {
     if (option.value === '') {
       return; // Ignore empty options
     }
@@ -236,8 +231,8 @@ export default EnzoCheckBoxDropDown;
 DropDownWithCheckBox.propTypes = {
   data: PropTypes.array,
   field: PropTypes.object,
-  options: PropTypes.object,
-  onOptionClicked: PropTypes.bool,
+  options: PropTypes.array,
+  onOptionClicked: PropTypes.func,
 }
 
 

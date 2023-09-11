@@ -1,4 +1,6 @@
 import { memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+//import prop-types
+import PropTypes from 'prop-types';
 // axios
 import axios from 'axios';
 // styled components
@@ -67,7 +69,6 @@ const StyledContent = styled('div')({
   justifyContent: 'center',
   alignItems: 'flex-start'
 });
-
 
 const slideAnimation = keyframes`
 0% {
@@ -166,8 +167,6 @@ const StyledCard = styled.div`
     }
   }
 `;
-
- 
 
 const KeyContentAnimation = ({ type, selectedKey }) => { // type = CREATE_KEY / READ_KEY from CommandTypes
   const appDispatch = useContext(AppDispatchContext);
@@ -377,3 +376,9 @@ const KeyContentAnimation = ({ type, selectedKey }) => { // type = CREATE_KEY / 
 
 const KeyContent = memo(KeyContentAnimation);
 export default KeyContent;
+
+// Props
+KeyContentAnimation.propTypes = {
+  type: PropTypes.object,
+  selectedKey: PropTypes.object
+}
