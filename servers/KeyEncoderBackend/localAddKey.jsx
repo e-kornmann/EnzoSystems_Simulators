@@ -132,6 +132,9 @@ const reducer = (state, action) => {
     case 'set-key': {
       return { ...state, initialized: true, key: action.payload };
     }
+    case 'array-input-value': {
+      return { ...state, key: {...state.key, data: { ...state.key.data, [action.field.source]: [...state.key.data.action.field.source, action.payload]}}};
+    }
     case 'input-value': {
       return { ...state, key: {...state.key, data: { ...state.key.data, [action.field.source]: action.payload}}};
     }
@@ -188,7 +191,11 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
 
 
   const handleRoomInput = useCallback((value, field) => {
-    dispatch({ type: 'input-value', field, payload: value.split(',').map((room) => room.trim()) });
+    dispatch({ type: 'input-value', field, payload: value.split(',') });
+  }, []);
+
+  const handleArrayInput = useCallback((option, field) => {
+    dispatch({ type: 'array-input-value', field: field, payload: option });
   }, []);
 
   const handleInput = useCallback((value, field) => {
@@ -349,20 +356,23 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
             {field.type === AddKeyFieldTypes.ID &&
               <StyledControl key={field.name} $hasValue={state.key && state.key[field.source]}>
                 <label>{field.name}:<span>*</span></label>
-                <input type="text" value={state.initialized ? state.key.keyId : state?.key[field.source]} onChange={(e) => { handleInput(e.target.value, field); }} />
+                <input type="text" value={state.initialized ? state.key.keyId : state?.key?.[field.source]} onChange={(e) => { handleInput(e.target.value, field); }} />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ROOM_ACCESS &&
               <StyledControl key={field.name} $hasValue={state.key.data && state.key.data[field.source]}>
                 <label>{field.name}:<span>*</span></label>
                 <input type="text"
-                  value={state.key.data[field.source]}
-                  onChange={(e) => { handleRoomInput( e.target.value, field) }}
+                  value={state.key.data.roomAccess.join(', ')}
+                  onChange={(e) => {
+                    const roomNumbers = e.target.value.split(',').map((room) => room.trim());
+                    handleRoomInput(roomNumbers, field);
+                  }}
                 />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ADDITIONAL_ACCESS &&
-              <EnzoCheckBoxDropdown data={state.initialized ? state.key.data.additionalAccess : null } field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleInput} /> // logic of adding option to state and removing one, inside this component
+              <EnzoCheckBoxDropdown data={state.initialized ? state.key.data.additionalAccess : null } field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleArrayInput} />
             }
 
             {field.type === AddKeyFieldTypes.START_DATE_TIME &&

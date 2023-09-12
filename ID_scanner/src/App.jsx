@@ -137,7 +137,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 const initialState = {
   deviceStatus: DeviceStatuses.CONNECTED,
-  headerTitle: 'Room Key Encoder',
+  headerTitle: 'ID scanner',
   initialized: false,
   localKeys: [],
   selectedKey: null,
@@ -305,17 +305,193 @@ const App = () => {
   const [tick, setTick] = useState(0);
   const initialSessionRequest = useRef(true);
 
+  /* Authenticate Key Encoder "Device" */
+  const getToken = useCallback(() => {
+    const config = {
+      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth`,
+      headers: {
+        authorization: `Basic ${window.btoa('device:device')}`
+      },
+      method: 'post',
+      data: {
+        deviceId: 'KeyEncoder'
+      },
+      timeout: import.meta.env.VITE_TIMEOUT
+    };
+
+    const getAuthenticationToken = async () => {
+      try {
+        const response = await axios(config);
+
+        if (!response?.data) {
+          throw Error('Missing response data');
+        }
+
+        dispatch({ type: 'set-tokens', payload: response.data });
+      } catch (error) {
+        console.error('Error: retrieving authentication token: ', error);
+      }
+    };
+
+    getAuthenticationToken();
+  }, []);
+
+  // set NoKeys to false if Keys are no longer null
+  useEffect(() => {
+    if (state.localKeys) {
+      dispatch({ type: 'set-NoKeys', payload: false })
+    } else if (!state.localKeys) {
+      dispatch({ type: 'set-NoKeys', payload: true })
+    }
+  }, [state.localKeys, state.localKeyskeys])
+
+  // set LocalStorage Keys if update is needed
+  useEffect(() => {
+    // set localKeys
+    const getSelectedRoomKey = localStorage.getItem('selectedRoomKey');
+    if (state.selectedKey && (!getSelectedRoomKey || (getSelectedRoomKey && getSelectedRoomKey !== JSON.stringify(state.selectedKey)))) {
+      localStorage.setItem('selectedRoomKey', JSON.stringify(state.selectedKey));
+    }
+    // set selectedKey
+    const getKeys = localStorage.getItem('roomKeys');
+    if (state.localKeys && state.localKeys.length > 0 && (!getKeys || (getKeys && getKeys !== JSON.stringify(state.localKeys)))) {
+      localStorage.setItem('roomKeys', JSON.stringify(state.localKeys));
+    }
+  }, [state.selectedKey, state.localKeys]);
+
+  // load LocalStorage Keys if available
+  useEffect(() => {
+    // get localKeys
+    const getKeys = localStorage.getItem('roomKeys');
+    if (getKeys) dispatch({ type: 'load-localStorage-roomKeys', payload: JSON.parse(getKeys) })
+    // get selectedKey
+    const getSelectedRoomKey = localStorage.getItem('selectedRoomKey');
+    if (getSelectedRoomKey) dispatch({ type: 'load-localStorage-selectedRoomKeys', payload: JSON.parse(getSelectedRoomKey) })
+  }, []);
+
+  /* Call Get Token Until We Have One */
+  useEffect(() => {
+    if (!state.tokenPresent) {
+      getToken();
+    }
+  }, [state.tokenPresent, tick, getToken]);
+
+  /* Key Encoder Status */
+  const handleStatus = useCallback((status) => {
+    if (state.tokens && state.tokens.accessToken) {
+      const config = {
+        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/status`,
+        headers: {
+          authorization: `Bearer ${state.tokens.accessToken}`
+        },
+        method: 'put',
+        data: {
+          status: status
+        },
+        timeout: import.meta.env.VITE_TIMEOUT
+      };
+
+      const updateStatus = async () => {
+        try {
+          const response = await axios(config);
+
+          if (!response?.data) {
+            throw Error('Missing response data');
+          }
+
+          console.log(`Updated Status! Key encoder status: ${status}`);
+        } catch (error) {
+          console.error('Error: updating key encoder status: ', error);
+        }
+      };
+
+      updateStatus();
+    }
+  }, [state.tokens]);
+
+  /* Refresh Tick - for sending updated status every X seconds to keep key encoder accessible for backend */
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, import.meta.env.VITE_TICK_RATE);
+
+    return () => {
+      clearInterval(tick);
+    };
+  }, []);
+
+  /* Key Encoder Status */
+  useEffect(() => {
+    if (state.tokens && state.tokens.accessToken) {
+      handleStatus(state.deviceStatus);
+    }
+  }, [state.deviceStatus, state.tokens, tick, handleStatus]);
+
+  /* Process Status */
+  useEffect(() => {
+    if (state.showSettings) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.SETTINGS });
+    } else if (state.session?.metadata?.name === CommandTypes.READ_KEY) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.SCANNING });
+    } else if (state.session?.metadata?.name === CommandTypes.CREATE_KEY) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.CREATE_KEY });
+    } else if (state.deviceStatus === DeviceStatuses.CONNECTED) {
+      dispatch({ type: 'set-process-status', payload: ProcessStatuses.WAITING });
+    }
+  }, [state.deviceStatus, state.session, state.showSettings, state.tokens]);
+
+  const getSession = useCallback(() => {
+    if (state.tokens && state.tokens.accessToken) {
+      const config = {
+        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session?longPollingMS=${import.meta.env.VITE_LONG_POLLING_TIME}`,
+        headers: {
+          authorization: `Bearer ${state.tokens.accessToken}`
+        },
+        method: 'get',
+        timeout: import.meta.env.VITE_LONG_POLLING_TIMEOUT
+      };
+
+      const getScanSession = async () => {
+        try {
+          const response = await axios(config);
+
+          if (response?.data && !response.data?.result) {
+            dispatch({ type: 'set-session', payload: response.data });
+          }
+          dispatch({ type: 'set-send-next-session-request', payload: true }); // next long poll
+        } catch (error) {
+          if (axios.isCancel(error)) { // this means status in frontend has changed, so request has been cancelled
+            console.error('ERROR: retrieving scan session: request cancelled');
+          } else if (error?.code === 'ECONNABORTED') {
+            console.log('getSession aborted due to status change');
+          } else {
+            console.error('ERROR: retrieving scan session: ', error);
+          }
+        }
+      };
+
+      getScanSession();
+    } else {
+      console.error('ERROR: retrieving scan session: missing token');
+    }
+  }, [state.tokens]);
 
 
+  useEffect(() => {
+    if (state.initialized) {
+      if (state.processStatus === ProcessStatuses.WAITING && state.tokens?.accessToken && !state.sessionInitialRequest && initialSessionRequest.current) { // while WAITING, send a new "long" poll for a new session (1st request)
+        initialSessionRequest.current = false;
+        dispatch({ type: 'set-session-initial-request', payload: true });
+        getSession();
+      } else if (state.processStatus === ProcessStatuses.WAITING && state.tokens?.accessToken && state.sessionInitialRequest && state.sendNextSessionRequest && !initialSessionRequest.current) { // any subsequent request
+        dispatch({ type: 'set-send-next-session-request', payload: false });
 
 
+        getSession();
 
-
-
-
-
-
-  
+      }
+    }
+  }, [getSession, state.initialized, state.processStatus, state.sendNextSessionRequest, state.sessionInitialRequest, state.tokens?.accessToken]);
 
   return (
     <ThemeProvider theme={theme}>

@@ -1,15 +1,20 @@
-import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer } from 'react';
-//import prop-types
-import PropTypes from 'prop-types';
+import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer, Reducer } from 'react';
 // date-fns
 import { format, getYear, getMonth, getDate, addDays, parseISO } from 'date-fns';
 // styled components
 import styled from 'styled-components';
 // components
-import EnzoCheckBoxDropdown from '../EnzoInputControls/EnzoCheckBoxDropdown';
-import EnzoTimeDropDown from '../EnzoInputControls/EnzoTimeDropDown';
+import EnzoCheckBoxDropdown from '../EnzoInputControls/EnzoDropdown/EnzoCheckBoxDropdown';
+import EnzoTimeDropDown from '../EnzoInputControls/EnzoDropdown/EnzoTimeDropDown';
 // contexts
-import AppDispatchContext from '../../contexts/dispatch/appDispatchContext';
+import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
+import AddKeyDispatchActions from '../../types/reducerActions/AddKeyDispatchActions';
+import InputActionType from '../../enums/InputActionTypes';
+// types
+import { KeyType, KeyData } from '../../types/KeyType';
+import AddKeyFieldType from '../../types/AddKeyFieldType';
+import ActionType from '../../enums/ActionTypes';
+import AddKeyFieldsEnum from '../../enums/AddKeyFieldsEnum';
 
 const AddKeyFieldTypes = {
   ADDITIONAL_ACCESS: 'ADDITIONAL_ACCESS',
@@ -38,7 +43,10 @@ const StyledForm = styled('form')({
   overflowY: 'scroll'
 });
 
-const StyledControl = styled('div')(({ theme, $hasValue }) => ({
+const StyledControl = styled('div')<{
+  key?: string,
+  $hasValue?: boolean,
+}>(({ theme, $hasValue }) => ({
   marginTop: '8px',
   height: '35px',
   width: '100%',
@@ -109,40 +117,49 @@ const StyledColon = styled('div')({
   alignItems: 'center',
   fontSize: '1.35em',
   width: '100%',
-})
+});
 
 const StyledDateInput = styled('input')({
   maxWidth: '70%',
 });
 
-const initialState = {
-  initialized: false,
-  key: { keyId: '',
-         data: {
-          roomAccess: '',
-          additionalAccess: '',
-          startDateTime: '',
-          endDateTime: '',
-        },
-    },
-  };
+type AddKeyStateType = {
+  initialized: boolean;
+  key: KeyType;
+};
 
-const reducer = (state, action) => {
+const initialState: AddKeyStateType = {
+  initialized: false,
+  key: {
+    keyId: '',
+    data: {
+      roomAccess: [''],
+      additionalAccess: [''],
+      startDateTime: '',
+      endDateTime: '',
+    },
+  },
+};
+
+const reducer: Reducer<AddKeyStateType, AddKeyDispatchActions> = (state, action): AddKeyStateType => {
   switch (action.type) {
-    case 'set-key': {
+    case InputActionType.SET_KEY: {
       return { ...state, initialized: true, key: action.payload };
     }
-    case 'input-value': {
-      return { ...state, key: {...state.key, data: { ...state.key.data, [action.field.source]: action.payload}}};
+    case InputActionType.INPUT_ARRAY_VALUE: {
+      return { ...state, key: { ...state.key, data: { ...state.key.data, [action.field]: action.payload } } };
     }
-    case 'id-value': {
-      return { ...state, key: {...state.key, [action.field.source]: action.payload}};
+    case InputActionType.INPUT_VALUE: {
+      return { ...state, key: { ...state.key, data: { ...state.key.data, [action.field]: action.payload } } };
     }
-    case 'set-today': {
-      return { ...state, key: {...state.key, data: { ...state.key.data, startDateTime: action.payload }}};
+    case InputActionType.ID_VALUE: {
+      return { ...state, key: { ...state.key, [action.field]: action.payload } };
     }
-    case 'set-tomorrow': {
-      return { ...state, key: {...state.key, data: { ...state.key.data, endDateTime: action.payload }}};
+    case InputActionType.SET_TODAY: {
+      return { ...state, key: { ...state.key, data: { ...state.key.data, startDateTime: action.payload } } };
+    }
+    case InputActionType.SET_TOMORROW: {
+      return { ...state, key: { ...state.key, data: { ...state.key.data, endDateTime: action.payload } } };
     }
     default:
       console.error(`ERROR: this add key reducer action type does not exist: ${action.type}`);
@@ -150,7 +167,13 @@ const reducer = (state, action) => {
   }
 };
 
-const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
+type Props = {
+  saveKeyClicked: boolean,
+  selectedKey: KeyType | null,
+  editMode: boolean,
+}
+
+const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useContext(AppDispatchContext);
 
@@ -159,9 +182,8 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
 
   useEffect(() => {
     if (editMode && selectedKey) {
-      dispatch({ type: 'set-key', payload: selectedKey });
+      dispatch({ type: InputActionType.SET_KEY, payload: selectedKey });
     }
-
   }, [editMode, selectedKey]);
 
 
@@ -169,7 +191,7 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
     const day = new Date();
     day.setHours(Number(initialCheckInTime.hours));
     day.setMinutes(Number(initialCheckInTime.minutes));
-    dispatch({ type: 'set-today', payload: day.toISOString() });
+    dispatch({ type: InputActionType.SET_TODAY, payload: day.toISOString() });
     return format(day, 'yyyy-MM-dd');
   }, [initialCheckInTime.hours, initialCheckInTime.minutes]);
 
@@ -179,7 +201,7 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
     dayPlusOne.setHours(Number(initialCheckOutTime.hours));
     dayPlusOne.setMinutes(Number(initialCheckOutTime.minutes));
     const tomorrowISO = dayPlusOne.toISOString();
-    dispatch({ type: 'set-tomorrow', payload: tomorrowISO });
+    dispatch({ type: InputActionType.SET_TOMORROW, payload: tomorrowISO });
     return format(dayPlusOne, 'yyyy-MM-dd');
   }, [initialCheckOutTime.hours, initialCheckOutTime.minutes]);
 
@@ -187,78 +209,83 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
   const [endDate, setEndDate] = useState(tomorrow);
 
 
-  const handleRoomInput = useCallback((value, field) => {
-    dispatch({ type: 'input-value', field, payload: value.split(',').map((room) => room.trim()) });
+  const handleRoomInput = useCallback((value: string, field: keyof KeyData) => {
+    dispatch({ type: InputActionType.INPUT_ARRAY_VALUE, field, payload: value.split(',').map((room) => room.trim()) });
   }, []);
 
-  const handleInput = useCallback((value, field) => {
-    dispatch({ type: field.type === AddKeyFieldTypes.ID ? 'id-value' : 'input-value', field: field, payload: value });
+
+  const handleCheckboxInput = useCallback((payload: string[], field: keyof KeyData) => {
+    dispatch({ type: InputActionType.INPUT_ARRAY_VALUE, field, payload });
   }, []);
 
-  const handleDateInput = useCallback((value, field) => {
+  const handleIdInput = useCallback((payload: string, field: keyof KeyType) => {
+    dispatch({ type: InputActionType.ID_VALUE, field, payload });
+  }, []);
+
+  const handleDateInput = useCallback((value: string, field: keyof KeyData) => {
     if (state.key) {
       const dateString = value;
-      if (field.type === AddKeyFieldTypes.START_DATE_TIME) setStartDate(dateString);
-      else if (field.type === AddKeyFieldTypes.END_DATE_TIME) setEndDate(dateString);
+      if (field === 'startDateTime') setStartDate(dateString);
+      else if (field === 'endDateTime') setEndDate(dateString);
       const year = getYear(new Date(dateString));
       const month = getMonth(new Date(dateString));
       const day = getDate(new Date(dateString));
 
-      const updatedStartDate = new Date(state.key.data.startDateTime);
-      updatedStartDate.setFullYear(year);
-      updatedStartDate.setMonth(month);
-      updatedStartDate.setDate(day);
-      const updatedStartDateTimeIso = updatedStartDate.toISOString();
-      dispatch({ type: 'input-value', field: field, payload: updatedStartDateTimeIso });
+      const updatedDate = new Date(state.key.data[field] as keyof KeyData);
+      updatedDate.setFullYear(year);
+      updatedDate.setMonth(month);
+      updatedDate.setDate(day);
+      const updatedDateTimeIso = updatedDate.toISOString();
+      dispatch({ type: InputActionType.INPUT_VALUE, field, payload: updatedDateTimeIso });
     }
   }, [state.key, dispatch]);
 
-  const handleHourInput = useCallback((value, field) => {
-    if (state.key) {
-      const updatedDate = new Date(state.key.data[field.source]);
+  const handleHourInput = useCallback((value: string, field: keyof KeyData) => {
+    if (state.key.data && field) {
+      const updatedDate = new Date(state.key.data[field] as keyof KeyData);
       updatedDate.setHours(Number(value));
       const updatedDateIso = updatedDate.toISOString();
-      dispatch({ type: 'input-value', field: field, payload: updatedDateIso });
+      dispatch({ type: InputActionType.INPUT_VALUE, field, payload: updatedDateIso });
     }
   }, [state.key, dispatch]);
 
-  const handleMinuteInput = useCallback((value, field) => {
+  const handleMinuteInput = useCallback((value: string, field: keyof KeyData) => {
     if (state.key) {
-      const updatedDate = new Date(state.key.data[field.source]);
+      const updatedDate = new Date(state.key.data[field] as keyof KeyData);
       updatedDate.setMinutes(Number(value));
       const updatedDateIso = updatedDate.toISOString();
-      dispatch({ type: 'input-value', field: field, payload: updatedDateIso });
+      dispatch({ type: InputActionType.INPUT_VALUE, field, payload: updatedDateIso });
     }
-  }, [state.key, dispatch]);
+  }, [state.key]);
 
-  const fields = useMemo(() => {
+
+  const fields = useMemo((): AddKeyFieldType[] => {
     return [
       {
         name: 'ID',
         source: 'keyId',
-        type: AddKeyFieldTypes.ID
+        type: AddKeyFieldsEnum.ID
       },
       {
         name: 'Room Access',
         source: 'roomAccess',
-        type: AddKeyFieldTypes.ROOM_ACCESS
+        type: AddKeyFieldsEnum.ROOM_ACCESS
       },
       {
         name: 'Additional Access',
         source: 'additionalAccess',
-        type: AddKeyFieldTypes.ADDITIONAL_ACCESS
+        type: AddKeyFieldsEnum.ADDITIONAL_ACCESS
       },
       {
         name: 'Start Date',
         source: 'startDateTime',
-        type: AddKeyFieldTypes.START_DATE_TIME
+        type: AddKeyFieldsEnum.START_DATE_TIME
       },
       {
         name: 'End Date',
         source: 'endDateTime',
-        type: AddKeyFieldTypes.END_DATE_TIME
+        type: AddKeyFieldsEnum.END_DATE_TIME
       }
-
     ];
   }, []);
 
@@ -317,26 +344,29 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
     ];
   }, []);
 
+
+
   useEffect(() => {
     if (saveKeyClicked) {
       if (editMode && state.key) {
-      appDispatch({ type: 'update-key', payload: state.key });
+        appDispatch({ type: ActionType.UPDATE_KEY, payload: state.key });
         // go back to initial screen.
-        appDispatch({ type: 'clicked-cross' });
+        appDispatch({ type: ActionType.CLICKED_CROSS });
       } else {
-        appDispatch({ type: 'save-key', payload: state.key });
+        appDispatch({ type: ActionType.SAVE_KEY, payload: state.key });
       }
-    
+
     }
-  }, [appDispatch, editMode, fields, saveKeyClicked, state.key]);
+  }, [appDispatch, editMode, saveKeyClicked, state.key]);
 
 
- // this useEffects Enables AND Disables the save button
- useEffect(() => {
-    if (!state.key.keyId && !state.key.data.roomAccess) {
-      appDispatch({ type: 'set-save-button', payload: true });
-    } else if (state.key.keyId && state.key.data.roomAccess) { 
-      appDispatch({ type: 'set-save-button', payload: false });
+  // this useEffects Enables AND Disables the save button
+  useEffect(() => {
+  
+    if (state.key.keyId !== '' && state.key.data.roomAccess[0] !== '') {
+      appDispatch({ type: ActionType.SET_SAVE_BUTTON, payload: true });
+    } else {
+      appDispatch({ type: ActionType.SET_SAVE_BUTTON, payload: false });
     }
   }, [appDispatch, state.key]);
 
@@ -347,41 +377,41 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
           <React.Fragment key={field.name}
           >
             {field.type === AddKeyFieldTypes.ID &&
-              <StyledControl key={field.name} $hasValue={state.key && state.key[field.source]}>
+              <StyledControl key={field.name} $hasValue={state.key && state.key[field.source as keyof KeyType] !== ''}>
                 <label>{field.name}:<span>*</span></label>
-                <input type="text" value={state.initialized ? state.key.keyId : state?.key[field.source]} onChange={(e) => { handleInput(e.target.value, field); }} />
+                <input type="text" value={state.key[field.source as keyof KeyType] as string} onChange={(e) => { handleIdInput(e.target.value, field.source as keyof KeyType); }} />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ROOM_ACCESS &&
-              <StyledControl key={field.name} $hasValue={state.key.data && state.key.data[field.source]}>
+              <StyledControl key={field.name} $hasValue={state.key.data && state.key.data[field.source as keyof KeyData] !== ''}>
                 <label>{field.name}:<span>*</span></label>
                 <input type="text"
-                  value={state.key.data[field.source]}
-                  onChange={(e) => { handleRoomInput( e.target.value, field) }}
+                  value={state.key.data[field.source as keyof KeyData] as string}
+                  onChange={(e) => { handleRoomInput(e.target.value, field.source as keyof KeyData); }}
                 />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ADDITIONAL_ACCESS &&
-              <EnzoCheckBoxDropdown data={state.initialized ? state.key.data.additionalAccess : null } field={field} label='Additional Access' options={availableAdditionalAccess} onOptionClicked={handleInput} /> // logic of adding option to state and removing one, inside this component
+              <EnzoCheckBoxDropdown data={state.initialized ? state.key.data.additionalAccess : null} field={field} label={field.name} options={availableAdditionalAccess} onOptionClicked={handleCheckboxInput} />
             }
 
             {field.type === AddKeyFieldTypes.START_DATE_TIME &&
               <>
                 <StyledControl style={{ marginTop: '15px' }}>
                   <div>Starts:</div>
-                  <StyledDateInput type='date' value={ state.initialized ?
+                  <StyledDateInput type='date' value={state.initialized ?
                     format(parseISO(state.key.data.startDateTime), 'yyyy-MM-dd') :
-                    startDate } onChange={(e) => { handleDateInput(e.target.value, field); }} />
+                    startDate} onChange={(e) => { handleDateInput(e.target.value, field.source as keyof KeyData); }} />
                 </StyledControl>
 
                 <StyledTimeWrapper>
-                  <EnzoTimeDropDown initialValue={ state.initialized ?
+                  <EnzoTimeDropDown initialValue={state.initialized ?
                     format(parseISO(state.key.data.startDateTime), 'HH') :
                     initialCheckInTime.hours} label='' field={field} options={hours} onOptionClicked={handleHourInput} />
                   <StyledColon>:</StyledColon>
-                  <EnzoTimeDropDown initialValue={ state.initialized ?
+                  <EnzoTimeDropDown initialValue={state.initialized ?
                     format(parseISO(state.key.data.startDateTime), 'mm') :
-                    initialCheckInTime.minutes } label='' field={field} options={minutes} onOptionClicked={handleMinuteInput} />
+                    initialCheckInTime.minutes} label='' field={field} options={minutes} onOptionClicked={handleMinuteInput} />
                 </StyledTimeWrapper>
               </>
             }
@@ -390,19 +420,19 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
               <>
                 <StyledControl >
                   <div>Ends:</div>
-                  <StyledDateInput type='date' value={ state.initialized ?
+                  <StyledDateInput type='date' value={state.initialized ?
                     format(parseISO(state.key.data.endDateTime), 'yyyy-MM-dd') :
-                    endDate } onChange={(e) => { handleDateInput(e.target.value, field); }} />
+                    endDate} onChange={(e) => { handleDateInput(e.target.value, field.source as keyof KeyData); }} />
                 </StyledControl>
 
                 <StyledTimeWrapper>
-                  <EnzoTimeDropDown initialValue={ state.initialized ?
+                  <EnzoTimeDropDown initialValue={state.initialized ?
                     format(parseISO(state.key.data.endDateTime), 'HH') :
                     initialCheckOutTime.hours} label='' field={field} options={hours} onOptionClicked={handleHourInput} />
                   <StyledColon>:</StyledColon>
-                  <EnzoTimeDropDown initialValue={ state.initialized ?
+                  <EnzoTimeDropDown initialValue={state.initialized ?
                     format(parseISO(state.key.data.endDateTime), 'mm') :
-                    initialCheckOutTime.minutes } label='' field={field} options={minutes} onOptionClicked={handleMinuteInput} />
+                    initialCheckOutTime.minutes} label='' field={field} options={minutes} onOptionClicked={handleMinuteInput} />
                 </StyledTimeWrapper>
               </>
             }
@@ -413,13 +443,6 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }) => {
   );
 };
 
-const LocalAddKey = memo(LocalAddKeyForm);
-export default LocalAddKey;
+export const LocalAddKey = memo(LocalAddKeyForm);
 
-// Props
-LocalAddKeyForm.propTypes = {
-  saveKeyClicked: PropTypes.bool, 
-  selectedKey: PropTypes.object, 
-  editMode: PropTypes.bool,
-}
 
