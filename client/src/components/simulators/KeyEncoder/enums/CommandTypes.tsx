@@ -1,0 +1,10 @@
+enum CommandTypes {
+  CANCEL = 'CANCEL',
+  CREATE_COPY_KEY = 'CREATE_COPY_KEY',
+  CREATE_JOINNER_KEY = 'CREATE_JOINNER_KEY',
+  CREATE_KEY = 'CREATE_KEY',
+  CREATE_NEW_KEY = 'CREATE_NEW_KEY',
+  READ_KEY = 'READ_KEY'
+};
+
+export default CommandTypes;

@@ -21,32 +21,32 @@ const StyledWrapper = styled('div')({
 });
 
 const StyledButton = styled('button')(({ theme }) => ({
-  position: 'relative', 
+  position: 'relative',
   display: 'flex',
   flexDirection: 'row',
   cursor: 'pointer',
   textAlign: 'left',
   alignItems: 'center',
   justifyContent: 'space-between',
-  borderBottom: '0.13em solid ' + theme.colors.buttons.lightgray,
+  borderBottom: `0.13em solid ${theme.colors.buttons.lightgray}`,
   width: '100%',
   height: '40px',
   fontSize: '0.9em',
   padding: '11px 20px 11px 11px',
   columnGap: '20px',
   '& > svg': {
-    minWidth: '14px'
+    minWidth: '14px',
   },
   '& > span': {
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    maxWidth: '82%'
+    maxWidth: '82%',
   },
   '&:active': {
-    backgroundColor: theme.colors.brandColors.enzoLightOrange,
-    fill: theme.colors.brandColors.enzoOrange
-  }
+    backgroundColor: theme.colors.buttons.specialTransparent,
+    fill: theme.colors.buttons.special,
+  },
 }));
 
 const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
@@ -55,7 +55,7 @@ const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
   top: '12px',
   width: '14px',
   height: '11px',
-  fill: theme.colors.brandColors.enzoOrange,
+  fill: theme.colors.buttons.special,
 }));
 
 const StyledItem = styled('div')({
@@ -78,7 +78,7 @@ const StyledRoomNumber = styled('div')<{
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    maxWidth: '72%'
+    maxWidth: '72%',
   },
   '&::after': {
     content: $showAddMark ? '" +"' : '" "',
@@ -100,7 +100,7 @@ const StyledDates = styled('div')({
     fontWeight: '500',
     fontSize: '0.78em',
     height: '12px',
-  }
+  },
 });
 
 const Wrap = styled('div')({
@@ -119,12 +119,12 @@ const SharedStyledCheckBox = styled('div')<{
     width: '12px',
     height: '12px',
     border: `1px solid ${$isSelected
-      ? theme.colors.brandColors.enzoOrange
+      ? theme.colors.buttons.special
       : theme.colors.text.primary}`,
     borderRadius: '1px',
     cursor: 'pointer',
     backgroundColor: $isSelected
-      ? theme.colors.brandColors.enzoOrange
+      ? theme.colors.buttons.special
       : theme.colors.background.primary,
     '& > svg': {
       marginLeft: '1px',
@@ -140,14 +140,16 @@ type ViewKeysProps = {
 };
 
 const ViewKeysComponent = ({ keys, selectedKey, showKeys }: ViewKeysProps) => {
-  const { deleteKeyClicked, selectAllKeyClicked, deselectAllKeyClicked, editMode, deleteMode } = showKeys;
-  const [selectedKeysForDeletion, setSelectedKeysForDeletion] = useState<KeyType[] | null>(null);
+  const {
+    deleteKeyClicked, selectAllKeyClicked, deselectAllKeyClicked, editMode, deleteMode,
+  } = showKeys;
+  const [selectedKeysForDeletion, setSelectedKeysForDeletion] = useState<KeyType[]>([]);
   const appDispatch = useContext(AppDispatchContext);
 
   const toggleSelectedKeyForDeletion = useCallback((key: KeyType) => {
     if (selectedKeysForDeletion) {
       if (selectedKeysForDeletion.includes(key)) {
-        setSelectedKeysForDeletion(selectedKeysForDeletion.filter(selectedKey => selectedKey !== key));
+        setSelectedKeysForDeletion(selectedKeysForDeletion.filter(k => k !== key));
       } else {
         setSelectedKeysForDeletion([...selectedKeysForDeletion, key]);
       }
@@ -160,23 +162,22 @@ const ViewKeysComponent = ({ keys, selectedKey, showKeys }: ViewKeysProps) => {
       appDispatch({ type: ActionType.EDIT_KEY, payload: true });
     } else if (deleteMode) {
       toggleSelectedKeyForDeletion(key);
-      appDispatch({ type: ActionType.SELECT_ALL_KEY_CLICKED, payload: false});
-      appDispatch({ type: ActionType.DESELECT_ALL_KEY_CLICKED, payload: false});
+      appDispatch({ type: ActionType.SELECT_ALL_KEY_CLICKED, payload: false });
+      appDispatch({ type: ActionType.DESELECT_ALL_KEY_CLICKED, payload: false });
     } else {
       // if not in editMode nor deleteMode go back to initialScreen
       appDispatch({ type: ActionType.CLICKED_CROSS });
     }
-  },[appDispatch, deleteMode, editMode, toggleSelectedKeyForDeletion]);
-  
+  }, [appDispatch, deleteMode, editMode, toggleSelectedKeyForDeletion]);
+
   useEffect(() => {
-    if (deleteKeyClicked && keys && selectedKeysForDeletion ) {
+    if (deleteKeyClicked && keys && selectedKeysForDeletion) {
       const newKeys = keys.filter(k => !selectedKeysForDeletion.includes(k));
       appDispatch({ type: ActionType.SET_ALL_LOCALKEYS, payload: newKeys });
       if (selectedKey && !newKeys.includes(selectedKey)) {
         appDispatch({ type: ActionType.SELECT_KEY, payload: newKeys[0] });
       }
       appDispatch({ type: ActionType.CLICKED_CROSS });
-
     }
   }, [appDispatch, deleteKeyClicked, keys, selectedKey, selectedKeysForDeletion]);
 
@@ -195,7 +196,7 @@ const ViewKeysComponent = ({ keys, selectedKey, showKeys }: ViewKeysProps) => {
 
   // this is the footer button listener
   useEffect(() => {
-    if (selectAllKeyClicked) {
+    if (keys && selectAllKeyClicked) {
       setSelectedKeysForDeletion(keys);
     }
     if (deselectAllKeyClicked) {
@@ -203,7 +204,7 @@ const ViewKeysComponent = ({ keys, selectedKey, showKeys }: ViewKeysProps) => {
     }
   }, [keys, deselectAllKeyClicked, selectAllKeyClicked]);
 
-  // this useEffects Enables AND Disables the Delete button when in DeleteMode  
+  // this useEffects Enables AND Disables the Delete button when in DeleteMode
   useEffect(() => {
     if (deleteMode && selectedKeysForDeletion) {
       if (selectedKeysForDeletion.length > 0) {
@@ -234,32 +235,32 @@ const ViewKeysComponent = ({ keys, selectedKey, showKeys }: ViewKeysProps) => {
           </StyledItem>
           {false && <StyledCheckMark />}
         </StyledButton>
-  
+
         {keys && keys.map((key, index) => (
           <StyledButton key={index} type="button" onClick={() => handleKeySelect(key)}>
             <StyledItem>
             <Wrap>
-  
-              {deleteMode && selectedKeysForDeletion &&
-                  <SharedStyledCheckBox $isSelected={selectedKeysForDeletion.includes(key)}>
+
+              {deleteMode && selectedKeysForDeletion
+                  && <SharedStyledCheckBox $isSelected={selectedKeysForDeletion.includes(key)}>
                     <CheckmarkIcon width={9} height={6} />
                   </SharedStyledCheckBox>
               }
-  
+
               <StyledRoomNumber $showAddMark={key?.data?.roomAccess.length > 1}><span>{key?.data?.roomAccess[0]}</span></StyledRoomNumber>
               </Wrap>
               <StyledDates>
                 <span>{format(parseISO(key?.data?.startDateTime), 'yyyy-MM-dd | HH:mm')}</span>
                 <span>{format(parseISO(key?.data?.endDateTime), 'yyyy-MM-dd | HH:mm')}</span>
               </StyledDates>
-       
+
             </StyledItem>
-            {(key === selectedKey && !editMode && !deleteMode) &&<StyledCheckMark />}
+            {(key === selectedKey && !editMode && !deleteMode) && <StyledCheckMark />}
           </StyledButton>
         ))}
-  
+
       </StyledWrapper>
-    );
-  };
+  );
+};
 
 export const ViewKeys = memo(ViewKeysComponent);

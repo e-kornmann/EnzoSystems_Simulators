@@ -5,10 +5,12 @@
     "plugin:react-hooks/recommended", 
     "salt-typescript"], 
   "rules": {
+    "object-curly-newline": ["error", { "ImportDeclaration": "never" }],
     "no-console": "off",
     "import/extensions": ["error", "never", { "svg": "always", "json": "always" }],
     "react-refresh/only-export-components": "warn",
-    "max-len": ["error", { "code": 150 }]
+    "max-len": ["error", { "code": 150 }],
+    "import/prefer-default-export": "off"
   },
   "parser": "@typescript-eslint/parser",
   "plugins": ["react-refresh"],

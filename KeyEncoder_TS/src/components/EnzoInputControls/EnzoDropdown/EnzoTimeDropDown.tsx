@@ -1,4 +1,6 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  memo, useCallback, useEffect, useRef, useState,
+} from 'react';
 // styled components
 import styled from 'styled-components';
 // import StyledArrow from './EnzoCheckBoxDropDown';
@@ -47,7 +49,7 @@ const StyledSelect = styled('div')<{
   fontSize: '1.0em',
   fontWeight: '500',
   border: '0.12em solid',
-  borderColor: $isFocus ? theme.colors.brandColors.enzoOrange : theme.colors.buttons.gray,
+  borderColor: $isFocus ? theme.colors.buttons.special : theme.colors.buttons.gray,
   borderRadius: '3px',
   padding: '9px 8px 0px',
   width: '100%',
@@ -73,7 +75,7 @@ const StyledArrow = styled('div')<{
   '& > svg': {
     fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
     width: '13px',
-    height: '6px'
+    height: '6px',
   },
   pointerEvents: 'none',
 }));
@@ -115,7 +117,7 @@ const StyledOption = styled('div')<{
   $isSelected: boolean,
   value: string
 }>(({ theme, $isSelected }) => ({
-  backgroundColor: $isSelected ? theme.colors.brandColors.enzoOrange : theme.colors.background.primary,
+  backgroundColor: $isSelected ? theme.colors.buttons.special : theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
   padding: '3px 9px',
   cursor: 'pointer',
@@ -124,10 +126,8 @@ const StyledOption = styled('div')<{
   },
   '&:last-child': {
     padding: '3px 9px 7px',
-  }
-})
-);
-
+  },
+}));
 
 type Option = {
   name: string,
@@ -142,7 +142,9 @@ type Props = {
   onOptionClicked: (value: string, field: keyof KeyData) => void
 };
 
-const TimeDropDown = ({ initialValue, field, label, options, onOptionClicked }: Props) => {
+const TimeDropDown = ({
+  initialValue, field, label, options, onOptionClicked,
+}: Props) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -160,7 +162,7 @@ const TimeDropDown = ({ initialValue, field, label, options, onOptionClicked }: 
   }, [field, onOptionClicked]);
 
   const handleClick = useCallback(() => {
-    setShowOptions((prev) => !prev);
+    setShowOptions(prev => !prev);
   }, []);
 
   useEffect(() => {
@@ -175,17 +177,16 @@ const TimeDropDown = ({ initialValue, field, label, options, onOptionClicked }: 
     };
   }, [showOptions]);
 
-
   return (
     <StyledControl>
       <StyledSelect $isFocus={showOptions} onClick={handleClick}>
-        {options?.find((option) => option.value === selectedValue)?.name || label}
+        {options?.find(option => option.value === selectedValue)?.name || label}
       </StyledSelect>
 
       <StyledOptionsContainer ref={optionsRef} $showOptions={showOptions}>
         <StyledClickableContainer onClick={handleClick} />
         <StyledOptions>
-          {options.map((option) => (
+          {options.map(option => (
             <StyledOption
               key={option.name}
               value={option.value}
@@ -207,6 +208,4 @@ const TimeDropDown = ({ initialValue, field, label, options, onOptionClicked }: 
   );
 };
 
-const EnzoTimeDropDown = memo(TimeDropDown);
-export default EnzoTimeDropDown;
-
+export const EnzoTimeDropDown = memo(TimeDropDown);

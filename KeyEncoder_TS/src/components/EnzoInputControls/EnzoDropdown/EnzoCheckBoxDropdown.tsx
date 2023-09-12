@@ -1,9 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  memo, useCallback, useEffect, useRef, useState,
+} from 'react';
 // svgs
+import styled from 'styled-components';
 import { ReactComponent as CheckMarkIcon } from '../../../../images/checkmark.svg';
 import { ReactComponent as ArrowIcon } from '../../../../images/arrow_up-down.svg';
 // styled components
-import styled from 'styled-components';
 import AddKeyFieldType from '../../../types/AddKeyFieldType';
 import { KeyData } from '../../../types/KeyType';
 
@@ -47,7 +49,7 @@ const StyledSelect = styled('div')<{
   fontSize: '1.0em',
   fontWeight: '500',
   border: '0.12em solid',
-  borderColor: $isFocus ? theme.colors.brandColors.enzoOrange : theme.colors.buttons.gray,
+  borderColor: $isFocus ? theme.colors.buttons.special : theme.colors.buttons.gray,
   borderRadius: '3px',
   padding: '11px 8px 0px',
   width: '100%',
@@ -73,7 +75,7 @@ const StyledArrow = styled('div')<{
   '& > svg': {
     fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
     width: '13px',
-    height: '6px'
+    height: '6px',
   },
   pointerEvents: 'none',
 }));
@@ -81,33 +83,32 @@ const StyledArrow = styled('div')<{
 const Wrap = styled('div')({
   display: 'flex',
   alignItems: 'center',
-  columnGap: '8px'
+  columnGap: '8px',
 });
 
 const StyledCheckBox = styled('div')<{
-  $isSelected: boolean 
+  $isSelected: boolean
 }>(({ $isSelected, theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    width: '12px',
-    height: '12px',
-    border: `1px solid ${$isSelected
-      ? theme.colors.brandColors.enzoOrange
-      : theme.colors.text.primary}`,
-    borderRadius: '1px',
-    cursor: 'pointer',
-    backgroundColor: $isSelected
-      ? theme.colors.brandColors.enzoOrange
-      : theme.colors.background.primary,
-    '& > svg': {
-      marginLeft: '1px',
-      fill: $isSelected ? theme.colors.text.primary : 'transparent',
-    },
-  }),
-);
+  display: 'flex',
+  alignItems: 'center',
+  width: '12px',
+  height: '12px',
+  border: `1px solid ${$isSelected
+    ? theme.colors.buttons.special
+    : theme.colors.text.primary}`,
+  borderRadius: '1px',
+  cursor: 'pointer',
+  backgroundColor: $isSelected
+    ? theme.colors.buttons.special
+    : theme.colors.background.primary,
+  '& > svg': {
+    marginLeft: '1px',
+    fill: $isSelected ? theme.colors.text.primary : 'transparent',
+  },
+}));
 
 const StyledOptionsContainer = styled('div')<{
-  $showOptions: boolean 
+  $showOptions: boolean
 }>(({ $showOptions }) => ({
   backgroundColor: 'transparent',
   display: $showOptions ? 'flex' : 'none',
@@ -119,13 +120,13 @@ const StyledOptionsContainer = styled('div')<{
   height: '80px',
 }));
 
-const StyledClickableContainer =  styled('div')({
+const StyledClickableContainer = styled('div')({
   backgroundColor: 'transparent',
   display: 'flex',
   height: '30px',
   width: '100%',
   cursor: 'pointer',
-  });
+});
 
 const StyledOptions = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -135,12 +136,12 @@ const StyledOptions = styled('div')(({ theme }) => ({
   height: 'fit-content',
   marginBottom: '10px',
   zIndex: '2',
-   '& > :first-child': {
-      padding: '10px 9px 5px',
+  '& > :first-child': {
+    padding: '10px 9px 5px',
   },
-   '& > :last-child': {
-  padding: '5px 9px 10px',
- }
+  '& > :last-child': {
+    padding: '5px 9px 10px',
+  },
 }));
 
 const StyledOption = styled('div')<{
@@ -166,8 +167,9 @@ type Props = {
   onOptionClicked: (value: string[], field: keyof KeyData) => void
 };
 
-
-const EnzoCheckBoxDropDownComponent = ({ data, field, options, onOptionClicked }: Props) => {
+const EnzoCheckBoxDropDownComponent = ({
+  data, field, options, onOptionClicked,
+}: Props) => {
   const [selectedValue, setSelectedValue] = useState(['']);
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -178,7 +180,7 @@ const EnzoCheckBoxDropDownComponent = ({ data, field, options, onOptionClicked }
     }
   }, [data]);
 
-const handleOptionClicked = useCallback((option: Option) => {
+  const handleOptionClicked = useCallback((option: Option) => {
     if (option.value === '') {
       return; // Ignore empty options
     }
@@ -186,19 +188,19 @@ const handleOptionClicked = useCallback((option: Option) => {
     let updatedValue;
 
     if (selectedValue.includes(option.value)) {
-      updatedValue = selectedValue.filter((value) => value !== option.value);
+      updatedValue = selectedValue.filter(value => value !== option.value);
     } else {
       updatedValue = [...selectedValue, option.value];
     }
 
     // Filter out empty values from the updated array
-    updatedValue = updatedValue.filter((value) => value !== '');
+    updatedValue = updatedValue.filter(value => value !== '');
     setSelectedValue(updatedValue);
     onOptionClicked(updatedValue, field.source as keyof KeyData);
   }, [field, selectedValue, onOptionClicked]);
 
   const handleClick = useCallback(() => {
-    setShowOptions((prev) => !prev);
+    setShowOptions(prev => !prev);
   }, []);
 
   useEffect(() => {
@@ -223,7 +225,7 @@ const handleOptionClicked = useCallback((option: Option) => {
       <StyledOptionsContainer ref={optionsRef} $showOptions={showOptions}>
         <StyledClickableContainer onClick={handleClick} />
         <StyledOptions>
-          {options.map((option) => (
+          {options.map(option => (
             <StyledOption
               key={option.name}
               value={option.value}
@@ -249,8 +251,4 @@ const handleOptionClicked = useCallback((option: Option) => {
   );
 };
 
-const EnzoCheckBoxDropDown = memo(EnzoCheckBoxDropDownComponent);
-export default EnzoCheckBoxDropDown;
-
-
-
+export const EnzoCheckBoxDropDown = memo(EnzoCheckBoxDropDownComponent);

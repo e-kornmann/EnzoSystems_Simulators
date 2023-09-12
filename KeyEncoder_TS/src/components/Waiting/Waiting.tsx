@@ -21,20 +21,20 @@ const StyledWrapper = styled('div')({
 const StyledHeader = styled('div')({
   display: 'flex',
   alignItems: 'center',
-  height: '30vh',
+  height: '30%',
   fontSize: '1.15em',
   fontWeight: 500,
   justifyContent: 'center',
   lineHeight: '1.23em',
   textAlign: 'center',
-  whiteSpace: 'pre-line'
+  whiteSpace: 'pre-line',
 });
 const StyledKeyBox = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'flex-end',
   alignItems: 'center',
-  marginBottom: '10vh',
+  marginBottom: '15%',
   width: '100%',
   gap: '5px',
 });

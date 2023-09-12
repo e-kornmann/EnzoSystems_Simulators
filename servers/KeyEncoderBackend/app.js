@@ -26,6 +26,17 @@ try {
     app.use(expressLogging.extendedLogging);
   }
 
+  // check .env
+  if (!process.env.SESSION_TIMEOUT_SEC) {
+    throw new Error('.env is missing \'SESSION_TIMEOUT_SEC\' setting');
+  }
+  if (!process.env.DEVICE_CONNECTION_TIMEOUT_SEC) {
+    throw new Error('.env is missing \'DEVICE_CONNECTION_TIMEOUT_SEC\' setting');
+  }
+  if (!process.env.LONG_POLLING_SEC) {
+    throw new Error('.env is missing \'LONG_POLLING_SEC\' setting');
+  }
+
   // Health status check route
   app.get(`/${process.env.API_BASE_PATH}/v${process.env.API_VERSION}/health`, function (req, res) {
     res.status(httpStatus.StatusCodes.OK).json({ info: 'The BarcodeScanner back-end server is healthy!' });
@@ -33,10 +44,16 @@ try {
 
   // initialize local properties
   app.locals.deviceStatus = DEVICE_STATUS.NOT_FOUND;
+  app.locals.deviceId = '';
   app.locals.connectionTimeoutMS = 0;
   app.locals.sessions = new Map();
   app.locals.activeSessionId = '';
   app.locals.activeSessionTimeoutMS = -1;
+  if (!process.env.LONG_POLLING_SEC) {
+    app.locals.longPollingMS = 1000;
+  } else {
+    app.locals.longPollingMS = Number(process.env.LONG_POLLING_SEC) * 1000;
+  }
 
   // set timer to check each second if React simulator is CONNECTED
   setInterval(() => {
@@ -53,7 +70,7 @@ try {
 
       if (app.locals.activeSessionTimeoutMS < 0 && app.locals.sessions.get(app.locals.activeSessionId)) {
         const session = app.locals.sessions.get(app.locals.activeSessionId);
-        if (session.status === SESSION_STATUS.WAITING_FOR_KEY) {
+        if (session.status === SESSION_STATUS.ACTIVE) {
           session.status = SESSION_STATUS.TIMED_OUT;
           app.locals.sessions.set(app.locals.activeSessionId, session);
           console.log(`Session time-out, sessionId: ${app.locals.activeSessionId}`);

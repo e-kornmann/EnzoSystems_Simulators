@@ -9,25 +9,25 @@ import { ReactComponent as CloseIcon } from '../../../images/close.svg';
 import ActionType from '../../enums/ActionTypes';
 
 export const StyledHeader = styled('div')(({ theme }) => ({
-  display: "flex",
-  padding: "0 8px 0 9px",
-  justifyContent: "space-between",
-  alignItems: "center",
-  fontWeight: "500",
-  borderTopLeftRadius: "5px",
-  borderTopRightRadius: "5px",
-  backgroundColor: "white",
+  display: 'flex',
+  padding: '0 8px 0 9px',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  fontWeight: '500',
+  borderTopLeftRadius: '5px',
+  borderTopRightRadius: '5px',
+  backgroundColor: 'white',
   color: theme.colors.text.secondary,
   '& > button': {
-    cursor: "pointer",
-    width: "13px",
-    height: "13px",
-    display: "grid",
-    alignItems: "flex-end",
+    cursor: 'pointer',
+    width: '13px',
+    height: '13px',
+    display: 'grid',
+    alignItems: 'flex-end',
     '& > svg': {
       fill: theme.colors.text.primary,
-    }
-  }
+    },
+  },
 }));
 
 type Props = {
@@ -37,12 +37,14 @@ type Props = {
   goBackToKeysButton: boolean,
 };
 
-const HeaderComponent = ({ showBack, showCross, title, goBackToKeysButton }: Props) => {
+const HeaderComponent = ({
+  showBack, showCross, title, goBackToKeysButton,
+}: Props) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleClickBack = useCallback(() => {
     if (goBackToKeysButton) {
-      appDispatch({ type: ActionType.SHOW_KEYS, payload: true});
+      appDispatch({ type: ActionType.SHOW_KEYS, payload: true });
     }
     appDispatch({ type: ActionType.CLICKED_BACK, payload: true });
   }, [appDispatch, goBackToKeysButton]);

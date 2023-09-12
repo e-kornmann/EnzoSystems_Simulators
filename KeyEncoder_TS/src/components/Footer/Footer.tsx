@@ -4,13 +4,12 @@ import styled from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
-import { ReactComponent as AddKeyIcon } from '../../../images/add_key.svg';
-import { ReactComponent as KeysIcon } from '../../../images/keys.svg';
-import { ReactComponent as SettingsIcon } from '../../../images/settings.svg';
+import { ReactComponent as AddKeyIcon } from '../../../images//add_key.svg';
+import { ReactComponent as KeysIcon } from '../../../images//keys.svg';
+import { ReactComponent as SettingsIcon } from '../../../images//settings.svg';
 import ShowAddKeyType from '../../types/ShowAddKeyType';
 import ShowKeyType from '../../types/ShowKeyType';
 import ActionType from '../../enums/ActionTypes';
-
 
 const StyledFooter = styled('footer')(({ theme }) => ({
   height: '40px',
@@ -31,10 +30,10 @@ const StyledFooter = styled('footer')(({ theme }) => ({
     '&:disabled': {
       color: 'gray',
       cursor: 'inherit',
-    }
+    },
   },
   '& > svg': {
-    margin: '2px'
+    margin: '2px',
   },
   '& > div': {
     cursor: 'pointer',
@@ -46,39 +45,38 @@ const StyledFooter = styled('footer')(({ theme }) => ({
     alignItems: 'center',
     color: 'asphalt',
     '&:first-of-type': {
-      justifyContent: 'flex-start'
+      justifyContent: 'flex-start',
     },
     '&:last-of-type': {
-      justifyContent: 'flex-end'
+      justifyContent: 'flex-end',
     },
     '& > svg': {
       fill: theme.colors.text.primary,
-    }
-  }
+    },
+  },
 }));
 
 const StyledSettingsButton = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
-  "& > svg": {
-    fill: theme.colors.text.primary
-  }
+  '& > svg': {
+    fill: theme.colors.text.primary,
+  },
 }));
 const StyledKeysButton = styled('div')(({ theme }) => ({
   justifyContent: 'center',
-  "& > svg": {
+  '& > svg': {
     fill: theme.colors.text.primary,
     marginBottom: '3px',
     marginRight: '-2px',
-  }
+  },
 }));
 const StyledAddKeyButton = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
-  "& > svg": {
+  '& > svg': {
     fill: theme.colors.text.primary,
     marginBottom: '3px',
-  }
+  },
 }));
-
 
 type Props = {
   showAddKey: ShowAddKeyType,
@@ -88,17 +86,16 @@ type Props = {
   deleteButtonIsEnabled: boolean,
   allKeysAreSelected: boolean,
   enableEditandDeleteButton: boolean,
-}
+};
 
-
-const FooterComponent = ({ 
+const FooterComponent = ({
   showAddKey,
   showSettings,
   showKeys,
   saveButtonIsEnabled,
   deleteButtonIsEnabled,
   allKeysAreSelected,
-  enableEditandDeleteButton
+  enableEditandDeleteButton,
 }: Props) => {
   const appDispatch = useContext(AppDispatchContext);
 
@@ -119,7 +116,7 @@ const FooterComponent = ({
     appDispatch({ type: ActionType.SHOW_KEYS, payload: true });
   }, [appDispatch]);
 
-  const setToDeleteMode =  useCallback(() => {
+  const setToDeleteMode = useCallback(() => {
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
     appDispatch({ type: ActionType.DELETE_KEYS_MODE, payload: true });
   }, [appDispatch]);
@@ -134,20 +131,19 @@ const FooterComponent = ({
   }, [appDispatch]);
 
   const handleDeselectAllKey = useCallback(() => {
-    appDispatch({ type: ActionType.DESELECT_ALL_KEY_CLICKED, payload: true});
+    appDispatch({ type: ActionType.DESELECT_ALL_KEY_CLICKED, payload: true });
   }, [appDispatch]);
 
   const handleSelectAllKey = useCallback(() => {
-    appDispatch({ type: ActionType.SELECT_ALL_KEY_CLICKED, payload: true});
+    appDispatch({ type: ActionType.SELECT_ALL_KEY_CLICKED, payload: true });
   }, [appDispatch]);
 
-  
   return (
     <>
       <StyledFooter>
 
-        {(!showAddKey.showComponent  && !showSettings && !showKeys.showComponent ) &&
-          <>
+        {(!showAddKey.showComponent && !showSettings && !showKeys.showComponent)
+          && <>
             <StyledSettingsButton onClick={handleToggleSettings}>
               <SettingsIcon width={16} height={16} />
             </StyledSettingsButton>
@@ -159,35 +155,36 @@ const FooterComponent = ({
             </StyledAddKeyButton>
           </>
         }
-        {showAddKey.showComponent &&
-          <button type="submit" onClick={handleSaveKey} style={{ marginLeft: 'auto' }} disabled={!saveButtonIsEnabled}>
+        {showAddKey.showComponent
+          && <button type="submit" onClick={handleSaveKey} style={{ marginLeft: 'auto' }} disabled={!saveButtonIsEnabled}>
             {!showAddKey.editMode ? 'Save' : 'Update'}
           </button>
         }
-        {showKeys.showComponent &&
-          <>
-            {!showKeys.editMode && !showKeys.deleteMode && 
-            <>
+        {showKeys.showComponent
+          && <>
+            {!showKeys.editMode && !showKeys.deleteMode
+            && <>
               <button type="button" onClick={handleAddKey}>
                 New</button>
-              <button type="button" onClick={handleEditKey} disabled={enableEditandDeleteButton} >
+              <button type="button" onClick={handleEditKey} disabled={!enableEditandDeleteButton} >
                 Edit</button>
-              <button type="button" onClick={setToDeleteMode} disabled={enableEditandDeleteButton} >
+              <button type="button" onClick={setToDeleteMode} disabled={!enableEditandDeleteButton} >
                 Delete</button>
             </>
             }
-            {!showKeys.editMode && showKeys.deleteMode &&
-            <>
-              <button type="button" onClick={()=> allKeysAreSelected ? handleDeselectAllKey() : handleSelectAllKey() }>{ allKeysAreSelected ? 'Deselect all' : 'Select all' }</button>
+            {!showKeys.editMode && showKeys.deleteMode
+            && <>
+              <button type="button" onClick={() => (allKeysAreSelected ? handleDeselectAllKey() : handleSelectAllKey()) }>
+                { allKeysAreSelected ? 'Deselect all' : 'Select all' }
+              </button>
               <button type="button" onClick={handleDeleteDialog} disabled={!deleteButtonIsEnabled}>Delete</button>
             </>
             }
 
-            {!showKeys.deleteMode && showKeys.editMode &&
-            <button disabled>Select key to edit</button>
+            {!showKeys.deleteMode && showKeys.editMode
+            && <button disabled>Select key to edit</button>
           }
-            
-    
+
           </>
         }
       </StyledFooter>

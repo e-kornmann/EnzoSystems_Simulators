@@ -26,7 +26,7 @@ async function setStatus (req, res) {
     } else if (req.body.status !== DEVICE_STATUS.CONNECTED &&
       req.body.status !== DEVICE_STATUS.DISCONNECTED &&
       req.body.status !== DEVICE_STATUS.OUT_OF_ORDER) {
-      throw new Error('Body \'status\' property should be \'CONNECTED\', \'DISCONNECTED\' or \'OUT_OF_ORDER\'');
+      throw new Error(`Body \'status\' property should should be one of ${Object.values(DEVICE_STATUS)}`);
     }
 
     if (process.env.DEVICE_CONNECTION_TIMEOUT_SEC) {
@@ -37,6 +37,7 @@ async function setStatus (req, res) {
 
     const previousStatus = req.app.locals.deviceStatus;
     req.app.locals.deviceStatus = req.body.status;
+    req.app.locals.deviceId = req.authenticationUser;
 
     res.status(httpStatus.StatusCodes.OK).json({ metadata: { previousStatus: previousStatus, status: req.app.locals.deviceStatus, timeoutMS: req.app.locals.connectionTimeoutMS } });
     console.log(`(${req.authenticationType}: ${req.authenticationUser} - put status) {${JSON.stringify({ metadata: { previousStatus: previousStatus, status: req.app.locals.deviceStatus, timeoutMS: req.app.locals.connectionTimeoutMS } })}}`);
@@ -70,112 +71,69 @@ async function getActiveSession (req, res) {
       throw new Error('Device is in an unknown state');
     }
 
-    if (Object.keys(req.query).length) {
-      if (!Object.keys(req.query).includes('longPollingMS')) {
-        res.status(httpStatus.StatusCodes.BAD_REQUEST);
-        throw new Error('Query string must be empty or contain the \'longPollingMS\' property');
-      }
-
-      // check if values are valid
-      if (req.query.longPollingMS <= 500 || req.query.longPollingMS > 60000) {
-        res.status(httpStatus.StatusCodes.BAD_REQUEST);
-        throw new Error(`Invalid longPollingMS value: ${req.query.longPollingMS}. It should be any value between 500 and 60000`);
-      }
-      const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
-      // if there is key data, return it directly, otherwise start long polling
-      if (session) {
-        res.status(httpStatus.StatusCodes.OK).json({
-          metadata: {
-            sessionId: req.app.locals.activeSessionId,
-            name: session.command,
-            creationMode: req.body.creationMode,
-            status: session.status
-          },
-          keyId: session.keyId,
-          keyData: session.keyData
-        });
-        console.log(`(${req.authenticationType}: ${req.authenticationUser} - post session) {${JSON.stringify({
-          metadata: {
-            sessionId: req.app.locals.activeSessionId,
-            name: session.command,
-            creationMode: req.body.creationMode,
-            status: session.status
-          },
-          keyId: session.keyId,
-          keyData: session.keyData
-        })}}`);
-      } else {
-        let pollingMS = req.query.longPollingMS;
-        const timer = setInterval(() => {
-          try {
-            pollingMS -= LONG_POLLING_INTERVAL_MS;
-            const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
-            if (session || pollingMS <= 0) {
-              clearInterval(timer);
-              if (session) {
-                res.status(httpStatus.StatusCodes.OK).json({
-                  metadata: {
-                    sessionId: req.app.locals.activeSessionId,
-                    name: session.command,
-                    creationMode: req.body.creationMode,
-                    status: session.status
-                  },
-                  keyId: session.keyId,
-                  keyData: session.keyData
-                });
-                console.log(`(${req.authenticationType}: ${req.authenticationUser} - post session) {${JSON.stringify({
-                  metadata: {
-                    sessionId: req.app.locals.activeSessionId,
-                    name: session.command,
-                    creationMode: req.body.creationMode,
-                    status: session.status
-                  },
-                  keyId: session.keyId,
-                  keyData: session.keyData
-                })}}`);
-              } else {
-                res.status(httpStatus.StatusCodes.OK).json({ result: 'NO_ACTIVE_SESSION' });
-                console.log(`(${req.authenticationType}: ${req.authenticationUser} - get active session) {result: 'NO_ACTIVE_SESSION'}`);
-              }
-            }
-          } catch (e) {
-            res.json({ error: e.message });
-            console.log(`(${req.authenticationType}: ${req.authenticationUser} - get key) ${e.message}`);
-          }
-        }, LONG_POLLING_INTERVAL_MS);
-      }
+    const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
+    // if there is key data, return it directly, otherwise start long polling
+    if (session) {
+      res.status(httpStatus.StatusCodes.OK).json({
+        metadata: {
+          sessionId: req.app.locals.activeSessionId,
+          command: session.command,
+          status: session.status
+        },
+        keyData: session.keyData
+      });
+      console.log(`(${req.authenticationType}: ${req.authenticationUser} - post session) {${JSON.stringify({
+        metadata: {
+          sessionId: req.app.locals.activeSessionId,
+          command: session.command,
+          status: session.status
+        },
+        keyData: session.keyData
+      })}}`);
     } else {
-      const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
-
-      if (session) {
-        res.status(httpStatus.StatusCodes.OK).json({
-          metadata: {
-            sessionId: req.app.locals.activeSessionId,
-            name: session.command,
-            creationMode: req.body.creationMode,
-            status: session.status
-          },
-          keyId: session.keyId,
-          keyData: session.keyData
-        });
-        console.log(`(${req.authenticationType}: ${req.authenticationUser} - post session) {${JSON.stringify({
-          metadata: {
-            sessionId: req.app.locals.activeSessionId,
-            name: session.command,
-            creationMode: req.body.creationMode,
-            status: session.status
-          },
-          keyId: session.keyId,
-          keyData: session.keyData
-        })}}`);
-      } else {
-        res.status(httpStatus.StatusCodes.CONFLICT);
-        throw new Error('No active session');
-      }
+      const longPollingMS = req.app.locals.longPollingMS;
+      let pollingMS = 0;
+      const timer = setInterval(() => {
+        try {
+          pollingMS += LONG_POLLING_INTERVAL_MS;
+          const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
+          if (session || pollingMS >= longPollingMS) {
+            clearInterval(timer);
+            if (session) {
+              res.status(httpStatus.StatusCodes.OK).json({
+                metadata: {
+                  sessionId: req.app.locals.activeSessionId,
+                  command: session.command,
+                  status: session.status,
+                  longPollingMS: longPollingMS,
+                  pollingMS: pollingMS
+                },
+                keyData: session.keyData
+              });
+              console.log(`(${req.authenticationType}: ${req.authenticationUser} - post session) {${JSON.stringify({
+                metadata: {
+                  sessionId: req.app.locals.activeSessionId,
+                  command: session.command,
+                  status: session.status,
+                  longPollingMS: longPollingMS,
+                  pollingMS: pollingMS
+                },
+                keyData: session.keyData
+              })}}`);
+            } else {
+              res.status(httpStatus.StatusCodes.OK).json({ result: 'NO_ACTIVE_SESSION' });
+              console.log(`(${req.authenticationType}: ${req.authenticationUser} - get active session) {result: 'NO_ACTIVE_SESSION'}`);
+            }
+          }
+        } catch (e) {
+          res.json({ error: e.message });
+          console.log(`(${req.authenticationType}: ${req.authenticationUser} - get key) ${e.message}`);
+        }
+      }, LONG_POLLING_INTERVAL_MS);
     }
   } catch (e) {
     res.json({ error: e.message });
-    console.log(`(${req.authenticationType}: ${req.authenticationUser} - get key) ${e.message}`);
+    console.log(`(${req.authenticationType}: ${req.authenticationUser} - get active session) ${e.message}`);
   }
 }
 
@@ -186,12 +144,18 @@ async function getActiveSession (req, res) {
 ////////////////////////////////////////////////////////////////////////////// */
 
 async function updateCreateKeySession (session, req, res) {
+  // check if body contains a data object
+  if (req.body.data === undefined || req.body.data === null || typeof req.body.data !== 'object') {
+    res.status(httpStatus.StatusCodes.BAD_REQUEST);
+    throw new Error('Body should have a \'data\' property of type object');
+  }
+  
   // update keyId, empty keyId is allowed
-  if (!req.body.keyId || typeof req.body.keyId !== 'string') {
+  if (!req.body.data.keyId || typeof req.body.data.keyId !== 'string') {
     res.status(httpStatus.StatusCodes.BAD_REQUEST);
     throw new Error('Body should have a \'keyId\' property of type string');
   }
-  session.keyId = req.body.keyId;
+  session.keyData.keyId = req.body.data.keyId;
 
   // add any extra additional access, if available
   if (req.body.data && req.body.data.additionalAccess) {
@@ -225,17 +189,16 @@ async function updateCreateKeySession (session, req, res) {
 ////////////////////////////////////////////////////////////////////////////// */
 
 async function updateReadKeySession (session, req, res) {
-  // update keyId, empty keyId is allowed
-  if (!req.body.keyId || typeof req.body.keyId !== 'string') {
-    res.status(httpStatus.StatusCodes.BAD_REQUEST);
-    throw new Error('Body should have a \'keyId\' property of type string');
-  }
-  session.keyId = req.body.keyId;
-
   // check if body contains a data object with roomAccess, additionalAccess, startDateTime and endDateTime properties
   if (req.body.data === undefined || req.body.data === null || typeof req.body.data !== 'object') {
     res.status(httpStatus.StatusCodes.BAD_REQUEST);
     throw new Error('Body should have a \'data\' property of type object');
+  }
+
+  // update keyId, empty keyId is allowed
+  if (!req.body.data.keyId || typeof req.body.data.keyId !== 'string') {
+    res.status(httpStatus.StatusCodes.BAD_REQUEST);
+    throw new Error('Body should have a \'data.keyId\' property of type string');
   }
 
   // check is roomAccess array is available and valid
@@ -297,7 +260,7 @@ async function updateReadKeySession (session, req, res) {
     throw new Error('Body \'data.endDateTime\' property is not a valid date and time');
   }
 
-  session.keyId = req.body.keyId;
+  session.keyData.keyId = req.body.data.keyId;
   if (req.body.data.roomAccess && req.body.data.roomAccess.length > 0) {
     session.keyData.roomAccess = req.body.data.roomAccess;
   } else {
@@ -352,7 +315,7 @@ async function putActiveSession (req, res) {
       throw new Error(`Active session not found, activeSessionId: ${req.app.locals.activeSessionId}`);
     }
 
-    if (session.status !== SESSION_STATUS.WAITING_FOR_KEY) {
+    if (session.status !== SESSION_STATUS.ACTIVE && session.status !== SESSION_STATUS.CANCELLING) {
       res.status(httpStatus.StatusCodes.CONFLICT);
       if (session.status === SESSION_STATUS.TIMED_OUT) {
         throw new Error('Session has timed-out');
@@ -368,8 +331,10 @@ async function putActiveSession (req, res) {
       throw new Error(`Session time-out, sessionId: id: ${req.app.locals.activeSessionId}`);
     }
 
-    // check if a new key need to be created or an existing key need to be read
-    if (session.command === SESSION_COMMAND.CREATE_KEY) {
+    if (req.body.data.status === SESSION_STATUS.STOPPED) {
+      session.status = SESSION_STATUS.STOPPED;
+    }
+    else if (session.command === SESSION_COMMAND.CREATE_NEW_KEY || session.command === SESSION_COMMAND.CREATE_COPY_KEY || session.command === SESSION_COMMAND.CREATE_JOINNER_KEY) {
       updateCreateKeySession(session, req, res);
     } else if (session.command === SESSION_COMMAND.READ_KEY) {
       updateReadKeySession(session, req, res);
@@ -397,20 +362,16 @@ async function putActiveSession (req, res) {
     res.status(httpStatus.StatusCodes.OK).json({
       metadata: {
         sessionId: sessionId,
-        name: session.command,
-        creationMode: req.body.creationMode,
+        command: session.command,
         status: session.status,
-        keyId: session.keyId,
         keyData: session.keyData
       }
     });
     console.log(`(${req.authenticationType}: ${req.authenticationUser} - put active session) {${JSON.stringify({
       metadata: {
         sessionId: sessionId,
-        name: session.command,
-        creationMode: req.body.creationMode,
+        command: session.command,
         status: session.status,
-        keyId: session.keyId,
         keyData: session.keyData
       }
     })}}`);

@@ -1,26 +1,25 @@
 ### Get Health info
-GET http://localhost:9001/api/simulator/key-encoder/v1/health
+GET http://localhost:9006/api/simulator/key-encoder/v1/health
 
 
 ####################################################################################
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTQxNzQ5ODIsImV4cCI6MTY5NDI2MTM4MiwiaXNzIjoiRW56b3N5c3RlbXMifQ.KREY0vM3m0HE6sOnZ0tgph1q1v3W2WsqhUs8DPw82nk
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk0MTc5MDAyLCJleHAiOjE2OTQyNjU0MDIsImlzcyI6IkVuem9zeXN0ZW1zIn0.YjAeLVjU4ZUeuaQDkRHgwNhBiMk85vG5m_U-2D3S1hE
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5NDE2OTc4MywiZXhwIjoxNjk0MjU2MTgzLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.Y3yz_4Iz0naTEzR_2dPA8ZEvk9MBpBGqy_khDpJO6R0
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk0MTY5MTI4LCJleHAiOjE2OTQyNTU1MjgsImlzcyI6IkVuem9zeXN0ZW1zIn0.w6XukuuLOc8JCXcr82-CN0zEmO8CkOP4D6LCE2zZH2E
 
-@SESSION_ID=5a4f6746-171a-42a9-a4c5-fa6efa7960e4
 ### DEVICE
-POST http://localhost:9001/api/simulator/key-encoder/v1/auth
+POST http://localhost:9006/api/simulator/key-encoder/v1/auth
 Content-type: application/json
 Authorization: Basic device:device
 
 {
-  "deviceId": "KeyEncoder"
+  "deviceId": "123456"
 }
 
 ### HOST
-POST http://localhost:9001/api/simulator/key-encoder/v1/auth
+POST http://localhost:9006/api/simulator/key-encoder/v1/auth
 Content-type: application/json
 Authorization: Basic host:host
 
@@ -33,7 +32,7 @@ Authorization: Basic host:host
 ####################################################################################
 
 ### DEVICE
-PUT http://localhost:9001/api/simulator/key-encoder/v1/status
+PUT http://localhost:9006/api/simulator/key-encoder/v1/status
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
@@ -46,27 +45,59 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 ####################################################################################
 
 ### HOST
-GET http://localhost:9001/api/simulator/key-encoder/v1/status
+GET http://localhost:9006/api/simulator/key-encoder/v1/123456/status
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 ### HOST
-GET http://localhost:9001/api/simulator/key-encoder/v1/status?referenceStatus=CONNECTED&longPollingMS=1000
+GET http://localhost:9006/api/simulator/key-encoder/v1/123456/status?referenceDeviceStatus=DISCONNECTED
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 ####################################################################################
-### POST request for creating new keys or reading existing keys (HOST)
+### POST reyqst for creating new keys or reading existing keys (HOST)
 ####################################################################################
 
-### HOST
-POST http://localhost:9001/api/simulator/key-encoder/v1/session
+### HOST create new key
+POST http://localhost:9006/api/simulator/key-encoder/v1/session
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "command": "CREATE_KEY",
-  "creationMode": "NEW",
+  "deviceId": "123456",
+  "command": "CREATE_NEW_KEY",
+  "data": {
+    "roomAccess": ["123"],
+    "additionalAccess": ["SPA"],
+    "startDateTime": "2023-12-31T15:00Z",
+    "endDateTime": "2023-08-16T11:00:00"
+  }
+}
+
+### HOST create copy key
+POST http://localhost:9006/api/simulator/key-encoder/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "deviceId": "123456",
+  "command": "CREATE_COPY_KEY",
+  "data": {
+    "roomAccess": ["123"],
+    "additionalAccess": ["SPA"],
+    "startDateTime": "2023-12-31T15:00Z",
+    "endDateTime": "2023-08-16T11:00:00"
+  }
+}
+
+### HOST create new joinner key
+POST http://localhost:9006/api/simulator/key-encoder/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "deviceId": "123456",
+  "command": "CREATE_JOINNER_KEY",
   "data": {
     "roomAccess": ["123"],
     "additionalAccess": ["SPA"],
@@ -76,76 +107,88 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 
-### DEVICE, create key
-PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session
+### HOST read existing key
+POST http://localhost:9006/api/simulator/key-encoder/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "deviceId": "123456",
+  "command": "READ_KEY"
+}
+
+### HOST request to cancel session by id
+PATCH http://localhost:9006/api/simulator/key-encoder/v1/session/e99cc8f6-36df-4cdb-ae92-376aac00c3c4
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CANCEL"
+}
+
+### HOST request to cancel session by id
+PUT http://localhost:9006/api/simulator/key-encoder/v1/session/2bd8a8aa-802e-4776-8a76-f1182c179436
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CANCEL"
+}
+
+### HOST get session by id
+GET http://localhost:9006/api/simulator/key-encoder/v1/session/489d8531-8b63-400c-ac7e-697fd7e725b4
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+
+####################################################################################
+### Send existing key data from scanned key to backend, receive new key date from backend to write to new key (DEVICE only)
+####################################################################################
+
+### DEVICE get active session, uses long polling if there is no active session at time of calling this endpoint
+GET http://localhost:9006/api/simulator/key-encoder/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+
+### DEVICE finish creation of new key
+PUT http://localhost:9006/api/simulator/key-encoder/v1/active-session
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
-  "keyId": "466421384",
   "data": {
+    "keyId": "466421384",
+    "status": "FINISHED",
     "additionalAccess": ["ENTREE"]
   }
 }
 
-### HOST
-POST http://localhost:9001/api/simulator/key-encoder/v1/session
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-{
-  "command": "READ_KEY" 
-}
-
-
-### HOST
-PUT http://localhost:9001/api/simulator/key-encoder/v1/session/{{SESSION_ID}}
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-{
-  "command": "STOP"
-}
-
-
-### HOST
-GET http://localhost:9001/api/simulator/key-encoder/v1/session/{{SESSION_ID}}
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-
-### HOST
-GET http://localhost:9001/api/simulator/key-encoder/v1/session/{{SESSION_ID}?longPollingMS=200}0
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-
-
-####################################################################################
-### Send existing key data from red key to backend, receive new key date from backend to write to new key (DEVICE only)
-####################################################################################
-
-
-### DEVICE 
-GET http://localhost:9001/api/simulator/key-encoder/v1/active-session
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
-
-
-
-
-### DEVICE, read key
-PUT http://localhost:9001/api/simulator/key-encoder/v1/active-session
+### DEVICE finish reading an existing key
+PUT http://localhost:9006/api/simulator/key-encoder/v1/active-session
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
-  "keyId": "123456789",
   "data": {
+    "keyId": "123456789",
+    "status": "FINISHED",
     "roomAccess": ["123"],
     "additionalAccess": ["ENTREE", "PARKING", "GYM"],
     "startDateTime": "2023-12-31T15:00Z",
     "endDateTime": "2023-08-16T11:00:00"
+  }
+}
+
+### DEVICE stop session when host asked for a cancellation
+PUT http://localhost:9006/api/simulator/key-encoder/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "status": "STOPPED"
   }
 }
 

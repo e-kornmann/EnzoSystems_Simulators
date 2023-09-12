@@ -20,23 +20,20 @@ const StyledButton = styled('button')(({ theme }) => ({
   textAlign: 'left',
   width: '100%',
   '&:active': {
-    backgroundColor: theme.colors.background.special,
-    fill: theme.colors.buttons.special
+    backgroundColor: theme.colors.buttons.specialTransparent,
   },
-  '& > svg': {
-    minWidth: '14px'
-  }
 }));
-// const StyledSettingButton = styled(StyledButton)({
-//   '& > svg': {
-//     height: '11px'
-//   }
-// });
-const StyledOptionButton = styled(StyledButton)({});
+
 const StyledCheckmark = styled(CheckmarkIcon)(({ theme }) => ({
   fill: theme.colors.buttons.special,
   height: '11px',
-  width: '14px'
+  width: '14px',
+}));
+
+const StyledArrow = styled(Arrow)(({ theme }) => ({
+  fill: theme.colors.text.primary,
+  height: '11px',
+  width: '14px',
 }));
 
 type SettingControlProps = {
@@ -46,21 +43,21 @@ type SettingControlProps = {
   onClick: () => void
 };
 
-const SettingControlComponent = ({ isSelected, isSetting, text, onClick }: SettingControlProps) => {
-  return (
+const SettingControlComponent = ({
+  isSelected, isSetting, text, onClick,
+}: SettingControlProps) => (
     <StyledSettingControl>
-      {isSetting &&
-        <StyledButton onClick={onClick}>
+      {isSetting
+        && <StyledButton onClick={onClick}>
           {text}
-          <Arrow />
+          <StyledArrow />
         </StyledButton>}
 
-      {!isSetting &&
-        <StyledOptionButton onClick={onClick}>
+      {!isSetting
+        && <StyledButton onClick={onClick}>
           {text}{isSelected && <StyledCheckmark />}
-        </StyledOptionButton>}
+        </StyledButton>}
     </StyledSettingControl>
-  );
-};
+);
 
 export const SettingControl = memo(SettingControlComponent);

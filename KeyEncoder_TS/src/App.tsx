@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import {
+  useCallback, useEffect, useReducer, useRef, useState,
+} from 'react';
 // axios
 import axios from 'axios';
 // styled components
@@ -11,6 +13,7 @@ import { LocalAddKey } from './components/LocalAddKey/LocalAddKey';
 import { KeyContent } from './components/KeyContent/KeyContent';
 import { Settings } from './components/Settings/Settings';
 import { ViewKeys } from './components/ViewKeys/ViewKeys';
+import { DeleteDialog } from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
 import TokenContext from './contexts/data/TokenContext';
@@ -28,7 +31,6 @@ import TokenType from './types/TokenType';
 import ShowAddKeyType from './types/ShowAddKeyType';
 import ShowKeyType from './types/ShowKeyType';
 import ActionType from './enums/ActionTypes';
-import DeleteDialog from './components/Footer/DeleteDialog';
 
 const GlobalStyle = createGlobalStyle`
 * {
@@ -120,44 +122,34 @@ const StyledWrapper = styled('div')({
   display: 'flex',
   height: '100vh',
   justifyContent: 'center',
-  width: '100vw'
+  width: '100vw',
 });
 
 const StyledApp = styled('div')({
-  display: "grid",
-  gridTemplateRows: "35px 1fr 40px",
+  display: 'grid',
+  gridTemplateRows: '35px 1fr 40px',
   fontFamily: "'Inter', sans-serif",
-  fontSize: "13px",
-  width: "100%",
-  height: "100%",
-  minHeight: "420px",
+  fontSize: '13px',
+  width: '100%',
+  height: '100%',
+  minHeight: '420px',
   overflowY: 'hidden',
   borderRadius: '5px',
 });
 
-const StyledContentWrapper = styled('div')(({ theme }) => ({
+const StyledContentWrapper = styled('div')({
   backgroundColor: theme.colors.background.secondary,
   height: '100%',
   width: '100%',
-  justifyContent: 'center',
   overflowX: 'hidden',
   overflowY: 'hidden',
-}));
-
-const StyledContent = styled('div')(({ theme }) => ({
-  backgroundColor: theme.colors.background.secondary,
-  height: '100%',
-  justifyContent: 'center',
-  overflowX: 'hidden',
-  overflowY: 'hidden',
-}));
-
+});
 
 type AppStateType = {
   deviceStatus: DeviceStatuses,
   headerTitle: string,
   initialized: boolean,
-  localKeys: KeyType[] | null,
+  localKeys: KeyType[],
   selectedKey: KeyType | null,
   processStatus: ProcessStatuses,
   saveKeyClicked: boolean,
@@ -179,13 +171,11 @@ type AppStateType = {
   tokens: TokenType | null
 };
 
-
 const initialState: AppStateType = {
   deviceStatus: DeviceStatuses.CONNECTED,
   headerTitle: 'Room Key Encoder',
   initialized: false,
-  // localKeys: [],
-  localKeys: null,
+  localKeys: [],
   selectedKey: null,
   processStatus: ProcessStatuses.WAITING,
   saveKeyClicked: false,
@@ -217,9 +207,9 @@ const initialState: AppStateType = {
 const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType => {
   switch (action.type) {
     case ActionType.CLICKED_BACK: {
-      return { ...state, clickedBack: action.payload, showBack: false, };
+      return { ...state, clickedBack: action.payload, showBack: false };
     }
-    case ActionType.CLICKED_CROSS: { // close window and return to main screen 
+    case ActionType.CLICKED_CROSS: { // close window and return to main screen
       return {
         ...initialState,
         tokens: state.tokens,
@@ -239,12 +229,20 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     }
     case ActionType.SAVE_KEY: {
       const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
-      return { ...state, localKeys: newKeys, saveKeyClicked: false, showKeys: { ...state.showKeys, showComponent: true }, selectedKey: action.payload, headerTitle: 'Keys', showAddKey: initialState.showAddKey };
+      return {
+        ...state,
+        localKeys: newKeys,
+        saveKeyClicked: false,
+        showKeys: { ...state.showKeys, showComponent: true },
+        selectedKey: action.payload,
+        headerTitle: 'Keys',
+        showAddKey: initialState.showAddKey,
+      };
     }
-    case ActionType.SAVE_KEY_CLICKED: { 
+    case ActionType.SAVE_KEY_CLICKED: {
       return { ...state, saveKeyClicked: action.payload };
     }
-    case ActionType.SELECT_KEY: { 
+    case ActionType.SELECT_KEY: {
       return { ...state, selectedKey: action.payload };
     }
     case ActionType.SET_DELETE_BUTTON: {
@@ -256,7 +254,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.ALL_KEYS_ARE_SELECTED: {
       return { ...state, allKeysAreSelected: action.payload };
     }
-    case ActionType.SET_DEVICE_STATUS: { 
+    case ActionType.SET_DEVICE_STATUS: {
       return { ...state, deviceStatus: action.payload };
     }
     case ActionType.SELECT_ALL_KEY_CLICKED: {
@@ -281,10 +279,22 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, tokens: action.payload };
     }
     case ActionType.SHOW_ADD_KEY: {
-      return { ...state, showAddKey: { ...state.showAddKey, showComponent: action.payload }, showCross: true, showKeys: initialState.showKeys, headerTitle: 'Add new room key' };
+      return {
+        ...state,
+        showAddKey: { ...state.showAddKey, showComponent: action.payload },
+        showCross: true,
+        showKeys: initialState.showKeys,
+        headerTitle: 'Add new room key',
+      };
     }
     case ActionType.EDIT_KEY: {
-      return { ...state, showAddKey: { ...state.showAddKey, showComponent: action.payload, editMode: action.payload }, showCross: true, showKeys: initialState.showKeys, headerTitle: 'Edit Key' };
+      return {
+        ...state,
+        showAddKey: { ...state.showAddKey, showComponent: action.payload, editMode: action.payload },
+        showCross: true,
+        showKeys: initialState.showKeys,
+        headerTitle: 'Edit Key',
+      };
     }
     case ActionType.EDIT_KEYS_MODE: {
       return { ...state, showKeys: { ...state.showKeys, editMode: action.payload }, headerTitle: 'Edit Keys' };
@@ -302,7 +312,13 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, showCross: action.payload };
     }
     case ActionType.SHOW_KEYS: {
-      return { ...state, showKeys: { ...initialState.showKeys, showComponent: action.payload }, showCross: true, headerTitle: 'Keys', showAddKey: initialState.showAddKey };
+      return {
+        ...state,
+        showKeys: { ...initialState.showKeys, showComponent: action.payload },
+        showCross: true,
+        headerTitle: 'Keys',
+        showAddKey: initialState.showAddKey,
+      };
     }
     case ActionType.UPDATE_KEY: {
       const newKeys = state.localKeys ? [...state.localKeys] : [];
@@ -318,7 +334,12 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, localKeys: newKeys, selectedKey: action.payload };
     }
     case ActionType.TOGGLE_SETTINGS: {
-      return { ...state, headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle, showCross: !state.showSettings, showSettings: !state.showSettings };
+      return {
+        ...state,
+        headerTitle: state.showSettings ? 'Room Key Encoder' : state.headerTitle,
+        showCross: !state.showSettings,
+        showSettings: !state.showSettings,
+      };
     }
     default:
       console.error(`ERROR: this app reducer action does not exist: ${action}`);
@@ -357,12 +378,12 @@ const App = () => {
 
   /* Refresh Tick - for sending updated status every X seconds to keep key encoder accessible for backend */
   useEffect(() => {
-    const tick = setInterval(() => {
-      setTick((prev) => prev + 1);
+    const intervalTick = setInterval(() => {
+      setTick(prev => prev + 1);
     }, import.meta.env.VITE_TICK_RATE);
 
     return () => {
-      clearInterval(tick);
+      clearInterval(intervalTick);
     };
   }, []);
 
@@ -371,13 +392,13 @@ const App = () => {
     const config = {
       url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth`,
       headers: {
-        authorization: `Basic ${window.btoa('device:device')}`
+        authorization: `Basic ${window.btoa('device:device')}`,
       },
       method: 'post',
       data: {
-        deviceId: 'KeyEncoder'
+        deviceId: 'KeyEncoder',
       },
-      timeout: import.meta.env.VITE_TIMEOUT
+      timeout: import.meta.env.VITE_TIMEOUT,
     };
 
     const getAuthenticationToken = async () => {
@@ -410,13 +431,13 @@ const App = () => {
       const config = {
         url: `${import.meta.env.VITE_BACKEND_BASE_URL}/status`,
         headers: {
-          authorization: `Bearer ${state.tokens.accessToken}`
+          authorization: `Bearer ${state.tokens.accessToken}`,
         },
         method: 'put',
         data: {
-          status: status
+          status,
         },
-        timeout: import.meta.env.VITE_TIMEOUT
+        timeout: import.meta.env.VITE_TIMEOUT,
       };
 
       const updateStatus = async () => {
@@ -454,7 +475,10 @@ const App = () => {
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.VIEW_KEYS });
     } else if (state?.session?.metadata?.command === CommandTypes.READ_KEY) { // if we have a session from backend and need to read a key
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.SCANNING });
-    } else if (state?.session?.metadata?.command === CommandTypes.CREATE_KEY || state?.session?.metadata?.command === CommandTypes.CREATE_COPY_KEY || state?.session?.metadata?.command === CommandTypes.CREATE_JOINNER_KEY || state?.session?.metadata?.command === CommandTypes.CREATE_NEW_KEY) {
+    } else if (state?.session?.metadata?.command === CommandTypes.CREATE_KEY
+       || state?.session?.metadata?.command === CommandTypes.CREATE_COPY_KEY
+       || state?.session?.metadata?.command === CommandTypes.CREATE_JOINNER_KEY
+       || state?.session?.metadata?.command === CommandTypes.CREATE_NEW_KEY) {
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.CREATE_KEY });
       console.log('CREEATEEEE');
     } else if (state.deviceStatus === DeviceStatuses.CONNECTED) { // waiting for session
@@ -468,9 +492,9 @@ const App = () => {
       const config = {
         url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
         headers: {
-          authorization: `Bearer ${state.tokens.accessToken}`
+          authorization: `Bearer ${state.tokens.accessToken}`,
         },
-        method: 'get'
+        method: 'get',
       };
 
       const getScanSession = async () => {
@@ -501,67 +525,70 @@ const App = () => {
   /* Repeatedly Get Session Based on Process Status */
   useEffect(() => {
     if (state.tokens?.accessToken) {
-      if (state.processStatus === ProcessStatuses.WAITING && initialSessionRequest.current) { // while WAITING, send a new "long" poll for a new session (1st request)
+      // while WAITING, send a new "long" poll for a new session (1st request)
+      if (state.processStatus === ProcessStatuses.WAITING && initialSessionRequest.current) {
         initialSessionRequest.current = false;
         getSession();
-      } else if (state.processStatus === ProcessStatuses.WAITING && state.sendNextSessionRequest && !initialSessionRequest.current) { // any subsequent request
+        // any subsequent request
+      } else if (state.processStatus === ProcessStatuses.WAITING && state.sendNextSessionRequest && !initialSessionRequest.current) {
         dispatch({ type: ActionType.SET_SEND_NEXT_SESSION_REQUEST, payload: false });
         getSession();
       }
     }
   }, [state.processStatus, state.tokens, state.sendNextSessionRequest, getSession]);
-  console.log('van App:' + state.saveButtonIsEnabled);
+  
   return (
+
+    
     <ThemeProvider theme={theme}>
       <StyledWrapper>
         <GlobalStyle />
         <AppDispatchContext.Provider value={dispatch}>
           <TokenContext.Provider value={state.tokens}>
-            <StyledApp>
-              <Header showBack={state.showBack} showCross={state.showCross} title={state.headerTitle} goBackToKeysButton={state.showAddKey.showComponent || state.showKeys.editMode || state.showKeys.deleteMode} />
-
+          <StyledApp>
+              <Header
+                showBack={state.showBack}
+                showCross={state.showCross}
+                title={state.headerTitle}
+                goBackToKeysButton={state.showAddKey.showComponent || state.showKeys.editMode || state.showKeys.deleteMode} />
               <StyledContentWrapper>
 
-
-                {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent &&
-                  <StyledContent>
-                    {(state.processStatus === ProcessStatuses.WAITING) &&
-                      <Waiting deviceStatus={state.deviceStatus} selectedKey={state.selectedKey} />}
-                    {(state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY) &&
-                      <KeyContent selectedKey={state.selectedKey} type={state.session?.metadata.command as CommandTypes} />}
-                  </StyledContent>
+                {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent
+                  && <>
+                    {(state.processStatus === ProcessStatuses.WAITING)
+                      && <Waiting deviceStatus={state.deviceStatus} selectedKey={state.selectedKey} />}
+                    {(state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)
+                      && <KeyContent selectedKey={state.selectedKey} type={state.session?.metadata.command as CommandTypes} />}
+                  </>
                 }
                 {/* TODO: processStatus ERROR */}
-                {!state.showSettings && !state.showKeys.showComponent && state.showAddKey.showComponent && 
-                  <StyledContent>
-                    <LocalAddKey saveKeyClicked={state.saveKeyClicked} selectedKey={state.selectedKey} editMode={state.showAddKey.editMode} />
-                  </StyledContent>
+                {!state.showSettings && !state.showKeys.showComponent && state.showAddKey.showComponent
+                  && <LocalAddKey saveKeyClicked={state.saveKeyClicked} selectedKey={state.selectedKey} editMode={state.showAddKey.editMode} />
                 }
-                {!state.showSettings && !state.showAddKey.showComponent && state.showKeys.showComponent && 
-                  <StyledContent>
+                {!state.showSettings && !state.showAddKey.showComponent && state.showKeys.showComponent
+                  && <>
                     <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} showKeys={state.showKeys} />
                     {state.showDeleteDialog && <DeleteDialog />}
-                  </StyledContent>
+                  </>
                 }
 
-
-                {state.processStatus === ProcessStatuses.SETTINGS &&
-                  <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
+                {state.processStatus === ProcessStatuses.SETTINGS
+                  && <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
               </StyledContentWrapper>
-                { state &&    
-              <Footer
+                { state
+              && <Footer
                 showAddKey={state.showAddKey}
                 showSettings={state.showSettings}
                 showKeys={state.showKeys}
                 saveButtonIsEnabled={state.saveButtonIsEnabled}
                 deleteButtonIsEnabled={state.deleteButtonIsEnabled}
                 allKeysAreSelected={state.allKeysAreSelected}
-                enableEditandDeleteButton={state.localKeys !== null} />
+                enableEditandDeleteButton={state.localKeys.length >= 1} />
               }
             </StyledApp>
           </TokenContext.Provider>
         </AppDispatchContext.Provider>
-      </StyledWrapper>
+        </StyledWrapper>
     </ThemeProvider>
   );
 };

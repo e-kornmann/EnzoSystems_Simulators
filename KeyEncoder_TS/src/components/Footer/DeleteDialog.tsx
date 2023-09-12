@@ -82,5 +82,4 @@ const DeleteDialogWrapper = () => {
   );
 };
 
-const DeleteDialog = memo(DeleteDialogWrapper);
-export default DeleteDialog;
+export const DeleteDialog = memo(DeleteDialogWrapper);

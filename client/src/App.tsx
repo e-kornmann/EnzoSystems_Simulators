@@ -3,22 +3,18 @@ import { useCallback, useState } from 'react';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { DndContext } from '@dnd-kit/core';
 import theme from './theme/theme.json';
-
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
-
 import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner';
-import KeyEncoderIframe from './components/simulators/IFrameComponent/KeyEncoder';
 import PaymentTerminalSimulator from './components/simulators/PaymentDevice';
+import { KeyEncoder } from './components/simulators/KeyEncoder/DraggableApp';
 
 const GlobalStyle = createGlobalStyle`
-
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  color: ${props => props.theme.colors.text.primary};
+  color: ${theme.colors.text.primary};
   font-family: 'Inter', -apple-system, Helvetica, Arial, sans-serif;
   &::-webkit-scrollbar {
     background: transparent; 
@@ -28,11 +24,11 @@ const GlobalStyle = createGlobalStyle`
     width: 0.35rem;
   }
   &::-webkit-scrollbar-thumb {
-    background: ${props => props.theme.colors.buttons.gray}; 
+    background: ${theme.colors.buttons.gray}; 
     border-radius: 5px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: ${props => props.theme.colors.text.primary}; 
+    background: ${theme.colors.text.primary}; 
   };
 }
 
@@ -45,7 +41,7 @@ html {
 body {
   margin: 0;
   overflow-x: hidden;
-  background-color: ${props => props.theme.colors.background.quaternary};
+  background-color: ${theme.colors.background.quaternary};
 }
 
 hr {
@@ -222,7 +218,7 @@ const App = () => {
       <DraggableModal
           isShown={simulators.roomKeyEncoder}
           hide={() => showSimulatorHandler('roomKeyEncoder')}
-          modalContent={<KeyEncoderIframe />}
+          modalContent={<KeyEncoder />}
           modalWidth={'220px'}
           modalHeight={'435px'}
         />

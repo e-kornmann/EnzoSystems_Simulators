@@ -74,12 +74,13 @@ async function createToken (req, res) {
     const expiry = parseInt(process.env.JWT_ACCESS_EXPIRY_SECS);
     let accessPayload;
     if (req.body.deviceId) {
-      if (req.body.deviceId === process.env.DEVICE_ID) {
-        accessPayload = { type: 'device', user: req.body.deviceId };
-      } else {
-        res.status(httpStatus.StatusCodes.BAD_REQUEST);
-        throw new Error(`Body contains invalid deviceId value, should be: \'${process.env.DEVICE_ID}\'`);
-      }
+      accessPayload = { type: 'device', user: req.body.deviceId };
+      // if (req.body.deviceId === process.env.DEVICE_ID) {
+      //   accessPayload = { type: 'device', user: req.body.deviceId };
+      // } else {
+      //   res.status(httpStatus.StatusCodes.BAD_REQUEST);
+      //   throw new Error(`Body contains invalid deviceId value, should be: \'${process.env.DEVICE_ID}\'`);
+      // }
     } else { // if (req.body.hostId) 
       accessPayload = { type: 'host', user: req.body.hostId };
     }

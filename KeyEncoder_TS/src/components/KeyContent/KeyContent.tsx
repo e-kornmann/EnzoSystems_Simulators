@@ -43,10 +43,10 @@ const StyledHeader = styled('div')({
     textAlign: 'center',
     fontSize: '1.15em',
     lineHeight: '1.23em',
-    fontWeight: '500'
-  }
+    fontWeight: '500',
+  },
 });
-const StyledIcon = styled('div')(({theme}) => ({
+const StyledIcon = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -54,30 +54,30 @@ const StyledIcon = styled('div')(({theme}) => ({
   '& > svg': {
     height: '20px',
     fill: theme.colors.buttons.green,
-  }
+  },
 }));
 
-const StyledPresentKeyButton = styled('button')(({theme }) => ({
+const StyledPresentKeyButton = styled('button')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'flex-start',
   width: '100%',
-  cursor: 'pointer', 
+  cursor: 'pointer',
   '& > svg': {
     fill: theme.colors.text.primary,
   },
   '&:disabled': {
     cursor: 'cursor',
     '& > svg': {
-      fill: theme.colors.buttons.lightgray, 
-    }
-  }
+      fill: theme.colors.buttons.lightgray,
+    },
+  },
 }));
 
 const StyledContent = styled('div')({
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'flex-start'
+  alignItems: 'flex-start',
 });
 
 const slideAnimation = keyframes`
@@ -109,7 +109,7 @@ const StyledCard = styled('div')<StyledCardProps>(({ $show }) => ({
   height: '60%',
   top: '20%',
   width: '100%',
-  zIndex: 300
+  zIndex: 300,
 }));
 const StyledCardContent = styled('div')`
   alignItems: center;
@@ -132,7 +132,7 @@ const StyledItem = styled('div')<StyledItemProps>(({ theme, $animateText }) => (
   fontWeight: 500,
   lineHeight: '1.3em',
   opacity: $animateText ? 0 : 1,
-  textAlign: 'center'
+  textAlign: 'center',
 }));
 const StyledRoomNumber = styled(StyledItem)`
   animation: ${textFadeInAnimation} 0.2s ease 0.75s 1 normal forwards;
@@ -150,9 +150,8 @@ const StyledDates = styled(StyledItem)`
   fontSize: 0.95em;
 `;
 const StyledDate = styled('div')({
-  fontVariantNumeric: 'tabular-nums'
+  fontVariantNumeric: 'tabular-nums',
 });
-
 
 type KeyContentProps = {
   selectedKey: KeyType | null,
@@ -170,9 +169,7 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
   const pushReadKeyRef = useRef(false);
   const startRef = useRef(false);
 
-
   const isoParser = useCallback((isostring: string): string | null => format(parseISO(isostring), 'yyyy-MM-dd | HH:mm'), []);
-  
 
   const startProcessing = useCallback(() => {
     if (!startRef.current) {
@@ -190,12 +187,12 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
       const config = {
         url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
         headers: {
-          authorization: `Bearer ${tokens.accessToken}`
+          authorization: `Bearer ${tokens.accessToken}`,
         },
         method: 'put',
         data: {
-          keyId: '43764387634'
-        }
+          keyId: '43764387634',
+        },
       };
 
       const sendToBackend = async () => {
@@ -230,10 +227,10 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
       const config = {
         url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
         headers: {
-          authorization: `Bearer ${tokens.accessToken}`
+          authorization: `Bearer ${tokens.accessToken}`,
         },
         method: 'put',
-        data: selectedKey
+        data: selectedKey,
       };
 
       const sendToBackend = async () => {
@@ -258,37 +255,42 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
   }, [selectedKey, tokens, appDispatch]);
 
   const keyProcessStatus = useMemo((): KeyProcessStatuses | undefined => {
-    if (type === CommandTypes.CREATE_KEY || type === CommandTypes.CREATE_COPY_KEY || type === CommandTypes.CREATE_JOINNER_KEY || type === CommandTypes.CREATE_NEW_KEY) {
+    if (type === CommandTypes.CREATE_KEY
+      || type === CommandTypes.CREATE_COPY_KEY
+      || type === CommandTypes.CREATE_JOINNER_KEY
+      || type === CommandTypes.CREATE_NEW_KEY) {
       if (processStarted && !processFinished) {
         startProcessing();
         return KeyProcessStatuses.PROCESSING;
-      } else if (processStarted && processFinished) {
+      } if (processStarted && processFinished) {
         startRef.current = false; // reset processing, just in case
         confirmCreatekey();
         return KeyProcessStatuses.READY;
-      } else if (processError) {
+      } if (processError) {
         return KeyProcessStatuses.ERROR;
-      } else {
-        return KeyProcessStatuses.PRESENT;
       }
-    } else if (type === CommandTypes.READ_KEY) {
+      return KeyProcessStatuses.PRESENT;
+    } if (type === CommandTypes.READ_KEY) {
       if (processStarted && !processFinished) {
         startProcessing();
         return KeyProcessStatuses.PROCESSING;
-      } else if (processStarted && processFinished) {
+      } if (processStarted && processFinished) {
         startRef.current = false; // reset processing, just in case
         sendReadKey();
         return KeyProcessStatuses.READY;
-      } else if (processError) {
+      } if (processError) {
         return KeyProcessStatuses.ERROR;
-      } else {
-        return KeyProcessStatuses.PRESENT;
       }
+      return KeyProcessStatuses.PRESENT;
     }
+    return undefined;
   }, [processError, processFinished, processStarted, type, confirmCreatekey, sendReadKey, startProcessing]);
 
   const keyProcessTitle = useMemo(() => {
-    if (type === CommandTypes.CREATE_KEY || type === CommandTypes.CREATE_COPY_KEY || type === CommandTypes.CREATE_JOINNER_KEY || type === CommandTypes.CREATE_NEW_KEY) {
+    if (type === CommandTypes.CREATE_KEY
+      || type === CommandTypes.CREATE_COPY_KEY
+      || type === CommandTypes.CREATE_JOINNER_KEY
+      || type === CommandTypes.CREATE_NEW_KEY) {
       switch (keyProcessStatus) {
         case KeyProcessStatuses.ERROR:
           return 'Error';
@@ -327,38 +329,72 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
       </StyledHeader>
 
       <StyledIcon>
-           {/* Still have to put in a conditionally failure icon */}
+        {/* Still have to put in a conditionally failure icon */}
         {keyProcessStatus === KeyProcessStatuses.READY && <CheckmarkIcon />}
       </StyledIcon>
 
       <StyledContent>
-        {keyProcessStatus === KeyProcessStatuses.PRESENT &&
-            <StyledPresentKeyButton type="button" disabled={!selectedKey && type === CommandTypes.READ_KEY} onClick={() => { setProcessStarted(true); }}>
-              <PresentKeyIcon />
-            </StyledPresentKeyButton>
+        {keyProcessStatus === KeyProcessStatuses.PRESENT
+          && <StyledPresentKeyButton
+            type="button"
+            disabled={!selectedKey && type === CommandTypes.READ_KEY} onClick={() => { setProcessStarted(true); }}>
+            <PresentKeyIcon />
+          </StyledPresentKeyButton>
         }
-            <StyledCard $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>
-              <StyledCardContent>
-                <StyledRoomNumber $animateText={type === CommandTypes.CREATE_KEY || type === CommandTypes.CREATE_COPY_KEY || type === CommandTypes.CREATE_JOINNER_KEY || type === CommandTypes.CREATE_NEW_KEY}>
-                  {(type !== CommandTypes.CREATE_KEY && type !== CommandTypes.CREATE_COPY_KEY && type !== CommandTypes.CREATE_JOINNER_KEY && type !== CommandTypes.CREATE_NEW_KEY) ? selectedKey?.data?.roomAccess.join(', ') : createdKeyData?.data.roomAccess.join(', ')}
-                </StyledRoomNumber>
+        <StyledCard $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>
+          <StyledCardContent>
+            <StyledRoomNumber $animateText={
+              type === CommandTypes.CREATE_KEY
+              || type === CommandTypes.CREATE_COPY_KEY
+              || type === CommandTypes.CREATE_JOINNER_KEY
+              || type === CommandTypes.CREATE_NEW_KEY
+              }>
+              {(type !== CommandTypes.CREATE_KEY
+                && type !== CommandTypes.CREATE_COPY_KEY
+                && type !== CommandTypes.CREATE_JOINNER_KEY
+                && type !== CommandTypes.CREATE_NEW_KEY) ? selectedKey?.data?.roomAccess.join(', ') : createdKeyData?.data.roomAccess.join(', ')}
+            </StyledRoomNumber>
 
-                <StyledAdditionalAccess $animateText={type === CommandTypes.CREATE_KEY || type === CommandTypes.CREATE_COPY_KEY || type === CommandTypes.CREATE_JOINNER_KEY || type === CommandTypes.CREATE_NEW_KEY}>
-                  {(type !== CommandTypes.CREATE_KEY && type !== CommandTypes.CREATE_COPY_KEY && type !== CommandTypes.CREATE_JOINNER_KEY && type !== CommandTypes.CREATE_NEW_KEY) ? 
-                   'Access to: ' + selectedKey?.data?.additionalAccess.join(', ') : 'Access to: ' + createdKeyData?.data?.additionalAccess.join(', ')}
-                </StyledAdditionalAccess>
+            <StyledAdditionalAccess $animateText={
+              type === CommandTypes.CREATE_KEY
+              || type === CommandTypes.CREATE_COPY_KEY
+              || type === CommandTypes.CREATE_JOINNER_KEY
+              || type === CommandTypes.CREATE_NEW_KEY
+              }>
+              {(type !== CommandTypes.CREATE_KEY
+                && type !== CommandTypes.CREATE_COPY_KEY
+                && type !== CommandTypes.CREATE_JOINNER_KEY
+                && type !== CommandTypes.CREATE_NEW_KEY)
+                ? `Access to: ${selectedKey?.data?.additionalAccess.join(', ')}`
+                : `Access to: ${createdKeyData?.data?.additionalAccess.join(', ')}`}
+            </StyledAdditionalAccess>
 
-                <StyledDates $animateText={type === CommandTypes.CREATE_KEY || type === CommandTypes.CREATE_COPY_KEY || type === CommandTypes.CREATE_JOINNER_KEY || type === CommandTypes.CREATE_NEW_KEY}>
-                  <StyledDate >
-                    {(type !== CommandTypes.CREATE_KEY && type !== CommandTypes.CREATE_COPY_KEY && type !== CommandTypes.CREATE_JOINNER_KEY && type !== CommandTypes.CREATE_NEW_KEY) ? (selectedKey && isoParser(selectedKey.data.startDateTime)) : (createdKeyData && isoParser(createdKeyData.data.startDateTime))}
-                  </StyledDate>
-                  <StyledDate>
-                    {(type !== CommandTypes.CREATE_KEY && type !== CommandTypes.CREATE_COPY_KEY && type !== CommandTypes.CREATE_JOINNER_KEY && type !== CommandTypes.CREATE_NEW_KEY) ? (selectedKey && isoParser(selectedKey.data.endDateTime)) : (createdKeyData && isoParser(createdKeyData.data.endDateTime))}
-                  </StyledDate>
-                </StyledDates>
-              </StyledCardContent>
-            </StyledCard>
-        
+            <StyledDates $animateText={
+              type === CommandTypes.CREATE_KEY
+              || type === CommandTypes.CREATE_COPY_KEY
+              || type === CommandTypes.CREATE_JOINNER_KEY
+              || type === CommandTypes.CREATE_NEW_KEY
+              }>
+              <StyledDate >
+                {(type !== CommandTypes.CREATE_KEY
+                  && type !== CommandTypes.CREATE_COPY_KEY
+                  && type !== CommandTypes.CREATE_JOINNER_KEY
+                  && type !== CommandTypes.CREATE_NEW_KEY)
+                  ? (selectedKey && isoParser(selectedKey.data.startDateTime))
+                  : (createdKeyData && isoParser(createdKeyData.data.startDateTime))}
+              </StyledDate>
+              <StyledDate>
+                {(type !== CommandTypes.CREATE_KEY
+                  && type !== CommandTypes.CREATE_COPY_KEY
+                  && type !== CommandTypes.CREATE_JOINNER_KEY
+                  && type !== CommandTypes.CREATE_NEW_KEY)
+                  ? (selectedKey && isoParser(selectedKey.data.endDateTime))
+                  : (createdKeyData && isoParser(createdKeyData.data.endDateTime))}
+              </StyledDate>
+            </StyledDates>
+          </StyledCardContent>
+        </StyledCard>
+
       </StyledContent>
     </StyledWrapper>
   );

@@ -19,7 +19,9 @@
       "yellow": "#FFCB00",
       "darkyellow": "#FFBA00",
       "gray": "#B4B4B4",
-      "lightgray": "#d6d6d6"    
+      "lightgray": "#d6d6d6",
+      "special": "#FA8A00",
+      "specialTransparent": "#FA8A0066" 
     },
     "gradient": {
       "primaryFirst": "#FFFFFF20",
@@ -34,8 +36,6 @@
       "secondary": "#FA8A00"
     },
     "brandColors": {
-      "enzoOrange": "#FA8A00",
-      "enzoLightOrange": "#FA8A0066",
       "enzoDarkOrange": "#CE6100"
     }
   }
