@@ -42,16 +42,12 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
   const appDispatch = useContext(AppDispatchContext);
   const [settingClicked, setSettingClicked] = useState<SettingType | null>(null);
 
-  const settings = useMemo(() => { // available settings
-    return [
-      {
-        currentValue: deviceStatus,
-        options: [DeviceStatuses.CONNECTED, DeviceStatuses.DISCONNECTED, DeviceStatuses.OUT_OF_ORDER],
-        title: 'Device status',
-        type: SettingsTypes.DEVICE_STATUS
-      }
-    ];
-  }, [deviceStatus]);
+  const settings = useMemo(() => [{
+    currentValue: deviceStatus,
+    options: [DeviceStatuses.CONNECTED, DeviceStatuses.DISCONNECTED, DeviceStatuses.OUT_OF_ORDER],
+    title: 'Device status',
+    type: SettingsTypes.DEVICE_STATUS,
+  }], [deviceStatus]);
 
   const handleSettingClicked = useCallback((setting: SettingType) => { // toggle displaying options for this setting
     setSettingClicked(setting);
@@ -84,11 +80,15 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
 
   return (
     <StyledWrapper>
-      {!settingClicked && settings.map((setting) => (
+      {!settingClicked && settings.map(setting => (
         <SettingControl key={setting.type} isSetting text={setting.title} onClick={() => { handleSettingClicked(setting); }} />
       ))}
-      {settingClicked && settingClicked.options.map((option) => (
-        <SettingControl key={option} isSelected={settingClicked.currentValue === option} text={option} onClick={() => { handleOptionClicked(option, settingClicked); }} />
+      {settingClicked && settingClicked.options.map(option => (
+        <SettingControl
+         key={option}
+         isSelected={settingClicked.currentValue === option}
+         text={option}
+         onClick={() => { handleOptionClicked(option, settingClicked); }} />
       ))}
     </StyledWrapper>
   );

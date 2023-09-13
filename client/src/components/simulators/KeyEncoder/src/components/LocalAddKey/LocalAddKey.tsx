@@ -143,13 +143,7 @@ const reducer: Reducer<AddKeyStateType, AddKeyDispatchActions> = (state, action)
     case InputActionType.SET_KEY: {
       return { ...state, initialized: true, key: action.payload };
     }
-    case InputActionType.INPUT_ARRAY_VALUE: {
-      return { ...state, key: { ...state.key, [action.field]: action.payload } };
-    }
     case InputActionType.INPUT_VALUE: {
-      return { ...state, key: { ...state.key, [action.field]: action.payload } };
-    }
-    case InputActionType.ID_VALUE: {
       return { ...state, key: { ...state.key, [action.field]: action.payload } };
     }
     case InputActionType.SET_TODAY: {
@@ -205,15 +199,15 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }: Props) => {
   const [endDate, setEndDate] = useState(tomorrow);
 
   const handleRoomInput = useCallback((value: string, field: keyof KeyType) => {
-    dispatch({ type: InputActionType.INPUT_ARRAY_VALUE, field, payload: value.split(',').map(room => room.trim()) });
+    dispatch({ type: InputActionType.INPUT_VALUE, field, payload: value.split(',').map(room => room.trim()) });
   }, []);
 
   const handleCheckboxInput = useCallback((payload: string[], field: keyof KeyType) => {
-    dispatch({ type: InputActionType.INPUT_ARRAY_VALUE, field, payload });
+    dispatch({ type: InputActionType.INPUT_VALUE, field, payload });
   }, []);
 
-  const handleIdInput = useCallback((payload: string, field: keyof KeyType) => {
-    dispatch({ type: InputActionType.ID_VALUE, field, payload });
+  const handleInput = useCallback((payload: string, field: keyof KeyType) => {
+    dispatch({ type: InputActionType.INPUT_VALUE, field, payload });
   }, []);
 
   const handleDateInput = useCallback((value: string, field: keyof KeyType) => {
@@ -362,7 +356,7 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }: Props) => {
                 <input
                   type="text"
                   value={state.key[field.source as keyof KeyType] as string}
-                  onChange={e => { handleIdInput(e.target.value, field.source as keyof KeyType); }} />
+                  onChange={e => { handleInput(e.target.value, field.source as keyof KeyType); }} />
               </StyledControl>}
 
             {field.type === AddKeyFieldTypes.ROOM_ACCESS

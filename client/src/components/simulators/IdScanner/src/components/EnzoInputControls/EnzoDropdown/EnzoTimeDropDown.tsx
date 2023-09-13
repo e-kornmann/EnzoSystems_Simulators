@@ -1,13 +1,11 @@
-import {
-  memo, useCallback, useEffect, useRef, useState,
-} from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // styled components
 import styled from 'styled-components';
 // import StyledArrow from './EnzoCheckBoxDropDown';
 import { ReactComponent as ArrowIcon } from '../../../../images/arrow_up-down.svg';
 // types
 import AddKeyFieldType from '../../../types/AddKeyFieldType';
-import KeyType from '../../../types/KeyType';
+import KeyType from '../../../types/PassPortType';
 
 const StyledControl = styled('div')<{
   $hasValue?: boolean

@@ -189,14 +189,14 @@ const App = () => {
           Qr Scanner
         </StyledOpenModelButton>
         <StyledOpenModelButton
-          onClick={() => showSimulatorHandler('iDScanner')}
+          onClick={() => showSimulatorHandler('roomKeyEncoder')}
           $isActive={simulators.roomKeyEncoder}
         >
           Room Key Encoder
         </StyledOpenModelButton>
         <StyledOpenModelButton
-          onClick={() => showSimulatorHandler('roomKeyEncoder')}
-          $isActive={simulators.roomKeyEncoder}
+          onClick={() => showSimulatorHandler('iDScanner')}
+          $isActive={simulators.iDScanner}
         >
           Id Scanner
         </StyledOpenModelButton>

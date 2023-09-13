@@ -1,5 +1,5 @@
 import AddKeyFieldsEnum from '../enums/AddKeyFieldsEnum';
-import { KeyType, KeyData }from './KeyType';
+import { KeyType, KeyData }from './PassPortType';
 
 
 

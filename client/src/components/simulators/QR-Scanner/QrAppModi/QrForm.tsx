@@ -1,8 +1,5 @@
 import styled from 'styled-components';
-
-import {
-  useState, useEffect, useRef, useContext,
-} from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import * as S from '../../../shared/DraggableModal/ModalTemplate';
 import * as Sv from '../../../../styles/stylevariables';
 import { QrAppModi, QrCode } from '..';

@@ -15,7 +15,7 @@ import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import AddKeyDispatchActions from '../../types/reducerActions/AddKeyDispatchActions';
 import InputActionType from '../../enums/InputActionTypes';
 // types
-import KeyType from '../../types/KeyType';
+import KeyType from '../../types/PassPortType';
 import AddKeyFieldType from '../../types/AddKeyFieldType';
 import ActionType from '../../enums/ActionTypes';
 import AddKeyFieldsEnum from '../../enums/AddKeyFieldsEnum';

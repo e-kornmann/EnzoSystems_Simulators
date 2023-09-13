@@ -4,9 +4,9 @@ import styled from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
-import { ReactComponent as AddKeyIcon } from '../../../images//add_key.svg';
-import { ReactComponent as KeysIcon } from '../../../images//keys.svg';
-import { ReactComponent as SettingsIcon } from '../../../images//settings.svg';
+import { ReactComponent as AddIdIcon } from '../../../images/add_id.svg';
+import { ReactComponent as IdsIcon } from '../../../images/ids.svg';
+import { ReactComponent as SettingsIcon } from '../../../images/settings.svg';
 import ShowAddKeyType from '../../types/ShowAddKeyType';
 import ShowKeyType from '../../types/ShowKeyType';
 import ActionType from '../../enums/ActionTypes';
@@ -70,7 +70,7 @@ const StyledKeysButton = styled('div')(({ theme }) => ({
     marginRight: '-2px',
   },
 }));
-const StyledAddKeyButton = styled('div')(({ theme }) => ({
+const StyledAddIdButton = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
   '& > svg': {
     fill: theme.colors.text.primary,
@@ -148,11 +148,11 @@ const FooterComponent = ({
               <SettingsIcon width={16} height={16} />
             </StyledSettingsButton>
             <StyledKeysButton onClick={handleViewKeys}>
-              <KeysIcon width={25} height={19} /> Keys
+              <IdsIcon width={25} height={19} /> Keys
             </StyledKeysButton>
-            <StyledAddKeyButton onClick={handleAddKey}>
-              <AddKeyIcon width={25} height={19} />
-            </StyledAddKeyButton>
+            <StyledAddIdButton onClick={handleAddKey}>
+              <AddIdIcon width={25} height={19} />
+            </StyledAddIdButton>
           </>
         }
         {showAddKey.showComponent

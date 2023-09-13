@@ -1,4 +1,4 @@
-import KeyType from './KeyType';
+import KeyType from './PassPortType';
 
 type SessionType = {
   metadata: {

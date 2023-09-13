@@ -23,18 +23,19 @@ import ProcessStatuses from './enums/ProcessStatuses';
 import theme from './theme/theme.json';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
-import KeyType from './types/KeyType';
 import SessionType from './types/SessionType';
 import TokenType from './types/TokenType';
 import ShowAddKeyType from './types/ShowAddKeyType';
 import ShowKeyType from './types/ShowKeyType';
 import ActionType from './enums/ActionTypes';
+import IdReader from './components/IdReader/IdReader';
+import PassPort from './types/PassPortType';
 
-const GlobalStyle = createGlobalStyle(({ theme }) => ({
+const GlobalStyle = createGlobalStyle({
   '*': {
     boxSizing: 'border-box',
     margin: 0,
-    padding: 0
+    padding: 0,
   },
   html: {
     color: theme.colors.text.primary,
@@ -42,31 +43,31 @@ const GlobalStyle = createGlobalStyle(({ theme }) => ({
     fontSize: '14px',
     lineHeight: 1.15,
     overflow: 'hidden',
-    textSizeAdjust: '100%'
+    textSizeAdjust: '100%',
   },
   body: {
     backgroundColor: theme.colors.background.primary,
     overflowY: 'auto',
-    WebkitOverflowScrolling: 'touch'
+    WebkitOverflowScrolling: 'touch',
   },
   'button, input': {
     boxShadow: 'none',
     lineHeight: 1.5,
     maxWidth: '100%',
-    outline: 'none'
+    outline: 'none',
   },
   button: {
     backgroundColor: 'transparent',
-    border: 'none'
+    border: 'none',
   },
   '::-webkit-scrollbar': {
-    width: '10px'
+    width: '10px',
   },
   '::-webkit-scrollbar-thumb': {
     background: '#707070',
-    borderRadius: '5px'
-  }
-}));
+    borderRadius: '5px',
+  },
+});
 const StyledWrapper = styled('div')({
   alignItems: 'center',
   display: 'flex',
@@ -97,8 +98,8 @@ type AppStateType = {
   deviceStatus: DeviceStatuses,
   headerTitle: string,
   initialized: boolean,
-  localKeys: KeyType[],
-  selectedKey: KeyType | null,
+  localKeys: PassPort[],
+  currentId: PassPort | null,
   processStatus: ProcessStatuses,
   saveKeyClicked: boolean,
   session: SessionType | null,
@@ -124,7 +125,7 @@ const initialState: AppStateType = {
   headerTitle: 'Id Scanner',
   initialized: false,
   localKeys: [],
-  selectedKey: null,
+  currentId: null,
   processStatus: ProcessStatuses.WAITING,
   saveKeyClicked: false,
   session: null,
@@ -162,7 +163,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         ...initialState,
         tokens: state.tokens,
         localKeys: state.localKeys,
-        selectedKey: state.selectedKey,
+        currentId: state.currentId,
         deviceStatus: state.deviceStatus,
         initialized: state.initialized,
       };
@@ -181,7 +182,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         localKeys: newKeys,
         saveKeyClicked: false,
         showKeys: { ...state.showKeys, showComponent: true },
-        selectedKey: action.payload,
+        currentId: action.payload,
         headerTitle: 'Keys',
         showAddKey: initialState.showAddKey,
       };
@@ -190,7 +191,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, saveKeyClicked: action.payload };
     }
     case ActionType.SELECT_KEY: {
-      return { ...state, selectedKey: action.payload };
+      return { ...state, currentId: action.payload };
     }
     case ActionType.SET_DELETE_BUTTON: {
       return { ...state, deleteButtonIsEnabled: action.payload };
@@ -277,7 +278,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         newKeys.push(action.payload);
       }
 
-      return { ...state, localKeys: newKeys, selectedKey: action.payload };
+      return { ...state, localKeys: newKeys, currentId: action.payload };
     }
     case ActionType.TOGGLE_SETTINGS: {
       return {
@@ -302,15 +303,15 @@ const App = () => {
   useEffect(() => {
     // set localKeys
     const getSelectedRoomKey = localStorage.getItem('selectedRoomKey');
-    if (state.selectedKey && (!getSelectedRoomKey || (getSelectedRoomKey && getSelectedRoomKey !== JSON.stringify(state.selectedKey)))) {
-      localStorage.setItem('selectedRoomKey', JSON.stringify(state.selectedKey));
+    if (state.currentId && (!getSelectedRoomKey || (getSelectedRoomKey && getSelectedRoomKey !== JSON.stringify(state.currentId)))) {
+      localStorage.setItem('selectedRoomKey', JSON.stringify(state.currentId));
     }
     // set selectedKey
     const getKeys = localStorage.getItem('roomKeys');
     if (state.localKeys && state.localKeys.length > 0 && (!getKeys || (getKeys && getKeys !== JSON.stringify(state.localKeys)))) {
       localStorage.setItem('roomKeys', JSON.stringify(state.localKeys));
     }
-  }, [state.selectedKey, state.localKeys]);
+  }, [state.currentId, state.localKeys]);
 
   // load LocalStorage Keys if available
   useEffect(() => {
@@ -496,6 +497,7 @@ const App = () => {
                 goBackToKeysButton={state.showAddKey.showComponent || state.showKeys.editMode || state.showKeys.deleteMode} />
               <StyledContentWrapper>
 
+                <IdReader deviceStatus={state.deviceStatus} currentId={state.currentId} />
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent
                   && <>
                     {(state.processStatus === ProcessStatuses.WAITING)
@@ -538,5 +540,3 @@ const App = () => {
 
 const IdScanner = import.meta.env.VITE_EXPORT_MEMO_APP ? memo(App) : App;
 export default IdScanner;
-
-

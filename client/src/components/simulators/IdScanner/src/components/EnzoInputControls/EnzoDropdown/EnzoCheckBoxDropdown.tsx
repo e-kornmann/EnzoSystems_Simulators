@@ -5,7 +5,7 @@ import { ReactComponent as CheckMarkIcon } from '../../../../images/checkmark.sv
 import { ReactComponent as ArrowIcon } from '../../../../images/arrow_up-down.svg';
 // styled components
 import AddKeyFieldType from '../../../types/AddKeyFieldType';
-import KeyType from '../../../types/KeyType';
+import KeyType from '../../../types/PassPortType';
 
 const StyledControl = styled('div')<{
   $hasValue?: boolean

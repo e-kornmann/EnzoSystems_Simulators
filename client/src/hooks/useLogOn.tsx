@@ -5,23 +5,16 @@ import { CredentialType, ReqLogOnType } from '../types/LogOnTypes';
 
 const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoint: string) => {
   const [token, setToken] = useState('');
-  let endpointName: string;
+
+  // take the name of the applicant for the console.log
+  const endpointMap = {
+    'barcode-scanner': reqBody.deviceId || 'barcode-scanner',
+    'id-scanner': reqBody.deviceId || 'id-scanner',
+    'payment-terminal': reqBody.hostId || reqBody.terminalId || 'payment-terminal',
+    default: 'Endpoint',
+  };
 
   const logOn = async () => {
-    switch (apiEndpoint) {
-      case 'barcode-scanner':
-        if (reqBody.deviceId) endpointName = reqBody.deviceId;
-        else endpointName = apiEndpoint;
-        break;
-      case 'payment-terminal':
-        if (reqBody.hostId) endpointName = reqBody.hostId;
-        else if (reqBody.terminalId) endpointName = reqBody.terminalId;
-        else endpointName = apiEndpoint;
-        break;
-      default:
-        endpointName = 'Endpoint';
-        break;
-    }
     try {
       const authCredentials = btoa(`${credentials.userName}:${credentials.passWord}`);
       const config = {
@@ -33,6 +26,9 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
       let response;
 
       switch (apiEndpoint) {
+        case 'id-scanner':
+          response = await scanApi.post('/auth', reqBody, config);
+          break;
         case 'barcode-scanner':
           response = await scanApi.post('/auth', reqBody, config);
           break;
@@ -42,13 +38,17 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
         default:
           throw new Error('Invalid API endpoint');
       }
+      if (!response?.data) {
+        throw Error('Missing response data');
+      }
 
       const { accessToken } = response.data;
       setToken(accessToken);
-      console.log(`${endpointName} has been able to get a Token`);
+
+      console.log(`${endpointMap[apiEndpoint]} has been able to get a Token`);
       return true;
     } catch (error) {
-      console.error(`${endpointName} is unable to get token:`, error);
+      console.error(`Error: ${endpointMap[apiEndpoint as keyof typeof endpointMap]} retrieving authentication token:`, error);
       return false;
     }
   };

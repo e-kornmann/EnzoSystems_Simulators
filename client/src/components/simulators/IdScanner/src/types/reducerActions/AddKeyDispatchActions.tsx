@@ -1,6 +1,6 @@
 // types
 import InputActionType from '../../enums/InputActionTypes';
-import { KeyData, KeyType } from '../KeyType';
+import { KeyData, KeyType } from '../PassPortType';
 
 type InputArrayValueAction = { type: InputActionType.INPUT_ARRAY_VALUE, field: keyof KeyData, payload: string[] };
 type IdAction = { type: InputActionType.ID_VALUE, field: keyof KeyType, payload: string };

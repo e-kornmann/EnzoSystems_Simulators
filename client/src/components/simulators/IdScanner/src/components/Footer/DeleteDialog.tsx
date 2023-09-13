@@ -61,13 +61,12 @@ const DeleteDialogWrapper = () => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleClickCancelButton = useCallback(() => {
-      appDispatch({ type: ActionType.SHOW_DELETE_DIALOG, payload: false });
-    }, [appDispatch]);
-  
-  const handleClickDeleteButton = useCallback(() => {
-      appDispatch({ type: ActionType.DELETE_KEY_CLICKED });
-    }, [appDispatch]);
+    appDispatch({ type: ActionType.SHOW_DELETE_DIALOG, payload: false });
+  }, [appDispatch]);
 
+  const handleClickDeleteButton = useCallback(() => {
+    appDispatch({ type: ActionType.DELETE_KEY_CLICKED });
+  }, [appDispatch]);
 
   return (
 

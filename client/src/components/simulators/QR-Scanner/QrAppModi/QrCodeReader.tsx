@@ -1,7 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import {
-  useCallback, useContext, useEffect, useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { QrAppModi, QrCode } from '..';
 import { GenericFooter } from '../../../shared/DraggableModal/ModalTemplate';
 import { ReactComponent as QrCodeIcon } from '../../../../assets/svgs/qr_code.svg';

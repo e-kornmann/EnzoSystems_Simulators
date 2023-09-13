@@ -1,7 +1,5 @@
 import styled from 'styled-components';
-import {
-  useCallback, useContext, useEffect, useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import * as S from '../../../shared/DraggableModal/ModalTemplate';
 
 import * as Sv from '../../../../styles/stylevariables';

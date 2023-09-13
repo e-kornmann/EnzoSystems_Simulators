@@ -1,5 +1,5 @@
 import DeviceStatuses from '../../enums/DeviceStatuses';
-import KeyType from '../KeyType';
+import KeyType from '../PassPortType';
 import ProcessStatuses from '../../enums/ProcessStatuses';
 import SessionType from '../SessionType';
 import TokenType from '../TokenType';

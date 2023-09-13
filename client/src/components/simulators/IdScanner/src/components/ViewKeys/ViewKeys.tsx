@@ -8,7 +8,7 @@ import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svgs
 import { ReactComponent as CheckmarkIcon } from '../../../images/checkmark.svg';
 // types
-import KeyType from '../../types/KeyType';
+import KeyType from '../../types/PassPortType';
 import ActionType from '../../enums/ActionTypes';
 import ShowKeyType from '../../types/ShowKeyType';
 

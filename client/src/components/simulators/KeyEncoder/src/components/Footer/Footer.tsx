@@ -4,9 +4,9 @@ import styled from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
-import { ReactComponent as AddKeyIcon } from '../../../images//add_key.svg';
-import { ReactComponent as KeysIcon } from '../../../images//keys.svg';
-import { ReactComponent as SettingsIcon } from '../../../images//settings.svg';
+import { ReactComponent as AddKeyIcon } from '../../../images/add_key.svg';
+import { ReactComponent as KeysIcon } from '../../../images/keys.svg';
+import { ReactComponent as SettingsIcon } from '../../../images/settings.svg';
 import ShowAddKeyType from '../../types/ShowAddKeyType';
 import ShowKeyType from '../../types/ShowKeyType';
 import ActionType from '../../enums/ActionTypes';

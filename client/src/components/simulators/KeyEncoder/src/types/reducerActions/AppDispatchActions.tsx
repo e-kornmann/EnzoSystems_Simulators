@@ -38,7 +38,7 @@ type NoPayLoadAction = {
 
 // RoomkeyActions
 type RoomKeyAction = { type: ActionType.SAVE_KEY | ActionType.UPDATE_KEY | ActionType.SELECT_KEY, payload: KeyType };
-type AllKeysAction = { type: ActionType.SET_ALL_LOCALKEYS, payload: KeyType[] }
+type AllKeysAction = { type: ActionType.SET_ALL_LOCALKEYS, payload: KeyType[] };
 
 // Status Actions
 type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses };
@@ -59,6 +59,6 @@ type AppDispatchActions =
   | SetSessionAction
   | SetTokensAction
   | RoomKeyAction
-  | AllKeysAction
+  | AllKeysAction;
 
 export default AppDispatchActions;

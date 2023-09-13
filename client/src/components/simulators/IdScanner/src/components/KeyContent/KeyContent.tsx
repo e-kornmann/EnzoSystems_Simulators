@@ -13,9 +13,9 @@ import CommandTypes from '../../enums/CommandTypes';
 import KeyProcessStatuses from '../../enums/KeyProcessStatuses';
 // svgs
 import { ReactComponent as CheckmarkIcon } from '../../../images/checkmark.svg';
-import { ReactComponent as PresentKeyIcon } from '../../../images/present_key.svg';
+import { ReactComponent as PresentIdIcon } from '../../../images/present_id.svg';
 // types
-import KeyType from '../../types/KeyType';
+import KeyType from '../../types/PassPortType';
 import ActionType from '../../enums/ActionTypes';
 
 type StyledCardProps = {
@@ -340,7 +340,7 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
           && <StyledPresentKeyButton
             type="button"
             disabled={!selectedKey && type === CommandTypes.READ_KEY} onClick={() => { setProcessStarted(true); }}>
-            <PresentKeyIcon />
+            <PresentIdIcon />
           </StyledPresentKeyButton>
         }
         <StyledCard $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>

@@ -6,7 +6,7 @@ import { format, parseISO } from 'date-fns';
 // enums
 import DeviceStatuses from '../../enums/DeviceStatuses';
 // types
-import KeyType from '../../types/KeyType';
+import KeyType from '../../types/PassPortType';
 
 const StyledWrapper = styled('div')({
   height: '100%',
