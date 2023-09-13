@@ -7,7 +7,8 @@ import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner';
 import PaymentTerminalSimulator from './components/simulators/PaymentDevice';
-import { KeyEncoder } from './components/simulators/KeyEncoder/DraggableApp';
+import IdScanner from './components/simulators/IdScanner/src/App';
+import KeyEncoder from './components/simulators/KeyEncoder/src/App';
 
 const GlobalStyle = createGlobalStyle`
 * {
@@ -143,16 +144,18 @@ const StyledOpenModelButton = styled('button')<{ $isActive: boolean }>(({ $isAct
 type SimulatorsType = {
   paymentDevice: boolean;
   demoApp: boolean;
-  QrScanner: boolean;
+  qrScanner: boolean;
   roomKeyEncoder: boolean;
+  iDScanner: boolean;
 };
 
 const App = () => {
   const [simulators, setSimulators] = useState<SimulatorsType>({
     paymentDevice: false,
     demoApp: false,
-    QrScanner: false,
+    qrScanner: false,
     roomKeyEncoder: false,
+    iDScanner: false,
   });
 
   const showSimulatorHandler = useCallback((simulator: keyof SimulatorsType) => {
@@ -180,16 +183,22 @@ const App = () => {
           Demo app
         </StyledOpenModelButton>
         <StyledOpenModelButton
-          onClick={() => showSimulatorHandler('QrScanner')}
-          $isActive={simulators.QrScanner}
+          onClick={() => showSimulatorHandler('qrScanner')}
+          $isActive={simulators.qrScanner}
         >
           Qr Scanner
+        </StyledOpenModelButton>
+        <StyledOpenModelButton
+          onClick={() => showSimulatorHandler('iDScanner')}
+          $isActive={simulators.roomKeyEncoder}
+        >
+          Room Key Encoder
         </StyledOpenModelButton>
         <StyledOpenModelButton
           onClick={() => showSimulatorHandler('roomKeyEncoder')}
           $isActive={simulators.roomKeyEncoder}
         >
-          Room Key Encoder
+          Id Scanner
         </StyledOpenModelButton>
       </StyledOpenModalButtonsContainer>
 
@@ -209,8 +218,8 @@ const App = () => {
           modalHeight={'500px'}
         />
         <DraggableModal
-          isShown={simulators.QrScanner}
-          hide={() => showSimulatorHandler('QrScanner')}
+          isShown={simulators.qrScanner}
+          hide={() => showSimulatorHandler('qrScanner')}
           modalContent={<QrScanner />}
           modalWidth={'220px'}
           modalHeight={'435px'}
@@ -219,6 +228,13 @@ const App = () => {
           isShown={simulators.roomKeyEncoder}
           hide={() => showSimulatorHandler('roomKeyEncoder')}
           modalContent={<KeyEncoder />}
+          modalWidth={'220px'}
+          modalHeight={'435px'}
+        />
+      <DraggableModal
+          isShown={simulators.iDScanner}
+          hide={() => showSimulatorHandler('iDScanner')}
+          modalContent={<IdScanner />}
           modalWidth={'220px'}
           modalHeight={'435px'}
         />
