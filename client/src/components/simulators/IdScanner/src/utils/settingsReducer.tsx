@@ -1,8 +1,5 @@
-import React, {
-  ReactNode, Reducer, createContext, useReducer,
-} from 'react';
-
-import { DeviceStatusOptions } from '../QrAppModi/DeviceSettings/AvailableSettings/StatusOptions';
+import React, { ReactNode, Reducer, createContext, useReducer } from 'react';
+import { DeviceStatusOptions } from '../../../QR-Scanner/QrAppModi/DeviceSettings/AvailableSettings/StatusOptions';
 
 export enum SettingModes {
   SETTINGS,

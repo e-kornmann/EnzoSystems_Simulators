@@ -7,7 +7,7 @@ GET http://localhost:9006/api/simulator/key-encoder/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5NDE2OTc4MywiZXhwIjoxNjk0MjU2MTgzLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.Y3yz_4Iz0naTEzR_2dPA8ZEvk9MBpBGqy_khDpJO6R0
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk0MTY5MTI4LCJleHAiOjE2OTQyNTU1MjgsImlzcyI6IkVuem9zeXN0ZW1zIn0.w6XukuuLOc8JCXcr82-CN0zEmO8CkOP4D6LCE2zZH2E
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk0Njg2NDE3LCJleHAiOjE2OTQ3NzI4MTcsImlzcyI6IkVuem9zeXN0ZW1zIn0.Il3i7dqq1peW26MKxBXpe8icN_B16_Xa4TEKDqez1Yc
 
 ### DEVICE
 POST http://localhost:9006/api/simulator/key-encoder/v1/auth

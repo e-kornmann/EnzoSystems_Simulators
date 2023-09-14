@@ -16,7 +16,7 @@ import ts from '../Translations/translations';
 import { DeviceStatusOptions } from './DeviceSettings/AvailableSettings/StatusOptions';
 import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
 import { changeDeviceStatus, getSession, putScannedData } from '../utils/scanApiRequests';
-import ShowIcon from '../../../shared/sharedTypes/ShowIcon';
+import ShowIcon from '../../../../types/ShowIcon';
 
 const QrScannerWrapper = styled('div')({
   display: 'grid',

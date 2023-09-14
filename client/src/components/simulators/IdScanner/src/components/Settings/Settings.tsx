@@ -7,31 +7,23 @@ import { SettingControl } from './SettingControl/SettingControl';
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // enums
 import DeviceStatuses from '../../enums/DeviceStatuses';
-import SettingType from '../../types/SettingType';
+import SettingType from '../../local_types/SettingType';
 import SettingsTypes from '../../enums/SettingsTypes';
 import ActionType from '../../enums/ActionTypes';
 
-const StyledWrapper = styled('div')({
+const StyledWrapper = styled('div')(({ theme }) => ({
+  backgroundColor: theme.colors.background.secondary,
+  position: 'fixed',
+  top: '34px',
+  left: '0',
+  height: 'calc(100% - 75px)',
+  width: '100%',
   padding: '2px 0',
   display: 'flex',
   flexDirection: 'column',
-  height: '100%',
   overflowY: 'scroll',
-  // '&::-webkit-scrollbar': {
-  //   background: 'transparent',
-  //   width: '0.35rem'
-  // },
-  // '&::-webkit-scrollbar-track': {
-  //   width: '0.35rem'
-  // },
-  // '&::-webkit-scrollbar-thumb': {
-  //   background: theme.colors.buttons.gray,
-  //   borderRadius: '5px'
-  // },
-  // '&::-webkit-scrollbar-thumb:hover': {
-  //   background: theme.colors.buttons.asphalt,
-  // }
-});
+  zIndex: '600',
+}));
 
 type SettingsProps = {
   clickedBack: boolean,

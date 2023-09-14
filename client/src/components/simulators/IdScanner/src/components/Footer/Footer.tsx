@@ -4,12 +4,12 @@ import styled from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
-import { ReactComponent as AddIdIcon } from '../../../images/add_id.svg';
-import { ReactComponent as IdsIcon } from '../../../images/ids.svg';
-import { ReactComponent as SettingsIcon } from '../../../images/settings.svg';
+import { ReactComponent as AddIdIcon } from '../../../local_assets/add_id.svg';
+import { ReactComponent as IdsIcon } from '../../../local_assets/ids.svg';
+import { ReactComponent as SettingsIcon } from '../../../local_assets/settings.svg';
 import ShowAddKeyType from '../../types/ShowAddKeyType';
-import ShowKeyType from '../../types/ShowKeyType';
 import ActionType from '../../enums/ActionTypes';
+import ShowIdType from '../../types/ShowKeyType';
 
 const StyledFooter = styled('footer')(({ theme }) => ({
   height: '40px',
@@ -81,7 +81,7 @@ const StyledAddIdButton = styled('div')(({ theme }) => ({
 type Props = {
   showAddKey: ShowAddKeyType,
   showSettings: boolean,
-  showKeys: ShowKeyType,
+  showIds: ShowIdType,
   saveButtonIsEnabled: boolean,
   deleteButtonIsEnabled: boolean,
   allKeysAreSelected: boolean,
@@ -91,7 +91,7 @@ type Props = {
 const FooterComponent = ({
   showAddKey,
   showSettings,
-  showKeys,
+  showIds,
   saveButtonIsEnabled,
   deleteButtonIsEnabled,
   allKeysAreSelected,
@@ -101,11 +101,11 @@ const FooterComponent = ({
 
   const handleAddKey = useCallback(() => {
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
-    appDispatch({ type: ActionType.SHOW_ADD_KEY, payload: true });
+    appDispatch({ type: ActionType.SHOW_ADD_ID, payload: true });
   }, [appDispatch]);
 
   const handleSaveKey = useCallback(() => {
-    appDispatch({ type: ActionType.SAVE_KEY_CLICKED, payload: true });
+    appDispatch({ type: ActionType.SAVE_ID_CLICKED, payload: true });
   }, [appDispatch]);
 
   const handleToggleSettings = useCallback(() => {
@@ -113,12 +113,12 @@ const FooterComponent = ({
   }, [appDispatch]);
 
   const handleViewKeys = useCallback(() => {
-    appDispatch({ type: ActionType.SHOW_KEYS, payload: true });
+    appDispatch({ type: ActionType.SHOW_IDS, payload: true });
   }, [appDispatch]);
 
   const setToDeleteMode = useCallback(() => {
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
-    appDispatch({ type: ActionType.DELETE_KEYS_MODE, payload: true });
+    appDispatch({ type: ActionType.DELETE_IDS_MODE, payload: true });
   }, [appDispatch]);
 
   const handleDeleteDialog = useCallback(() => {
@@ -127,28 +127,28 @@ const FooterComponent = ({
 
   const handleEditKey = useCallback(() => {
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
-    appDispatch({ type: ActionType.EDIT_KEYS_MODE, payload: true });
+    appDispatch({ type: ActionType.EDIT_IDS_MODE, payload: true });
   }, [appDispatch]);
 
   const handleDeselectAllKey = useCallback(() => {
-    appDispatch({ type: ActionType.DESELECT_ALL_KEY_CLICKED, payload: true });
+    appDispatch({ type: ActionType.DESELECT_ALL_ID_CLICKED, payload: true });
   }, [appDispatch]);
 
   const handleSelectAllKey = useCallback(() => {
-    appDispatch({ type: ActionType.SELECT_ALL_KEY_CLICKED, payload: true });
+    appDispatch({ type: ActionType.SELECT_ALL_ID_CLICKED, payload: true });
   }, [appDispatch]);
 
   return (
     <>
       <StyledFooter>
 
-        {(!showAddKey.showComponent && !showSettings && !showKeys.showComponent)
+        {(!showAddKey.showComponent && !showSettings && !showIds.showComponent)
           && <>
             <StyledSettingsButton onClick={handleToggleSettings}>
               <SettingsIcon width={16} height={16} />
             </StyledSettingsButton>
             <StyledKeysButton onClick={handleViewKeys}>
-              <IdsIcon width={25} height={19} /> Keys
+              <IdsIcon width={25} height={19} /> IDs
             </StyledKeysButton>
             <StyledAddIdButton onClick={handleAddKey}>
               <AddIdIcon width={25} height={19} />
@@ -160,9 +160,9 @@ const FooterComponent = ({
             {!showAddKey.editMode ? 'Save' : 'Update'}
           </button>
         }
-        {showKeys.showComponent
+        {showIds.showComponent
           && <>
-            {!showKeys.editMode && !showKeys.deleteMode
+            {!showIds.editMode && !showIds.deleteMode
             && <>
               <button type="button" onClick={handleAddKey}>
                 New</button>
@@ -172,7 +172,7 @@ const FooterComponent = ({
                 Delete</button>
             </>
             }
-            {!showKeys.editMode && showKeys.deleteMode
+            {!showIds.editMode && showIds.deleteMode
             && <>
               <button type="button" onClick={() => (allKeysAreSelected ? handleDeselectAllKey() : handleSelectAllKey()) }>
                 { allKeysAreSelected ? 'Deselect all' : 'Select all' }
@@ -181,8 +181,8 @@ const FooterComponent = ({
             </>
             }
 
-            {!showKeys.deleteMode && showKeys.editMode
-            && <button disabled>Select key to edit</button>
+            {!showIds.deleteMode && showIds.editMode
+            && <button disabled>Select ID to edit</button>
           }
 
           </>

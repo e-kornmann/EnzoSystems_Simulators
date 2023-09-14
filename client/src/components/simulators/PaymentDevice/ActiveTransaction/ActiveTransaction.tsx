@@ -8,7 +8,7 @@ import SharedLoading from '../../../shared/Loading';
 import PinDigits from './PinDigits/PinDigits';
 import ts from '../Translations/translations';
 import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
-import ShowIcon from '../../../shared/sharedTypes/ShowIcon';
+import ShowIcon from '../../../../types/ShowIcon';
 
 type ShowProp = {
   $show: boolean;

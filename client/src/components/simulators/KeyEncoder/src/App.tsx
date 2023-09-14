@@ -180,6 +180,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         ...state,
         localKeys: newKeys,
         saveKeyClicked: false,
+        showBack: false,
         showKeys: { ...state.showKeys, showComponent: true },
         selectedKey: action.payload,
         headerTitle: 'Keys',
@@ -342,7 +343,7 @@ const App = () => {
       },
       method: 'post',
       data: {
-        deviceId: 'KeyEncoder',
+        deviceId: '123456',
       },
       timeout: import.meta.env.VITE_TIMEOUT,
     };

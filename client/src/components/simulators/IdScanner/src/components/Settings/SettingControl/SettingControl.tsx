@@ -2,8 +2,8 @@ import { memo } from 'react';
 // styled components
 import styled from 'styled-components';
 // svgs
-import { ReactComponent as Arrow } from '../../../../images/arrow.svg';
-import { ReactComponent as CheckmarkIcon } from '../../../../images/success.svg';
+import { ReactComponent as Arrow } from '../../../../local_assets/arrow.svg';
+import { ReactComponent as CheckmarkIcon } from '../../../../local_assets/success.svg';
 
 const StyledSettingControl = styled('div')({});
 const StyledButton = styled('button')(({ theme }) => ({

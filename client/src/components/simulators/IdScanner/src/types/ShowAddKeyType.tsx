@@ -1,7 +1,6 @@
 type ShowAddKeyType = {
-    showComponent: boolean,
-    editMode: boolean,
-}
+  showComponent: boolean,
+  editMode: boolean,
+};
 
 export default ShowAddKeyType;
-  

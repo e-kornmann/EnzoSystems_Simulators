@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import { ReactComponent as CrossHairIcon } from '../../../images/present_id.svg';
+import { ReactComponent as CrossHairIcon } from '../../../local_assets/present_id.svg';
 
 const popAnimation = keyframes`
   0%, 100% {
@@ -37,7 +37,7 @@ type Props = {
 
 const AnimatedCrossHair = ({ animate }: Props) => (
     <QrIconWrapper $animate={animate}>
-      <CrossHairIcon />
+      <CrossHairIcon width={80} height={80}/>
     </QrIconWrapper>
 );
 

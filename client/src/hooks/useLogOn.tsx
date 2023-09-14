@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import pinApi from '../api/pinApi';
 import scanApi from '../api/scannerApi';
+import idScanApi from '../api/idScannerApi';
 import { CredentialType, ReqLogOnType } from '../types/LogOnTypes';
 
 const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoint: string) => {
@@ -27,7 +28,7 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
 
       switch (apiEndpoint) {
         case 'id-scanner':
-          response = await scanApi.post('/auth', reqBody, config);
+          response = await idScanApi.post('/auth', reqBody, config);
           break;
         case 'barcode-scanner':
           response = await scanApi.post('/auth', reqBody, config);

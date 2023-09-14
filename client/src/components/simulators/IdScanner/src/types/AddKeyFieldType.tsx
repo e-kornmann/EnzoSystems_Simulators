@@ -1,14 +1,11 @@
 import AddKeyFieldsEnum from '../enums/AddKeyFieldsEnum';
-import { KeyType, KeyData }from './PassPortType';
-
-
+import { PassPort } from './PassPortType';
 
 type AddKeyFieldType = {
   name: string,
-  source: keyof KeyData | keyof KeyType,
+  source: keyof PassPort,
   type: AddKeyFieldsEnum,
 };
-
 
 export default AddKeyFieldType;
 // [key: string]: { [key in Lang]: string; }[];

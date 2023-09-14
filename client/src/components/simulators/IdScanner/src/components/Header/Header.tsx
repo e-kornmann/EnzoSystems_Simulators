@@ -4,8 +4,8 @@ import styled from 'styled-components';
 // context
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svgs
-import { ReactComponent as ArrowBack } from '../../../images/arrow_back.svg';
-import { ReactComponent as CloseIcon } from '../../../images/close.svg';
+import { ReactComponent as ArrowBack } from '../../../local_assets/arrow_back.svg';
+import { ReactComponent as CloseIcon } from '../../../local_assets/close.svg';
 import ActionType from '../../enums/ActionTypes';
 
 export const StyledHeader = styled('div')(({ theme }) => ({
@@ -44,7 +44,7 @@ const HeaderComponent = ({
 
   const handleClickBack = useCallback(() => {
     if (goBackToKeysButton) {
-      appDispatch({ type: ActionType.SHOW_KEYS, payload: true });
+      appDispatch({ type: ActionType.SHOW_IDS, payload: true });
     }
     appDispatch({ type: ActionType.CLICKED_BACK, payload: true });
   }, [appDispatch, goBackToKeysButton]);

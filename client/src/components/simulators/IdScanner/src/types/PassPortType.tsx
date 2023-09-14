@@ -1,14 +1,25 @@
 import { Country } from '../enums/CountryCodesEnum';
 
-enum PassportDocument {
+export enum PassportDocument {
   ENGLISH = 'PASSPORT',
   FRENCH = 'PASSEPORT',
   SPANISH = 'PASAPORTE',
   DUTCH = 'PASPOORT',
   GERMAN = 'REISEPASS',
 }
-
-const translate = {
+export enum TypeOfDocument {
+  Passport = 'P',
+  NationalIdentityCard = 'ID',
+  DriversLicense = 'DL',
+  Visa = 'VS',
+  APECBusinessTravelCard = 'AC',
+  RefugeeCard = 'RC',
+  Certificate = 'CT',
+  CommonwealthCitizen = 'CM',
+  VoterRegistrationCard = 'VR',
+  IdentityCertificateForStatelessPersons = 'IP',
+}
+export const translate = {
   male: {
     DUTCH: 'Man M',
     ENGLISH: 'Male',
@@ -18,7 +29,7 @@ const translate = {
     ENGLISH: 'Female',
   },
   unspecified: {
-    DUTCH: 'Ongespecificeerd X',
+    DUTCH: 'Ongespecificieerd X',
     ENGLISH: 'Unspecified',
   },
 };
@@ -26,7 +37,7 @@ const translate = {
 export type PassPort = {
   issuingOrganization: string, // full Organinsation name
   document: PassportDocument, // The word for passport in the language of the issuing organization
-  documentCode: string,
+  documentCode: TypeOfDocument,
   issuingOrganizationCode: string, // Three-letter code
   passPortNr: string,
   name: string, // full name
@@ -45,7 +56,7 @@ export type PassPort = {
 export const examplePassPort: PassPort = {
   issuingOrganization: 'Example Org',
   document: PassportDocument.ENGLISH,
-  documentCode: '12345',
+  documentCode: TypeOfDocument.Passport,
   issuingOrganizationCode: 'ABC',
   passPortNr: '67890',
   name: 'John Doe',

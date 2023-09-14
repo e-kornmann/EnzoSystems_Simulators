@@ -2,7 +2,7 @@ import { memo } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as CheckMarkIcon } from '../../assets/svgs/check-mark.svg';
 import { ReactComponent as CrossIcon } from '../../assets/svgs/fail.svg';
-import ShowIcon from './sharedTypes/ShowIcon';
+import ShowIcon from '../../types/ShowIcon';
 
 type Props = {
   checkOrCrossIcon?: ShowIcon;

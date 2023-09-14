@@ -3,7 +3,7 @@ enum AddKeyFieldsEnum {
   END_DATE_TIME = 'END_DATE_TIME',
   ID = 'ID',
   ROOM_ACCESS = 'ROOM_ACCESS',
-  START_DATE_TIME = 'START_DATE_TIME'
-};
+  START_DATE_TIME = 'START_DATE_TIME',
+}
 
 export default AddKeyFieldsEnum;

@@ -6,19 +6,19 @@ import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import ActionType from '../../enums/ActionTypes';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
-  backgroundColor: theme.colors.background.transparent,
-  display: 'flex',
-  height: '100%',
   position: 'fixed',
   left: 0,
   top: 0,
-  flexDirection: 'column',
-  padding: '9% 5%',
+  backgroundColor: theme.colors.background.transparent,
+  display: 'flex',
+  height: '100%',
   width: '100%',
-  zIndex: '15',
+  padding: '9% 5%',
+  flexDirection: 'column',
   borderRadius: '5px',
   alignItems: 'center',
   justifyContent: 'flex-end',
+  zIndex: '601',
 }));
 
 const StyledExplanation = styled('div')(({ theme }) => ({
@@ -65,14 +65,14 @@ const DeleteDialogWrapper = () => {
   }, [appDispatch]);
 
   const handleClickDeleteButton = useCallback(() => {
-    appDispatch({ type: ActionType.DELETE_KEY_CLICKED });
+    appDispatch({ type: ActionType.DELETE_ID_CLICKED });
   }, [appDispatch]);
 
   return (
 
     <StyledWrapper>
     <StyledExplanation>
-        This Key will be deleted.
+        This ID will be deleted.
       </StyledExplanation>
       <StyledDeleteButton type="button" onClick={handleClickDeleteButton}>Delete</StyledDeleteButton>
       <StyledCancelButton type="button" onClick={handleClickCancelButton}>Cancel</StyledCancelButton>

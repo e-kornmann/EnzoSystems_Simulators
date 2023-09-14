@@ -1,10 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // svgs
 import styled from 'styled-components';
-import { ReactComponent as CheckMarkIcon } from '../../../../images/checkmark.svg';
-import { ReactComponent as ArrowIcon } from '../../../../images/arrow_up-down.svg';
+import { ReactComponent as CheckMarkIcon } from '../../../../local_assets/checkmark.svg';
+import { ReactComponent as ArrowIcon } from '../../../../local_assets/arrow_up-down.svg';
 // styled components
-import AddKeyFieldType from '../../../types/AddKeyFieldType';
+import AddKeyFieldType from '../../../local_types/AddKeyFieldType';
 import KeyType from '../../../types/PassPortType';
 
 const StyledControl = styled('div')<{

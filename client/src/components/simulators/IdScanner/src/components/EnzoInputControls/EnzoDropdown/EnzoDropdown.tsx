@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // styled components
 import styled from 'styled-components';
-import AddKeyFieldType from '../../../types/AddKeyFieldType';
+import AddKeyFieldType from '../../../local_types/AddKeyFieldType';
 
 type StyledOptionsType = {
   $selectHeight: number,
@@ -90,7 +90,7 @@ const EnzoDropdownComponent = ({ defaultValue, field, label, options, onOptionCl
       </StyledSelect>
       <StyledOptions ref={optionsRef} $selectHeight={selectHeight} $showOptions={showOptions}>
         {options.map((option) => (
-          <StyledOption key={option.name} value={option.value} $isSelected={selectedValue === option.value} onClick={() => { handleOptionClicked(option); }}>
+          <StyledOption id={option.name} value={option.value} $isSelected={selectedValue === option.value} onClick={() => { handleOptionClicked(option); }}>
             {option.name}
           </StyledOption>
         ))}

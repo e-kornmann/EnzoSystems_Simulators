@@ -2,7 +2,7 @@ enum KeyProcessStatuses {
   ERROR = 'ERROR',
   PRESENT = 'PRESENT',
   PROCESSING = 'PROCESSING',
-  READY = 'READY'
-};
+  READY = 'READY',
+}
 
 export default KeyProcessStatuses;

@@ -10,20 +10,20 @@ type BooleanAction = {
   type:
   ActionType.CLICKED_BACK
   | ActionType.CLICKED_CROSS
-  | ActionType.SHOW_ADD_KEY
+  | ActionType.SHOW_ADD_ID
   | ActionType.SHOW_BACK
   | ActionType.SHOW_CROSS
-  | ActionType.SHOW_KEYS
+  | ActionType.SHOW_IDS
   | ActionType.SET_DELETE_BUTTON
   | ActionType.SET_SAVE_BUTTON
-  | ActionType.ALL_KEYS_ARE_SELECTED
-  | ActionType.EDIT_KEY
-  | ActionType.EDIT_KEYS_MODE
-  | ActionType.DELETE_KEYS_MODE
+  | ActionType.ALL_IDS_ARE_SELECTED
+  | ActionType.EDIT_ID
+  | ActionType.EDIT_IDS_MODE
+  | ActionType.DELETE_IDS_MODE
   | ActionType.SET_SEND_NEXT_SESSION_REQUEST
-  | ActionType.SAVE_KEY_CLICKED
-  | ActionType.SELECT_ALL_KEY_CLICKED
-  | ActionType.DESELECT_ALL_KEY_CLICKED
+  | ActionType.SAVE_ID_CLICKED
+  | ActionType.SELECT_ALL_ID_CLICKED
+  | ActionType.DESELECT_ALL_ID_CLICKED
   | ActionType.SHOW_DELETE_DIALOG,
   payload: boolean
 };
@@ -33,12 +33,12 @@ type NoPayLoadAction = {
   type:
   ActionType.TOGGLE_SETTINGS
   | ActionType.CLICKED_CROSS
-  | ActionType.DELETE_KEY_CLICKED
+  | ActionType.DELETE_ID_CLICKED
 };
 
 // RoomkeyActions
-type RoomKeyAction = { type: ActionType.SAVE_KEY | ActionType.UPDATE_KEY | ActionType.SELECT_KEY, payload: KeyType };
-type AllKeysAction = { type: ActionType.SET_ALL_LOCALKEYS, payload: KeyType[] }
+type RoomKeyAction = { type: ActionType.SAVE_ID | ActionType.UPDATE_ID | ActionType.SELECT_ID, payload: KeyType };
+type AllKeysAction = { type: ActionType.SET_ALL_LOCALIDS, payload: KeyType[] }
 
 // Status Actions
 type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses };

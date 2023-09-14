@@ -1,19 +1,13 @@
-import React, {
-  useCallback, useContext, useEffect, useMemo, useState,
-} from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/Expand';
 import useLogOn from '../../../hooks/useLogOn';
-import {
-  cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody,
-} from './Config';
+import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
 import useStopTransaction from '../../../hooks/useStopTransaction';
 import rejectTransaction from './utils/rejectTransaction';
 import updateTransaction from './utils/updateTransaction';
-import {
-  AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus,
-} from './types';
+import { AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus } from './types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
@@ -26,7 +20,7 @@ import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 import { AppContext } from './utils/settingsReducer';
 import SharedLoading from '../../shared/Loading';
-import ShowIcon from '../../shared/sharedTypes/ShowIcon';
+import ShowIcon from '../../../types/ShowIcon';
 
 const Content = styled.div`
   padding: 0 10px 50px;

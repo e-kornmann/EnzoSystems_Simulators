@@ -1,0 +1,139 @@
+### Get Health info
+GET http://localhost:9007/api/simulator/id-scanner/v1/health
+
+
+####################################################################################
+### Log-on host/device with username/password and exchange for access token (24 hours valid)
+####################################################################################
+
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5NDY4MTAwNSwiZXhwIjoxNjk0NzY3NDA1LCJpc3MiOiJFbnpvc3lzdGVtcyJ9.2JPnzWLDA1JfigCRgDBE53Ugv7Cd9usMc447Dm3KplY
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk0NjgxMDE1LCJleHAiOjE2OTQ3Njc0MTUsImlzcyI6IkVuem9zeXN0ZW1zIn0.r-7WuEYk14hNNV4hv9mLY0FVFFsvMjn4xnoRtcpYdQk
+
+### DEVICE
+POST http://localhost:9007/api/simulator/id-scanner/v1/auth
+Content-type: application/json
+Authorization: Basic device:device
+
+{
+  "deviceId": "IDScanner_01"
+}
+
+### HOST
+POST http://localhost:9007/api/simulator/id-scanner/v1/auth
+Content-type: application/json
+Authorization: Basic host:host
+
+{
+  "hostId": "DEMOAPP"
+}
+
+####################################################################################
+### Set device status and connect it to the back-end (DEVICE only, call on regular base, check .env for time-out)
+####################################################################################
+
+### DEVICE
+PUT http://localhost:9007/api/simulator/id-scanner/v1/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "status": "CONNECTED"
+}
+
+####################################################################################
+### Get device status (HOST)
+####################################################################################
+
+### HOST
+GET http://localhost:9007/api/simulator/id-scanner/v1/IDScanner_01/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+### HOST
+GET http://localhost:9007/api/simulator/id-scanner/v1/IDScanner_01/status?referenceDeviceStatus=DISCONNECTED
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+####################################################################################
+### POST requests for scanning IDs (HOST)
+####################################################################################
+### HOST read ID
+POST http://localhost:9007/api/simulator/id-scanner/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "deviceId": "KeyEncoder",
+  "command": "SCAN_ID"
+}
+
+### HOST request to cancel session by id
+PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/e99cc8f6-36df-4cdb-ae92-376aac00c3c4
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CANCEL"
+}
+
+### HOST request to cancel session by id
+PUT http://localhost:9007/api/simulator/id-scanner/v1/session/2bd8a8aa-802e-4776-8a76-f1182c179436
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CANCEL"
+}
+
+### HOST get session by id
+GET http://localhost:9007/api/simulator/id-scanner/v1/session/82661569-f76f-4f3d-bc97-458fe78c14ae
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+
+####################################################################################
+### Send existing key data from scanned key to backend, receive new key date from backend to write to new key (DEVICE only)
+####################################################################################
+
+### DEVICE get active session, uses long polling if there is no active session at time of calling this endpoint
+GET http://localhost:9007/api/simulator/id-scanner/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+### DEVICE finish reading an existing key
+PUT http://localhost:9007/api/simulator/id-scanner/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "status": "FINISHED",
+    "dateOfBirth": "661231",
+    "dateOfExpiry": "661231",
+    "documentNumber": "IDScanner_01789",
+    "documentType": "P<",
+    "issuerCode": "NLD",
+    "namePrimary": "Erik",
+    "nameSecondary": "de Vries",
+    "nationality": "NLD",
+    "sex": "M",
+    "images": {
+      "cardHolder": "imagehere",
+      "docFront": "imagehere",
+      "docBack": "imagehere"
+    }
+  }
+}
+
+### DEVICE stop session when host asked for a cancellation
+PUT http://localhost:9007/api/simulator/id-scanner/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "status": "STOPPED"
+  }
+}
+

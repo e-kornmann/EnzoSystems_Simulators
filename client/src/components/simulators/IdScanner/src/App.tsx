@@ -1,35 +1,27 @@
-import { memo, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { memo, useReducer } from 'react';
 // axios
-import axios from 'axios';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 // components
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
-import { Waiting } from './components/Waiting/Waiting';
-import { LocalAddKey } from './components/LocalAddKey/LocalAddKey';
-import { KeyContent } from './components/KeyContent/KeyContent';
+import { LocalAddId } from './components/LocalAddId/LocalAddId';
 import { Settings } from './components/Settings/Settings';
-import { ViewKeys } from './components/ViewKeys/ViewKeys';
+import { ViewIds } from './components/ViewIds/ViewIds';
 import { DeleteDialog } from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
-import TokenContext from './contexts/data/TokenContext';
 // enums
-import CommandTypes from './enums/CommandTypes';
 import DeviceStatuses from './enums/DeviceStatuses';
-import ProcessStatuses from './enums/ProcessStatuses';
 // theme
 import theme from './theme/theme.json';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
-import SessionType from './types/SessionType';
-import TokenType from './types/TokenType';
 import ShowAddKeyType from './types/ShowAddKeyType';
 import ShowKeyType from './types/ShowKeyType';
 import ActionType from './enums/ActionTypes';
 import IdReader from './components/IdReader/IdReader';
-import PassPort from './types/PassPortType';
+import { PassPort } from './types/PassPortType';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -97,13 +89,9 @@ const StyledContentWrapper = styled('div')({
 type AppStateType = {
   deviceStatus: DeviceStatuses,
   headerTitle: string,
-  initialized: boolean,
-  localKeys: PassPort[],
-  currentId: PassPort | null,
-  processStatus: ProcessStatuses,
+  localIds: PassPort[],
+  currentId: PassPort | undefined,
   saveKeyClicked: boolean,
-  session: SessionType | null,
-  sendNextSessionRequest: boolean,
   showAddKey: ShowAddKeyType,
   // footer
   saveButtonIsEnabled: boolean,
@@ -115,21 +103,16 @@ type AppStateType = {
   showCross: boolean,
   clickedBack: boolean,
   clickedCross: boolean,
-  showKeys: ShowKeyType,
+  showIds: ShowKeyType,
   showSettings: boolean,
-  tokens: TokenType | null
 };
 
 const initialState: AppStateType = {
   deviceStatus: DeviceStatuses.CONNECTED,
-  headerTitle: 'Id Scanner',
-  initialized: false,
-  localKeys: [],
-  currentId: null,
-  processStatus: ProcessStatuses.WAITING,
+  headerTitle: 'ID Scanner',
+  localIds: [],
+  currentId: undefined,
   saveKeyClicked: false,
-  session: null,
-  sendNextSessionRequest: false,
   showAddKey: { showComponent: false, editMode: false },
   // footer
   saveButtonIsEnabled: false,
@@ -141,7 +124,7 @@ const initialState: AppStateType = {
   showCross: false,
   clickedBack: false,
   clickedCross: false,
-  showKeys: {
+  showIds: {
     showComponent: false,
     editMode: false,
     deleteMode: false,
@@ -150,7 +133,6 @@ const initialState: AppStateType = {
     deleteKeyClicked: false,
   },
   showSettings: false,
-  tokens: null,
 };
 
 const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType => {
@@ -161,36 +143,34 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.CLICKED_CROSS: { // close window and return to main screen
       return {
         ...initialState,
-        tokens: state.tokens,
-        localKeys: state.localKeys,
+        localIds: state.localIds,
         currentId: state.currentId,
         deviceStatus: state.deviceStatus,
-        initialized: state.initialized,
       };
     }
-
-    case ActionType.DELETE_KEY_CLICKED: {
-      return { ...state, showKeys: { ...state.showKeys, deleteKeyClicked: true } };
+    case ActionType.DELETE_ID_CLICKED: {
+      return { ...state, showIds: { ...state.showIds, deleteKeyClicked: true } };
     }
-    case ActionType.SET_ALL_LOCALKEYS: {
-      return { ...state, localKeys: action.payload };
+    case ActionType.SET_ALL_LOCALIDS: {
+      return { ...state, localIds: action.payload };
     }
-    case ActionType.SAVE_KEY: {
-      const newKeys = state.localKeys ? [...state.localKeys, action.payload] : [action.payload];
+    case ActionType.SAVE_ID: {
+      const newIds = state.localIds ? [...state.localIds, action.payload] : [action.payload];
       return {
         ...state,
-        localKeys: newKeys,
+        localIds: newIds,
         saveKeyClicked: false,
-        showKeys: { ...state.showKeys, showComponent: true },
+        showBack: false,
+        showIds: { ...state.showIds, showComponent: true },
         currentId: action.payload,
-        headerTitle: 'Keys',
+        headerTitle: 'IDs',
         showAddKey: initialState.showAddKey,
       };
     }
-    case ActionType.SAVE_KEY_CLICKED: {
+    case ActionType.SAVE_ID_CLICKED: {
       return { ...state, saveKeyClicked: action.payload };
     }
-    case ActionType.SELECT_KEY: {
+    case ActionType.SELECT_ID: {
       return { ...state, currentId: action.payload };
     }
     case ActionType.SET_DELETE_BUTTON: {
@@ -199,56 +179,45 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.SET_SAVE_BUTTON: {
       return { ...state, saveButtonIsEnabled: action.payload };
     }
-    case ActionType.ALL_KEYS_ARE_SELECTED: {
+    case ActionType.ALL_IDS_ARE_SELECTED: {
       return { ...state, allKeysAreSelected: action.payload };
     }
     case ActionType.SET_DEVICE_STATUS: {
       return { ...state, deviceStatus: action.payload };
     }
-    case ActionType.SELECT_ALL_KEY_CLICKED: {
-      return { ...state, showKeys: { ...state.showKeys, selectAllKeyClicked: action.payload, deselectAllKeyClicked: false } };
+    case ActionType.SELECT_ALL_ID_CLICKED: {
+      return { ...state, showIds: { ...state.showIds, selectAllKeyClicked: action.payload, deselectAllKeyClicked: false } };
     }
-    case ActionType.DESELECT_ALL_KEY_CLICKED: {
-      return { ...state, showKeys: { ...state.showKeys, selectAllKeyClicked: false, deselectAllKeyClicked: action.payload } };
+    case ActionType.DESELECT_ALL_ID_CLICKED: {
+      return { ...state, showIds: { ...state.showIds, selectAllKeyClicked: false, deselectAllKeyClicked: action.payload } };
     }
     case ActionType.SET_HEADER_TITLE: {
       return { ...state, headerTitle: action.payload };
     }
-    case ActionType.SET_PROCESS_STATUS: {
-      return { ...state, processStatus: action.payload };
-    }
-    case ActionType.SET_SEND_NEXT_SESSION_REQUEST: {
-      return { ...state, sendNextSessionRequest: action.payload };
-    }
-    case ActionType.SET_SESSION: { // *
-      return { ...state, session: action.payload };
-    }
-    case ActionType.SET_TOKENS: { // * not merged
-      return { ...state, tokens: action.payload };
-    }
-    case ActionType.SHOW_ADD_KEY: {
+    case ActionType.SHOW_ADD_ID: {
       return {
         ...state,
         showAddKey: { ...state.showAddKey, showComponent: action.payload },
         showCross: true,
-        showKeys: initialState.showKeys,
-        headerTitle: 'Add new room key',
+        showBack: false,
+        showIds: initialState.showIds,
+        headerTitle: 'Add new ID',
       };
     }
-    case ActionType.EDIT_KEY: {
+    case ActionType.EDIT_ID: {
       return {
         ...state,
         showAddKey: { ...state.showAddKey, showComponent: action.payload, editMode: action.payload },
         showCross: true,
-        showKeys: initialState.showKeys,
-        headerTitle: 'Edit Key',
+        showIds: initialState.showIds,
+        headerTitle: 'Edit ID',
       };
     }
-    case ActionType.EDIT_KEYS_MODE: {
-      return { ...state, showKeys: { ...state.showKeys, editMode: action.payload }, headerTitle: 'Edit Keys' };
+    case ActionType.EDIT_IDS_MODE: {
+      return { ...state, showIds: { ...state.showIds, editMode: action.payload }, headerTitle: 'Edit IDs' };
     }
-    case ActionType.DELETE_KEYS_MODE: {
-      return { ...state, showKeys: { ...state.showKeys, editMode: false, deleteMode: true }, headerTitle: 'Delete Keys' };
+    case ActionType.DELETE_IDS_MODE: {
+      return { ...state, showIds: { ...state.showIds, editMode: false, deleteMode: true }, headerTitle: 'Delete IDs' };
     }
     case ActionType.SHOW_DELETE_DIALOG: {
       return { ...state, showDeleteDialog: action.payload, showCross: !action.payload };
@@ -259,31 +228,32 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.SHOW_CROSS: {
       return { ...state, showCross: action.payload };
     }
-    case ActionType.SHOW_KEYS: {
+    case ActionType.SHOW_IDS: {
       return {
         ...state,
-        showKeys: { ...initialState.showKeys, showComponent: action.payload },
+        showIds: { ...initialState.showIds, showComponent: action.payload },
         showCross: true,
-        headerTitle: 'Keys',
+        headerTitle: 'IDs',
+        showBack: false,
         showAddKey: initialState.showAddKey,
       };
     }
-    case ActionType.UPDATE_KEY: {
-      const newKeys = state.localKeys ? [...state.localKeys] : [];
-      const index = newKeys.findIndex(key => key.keyId === action.payload.keyId);
+    case ActionType.UPDATE_ID: {
+      const newIds = state.localIds ? [...state.localIds] : [];
+      const index = newIds.findIndex(iD => iD.primaryId === action.payload.primaryId);
 
       if (index !== -1) {
-        newKeys[index] = action.payload;
+        newIds[index] = action.payload;
       } else {
-        newKeys.push(action.payload);
+        newIds.push(action.payload);
       }
 
-      return { ...state, localKeys: newKeys, currentId: action.payload };
+      return { ...state, localIds: newIds, currentId: action.payload };
     }
     case ActionType.TOGGLE_SETTINGS: {
       return {
         ...state,
-        headerTitle: state.showSettings ? 'Id Scanner' : state.headerTitle,
+        headerTitle: state.showSettings ? 'ID Scanner' : state.headerTitle,
         showCross: !state.showSettings,
         showSettings: !state.showSettings,
       };
@@ -296,242 +266,82 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [tick, setTick] = useState(0);
-  const initialSessionRequest = useRef(true);
+  // // set LocalStorage Keys if update is needed
+  // useEffect(() => {
+  //   // set localIds
+  //   const getSelectedId = localStorage.getItem('currentId');
+  //   if (state.currentId && (!getSelectedId || (getSelectedId && getSelectedId !== JSON.stringify(state.currentId)))) {
+  //     localStorage.setItem('currentId', JSON.stringify(state.currentId));
+  //   }
+  //   // set currentId
+  //   const getKeys = localStorage.getItem('roomKeys');
+  //   if (state.localIds && state.localIds.length > 0 && (!getKeys || (getKeys && getKeys !== JSON.stringify(state.localIds)))) {
+  //     localStorage.setItem('roomKeys', JSON.stringify(state.localIds));
+  //   }
+  // }, [state.currentId, state.localIds]);
 
-  // set LocalStorage Keys if update is needed
-  useEffect(() => {
-    // set localKeys
-    const getSelectedRoomKey = localStorage.getItem('selectedRoomKey');
-    if (state.currentId && (!getSelectedRoomKey || (getSelectedRoomKey && getSelectedRoomKey !== JSON.stringify(state.currentId)))) {
-      localStorage.setItem('selectedRoomKey', JSON.stringify(state.currentId));
-    }
-    // set selectedKey
-    const getKeys = localStorage.getItem('roomKeys');
-    if (state.localKeys && state.localKeys.length > 0 && (!getKeys || (getKeys && getKeys !== JSON.stringify(state.localKeys)))) {
-      localStorage.setItem('roomKeys', JSON.stringify(state.localKeys));
-    }
-  }, [state.currentId, state.localKeys]);
+  // // load LocalStorage Keys if available
+  // useEffect(() => {
+  //   // get localIds
+  //   const getKeys = localStorage.getItem('Ids');
+  //   if (getKeys) dispatch({ type: ActionType.SET_ALL_LOCALIDS, payload: JSON.parse(getKeys) });
+  //   // get currentId
+  //   const getSelectedId = localStorage.getItem('currentId');
+  //   if (getSelectedId) dispatch({ type: ActionType.SELECT_ID, payload: JSON.parse(getSelectedId) });
+  // }, []);
 
-  // load LocalStorage Keys if available
-  useEffect(() => {
-    // get localKeys
-    const getKeys = localStorage.getItem('roomKeys');
-    if (getKeys) dispatch({ type: ActionType.SET_ALL_LOCALKEYS, payload: JSON.parse(getKeys) });
-    // get selectedKey
-    const getSelectedRoomKey = localStorage.getItem('selectedRoomKey');
-    if (getSelectedRoomKey) dispatch({ type: ActionType.SELECT_KEY, payload: JSON.parse(getSelectedRoomKey) });
-  }, []);
+  /* Refresh Tick - for sending updated status every X seconds to keep  encoder accessible for backend */
+  // useEffect(() => {
+  //   const intervalTick = setInterval(() => {
+  //     setTick(prev => prev + 1);
+  //   }, import.meta.env.VITE_TICK_RATE);
 
-  /* Refresh Tick - for sending updated status every X seconds to keep key encoder accessible for backend */
-  useEffect(() => {
-    const intervalTick = setInterval(() => {
-      setTick(prev => prev + 1);
-    }, import.meta.env.VITE_TICK_RATE);
-
-    return () => {
-      clearInterval(intervalTick);
-    };
-  }, []);
-
-  /* Get Token for Key Encoder "Device" */
-  const getToken = useCallback(() => {
-    const config = {
-      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth`,
-      headers: {
-        authorization: `Basic ${window.btoa('device:device')}`,
-      },
-      method: 'post',
-      data: {
-        deviceId: 'KeyEncoder',
-      },
-      timeout: import.meta.env.VITE_TIMEOUT,
-    };
-
-    const getAuthenticationToken = async () => {
-      try {
-        const response = await axios(config);
-
-        if (!response?.data) {
-          throw Error('Missing response data');
-        }
-
-        dispatch({ type: ActionType.SET_TOKENS, payload: response.data });
-      } catch (error) {
-        console.error('Error: retrieving authentication token: ', error);
-      }
-    };
-
-    getAuthenticationToken();
-  }, []);
-
-  /* Authenticate until we have a Token */
-  useEffect(() => {
-    if (!state.tokens) {
-      getToken();
-    }
-  }, [state.tokens, tick, getToken]);
-
-  /* Key Encoder Status */
-  const handleStatus = useCallback((status: DeviceStatuses) => {
-    if (state.tokens && state.tokens.accessToken) {
-      const config = {
-        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/status`,
-        headers: {
-          authorization: `Bearer ${state.tokens.accessToken}`,
-        },
-        method: 'put',
-        data: {
-          status,
-        },
-        timeout: import.meta.env.VITE_TIMEOUT,
-      };
-
-      const updateStatus = async () => {
-        try {
-          const response = await axios(config);
-
-          if (!response?.data) {
-            throw Error('Missing response data');
-          }
-
-          console.log(`Updated Status! Key encoder status: ${status}`);
-        } catch (error) {
-          console.error('Error: updating key encoder status: ', error);
-        }
-      };
-
-      updateStatus();
-    }
-  }, [state.tokens]);
-
-  /* Key Encoder Status */
-  useEffect(() => {
-    if (state.tokens && state.tokens.accessToken) {
-      handleStatus(state.deviceStatus);
-    }
-  }, [state.deviceStatus, state.tokens, tick, handleStatus]);
-
-  /* Process Status */
-  useEffect(() => {
-    if (state.showSettings) { // in settings menu
-      dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.SETTINGS });
-    } else if (state.showAddKey.showComponent) {
-      dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.ADD_KEY });
-    } else if (state.showKeys.showComponent) {
-      dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.VIEW_KEYS });
-    } else if (state?.session?.metadata?.command === CommandTypes.READ_KEY) { // if we have a session from backend and need to read a key
-      dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.SCANNING });
-    } else if (state?.session?.metadata?.command === CommandTypes.CREATE_KEY
-      || state?.session?.metadata?.command === CommandTypes.CREATE_COPY_KEY
-      || state?.session?.metadata?.command === CommandTypes.CREATE_JOINNER_KEY
-      || state?.session?.metadata?.command === CommandTypes.CREATE_NEW_KEY) {
-      dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.CREATE_KEY });
-    } else if (state.deviceStatus === DeviceStatuses.CONNECTED) { // waiting for session
-      dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.WAITING });
-    }
-  }, [state.deviceStatus, state.session, state.showAddKey, state.showKeys, state.showSettings]);
-
-  /* Get Session */
-  const getSession = useCallback(() => {
-    if (state.tokens && state.tokens.accessToken) {
-      const config = {
-        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
-        headers: {
-          authorization: `Bearer ${state.tokens.accessToken}`,
-        },
-        method: 'get',
-      };
-
-      const getScanSession = async () => {
-        try {
-          const response = await axios(config);
-
-          if (response?.data && !response.data?.result) {
-            dispatch({ type: ActionType.SET_SESSION, payload: response.data });
-          }
-
-          dispatch({ type: ActionType.SET_SEND_NEXT_SESSION_REQUEST, payload: true }); // next long poll
-        } catch (error) {
-          if (axios.isCancel(error)) {
-            console.error('ERROR: retrieving scan session: request cancelled');
-          } else {
-            console.error('ERROR: retrieving scan session: ', error);
-          }
-          dispatch({ type: ActionType.SET_SEND_NEXT_SESSION_REQUEST, payload: true });
-        }
-      };
-
-      getScanSession();
-    } else {
-      console.error('ERROR: retrieving scan session: missing token');
-    }
-  }, [state.tokens]);
-
-  /* Repeatedly Get Session Based on Process Status */
-  useEffect(() => {
-    if (state.tokens?.accessToken) {
-      // while WAITING, send a new "long" poll for a new session (1st request)
-      if (state.processStatus === ProcessStatuses.WAITING && initialSessionRequest.current) {
-        initialSessionRequest.current = false;
-        getSession();
-        // any subsequent request
-      } else if (state.processStatus === ProcessStatuses.WAITING && state.sendNextSessionRequest && !initialSessionRequest.current) {
-        dispatch({ type: ActionType.SET_SEND_NEXT_SESSION_REQUEST, payload: false });
-        getSession();
-      }
-    }
-  }, [state.processStatus, state.tokens, state.sendNextSessionRequest, getSession]);
+  //   return () => {
+  //     clearInterval(intervalTick);
+  //   };
+  // }, []);
 
   return (
     <ThemeProvider theme={theme}>
       <StyledWrapper>
         { !import.meta.env.VITE_EXPORT_MEMO_APP && <GlobalStyle /> }
         <AppDispatchContext.Provider value={dispatch}>
-          <TokenContext.Provider value={state.tokens}>
-            <StyledApp>
+          <StyledApp>
               <Header
                 showBack={state.showBack}
                 showCross={state.showCross}
                 title={state.headerTitle}
-                goBackToKeysButton={state.showAddKey.showComponent || state.showKeys.editMode || state.showKeys.deleteMode} />
+                goBackToKeysButton={state.showAddKey.showComponent || state.showIds.editMode || state.showIds.deleteMode} />
               <StyledContentWrapper>
 
                 <IdReader deviceStatus={state.deviceStatus} currentId={state.currentId} />
-                {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent
-                  && <>
-                    {(state.processStatus === ProcessStatuses.WAITING)
-                      && <Waiting deviceStatus={state.deviceStatus} selectedKey={state.selectedKey} />}
-                    {(state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)
-                      && <KeyContent selectedKey={state.selectedKey} type={state.session?.metadata.command as CommandTypes} />}
-                  </>
-                }
+                {!state.showSettings && !state.showAddKey.showComponent && !state.showIds.showComponent }
+
                 {/* TODO: processStatus ERROR */}
-                {!state.showSettings && !state.showKeys.showComponent && state.showAddKey.showComponent
-                  && <LocalAddKey saveKeyClicked={state.saveKeyClicked} selectedKey={state.selectedKey} editMode={state.showAddKey.editMode} />
+                {!state.showSettings && !state.showIds.showComponent && state.showAddKey.showComponent
+                  && <LocalAddId saveKeyClicked={state.saveKeyClicked} currentId={state.currentId} editMode={state.showAddKey.editMode} />
                 }
-                {!state.showSettings && !state.showAddKey.showComponent && state.showKeys.showComponent
+                {!state.showSettings && !state.showAddKey.showComponent && state.showIds.showComponent
                   && <>
-                    <ViewKeys keys={state.localKeys} selectedKey={state.selectedKey} showKeys={state.showKeys} />
+                    <ViewIds iDs={state.localIds} currentId={state.currentId} showIds={state.showIds} />
                     {state.showDeleteDialog && <DeleteDialog />}
                   </>
                 }
 
-                {state.processStatus === ProcessStatuses.SETTINGS
+                {state.showSettings
                   && <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
               </StyledContentWrapper>
               {state
                 && <Footer
                   showAddKey={state.showAddKey}
                   showSettings={state.showSettings}
-                  showKeys={state.showKeys}
+                  showIds={state.showIds}
                   saveButtonIsEnabled={state.saveButtonIsEnabled}
                   deleteButtonIsEnabled={state.deleteButtonIsEnabled}
                   allKeysAreSelected={state.allKeysAreSelected}
-                  enableEditandDeleteButton={state.localKeys.length >= 1} />
+                  enableEditandDeleteButton={state.localIds.length >= 1} />
               }
             </StyledApp>
-          </TokenContext.Provider>
         </AppDispatchContext.Provider>
       </StyledWrapper>
     </ThemeProvider>

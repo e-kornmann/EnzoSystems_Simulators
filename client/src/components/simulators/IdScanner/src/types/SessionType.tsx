@@ -1,12 +1,12 @@
-import KeyType from './PassPortType';
+import { PassPort } from './PassPortType';
 
 type SessionType = {
   metadata: {
     command: string,
     sessionId: string,
     status: string,
-    keyData: KeyType
+    IdData: PassPort,
   }
-}
+};
 
 export default SessionType;
