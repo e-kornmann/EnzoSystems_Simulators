@@ -16,13 +16,14 @@ import ActionType from '../../enums/ActionTypes';
 
 import AnimatedCrossHair from './AnimatedCrossHair';
 import useLogOn from '../../../local_hooks/useLogOn';
-import { PassPort } from '../../types/PassPortType';
+import { IdType } from '../../types/IdType';
+import { InputFields } from '../LocalAddId/LocalAddId';
 
 const QrScannerWrapper = styled('div')({
   width: '100%',
   height: '100%',
   display: 'grid',
-  gridTemplateRows: '14% 16% 1fr 22%',
+  gridTemplateRows: '16% 16% 1fr 22%',
   rowGap: '2%',
   padding: '8px 0',
 });
@@ -149,7 +150,7 @@ const AnimatedQr = styled.div<{ $animate: boolean }>`
 
   type Props = {
     deviceStatus: DeviceStatuses
-    currentId: PassPort | undefined;
+    currentId: IdType | undefined;
   };
 
 const IdReader = ({ deviceStatus, currentId }: Props) => {
@@ -455,16 +456,16 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
           <ScanActionButton
             type="button"
             onClick={scanQrButtonHandler}
-            disabled={!currentId || !currentId.primaryId
-              || !currentId.passPortNr
+            disabled={!currentId || !currentId[InputFields.DOCUMENT_NR]
+              || !currentId[InputFields.NAME_PRIMARY]
               || operationalState !== OperationalStatuses.DEVICE_WAITING_FOR_BARCODE
             }
           >
             <QrCodeIconNoCanvas width={15} height={15} />
             <span>
-              {((!currentId || !currentId.primaryId)
+              {((!currentId || !currentId[InputFields.DOCUMENT_NR])
                 ? 'No Ids'
-                : `Scan: ${currentId.primaryId}`)}
+                : `Scan: ${currentId[InputFields.DOCUMENT_NR]}`)}
             </span>
           </ScanActionButton>
         </ButtonBox>

@@ -15,7 +15,7 @@ import KeyProcessStatuses from '../../enums/KeyProcessStatuses';
 import { ReactComponent as CheckmarkIcon } from '../../../local_assets/checkmark.svg';
 import { ReactComponent as PresentIdIcon } from '../../../local_assets/present_id.svg';
 // types
-import KeyType from '../../types/PassPortType';
+import KeyType from '../../types/IdType';
 import ActionType from '../../enums/ActionTypes';
 
 type StyledCardProps = {

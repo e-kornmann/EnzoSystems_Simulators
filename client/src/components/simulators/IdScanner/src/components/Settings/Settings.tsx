@@ -7,7 +7,7 @@ import { SettingControl } from './SettingControl/SettingControl';
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // enums
 import DeviceStatuses from '../../enums/DeviceStatuses';
-import SettingType from '../../local_types/SettingType';
+import SettingType from '../../types/SettingType';
 import SettingsTypes from '../../enums/SettingsTypes';
 import ActionType from '../../enums/ActionTypes';
 

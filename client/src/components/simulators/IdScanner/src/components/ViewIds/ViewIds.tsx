@@ -8,8 +8,10 @@ import { ReactComponent as CheckmarkIcon } from '../../../local_assets/checkmark
 // types
 
 import ActionType from '../../enums/ActionTypes';
-import { PassPort } from '../../types/PassPortType';
+
 import ShowIdType from '../../types/ShowKeyType';
+import { IdType } from '../../types/IdType';
+import { InputFields } from '../LocalAddId/LocalAddId';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -132,17 +134,17 @@ const StyledSharedCheckBox = styled('div')<{
 );
 
 type ViewKeysProps = {
-  iDs: PassPort[] | null,
-  currentId: PassPort | undefined,
+  iDs: IdType[] | null,
+  currentId: IdType | undefined,
   showIds: ShowIdType,
 };
 
 const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewKeysProps) => {
   const { deleteKeyClicked, selectAllKeyClicked, deselectAllKeyClicked, editMode, deleteMode } = showIds;
-  const [currentIdsForDeletion, setSelectedIDsForDeletion] = useState<PassPort[]>([]);
+  const [currentIdsForDeletion, setSelectedIDsForDeletion] = useState<IdType[]>([]);
   const appDispatch = useContext(AppDispatchContext);
 
-  const toggleSelectedIDForDeletion = useCallback((key: PassPort) => {
+  const toggleSelectedIDForDeletion = useCallback((key: IdType) => {
     if (currentIdsForDeletion) {
       if (currentIdsForDeletion.includes(key)) {
         setSelectedIDsForDeletion(currentIdsForDeletion.filter(k => k !== key));
@@ -152,7 +154,7 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewKeysProps) => {
     }
   }, [currentIdsForDeletion]);
 
-  const handleKeySelect = useCallback((key: PassPort) => {
+  const handleKeySelect = useCallback((key: IdType) => {
     appDispatch({ type: ActionType.SELECT_ID, payload: key });
     if (editMode) {
       appDispatch({ type: ActionType.EDIT_ID, payload: true });
@@ -224,10 +226,11 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewKeysProps) => {
                 </StyledSharedCheckBox>
               }
 
-              <StyledRoomNumber $showAddMark={false}><span>{`(${id?.documentCode})`}</span></StyledRoomNumber>
+              <StyledRoomNumber $showAddMark={false}><span>{`(${id[InputFields.DOCUMENT_TYPE]})`}</span></StyledRoomNumber>
             </StyledWrap>
             <StyledDates>
-              <span>{id.primaryId}</span>
+              <span>{id[InputFields.DOCUMENT_NR]}</span>
+              <span>{id[InputFields.NAME_PRIMARY] + ' ' + id[InputFields.NAME_SECONDARY]}</span>
             </StyledDates>
 
           </StyledItem>

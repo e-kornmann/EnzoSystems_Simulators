@@ -21,7 +21,8 @@ import ShowAddKeyType from './types/ShowAddKeyType';
 import ShowKeyType from './types/ShowKeyType';
 import ActionType from './enums/ActionTypes';
 import IdReader from './components/IdReader/IdReader';
-import { PassPort } from './types/PassPortType';
+import { CountriesAlpha3 } from './enums/CountryCodesISO3166Alpha3';
+import { IdType } from './types/IdType';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -86,11 +87,19 @@ const StyledContentWrapper = styled('div')({
   overflowY: 'hidden',
 });
 
+export enum Lang {
+  DUTCH = CountriesAlpha3.Netherlands,
+  ENGLISH = CountriesAlpha3['United Kingdom'],
+  GERMAN = CountriesAlpha3.Germany,
+  FRENCH = CountriesAlpha3.France,
+}
+
 type AppStateType = {
   deviceStatus: DeviceStatuses,
+  appLanguage: Lang,
   headerTitle: string,
-  localIds: PassPort[],
-  currentId: PassPort | undefined,
+  localIds: IdType[],
+  currentId: IdType | undefined,
   saveKeyClicked: boolean,
   showAddKey: ShowAddKeyType,
   // footer
@@ -109,6 +118,7 @@ type AppStateType = {
 
 const initialState: AppStateType = {
   deviceStatus: DeviceStatuses.CONNECTED,
+  appLanguage: Lang.ENGLISH,
   headerTitle: 'ID Scanner',
   localIds: [],
   currentId: undefined,
@@ -240,7 +250,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     }
     case ActionType.UPDATE_ID: {
       const newIds = state.localIds ? [...state.localIds] : [];
-      const index = newIds.findIndex(iD => iD.primaryId === action.payload.primaryId);
+      const index = newIds.findIndex(iD => iD.documentNr === action.payload.documentNr);
 
       if (index !== -1) {
         newIds[index] = action.payload;
@@ -319,7 +329,11 @@ const App = () => {
 
                 {/* TODO: processStatus ERROR */}
                 {!state.showSettings && !state.showIds.showComponent && state.showAddKey.showComponent
-                  && <LocalAddId saveKeyClicked={state.saveKeyClicked} currentId={state.currentId} editMode={state.showAddKey.editMode} />
+                  && <LocalAddId
+                  saveKeyClicked={state.saveKeyClicked}
+                  currentId={state.currentId}
+                  editMode={state.showAddKey.editMode}
+                  appLanguage={state.appLanguage} />
                 }
                 {!state.showSettings && !state.showAddKey.showComponent && state.showIds.showComponent
                   && <>
