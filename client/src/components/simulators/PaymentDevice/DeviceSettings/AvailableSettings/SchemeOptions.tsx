@@ -1,6 +1,4 @@
-import {
-  memo, useContext, useState, useEffect,
-} from 'react';
+import { memo, useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';

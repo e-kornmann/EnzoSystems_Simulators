@@ -7,6 +7,8 @@ import { format, parseISO } from 'date-fns';
 import DeviceStatuses from '../../enums/DeviceStatuses';
 // types
 import KeyType from '../../types/KeyType';
+// components 
+import SharedLoading from '../../../local_shared/Loading';
 
 const StyledWrapper = styled('div')({
   height: '100%',
@@ -119,14 +121,14 @@ const WaitingComponent = ({ deviceStatus, selectedKey }: WaitingProps) => {
       case DeviceStatuses.OUT_OF_ORDER:
         return 'Out of order';
       default:
-        return 'Waiting for \n command READ_KEY \n or CREATE_KEY';
+        return 'Waiting';
     }
   }, [deviceStatus]);
 
   return (
     <StyledWrapper>
       <StyledHeader>
-        {title}
+        { title === 'Waiting' ? <SharedLoading /> : title }
       </StyledHeader>
 
       {selectedKey &&

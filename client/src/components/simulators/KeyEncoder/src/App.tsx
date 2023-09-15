@@ -167,7 +167,6 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         initialized: state.initialized,
       };
     }
-
     case ActionType.DELETE_KEY_CLICKED: {
       return { ...state, showKeys: { ...state.showKeys, deleteKeyClicked: true } };
     }
@@ -390,11 +389,9 @@ const App = () => {
       const updateStatus = async () => {
         try {
           const response = await axios(config);
-
           if (!response?.data) {
             throw Error('Missing response data');
           }
-
           console.log(`Updated Status! Key encoder status: ${status}`);
         } catch (error) {
           console.error('Error: updating key encoder status: ', error);

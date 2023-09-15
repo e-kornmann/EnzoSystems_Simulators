@@ -1,6 +1,6 @@
 // types
 import InputActionType from '../../enums/InputActionTypes';
-import { PassPort } from '../PassPortType';
+import { PassPort } from '../IdType';
 
 type InputValueAction = { type: InputActionType.INPUT_VALUE | InputActionType.ADD_ROOMS, field: keyof PassPort, payload: string | string[] };
 type SetKeyAction = { type: InputActionType.SET_ID, payload: PassPort };

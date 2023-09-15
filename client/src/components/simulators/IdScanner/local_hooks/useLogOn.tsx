@@ -1,18 +1,9 @@
 import { useState } from 'react';
-
-
-// const dontUseLocal = import.meta.env.VITE_EXPORT_MEMO_APP || false
-// let pinApi: any;
-// if (dontUseLocal) {
-//   pinApi = require('../../../../api/pinApi');
-// } else {
-//   pinApi = require('../local_api/pinApi');
-// }
+import { AxiosResponse } from 'axios';
 import pinApi from '../local_api/pinApi';
 import scanApi from '../local_api/scannerApi';
 import idScanApi from '../local_api/idScannerApi';
 import { CredentialType, ReqLogOnType } from '../local_types/LogOnTypes';
-import { AxiosResponse } from 'axios';
 
 const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoint: string) => {
   const [token, setToken] = useState('');
@@ -68,4 +59,3 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
 };
 
 export default useLogOn;
-

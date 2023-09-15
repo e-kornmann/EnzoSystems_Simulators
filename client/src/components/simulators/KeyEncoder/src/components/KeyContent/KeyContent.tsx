@@ -21,9 +21,6 @@ import ActionType from '../../enums/ActionTypes';
 type StyledCardProps = {
   $show: boolean;
 };
-type StyledItemProps = {
-  $animateText: boolean
-};
 
 const StyledWrapper = styled('div')({
   height: '100%',
@@ -31,6 +28,7 @@ const StyledWrapper = styled('div')({
   gridTemplateRows: '18% 16% 1fr',
   rowGap: '2%',
   overflowY: 'hidden',
+  overflowX: 'hidden',
 });
 const StyledHeader = styled('div')({
   width: '100%',
@@ -76,7 +74,10 @@ const StyledContent = styled('div')({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'flex-start',
+  overflowY: 'hidden',
+  overflowX: 'hidden',
 });
+
 const slideAnimation = keyframes`
   0% {
     opacity: 0.5;
@@ -99,56 +100,70 @@ const textFadeInAnimation = keyframes`
     opacity: 1;
   }
 `;
-const StyledCard = styled('div')<StyledCardProps>(({ $show }) => ({
+const StyledCardBox = styled('div')<StyledCardProps>(({ $show }) => ({
+  position: 'fixed',
   alignItems: 'center',
   display: $show ? 'flex' : 'none',
   justifyContent: 'center',
-  height: '60%',
   top: '20%',
   width: '100%',
+  height: '60%',
   zIndex: 300,
+  overflowY: 'hidden',
+  overflowX: 'hidden',
 }));
-const StyledCardContent = styled('div')`
-  alignItems: center;
-  animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
-  backgroundColor: ${props => props.theme.colors.background.primary};
-  borderRadius: 12px;
-  boxShadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+
+const StyledCard = styled('div')<{ $animateText: boolean }>`
   display: grid;
-  gridTemplateRows: 30% 30% 20% 20%;
+  grid-template-rows: 30% 25% 20% 25%;
+  animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
+  background-color: ${props => props.theme.colors.background.primary};
+  border-radius: 12px;
+  min-height: 100px;
+  max-height: 400px;
+  max-width: 600px;
   height: 46%;
-  maxHeight: 400px;
-  minHeight: 100px;
-  maxWidth: 600px;
-  padding: 5%;
   width: 88%;
+  box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+  color: ${props => props.theme.colors.text.primary};
+  & > div {
+    opacity: ${props => props.$animateText ? 0 : 1};
+  }
 `;
-const StyledItem = styled('div')<StyledItemProps>(({ theme, $animateText }) => ({
-  color: theme.colors.text.primary,
-  fontVariantNumeric: 'tabular-nums',
-  fontWeight: 500,
-  lineHeight: '1.3em',
-  opacity: $animateText ? 0 : 1,
-  textAlign: 'center',
-}));
-const StyledRoomNumber = styled(StyledItem)`
+
+const StyledRoomNumber = styled('div')`
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;  
   animation: ${textFadeInAnimation} 0.2s ease 0.75s 1 normal forwards;
-  fontSize: 1.5em;
-  fontVariantNumeric: normal;
-  fontWeight: 600;
+  font-size: 1.5em;
+  font-weight: 600;
 `;
-const StyledAdditionalAccess = styled(StyledItem)`
+
+const StyledAdditionalAccess = styled(StyledRoomNumber)`
+  align-items: center;
   animation: ${textFadeInAnimation} 0.2s ease 1.25s 1 normal forwards;
-  fontSize: 0.75em;
-  fontVariantNumeric: normal;
+  font-size: 0.75em;
+  font-weight: 500;
+  text-align: center;
 `;
-const StyledDates = styled(StyledItem)`
-  animation: ${textFadeInAnimation} 0.2 ease 1.5s 1 normal forwards;
-  fontSize: 0.95em;
+const StyledStartDate = styled('div')`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;  
+  animation: ${textFadeInAnimation} 0.2s ease 1.50s 1 normal forwards;
+  font-size: 0.95em;
+  font-weight: 500;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 `;
-const StyledDate = styled('div')({
-  fontVariantNumeric: 'tabular-nums',
-});
+const StyledEndDate = styled(StyledStartDate)`
+  align-items: flex-start;
+  animation: ${textFadeInAnimation} 0.2s ease 1.75s 1 normal forwards;
+`;
+
 
 type KeyContentProps = {
   selectedKey: KeyType | null,
@@ -343,59 +358,40 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
             <PresentKeyIcon />
           </StyledPresentKeyButton>
         }
-        <StyledCard $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>
-          <StyledCardContent>
-            <StyledRoomNumber $animateText={
-              type === CommandTypes.CREATE_KEY
-              || type === CommandTypes.CREATE_COPY_KEY
-              || type === CommandTypes.CREATE_JOINNER_KEY
-              || type === CommandTypes.CREATE_NEW_KEY
-            }>
-              {(type !== CommandTypes.CREATE_KEY
-                && type !== CommandTypes.CREATE_COPY_KEY
-                && type !== CommandTypes.CREATE_JOINNER_KEY
-                && type !== CommandTypes.CREATE_NEW_KEY) ? selectedKey?.roomAccess.join(', ') : createdKeyData?.roomAccess.join(', ')}
+        <StyledCardBox $show={keyProcessStatus === KeyProcessStatuses.PROCESSING || keyProcessStatus === KeyProcessStatuses.READY}>
+
+          <StyledCard $animateText={!(type === CommandTypes.READ_KEY)}>
+
+            <StyledRoomNumber>
+              {type === CommandTypes.READ_KEY 
+                ? selectedKey?.roomAccess.join(', ') 
+                : createdKeyData?.roomAccess.join(', ')}
             </StyledRoomNumber>
 
-            <StyledAdditionalAccess $animateText={
-              type === CommandTypes.CREATE_KEY
-              || type === CommandTypes.CREATE_COPY_KEY
-              || type === CommandTypes.CREATE_JOINNER_KEY
-              || type === CommandTypes.CREATE_NEW_KEY
-            }>
-              {(type !== CommandTypes.CREATE_KEY
-                && type !== CommandTypes.CREATE_COPY_KEY
-                && type !== CommandTypes.CREATE_JOINNER_KEY
-                && type !== CommandTypes.CREATE_NEW_KEY)
-                ? `Access to: ${selectedKey?.additionalAccess.join(', ')}`
-                : `Access to: ${createdKeyData?.additionalAccess.join(', ')}`}
+            <StyledAdditionalAccess>
+              {type === CommandTypes.READ_KEY 
+                ? `Access to: \n ${selectedKey?.additionalAccess.join(', ')}`
+                : `Access to: \n ${createdKeyData?.additionalAccess.join(', ')}`}
             </StyledAdditionalAccess>
 
-            <StyledDates $animateText={
-              type === CommandTypes.CREATE_KEY
-              || type === CommandTypes.CREATE_COPY_KEY
-              || type === CommandTypes.CREATE_JOINNER_KEY
-              || type === CommandTypes.CREATE_NEW_KEY
-            }>
-              <StyledDate >
-                {(type !== CommandTypes.CREATE_KEY
-                  && type !== CommandTypes.CREATE_COPY_KEY
-                  && type !== CommandTypes.CREATE_JOINNER_KEY
-                  && type !== CommandTypes.CREATE_NEW_KEY)
-                  ? (selectedKey && isoParser(selectedKey.startDateTime))
-                  : (createdKeyData && isoParser(createdKeyData.startDateTime))}
-              </StyledDate>
-              <StyledDate>
-                {(type !== CommandTypes.CREATE_KEY
-                  && type !== CommandTypes.CREATE_COPY_KEY
-                  && type !== CommandTypes.CREATE_JOINNER_KEY
-                  && type !== CommandTypes.CREATE_NEW_KEY)
-                  ? (selectedKey && isoParser(selectedKey.endDateTime))
-                  : (createdKeyData && isoParser(createdKeyData.endDateTime))}
-              </StyledDate>
-            </StyledDates>
-          </StyledCardContent>
-        </StyledCard>
+
+            <StyledStartDate >
+              {type === CommandTypes.READ_KEY 
+                ? `${(selectedKey && isoParser(selectedKey.startDateTime))}`
+                : `${(createdKeyData && isoParser(createdKeyData.startDateTime))}`
+              }
+            </StyledStartDate>
+            <StyledEndDate>
+              {type === CommandTypes.READ_KEY 
+                ? `${(selectedKey && isoParser(selectedKey.endDateTime))}`
+                : `${(createdKeyData && isoParser(createdKeyData.endDateTime))}`
+              }
+            </StyledEndDate>
+
+
+          </StyledCard>
+
+        </StyledCardBox>
 
       </StyledContent>
     </StyledWrapper>

@@ -4,14 +4,17 @@ import styled from 'styled-components';
 // import StyledArrow from './EnzoCheckBoxDropDown';
 import { ReactComponent as ArrowIcon } from '../../../../local_assets/arrow_up-down.svg';
 // types
-import AddKeyFieldType from '../../../local_types/AddKeyFieldType';
-import KeyType from '../../../types/PassPortType';
+import { Sex, TypeOfDocument } from '../../../types/IdType';
+import { CountriesAlpha3 } from '../../../enums/CountryCodesISO3166Alpha3';
+import { InputFields } from '../../LocalAddId/LocalAddId';
+import { Translate } from '../../../Translations/Translations';
+import { Lang } from '../../../App';
 
 const StyledControl = styled('div')<{
   $hasValue?: boolean
-}>(({ $hasValue }) => ({
-  marginTop: '4px',
-  height: '34px',
+}>(({ theme, $hasValue }) => ({
+  marginTop: '10px',
+  height: '100%',
   width: '100%',
   display: 'flex',
   justifyContent: 'flex-start',
@@ -30,6 +33,11 @@ const StyledControl = styled('div')<{
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-50%)',
     transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
+    '& > span': {
+      color: theme.colors.text.secondary,
+      position: 'relative',
+      bottom: '3px',
+    },
   },
   '&:focus-within > label': {
     top: '-5px',
@@ -48,9 +56,9 @@ const StyledSelect = styled('div')<{
   border: '0.12em solid',
   borderColor: $isFocus ? theme.colors.buttons.special : theme.colors.buttons.gray,
   borderRadius: '3px',
-  padding: '9px 8px 0px',
+  padding: '10px 8px 5px 6px',
   width: '100%',
-  height: '100%',
+  height: '35px',
   cursor: 'pointer',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
@@ -82,10 +90,10 @@ const StyledOptionsContainer = styled('div')<{
   display: $showOptions ? 'flex' : 'none',
   position: 'absolute',
   flexDirection: 'column',
-  top: '14px',
+  top: '4px',
   width: '100%',
   zIndex: '2',
-  height: '100px',
+  maxHeight: '200px',
 }));
 const StyledClickableContainer = styled('div')({
   backgroundColor: 'transparent',
@@ -99,8 +107,9 @@ const StyledOptions = styled('div')(({ theme }) => ({
   border: `1px solid ${theme.colors.buttons.lightgray}`,
   borderRadius: '2px',
   width: '100%',
-  height: '100%',
-  marginBottom: '10px',
+  height: 'fit-content',
+  maxHeight: '120px',
+  marginBottom: '50px',
   zIndex: '2',
   overflowY: 'scroll',
   overflowX: 'hidden',
@@ -111,35 +120,55 @@ const StyledOption = styled('div')<{
 }>(({ theme, $isSelected }) => ({
   backgroundColor: $isSelected ? theme.colors.buttons.special : theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
-  padding: '3px 9px',
+  padding: '4px 9px',
   cursor: 'pointer',
-  '&:first-child': {
-    padding: '7px 9px 3px',
-  },
-  '&:last-child': {
-    padding: '3px 9px 7px',
-  },
+  '&:hover': {
+  backgroundColor: theme.colors.buttons.specialTransparent
+  }
+
 }));
 
-type Option = {
-  name: string,
-  value: string
-};
-
 type Props = {
-  initialValue: string,
-  field: AddKeyFieldType,
-  label: string,
-  options: Option[],
-  onOptionClicked: (value: string, field: keyof KeyType) => void
+  initialValue?: string | undefined;
+  field: InputFields;
+  onOptionClicked: (value: string, field: InputFields) => void;
+  appLanguage: Lang;
 };
 
-const TimeDropDown = ({
-  initialValue, field, label, options, onOptionClicked,
-}: Props) => {
-  const [selectedValue, setSelectedValue] = useState('');
+const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }: Props) => {
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined);
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
+
+  const [options, setOptions] = useState<{ optionKeys: string[], optionValues: string[] }>({
+    optionKeys: [],
+    optionValues: [],
+  });
+
+  useEffect(() => {
+    switch (field) {
+      case InputFields.DOCUMENT_TYPE:
+        setOptions({
+          optionKeys: Object.keys(TypeOfDocument) as string[],
+          optionValues: Object.values(TypeOfDocument) as string[],
+        });
+        break;
+      case InputFields.NATIONALITY:
+        setOptions({
+          optionKeys: Object.keys(CountriesAlpha3) as string[],
+          optionValues: Object.values(CountriesAlpha3) as string[],
+        });
+        break;
+      case InputFields.SEX:
+        setOptions({
+          optionKeys: Object.keys(Sex) as string[],
+          optionValues: Object.values(Sex) as string[],
+        });
+        break;
+      default:
+        break;
+    }
+  }, [field]);
 
   useEffect(() => {
     if (initialValue) {
@@ -147,10 +176,10 @@ const TimeDropDown = ({
     }
   }, [initialValue]);
 
-  const handleOptionClicked = useCallback((option: Option) => {
+  const handleOptionClicked = useCallback((option: string) => {
     setShowOptions(false);
-    setSelectedValue(option.value);
-    onOptionClicked(option.value, field.source as keyof KeyType);
+    setSelectedValue(option);
+    onOptionClicked(option, field);
   }, [field, onOptionClicked]);
 
   const handleClick = useCallback(() => {
@@ -170,20 +199,26 @@ const TimeDropDown = ({
   }, [showOptions]);
 
   return (
-    <StyledControl>
+    <StyledControl $hasValue={selectedValue !== undefined} ref={optionsRef}  >
+      <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
       <StyledSelect $isFocus={showOptions} onClick={handleClick}>
-        {options?.find(option => option.value === selectedValue)?.name || label}
+        {options.optionValues.find(option => option === selectedValue)}
       </StyledSelect>
 
       <StyledOptionsContainer ref={optionsRef} $showOptions={showOptions}>
         <StyledClickableContainer onClick={handleClick} />
         <StyledOptions>
-          {options.map(option => (
-            <StyledOption id={option.name} value={option.value} $isSelected={selectedValue === option.value} onClick={() => { handleOptionClicked(option); }}>
-              {option.name}
-            </StyledOption>
-          ))}
-        </StyledOptions>
+  {options.optionValues.map((option, index) => (
+    <StyledOption
+      key={index}
+      value={option}
+      $isSelected={selectedValue === option}
+      onClick={() => { handleOptionClicked(option); }}
+    >
+      {options.optionKeys[index]}
+    </StyledOption>
+  ))}
+</StyledOptions>
       </StyledOptionsContainer>
 
       <StyledArrow $arrowDown={showOptions}>
@@ -193,4 +228,4 @@ const TimeDropDown = ({
   );
 };
 
-export const EnzoTimeDropDown = memo(TimeDropDown);
+export const SharedDropDown = memo(DropDownComponent);
