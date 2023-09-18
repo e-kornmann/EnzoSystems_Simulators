@@ -20,7 +20,7 @@ import AppDispatchActions from './types/reducerActions/AppDispatchActions';
 import ShowAddKeyType from './types/ShowAddKeyType';
 import ShowKeyType from './types/ShowKeyType';
 import ActionType from './enums/ActionTypes';
-import IdReader from './components/IdReader/IdReader';
+import { IdReader } from './components/IdReader/IdReader';
 import { CountriesAlpha3 } from './enums/CountryCodesISO3166Alpha3';
 import { IdType } from './types/IdType';
 
@@ -117,7 +117,7 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  deviceStatus: DeviceStatuses.CONNECTED,
+  deviceStatus: DeviceStatuses.OUT_OF_ORDER,
   appLanguage: Lang.ENGLISH,
   headerTitle: 'ID Scanner',
   localIds: [],
@@ -153,9 +153,9 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.CLICKED_CROSS: { // close window and return to main screen
       return {
         ...initialState,
+        deviceStatus: state.deviceStatus,
         localIds: state.localIds,
         currentId: state.currentId,
-        deviceStatus: state.deviceStatus,
       };
     }
     case ActionType.DELETE_ID_CLICKED: {

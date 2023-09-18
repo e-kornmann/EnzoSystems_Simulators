@@ -47,7 +47,7 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
       const { accessToken } = response.data;
       setToken(accessToken);
 
-      console.log(`${endpointMap[apiEndpoint]} has been able to get a Token`);
+      console.log(`${endpointMap[apiEndpoint]} has been able to get a Token: ${accessToken}`);
       return true;
     } catch (error) {
       console.error(`Error: ${endpointMap[apiEndpoint as keyof typeof endpointMap]} retrieving authentication token:`, error);

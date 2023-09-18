@@ -1,8 +1,7 @@
 import styled, { keyframes } from 'styled-components';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
-
-// import { changeDeviceStatus, getSession, putScannedData } from '../../utils/scanApiRequests';
 
 import DeviceStatuses from '../../enums/DeviceStatuses';
 import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon';
@@ -13,11 +12,12 @@ import SharedLoading from '../../../local_shared/Loading';
 import { scannerCredentials, reqBody } from '../../config';
 import ActionType from '../../enums/ActionTypes';
 
-
 import AnimatedCrossHair from './AnimatedCrossHair';
 import useLogOn from '../../../local_hooks/useLogOn';
 import { IdType } from '../../types/IdType';
 import { InputFields } from '../LocalAddId/LocalAddId';
+
+import idScanApi from '../../../../../../api/idScannerApi';
 
 const QrScannerWrapper = styled('div')({
   width: '100%',
@@ -153,26 +153,12 @@ const AnimatedQr = styled.div<{ $animate: boolean }>`
     currentId: IdType | undefined;
   };
 
-const IdReader = ({ deviceStatus, currentId }: Props) => {
+const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
   const appDispatch = useContext(AppDispatchContext);
   const [init, setInit] = useState(false);
   const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'id-scanner');
   const [operationalState, setOperationalState] = useState<OperationalStatuses>(OperationalStatuses.DEVICE_START_UP);
   const [instructionText, setInstructionText] = useState('');
-
-  // This useEffect 'listens' to clicked device settings.
-  useEffect(() => {
-    // connect when Connected settings has been clicked.
-    if (deviceStatus === DeviceStatuses.CONNECTED) {
-      // if you are already logged in
-      if (init) setOperationalState(OperationalStatuses.DEVICE_CONNECT);
-      else setOperationalState(OperationalStatuses.DEVICE_START_UP);
-    }
-    // disconnect when Disonnected settings has been clicked.
-    if (deviceStatus === DeviceStatuses.DISCONNECTED) setOperationalState(OperationalStatuses.DEVICE_DISCONNECT);
-    // OUT_OF_ORDER when OUT_OF_ORDER settings has been clicked.
-    if (deviceStatus === DeviceStatuses.OUT_OF_ORDER) setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
-  }, [init, deviceStatus]);
 
   const getToken = useCallback(async () => {
     if (!init) {
@@ -188,6 +174,76 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
       });
     }
   }, [init, logOn]);
+
+  // This useEffect 'listens' to clicked device settings.
+  useEffect(() => {
+    switch (deviceStatus) {
+      case DeviceStatuses.CONNECTED:
+        if (init) {
+          console.log('A');
+          setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+        } else {
+          console.log('B');
+          setOperationalState(OperationalStatuses.DEVICE_START_UP);
+        }
+        break;
+      case DeviceStatuses.DISCONNECTED:
+        console.log('C');
+        setOperationalState(OperationalStatuses.DEVICE_DISCONNECT);
+        break;
+      case DeviceStatuses.OUT_OF_ORDER:
+        setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
+        break;
+      default:
+        break;
+    }
+  }, [init, deviceStatus]);
+
+  /* Get Session */
+  const getSession = useCallback(async () => {
+    const config = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      method: 'get',
+    };
+
+    try {
+      const response = await idScanApi(config);
+
+      return response.data.metadata ? response.data.metadata : response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return error.response;
+      }
+      console.error('Unable to get session:', error);
+      return undefined;
+    }
+    return undefined;
+  }, [token]);
+
+  /* Change device status */
+  const changeDeviceStatus = useCallback(async (changeToThisState: string) => {
+    try {
+      const config = {
+        headers: {
+          contentType: 'application/json',
+          authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await idScanApi.put(
+        '/status',
+        {
+          status: changeToThisState,
+        },
+        config,
+      );
+      return response;
+    } catch (error) {
+      console.error('Unable to connect:', error);
+      return undefined;
+    }
+  }, [token]);
 
   useEffect(() => {
     let waitTime: number | undefined;
@@ -226,16 +282,15 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
         break;
       case OperationalStatuses.DEVICE_CONNECTED:
         setInstructionText('CONNECTED');
-        waitTime = 1000;
+        waitTime = 250;
         break;
       case OperationalStatuses.DEVICE_COULD_NOT_CONNECT:
         setInstructionText('Could not connect');
         waitTime = 3500;
         break;
-      case OperationalStatuses.DEVICE_WAITING_FOR_BARCODE:
+      case OperationalStatuses.DEVICE_WAITING_FOR_ID:
         setInstructionText('Ready to scan ID');
-        waitTime = 1000;
-        checkCounter = 0;
+        waitTime = 250;
         break;
       case OperationalStatuses.DEVICE_STOPPED:
         setInstructionText('DEVICE DISABLED');
@@ -265,8 +320,7 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
     }
     // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
     if (waitTime) {
-      // let response;
-
+      let response;
       intervalId = setInterval(async () => {
         switch (operationalState) {
           case OperationalStatuses.API_ERROR:
@@ -274,20 +328,20 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_CONNECT:
             if (token) {
-              // response = await changeDeviceStatus(token, 'CONNECTED');
-              // if (response) {
-              //   if (response.status !== 200) {
-              //     setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-              //   } else if (response.status === 200) {
+              response = await changeDeviceStatus('CONNECTED');
+              if (response) {
+                if (response.status !== 200) {
+                  setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
+                } else if (response.status === 200) {
+                  checkCounter = 0;
+                  appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
                   setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
                   // update Settings because initial state is OUT_OF_ORDER
-                  appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
-                // }
-                // if response is undefined but token is there, maybe device is out of order?
-              // } else if (response === undefined) {
-            
-                // setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
-              
+                }
+              // if response is undefined but token is there, maybe device is out of order?
+              } else if (response === undefined) {
+                setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
+              }
             } else {
               // if there is no token try again to get one.
               setOperationalState(OperationalStatuses.DEVICE_START_UP);
@@ -295,41 +349,34 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_DISCONNECT:
             if (token) {
-              // response = await changeDeviceStatus(token, 'DISCONNECTED');
-              // if (response) {
-              //   if (response.status === 200) {
+              response = await changeDeviceStatus('DISCONNECTED');
+              if (response) {
+                if (response.status === 200) {
                   setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
-                } else {
-            //   }
-            // } else {
-            //   // if there is no token try again to get one.
-             
+                }
+              }
+            } else {
+              // if there is no token try again to get one.
               setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.DEVICE_CONNECTED:
+            checkCounter += 1;
+            console.log(checkCounter);
             if (token) {
-              // // If still connected look if scanner needs to be activated
-              // const newMode = await getSession(token);
-              // if (newMode.status === 'WAITING_FOR_BARCODE') {
-                setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_BARCODE);
-              // } else {
-              //   checkCounter += 1;
-              // }
-              // // This endpoint need to be called by the device on a regular base to stay in connected state.
-              // // In case the status is not updated in time, the internal status will fallback to "not_found"
-              // // Timeout is set to 60000 on backend. Maybe to put checkcounter dynamically
-              // if (checkCounter >= 50) {
-              //   response = await changeDeviceStatus(token, 'CONNECTED');
-              //   if (response) {
-              //     if (response.status !== 200) {
-              //       setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-              //     }
-              //   } else {
-              //     // also if response is undefined.
-              //     setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-              //   }
-              // }
+              // If connected look if scanner needs to be activated
+              const sessionDetails = await getSession();
+              if (sessionDetails) {
+                if (sessionDetails.command === 'SCAN_ID') {
+                  setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
+                }
+              }
+              // This endpoint need to be called by the device on a regular base to stay in connected state.
+              // In case the status is not updated in time, the internal status will fallback to "not_found"
+              // Timeout is set to 60000 on backend. Maybe to put checkcounter dynamically
+              if (checkCounter >= 200) {
+                setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+              }
             } else {
               // if there is no token try again to get one.
               setOperationalState(OperationalStatuses.DEVICE_START_UP);
@@ -339,34 +386,34 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
             // If you cannot connect you probarly also cannot set to DISCONNECT...
             // either way i put the code here maybe this state can be deleted.
             if (token) {
-              // response = await changeDeviceStatus(token, 'DISCONNECTED');
-              // if (response) {
-              //   if (response.status === 200) {
+              response = await changeDeviceStatus('DISCONNECTED');
+              if (response) {
+                if (response.status === 200) {
                   setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
                 }
                 // if response is undefined but token is there, maybe device is out of order?
-              // } else if (response === undefined) {
-              //   setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
-              // }
-             else {
+              } else if (response === undefined) {
+                setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
+              }
+            } else {
               // if there is no token try again to get one.
               setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.DEVICE_OUT_OF_ORDER:
             if (token) {
-              // response = await changeDeviceStatus(token, 'OUT_OF_ORDER');
-              // if (response) {
-              //   if (response.status === 200) {
-              //     setOperationalState(OperationalStatuses.API_ERROR);
-              //   }
-              // }
+              response = await changeDeviceStatus('OUT_OF_ORDER');
+              if (response) {
+                if (response.status === 200) {
+                  setOperationalState(OperationalStatuses.API_ERROR);
+                }
+              }
             } else {
               // if there is no token try again to get one.
               setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
-          case OperationalStatuses.DEVICE_WAITING_FOR_BARCODE:
+          case OperationalStatuses.DEVICE_WAITING_FOR_ID:
             if (token) {
               // const newMode = await getSession(token);
               // if (newMode.status === 'STOPPED') {
@@ -415,13 +462,12 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
         clearInterval(intervalId);
       }
     };
-  }, [appDispatch, currentId, deviceStatus, getToken, init, operationalState, token]);
+  }, [appDispatch, changeDeviceStatus, currentId, deviceStatus, getSession, getToken, init, operationalState, token]);
 
   const scanQrButtonHandler = async () => {
     setOperationalState(OperationalStatuses.DEVICE_IS_SCANNING);
   };
 
-  console.log(currentId);
   return (
       <QrScannerWrapper>
         <InstructionBox>
@@ -448,7 +494,7 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
 
           <AnimatedCrossHair
             animate={
-              operationalState === OperationalStatuses.DEVICE_WAITING_FOR_BARCODE
+              operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID
               || operationalState === OperationalStatuses.DEVICE_IS_SCANNING}
           />
         </ScannerBox>
@@ -458,7 +504,7 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
             onClick={scanQrButtonHandler}
             disabled={!currentId || !currentId[InputFields.DOCUMENT_NR]
               || !currentId[InputFields.NAME_PRIMARY]
-              || operationalState !== OperationalStatuses.DEVICE_WAITING_FOR_BARCODE
+              || operationalState !== OperationalStatuses.DEVICE_WAITING_FOR_ID
             }
           >
             <QrCodeIconNoCanvas width={15} height={15} />
@@ -473,4 +519,4 @@ const IdReader = ({ deviceStatus, currentId }: Props) => {
   );
 };
 
-export default IdReader;
+export const IdReader = memo(IdReaderComponent);

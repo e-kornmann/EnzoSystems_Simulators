@@ -1,10 +1,6 @@
-import React, {
-  memo, useState, useCallback, useContext, useEffect, useMemo, useReducer, Reducer,
-} from 'react';
+import React, { memo, useState, useCallback, useContext, useEffect, useMemo, useReducer, Reducer } from 'react';
 // date-fns
-import {
-  format, getYear, getMonth, getDate, addDays, parseISO,
-} from 'date-fns';
+import { format, getYear, getMonth, getDate, addDays, parseISO } from 'date-fns';
 // styled components
 import styled from 'styled-components';
 // components
@@ -88,7 +84,8 @@ const StyledControl = styled('div')<{
     '& > span': {
       color: theme.colors.text.secondary,
       position: 'relative',
-      bottom: '3px',
+      top: '-0.45em',
+      fontSize: '80%',
     },
   },
   '&:focus-within > label': {

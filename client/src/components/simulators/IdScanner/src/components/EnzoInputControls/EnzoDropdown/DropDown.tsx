@@ -12,9 +12,9 @@ import { Lang } from '../../../App';
 
 const StyledControl = styled('div')<{
   $hasValue?: boolean
-}>(({ $hasValue }) => ({
-  marginTop: '4px',
-  height: '35px',
+}>(({ theme, $hasValue }) => ({
+  marginTop: '10px',
+  height: '100%',
   width: '100%',
   display: 'flex',
   justifyContent: 'flex-start',
@@ -26,17 +26,18 @@ const StyledControl = styled('div')<{
     backgroundColor: 'white',
     borderRadius: '1px',
     fontWeight: '600',
-    top: $hasValue ? '-5px' : '50%',
+    top: $hasValue ? '-6px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
     color: '#7A7A7A',
     pointerEvents: 'none',
-    transform: $hasValue ? 'translateY(0)' : 'translateY(-50%)',
+    transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
     transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
     '& > span': {
       color: theme.colors.text.secondary,
       position: 'relative',
-      bottom: '3px',
+      top: '-0.45em',
+      fontSize: '80%',
     },
   },
   '&:focus-within > label': {
@@ -76,12 +77,12 @@ const StyledArrow = styled('div')<{
   right: '5px',
   top: '8px',
   transform: $arrowDown ? 'rotate(180deg)' : 'rotate(0deg)',
+  pointerEvents: 'none',
   '& > svg': {
     fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
     width: '13px',
     height: '6px',
   },
-  pointerEvents: 'none',
 }));
 const StyledOptionsContainer = styled('div')<{
   $showOptions: boolean
@@ -123,8 +124,8 @@ const StyledOption = styled('div')<{
   padding: '4px 9px',
   cursor: 'pointer',
   '&:hover': {
-  backgroundColor: theme.colors.buttons.specialTransparent
-  }
+    backgroundColor: theme.colors.buttons.specialTransparent,
+  },
 
 }));
 
@@ -199,7 +200,7 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
   }, [showOptions]);
 
   return (
-    <StyledControl $hasValue={selectedValue !== undefined} ref={optionsRef}  >
+    <StyledControl $hasValue={selectedValue !== undefined} ref={optionsRef} >
       <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
       <StyledSelect $isFocus={showOptions} onClick={handleClick}>
         {options.optionValues.find(option => option === selectedValue)}
@@ -228,4 +229,4 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
   );
 };
 
-export const SharedDropDown = memo(DropDownComponent);
+export const DropDown = memo(DropDownComponent);

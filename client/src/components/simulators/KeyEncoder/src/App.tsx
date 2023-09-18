@@ -30,11 +30,11 @@ import ShowAddKeyType from './types/ShowAddKeyType';
 import ShowKeyType from './types/ShowKeyType';
 import ActionType from './enums/ActionTypes';
 
-const GlobalStyle = createGlobalStyle(({ theme }) => ({
+const GlobalStyle = createGlobalStyle({
   '*': {
     boxSizing: 'border-box',
     margin: 0,
-    padding: 0
+    padding: 0,
   },
   html: {
     color: theme.colors.text.primary,
@@ -42,31 +42,31 @@ const GlobalStyle = createGlobalStyle(({ theme }) => ({
     fontSize: '14px',
     lineHeight: 1.15,
     overflow: 'hidden',
-    textSizeAdjust: '100%'
+    textSizeAdjust: '100%',
   },
   body: {
     backgroundColor: theme.colors.background.primary,
     overflowY: 'auto',
-    WebkitOverflowScrolling: 'touch'
+    WebkitOverflowScrolling: 'touch',
   },
   'button, input': {
     boxShadow: 'none',
     lineHeight: 1.5,
     maxWidth: '100%',
-    outline: 'none'
+    outline: 'none',
   },
   button: {
     backgroundColor: 'transparent',
-    border: 'none'
+    border: 'none',
   },
   '::-webkit-scrollbar': {
-    width: '10px'
+    width: '10px',
   },
   '::-webkit-scrollbar-thumb': {
     background: '#707070',
-    borderRadius: '5px'
-  }
-}));
+    borderRadius: '5px',
+  },
+});
 const StyledWrapper = styled('div')({
   alignItems: 'center',
   display: 'flex',
@@ -536,5 +536,3 @@ const App = () => {
 
 const KeyEncoder = import.meta.env.VITE_EXPORT_MEMO_APP ? memo(App) : App;
 export default KeyEncoder;
-
-

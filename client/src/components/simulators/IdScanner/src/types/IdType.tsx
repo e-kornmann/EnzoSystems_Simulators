@@ -24,6 +24,6 @@ export type IdType = {
   [InputFields.NAME_SECONDARY]: string;
   [InputFields.SEX]: Sex | undefined;
   [InputFields.NATIONALITY]: CountriesAlpha3 | undefined;
-  [InputFields.DATE_OF_BIRTH]: string;
-  [InputFields.DATE_OF_EXPIRY]: string;
+  [InputFields.DATE_OF_BIRTH]: string | undefined;
+  [InputFields.DATE_OF_EXPIRY]: string | undefined;
 };

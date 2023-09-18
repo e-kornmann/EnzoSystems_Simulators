@@ -41,6 +41,9 @@ const StyledLabel = styled('label')<{ $animate: boolean }>(({ theme, $animate })
   transform: $animate ? 'translate(1px, -16px) scale(0.75)' : 'none',
   '& > span': {
     color: theme.colors.text.secondary,
+    position: 'relative',
+    top: '-0.45em',
+    fontSize: '80%',
   },
 }));
 

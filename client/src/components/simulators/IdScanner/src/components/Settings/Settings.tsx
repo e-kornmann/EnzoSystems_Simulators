@@ -50,10 +50,11 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
   const handleOptionClicked = useCallback((option: DeviceStatuses, setting: SettingType) => { // select an option in the currently active setting
     if (setting) {
       if (setting.type === SettingsTypes.DEVICE_STATUS) {
-        appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: option });
         const newSetting = { ...setting };
         newSetting.currentValue = option;
         setSettingClicked(newSetting);
+        appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: option });
+        appDispatch({ type: ActionType.CLICKED_CROSS });
       }
     }
   }, [appDispatch]);
@@ -73,7 +74,7 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
   return (
     <StyledWrapper>
       {!settingClicked && settings.map(setting => (
-        <SettingControl key={setting.type} isSetting text={setting.title} onClick={() => { handleSettingClicked(setting); }} />
+        <SettingControl key={setting.type} text={setting.title} onClick={() => { handleSettingClicked(setting); }} />
       ))}
       {settingClicked && settingClicked.options.map(option => (
         <SettingControl
