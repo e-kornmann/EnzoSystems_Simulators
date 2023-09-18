@@ -50,11 +50,11 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
   const handleOptionClicked = useCallback((option: DeviceStatuses, setting: SettingType) => { // select an option in the currently active setting
     if (setting) {
       if (setting.type === SettingsTypes.DEVICE_STATUS) {
+        appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: option });
+        appDispatch({ type: ActionType.SET_CLICKED_SETTING, payload: true });
         const newSetting = { ...setting };
         newSetting.currentValue = option;
         setSettingClicked(newSetting);
-        appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: option });
-        appDispatch({ type: ActionType.CLICKED_CROSS });
       }
     }
   }, [appDispatch]);

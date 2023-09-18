@@ -6,8 +6,8 @@ GET http://localhost:9007/api/simulator/id-scanner/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IklEU2Nhbm5lcl8wMSIsImlhdCI6MTY5NTAzOTQwNywiZXhwIjoxNjk1MTI1ODA3LCJpc3MiOiJFbnpvc3lzdGVtcyJ9.khoBOQwqU7mLchuhl3SDYd5qjo77FNTxq81UVkKa0Bc
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MDMzMzU3LCJleHAiOjE2OTUxMTk3NTcsImlzcyI6IkVuem9zeXN0ZW1zIn0.wSDLCLVqC5FsLeqno-omaW101YBOzmsn2V3BRnvQFr4
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTUwNzczNDEsImV4cCI6MTY5NTE2Mzc0MSwiaXNzIjoiRW56b3N5c3RlbXMifQ.v7tvPwLp6cdeziDhqqeRLcu6jJD2OJMS63m71YaCtNM
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MDU0ODk2LCJleHAiOjE2OTUxNDEyOTYsImlzcyI6IkVuem9zeXN0ZW1zIn0.fz48jxWj1ssFIjPnRS50UZJxUdViIcvGNt8nRBnt35c
 
 
 ### DEVICE
@@ -38,7 +38,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
-  "status": "CONNECTED"
+  "status": "DISCONNECTED"
 }
 
 ####################################################################################
@@ -69,7 +69,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/e1b3caeb-6778-455d-a051-04de474fa38a
+PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/a4fe1756-c0dd-46bd-8493-e01a00dba042
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -78,7 +78,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PUT http://localhost:9007/api/simulator/id-scanner/v1/session/2bd8a8aa-802e-4776-8a76-f1182c179436
+PUT http://localhost:9007/api/simulator/id-scanner/v1/session/ab35749b-c44a-42e9-9746-7d6523b8ac16
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 

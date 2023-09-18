@@ -1,4 +1,4 @@
-import { memo, useReducer } from 'react';
+import { memo, useEffect, useReducer } from 'react';
 // axios
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
@@ -96,6 +96,7 @@ export enum Lang {
 
 type AppStateType = {
   deviceStatus: DeviceStatuses,
+  clickedSetting: boolean,
   appLanguage: Lang,
   headerTitle: string,
   localIds: IdType[],
@@ -118,6 +119,7 @@ type AppStateType = {
 
 const initialState: AppStateType = {
   deviceStatus: DeviceStatuses.OUT_OF_ORDER,
+  clickedSetting: false,
   appLanguage: Lang.ENGLISH,
   headerTitle: 'ID Scanner',
   localIds: [],
@@ -194,6 +196,9 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     }
     case ActionType.SET_DEVICE_STATUS: {
       return { ...state, deviceStatus: action.payload };
+    }
+    case ActionType.SET_CLICKED_SETTING: {
+      return { ...state, clickedSetting: action.payload };
     }
     case ActionType.SELECT_ALL_ID_CLICKED: {
       return { ...state, showIds: { ...state.showIds, selectAllKeyClicked: action.payload, deselectAllKeyClicked: false } };
@@ -276,40 +281,29 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  // // set LocalStorage Keys if update is needed
-  // useEffect(() => {
-  //   // set localIds
-  //   const getSelectedId = localStorage.getItem('currentId');
-  //   if (state.currentId && (!getSelectedId || (getSelectedId && getSelectedId !== JSON.stringify(state.currentId)))) {
-  //     localStorage.setItem('currentId', JSON.stringify(state.currentId));
-  //   }
-  //   // set currentId
-  //   const getKeys = localStorage.getItem('roomKeys');
-  //   if (state.localIds && state.localIds.length > 0 && (!getKeys || (getKeys && getKeys !== JSON.stringify(state.localIds)))) {
-  //     localStorage.setItem('roomKeys', JSON.stringify(state.localIds));
-  //   }
-  // }, [state.currentId, state.localIds]);
+  // set LocalStorage Keys if update is needed
+  useEffect(() => {
+    // set localIds in case of no storage or unsynced data,
+    const getSelectedId = localStorage.getItem('currentId');
+    if (state.currentId && (!getSelectedId || (getSelectedId && getSelectedId !== JSON.stringify(state.currentId)))) {
+      localStorage.setItem('currentId', JSON.stringify(state.currentId));
+    }
+    // set currentId
+    const getIDs = localStorage.getItem('IDs');
+    if (state.localIds && state.localIds.length > 0 && (!getIDs || (getIDs && getIDs !== JSON.stringify(state.localIds)))) {
+      localStorage.setItem('IDs', JSON.stringify(state.localIds));
+    }
+  }, [state.currentId, state.localIds]);
 
-  // // load LocalStorage Keys if available
-  // useEffect(() => {
-  //   // get localIds
-  //   const getKeys = localStorage.getItem('Ids');
-  //   if (getKeys) dispatch({ type: ActionType.SET_ALL_LOCALIDS, payload: JSON.parse(getKeys) });
-  //   // get currentId
-  //   const getSelectedId = localStorage.getItem('currentId');
-  //   if (getSelectedId) dispatch({ type: ActionType.SELECT_ID, payload: JSON.parse(getSelectedId) });
-  // }, []);
-
-  /* Refresh Tick - for sending updated status every X seconds to keep  encoder accessible for backend */
-  // useEffect(() => {
-  //   const intervalTick = setInterval(() => {
-  //     setTick(prev => prev + 1);
-  //   }, import.meta.env.VITE_TICK_RATE);
-
-  //   return () => {
-  //     clearInterval(intervalTick);
-  //   };
-  // }, []);
+  // load LocalStorage Keys if available
+  useEffect(() => {
+    // get localIds
+    const getLocalStorageIds = localStorage.getItem('IDs');
+    if (getLocalStorageIds) dispatch({ type: ActionType.SET_ALL_LOCALIDS, payload: JSON.parse(getLocalStorageIds) });
+    // get currentId
+    const getSelectedId = localStorage.getItem('currentId');
+    if (getSelectedId) dispatch({ type: ActionType.SELECT_ID, payload: JSON.parse(getSelectedId) });
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -324,7 +318,7 @@ const App = () => {
                 goBackToKeysButton={state.showAddKey.showComponent || state.showIds.editMode || state.showIds.deleteMode} />
               <StyledContentWrapper>
 
-                <IdReader deviceStatus={state.deviceStatus} currentId={state.currentId} />
+                <IdReader deviceStatus={state.deviceStatus} currentId={state.currentId} clickedSetting={state.clickedSetting} />
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showIds.showComponent }
 
                 {/* TODO: processStatus ERROR */}

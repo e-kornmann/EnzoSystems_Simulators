@@ -1,23 +1,22 @@
 import styled, { keyframes } from 'styled-components';
-import axios from 'axios';
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
-
 import DeviceStatuses from '../../enums/DeviceStatuses';
 import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon';
 import ShowIcon from '../../../local_types/ShowIcon';
 import { OperationalStatuses } from '../../enums/OperationalStatuses';
-import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import SharedLoading from '../../../local_shared/Loading';
 import { scannerCredentials, reqBody } from '../../config';
 import ActionType from '../../enums/ActionTypes';
 
 import AnimatedCrossHair from './AnimatedCrossHair';
-import useLogOn from '../../../local_hooks/useLogOn';
+
 import { IdType } from '../../types/IdType';
 import { InputFields } from '../LocalAddId/LocalAddId';
 
 import idScanApi from '../../../../../../api/idScannerApi';
+import { getSession, putScannedData, stopSession } from '../../utils/iDscanApiRequests';
 
 const QrScannerWrapper = styled('div')({
   width: '100%',
@@ -149,80 +148,66 @@ const AnimatedQr = styled.div<{ $animate: boolean }>`
   `;
 
   type Props = {
-    deviceStatus: DeviceStatuses
+    deviceStatus: DeviceStatuses;
     currentId: IdType | undefined;
+    clickedSetting: boolean;
   };
 
-const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
+const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) => {
   const appDispatch = useContext(AppDispatchContext);
-  const [init, setInit] = useState(false);
-  const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'id-scanner');
+  const [token, setToken] = useState('');
   const [operationalState, setOperationalState] = useState<OperationalStatuses>(OperationalStatuses.DEVICE_START_UP);
   const [instructionText, setInstructionText] = useState('');
 
-  const getToken = useCallback(async () => {
-    if (!init) {
-      await logOn().then(success => {
-        if (success) {
-          setTimeout(() => {
-            setInit(true);
-            setOperationalState(OperationalStatuses.DEVICE_CONNECT);
-          }, 500);
-        } else {
-          setOperationalState(OperationalStatuses.API_ERROR);
-        }
-      });
-    }
-  }, [init, logOn]);
-
   // This useEffect 'listens' to clicked device settings.
   useEffect(() => {
-    switch (deviceStatus) {
-      case DeviceStatuses.CONNECTED:
-        if (init) {
-          console.log('A');
+    if (clickedSetting) {
+      switch (deviceStatus) {
+        case DeviceStatuses.DISCONNECTED:
+          setOperationalState(OperationalStatuses.DEVICE_DISCONNECT);
+          appDispatch({ type: ActionType.CLICKED_CROSS });
+          break;
+        case DeviceStatuses.OUT_OF_ORDER:
+          setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
+          appDispatch({ type: ActionType.CLICKED_CROSS });
+          break;
+        case DeviceStatuses.CONNECTED:
           setOperationalState(OperationalStatuses.DEVICE_CONNECT);
-        } else {
-          console.log('B');
-          setOperationalState(OperationalStatuses.DEVICE_START_UP);
-        }
-        break;
-      case DeviceStatuses.DISCONNECTED:
-        console.log('C');
-        setOperationalState(OperationalStatuses.DEVICE_DISCONNECT);
-        break;
-      case DeviceStatuses.OUT_OF_ORDER:
-        setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
-        break;
-      default:
-        break;
-    }
-  }, [init, deviceStatus]);
-
-  /* Get Session */
-  const getSession = useCallback(async () => {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      method: 'get',
-    };
-
-    try {
-      const response = await idScanApi(config);
-
-      return response.data.metadata ? response.data.metadata : response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return error.response;
+          appDispatch({ type: ActionType.CLICKED_CROSS });
+          break;
+        default:
+          break;
       }
-      console.error('Unable to get session:', error);
-      return undefined;
     }
-    return undefined;
-  }, [token]);
+  }, [deviceStatus, clickedSetting, appDispatch]);
 
-  /* Change device status */
+  const getToken = useCallback(async () => {
+    try {
+      const authCredentials = btoa(`${scannerCredentials.userName}:${scannerCredentials.passWord}`);
+      const config = {
+        headers: {
+          contentType: 'application/json',
+          authorization: `Basic ${authCredentials}`,
+        },
+      };
+      const response = await idScanApi.post('/auth', reqBody, config);
+      if (!response?.data) {
+        throw Error('Missing response data');
+      }
+      const { accessToken } = response.data;
+      setToken(accessToken);
+      console.log(`id-scanner has been able to get a Token: ${accessToken}`);
+      setTimeout(() => {
+        setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+      }, 500);
+      return true;
+    } catch (error) {
+      console.error('Error: id-scanner retrieving authentication token:', error);
+      setOperationalState(OperationalStatuses.API_ERROR);
+      return false;
+    }
+  }, []);
+
   const changeDeviceStatus = useCallback(async (changeToThisState: string) => {
     try {
       const config = {
@@ -238,7 +223,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
         },
         config,
       );
-      return response;
+      return response.data.metadata;
     } catch (error) {
       console.error('Unable to connect:', error);
       return undefined;
@@ -253,7 +238,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
     switch (operationalState) {
       case OperationalStatuses.DEVICE_START_UP:
         setInstructionText('');
-        getToken();
+        if (!token) getToken();
         break;
       case OperationalStatuses.API_ERROR:
         setInstructionText('SERVER ERROR');
@@ -261,7 +246,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
         break;
       case OperationalStatuses.DEVICE_CONNECT:
         setInstructionText('');
-        waitTime = 1000;
+        waitTime = 2000;
         break;
       case OperationalStatuses.DEVICE_DISCONNECT:
         setInstructionText('Disconnecting...');
@@ -282,7 +267,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
         break;
       case OperationalStatuses.DEVICE_CONNECTED:
         setInstructionText('CONNECTED');
-        waitTime = 250;
+        waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_COULD_NOT_CONNECT:
         setInstructionText('Could not connect');
@@ -293,7 +278,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
         waitTime = 250;
         break;
       case OperationalStatuses.DEVICE_STOPPED:
-        setInstructionText('DEVICE DISABLED');
+        setInstructionText('DEVICE STOPPED');
         waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_TIMED_OUT:
@@ -328,19 +313,15 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_CONNECT:
             if (token) {
-              response = await changeDeviceStatus('CONNECTED');
-              if (response) {
-                if (response.status !== 200) {
-                  setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-                } else if (response.status === 200) {
-                  checkCounter = 0;
-                  appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
-                  setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
-                  // update Settings because initial state is OUT_OF_ORDER
-                }
-              // if response is undefined but token is there, maybe device is out of order?
-              } else if (response === undefined) {
-                setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
+              response = await changeDeviceStatus(DeviceStatuses.CONNECTED);
+              if (response.status !== DeviceStatuses.CONNECTED) {
+                setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
+              } else if (response.status === DeviceStatuses.CONNECTED) {
+                setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
+                checkCounter = 0;
+                appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
+              } else {
+                setOperationalState(OperationalStatuses.API_ERROR);
               }
             } else {
               // if there is no token try again to get one.
@@ -349,9 +330,9 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_DISCONNECT:
             if (token) {
-              response = await changeDeviceStatus('DISCONNECTED');
+              response = await changeDeviceStatus(DeviceStatuses.DISCONNECTED);
               if (response) {
-                if (response.status === 200) {
+                if (response.status === DeviceStatuses.DISCONNECTED) {
                   setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
                 }
               }
@@ -362,10 +343,10 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_CONNECTED:
             checkCounter += 1;
-            console.log(checkCounter);
             if (token) {
               // If connected look if scanner needs to be activated
-              const sessionDetails = await getSession();
+              const sessionDetails = await getSession(token);
+              console.log(sessionDetails);
               if (sessionDetails) {
                 if (sessionDetails.command === 'SCAN_ID') {
                   setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
@@ -386,10 +367,12 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             // If you cannot connect you probarly also cannot set to DISCONNECT...
             // either way i put the code here maybe this state can be deleted.
             if (token) {
-              response = await changeDeviceStatus('DISCONNECTED');
+              response = await changeDeviceStatus(DeviceStatuses.DISCONNECTED);
               if (response) {
-                if (response.status === 200) {
+                if (response.status === DeviceStatuses.DISCONNECTED) {
                   setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
+                } else {
+                  setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
                 }
                 // if response is undefined but token is there, maybe device is out of order?
               } else if (response === undefined) {
@@ -402,7 +385,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_OUT_OF_ORDER:
             if (token) {
-              response = await changeDeviceStatus('OUT_OF_ORDER');
+              response = await changeDeviceStatus(DeviceStatuses.OUT_OF_ORDER);
               if (response) {
                 if (response.status === 200) {
                   setOperationalState(OperationalStatuses.API_ERROR);
@@ -415,15 +398,17 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             break;
           case OperationalStatuses.DEVICE_WAITING_FOR_ID:
             if (token) {
-              // const newMode = await getSession(token);
-              // if (newMode.status === 'STOPPED') {
-              //   setOperationalState(OperationalStatuses.DEVICE_STOPPED);
-              // }
-              // if (newMode.status === 'TIMED_OUT') {
-              //   setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
-              // }
-            } else {
-              checkCounter += 1;
+              const sessionDetails = await getSession(token);
+              if (sessionDetails) {
+                if (sessionDetails.status === 'CANCELLING') {
+                  setOperationalState(OperationalStatuses.DEVICE_STOPPED);
+                }
+                if (sessionDetails.status === 'TIMED_OUT') {
+                  setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
+                }
+              } else {
+                checkCounter += 1;
+              }
             }
             // either way set to TIMEDOUT
             if (checkCounter >= 13000) {
@@ -431,25 +416,40 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
             }
             break;
           case OperationalStatuses.DEVICE_IS_SCANNING:
-            // if (token && currentId) {
-            //   const res = await putScannedData(token, currentId.name);
-            //   if (res === 200) {
-            //     setOperationalState(OperationalStatuses.API_SCAN_SUCCESS);
-            //   } else {
-            //     console.log(res);
-            //     setOperationalState(OperationalStatuses.API_SCAN_FAILED);
-            //   }
-            // } else {
-            //   // if there is no token try again to get one. (and start over)
-            //   setOperationalState(OperationalStatuses.DEVICE_START_UP);
-            // }
+            if (token && currentId) {
+              const res = await putScannedData(token, currentId);
+              console.log(res);
+              if (res) {
+                if (res.status === 'FINISHED') {
+                  setOperationalState(OperationalStatuses.API_SCAN_SUCCESS);
+                } else {
+                  console.log(res);
+                  setOperationalState(OperationalStatuses.API_SCAN_FAILED);
+                }
+              }
+            } else {
+              // if there is no token try again to get one. (and start over)
+              setOperationalState(OperationalStatuses.DEVICE_START_UP);
+            }
             break;
           case OperationalStatuses.DEVICE_STOPPED:
+            if (token) {
+              const res = await stopSession(token);
+              if (res === 200) {
+                setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+              } else {
+                console.log(res);
+                setOperationalState(OperationalStatuses.API_ERROR);
+              }
+            } else {
+              // if there is no token try again to get one. (and start over)
+              setOperationalState(OperationalStatuses.DEVICE_START_UP);
+            }
+            break;
           case OperationalStatuses.DEVICE_TIMED_OUT:
           case OperationalStatuses.API_SCAN_SUCCESS:
           case OperationalStatuses.API_SCAN_FAILED:
-            if (init === false) setOperationalState(OperationalStatuses.API_ERROR);
-            else setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+            setOperationalState(OperationalStatuses.DEVICE_CONNECT);
             break;
           default:
             break;
@@ -462,7 +462,7 @@ const IdReaderComponent = ({ deviceStatus, currentId }: Props) => {
         clearInterval(intervalId);
       }
     };
-  }, [appDispatch, changeDeviceStatus, currentId, deviceStatus, getSession, getToken, init, operationalState, token]);
+  }, [appDispatch, changeDeviceStatus, currentId, deviceStatus, getToken, operationalState, token]);
 
   const scanQrButtonHandler = async () => {
     setOperationalState(OperationalStatuses.DEVICE_IS_SCANNING);
