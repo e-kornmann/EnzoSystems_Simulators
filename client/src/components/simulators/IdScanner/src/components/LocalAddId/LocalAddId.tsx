@@ -16,7 +16,7 @@ import { SharedDropDown } from '../EnzoInputControls/EnzoDropdown/SharedDropDown
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
   position: 'absolute',
-  top: '34px',
+  top: '35px',
   left: '0',
   height: 'calc(100% - 75px)',
   width: '100%',
@@ -37,7 +37,7 @@ const StyledControl = styled('div')<{
   key?: string,
   $hasValue?: boolean,
 }>(({ theme, $hasValue }) => ({
-  marginTop: '8px',
+  marginTop: '10px',
   height: '35px',
   width: '100%',
   display: 'flex',
@@ -45,14 +45,13 @@ const StyledControl = styled('div')<{
   alignItems: 'flex-start',
   position: 'relative',
   '& > input': {
-    paddingTop: '5px',
     color: theme.colors.text.primary,
     fontSize: '1.0em',
     fontWeight: '500',
     border: '0.12em solid',
     borderColor: theme.colors.buttons.gray,
     borderRadius: '3px',
-    padding: '8px',
+    padding: '8px 8px 8px 6px',
     width: '100%',
     height: '100%',
     '&:focus': {
@@ -228,6 +227,14 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
             : <StyledControl key={field} $hasValue={state.iD && state.iD[field] !== ''}>
                 <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
                 <label>{field}:<span>*</span></label>
+        {Object.values(InputFields).map(field => (
+
+          (field === InputFields.DOCUMENT_TYPE || field === InputFields.SEX || field === InputFields.NATIONALITY)
+            ? (
+          <SharedDropDown key={field} field={field} onOptionClicked={handleInput} appLanguage={appLanguage}/>
+            )
+            : <StyledControl key={field} $hasValue={state.iD && state.iD[field] !== ''}>
+                <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
                 <input
                   type="text"
                   value={state.iD[field]}

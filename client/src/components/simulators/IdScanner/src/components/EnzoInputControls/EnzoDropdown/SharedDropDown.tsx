@@ -33,6 +33,11 @@ const StyledControl = styled('div')<{
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-50%)',
     transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
+    '& > span': {
+      color: theme.colors.text.secondary,
+      position: 'relative',
+      bottom: '3px',
+    },
   },
   '&:focus-within > label': {
     top: '-5px',
@@ -51,9 +56,9 @@ const StyledSelect = styled('div')<{
   border: '0.12em solid',
   borderColor: $isFocus ? theme.colors.buttons.special : theme.colors.buttons.gray,
   borderRadius: '3px',
-  padding: '9px 8px 0px',
+  padding: '10px 8px 5px 6px',
   width: '100%',
-  height: '100%',
+  height: '35px',
   cursor: 'pointer',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
@@ -85,10 +90,10 @@ const StyledOptionsContainer = styled('div')<{
   display: $showOptions ? 'flex' : 'none',
   position: 'absolute',
   flexDirection: 'column',
-  top: '14px',
+  top: '4px',
   width: '100%',
   zIndex: '2',
-  height: '200px',
+  maxHeight: '200px',
 }));
 const StyledClickableContainer = styled('div')({
   backgroundColor: 'transparent',
@@ -103,7 +108,8 @@ const StyledOptions = styled('div')(({ theme }) => ({
   borderRadius: '2px',
   width: '100%',
   height: 'fit-content',
-  marginBottom: '10px',
+  maxHeight: '120px',
+  marginBottom: '50px',
   zIndex: '2',
   overflowY: 'scroll',
   overflowX: 'hidden',
@@ -114,25 +120,23 @@ const StyledOption = styled('div')<{
 }>(({ theme, $isSelected }) => ({
   backgroundColor: $isSelected ? theme.colors.buttons.special : theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
-  padding: '3px 9px',
+  padding: '4px 9px',
   cursor: 'pointer',
-  '&:first-child': {
-    padding: '7px 9px 3px',
-  },
-  '&:last-child': {
-    padding: '3px 9px 7px',
-  },
+  '&:hover': {
+  backgroundColor: theme.colors.buttons.specialTransparent
+  }
+
 }));
 
 type Props = {
-  initialValue?: string;
+  initialValue?: string | undefined;
   field: InputFields;
   onOptionClicked: (value: string, field: InputFields) => void;
   appLanguage: Lang;
 };
 
 const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }: Props) => {
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined);
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
 
@@ -195,9 +199,10 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
   }, [showOptions]);
 
   return (
-    <StyledControl>
+    <StyledControl $hasValue={selectedValue !== undefined} ref={optionsRef}  >
+      <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
       <StyledSelect $isFocus={showOptions} onClick={handleClick}>
-        {options.optionValues.find(option => option === selectedValue) || <Translate id={field} language={appLanguage} />}
+        {options.optionValues.find(option => option === selectedValue)}
       </StyledSelect>
 
       <StyledOptionsContainer ref={optionsRef} $showOptions={showOptions}>
