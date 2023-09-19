@@ -267,6 +267,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         break;
       case OperationalStatuses.DEVICE_CONNECTED:
         setInstructionText('CONNECTED');
+        // longpolling interval;
         waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_COULD_NOT_CONNECT:
@@ -355,7 +356,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
               // This endpoint need to be called by the device on a regular base to stay in connected state.
               // In case the status is not updated in time, the internal status will fallback to "not_found"
               // Timeout is set to 60000 on backend. Maybe to put checkcounter dynamically
-              if (checkCounter >= 200) {
+              if (checkCounter >= 5) {
                 setOperationalState(OperationalStatuses.DEVICE_CONNECT);
               }
             } else {

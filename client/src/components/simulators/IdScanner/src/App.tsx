@@ -3,6 +3,7 @@ import { memo, useEffect, useReducer } from 'react';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 // components
+import { format, parseISO } from 'date-fns';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { LocalAddId } from './components/LocalAddId/LocalAddId';
@@ -305,6 +306,7 @@ const App = () => {
     if (getSelectedId) dispatch({ type: ActionType.SELECT_ID, payload: JSON.parse(getSelectedId) });
   }, []);
 
+  if (state.currentId?.dateOfExpiry) console.log(format(parseISO(state.currentId.dateOfExpiry), 'yyMMdd'));
   return (
     <ThemeProvider theme={theme}>
       <StyledWrapper>
@@ -339,16 +341,16 @@ const App = () => {
                 {state.showSettings
                   && <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
               </StyledContentWrapper>
-              {state
-                && <Footer
-                  showAddKey={state.showAddKey}
-                  showSettings={state.showSettings}
-                  showIds={state.showIds}
-                  saveButtonIsEnabled={state.saveButtonIsEnabled}
-                  deleteButtonIsEnabled={state.deleteButtonIsEnabled}
-                  allKeysAreSelected={state.allKeysAreSelected}
-                  enableEditandDeleteButton={state.localIds.length >= 1} />
-              }
+                {state
+                  && <Footer
+                    showAddKey={state.showAddKey}
+                    showSettings={state.showSettings}
+                    showIds={state.showIds}
+                    saveButtonIsEnabled={state.saveButtonIsEnabled}
+                    deleteButtonIsEnabled={state.deleteButtonIsEnabled}
+                    allKeysAreSelected={state.allKeysAreSelected}
+                    enableEditandDeleteButton={state.localIds.length >= 1} />
+                }
             </StyledApp>
         </AppDispatchContext.Provider>
       </StyledWrapper>

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { format, parseISO } from 'date-fns';
 import idScanApi from '../../../../../api/idScannerApi';
 import { IdType } from '../types/IdType';
 
@@ -58,29 +57,29 @@ const putScannedData = async (accessToken: string, idData: IdType) => {
       '/active-session',
       {
 
-        data: {
-          status: 'FINISHED',
-          dateOfBirth: idData.dateOfBirth ? format(parseISO(idData.dateOfBirth), 'yyMMdd') : '',
-          dateOfExpiry: idData.dateOfExpiry ? format(parseISO(idData.dateOfExpiry), 'yyMMdd') : '',
-          documentNumber: 'KeyEncoder789',
-          documentType: 'P<',
-          issuerCode: 'NLD',
-          namePrimary: 'Erik',
-          nameSecondary: 'de Vries',
-          nationality: 'NLD',
-          sex: 'M',
-          images: {
-            cardHolder: 'imagehere',
-            docFront: 'imagehere',
-            docBack: 'imagehere',
-          },
-        },
         // data: {
-        //   ...idData,
         //   status: 'FINISHED',
-        //   dateOfBirth: idData.dateOfBirth ? format(parseISO(idData.dateOfBirth), 'yyMMdd') : '851212',
-        //   dateOfExpiry:
+        //   // dateOfBirth: idData.dateOfBirth ? format(parseISO(idData.dateOfBirth), 'yyMMdd') : '',
+        //   // dateOfExpiry: idData.dateOfExpiry ? format(parseISO(idData.dateOfExpiry), 'yyMMdd') : '',
+        //   dateOfBirth: idData.dateOfBirth,
+        //   dateOfExpiry: idData.dateOfExpiry,
+        //   documentNumber: 'KeyEncoder789',
+        //   documentType: 'P<',
+        //   issuerCode: 'NLD',
+        //   namePrimary: 'Erik',
+        //   nameSecondary: 'de Vries',
+        //   nationality: 'NLD',
+        //   sex: 'M',
+        //   images: {
+        //     cardHolder: 'imagehere',
+        //     docFront: 'imagehere',
+        //     docBack: 'imagehere',
+        //   },
         // },
+        data: {
+          ...idData,
+          status: 'FINISHED',
+        },
       },
       config,
     );

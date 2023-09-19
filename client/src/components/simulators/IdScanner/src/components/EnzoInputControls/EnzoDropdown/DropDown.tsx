@@ -9,6 +9,7 @@ import { CountriesAlpha3 } from '../../../enums/CountryCodesISO3166Alpha3';
 import { InputFields } from '../../LocalAddId/LocalAddId';
 import { Translate } from '../../../Translations/Translations';
 import { Lang } from '../../../App';
+import { MonthEnum } from '../../../enums/MonthEnum';
 
 const StyledControl = styled('div')<{
   $hasValue?: boolean
@@ -132,11 +133,23 @@ const StyledOption = styled('div')<{
 type Props = {
   initialValue?: string | undefined;
   field: InputFields;
-  onOptionClicked: (value: string, field: InputFields) => void;
+  dateObjectField?: string;
+  onOptionClicked: (value: string, field: InputFields, dateObjectField?: string) => void;
   appLanguage: Lang;
+  isDisabled?: boolean;
+  isLeapYearCalculator?: (year: number, field: InputFields) => void;
+  amountOfDays?: string[] | undefined;
 };
 
-const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }: Props) => {
+const DropDownComponent = ({
+  initialValue,
+  field,
+  dateObjectField,
+  onOptionClicked,
+  appLanguage,
+  isDisabled,
+  amountOfDays,
+}: Props) => {
   const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined);
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -147,6 +160,23 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
   });
 
   useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    let birthYearOptions: string[] = [''];
+    let birthYearValues: string[] = [''];
+    let expiryYearOptions: string[] = [''];
+    let expiryYearValues: string[] = [''];
+
+    for (let i = 0; i <= 99; i++) {
+      const year = currentYear - i;
+      birthYearOptions = [...birthYearOptions, year.toString()];
+      birthYearValues = [...birthYearValues, year.toString().slice(-2)];
+    }
+    for (let i = 0; i <= 10; i++) {
+      const year = currentYear + i;
+      expiryYearOptions = [...expiryYearOptions, year.toString()];
+      expiryYearValues = [...expiryYearValues, year.toString().slice(-2)];
+    }
+
     switch (field) {
       case InputFields.DOCUMENT_TYPE:
         setOptions({
@@ -166,10 +196,35 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
           optionValues: Object.values(Sex) as string[],
         });
         break;
+      case InputFields.DATE_OF_BIRTH:
+      case InputFields.DATE_OF_EXPIRY:
+        switch (dateObjectField) {
+          case 'year':
+            if (field === InputFields.DATE_OF_BIRTH) setOptions({ optionKeys: birthYearOptions, optionValues: birthYearValues });
+            if (field === InputFields.DATE_OF_EXPIRY) setOptions({ optionKeys: expiryYearOptions, optionValues: expiryYearValues });
+            break;
+          case 'month':
+            setOptions({
+              optionKeys: Object.keys(MonthEnum) as string[],
+              optionValues: Object.values(MonthEnum) as string[],
+            });
+            break;
+          case 'day':
+            if (amountOfDays) {
+              setOptions({
+                optionKeys: amountOfDays,
+                optionValues: amountOfDays,
+              });
+            }
+            break;
+          default:
+            break;
+        }
+        break;
       default:
         break;
     }
-  }, [field]);
+  }, [amountOfDays, dateObjectField, field]);
 
   useEffect(() => {
     if (initialValue) {
@@ -180,12 +235,17 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
   const handleOptionClicked = useCallback((option: string) => {
     setShowOptions(false);
     setSelectedValue(option);
+    if (dateObjectField) {
+      onOptionClicked(option, field, dateObjectField);
+    }
     onOptionClicked(option, field);
-  }, [field, onOptionClicked]);
+  }, [dateObjectField, field, onOptionClicked]);
 
   const handleClick = useCallback(() => {
-    setShowOptions(prev => !prev);
-  }, []);
+    if (!(isDisabled === true && dateObjectField === 'day')) {
+      setShowOptions(prev => !prev);
+    }
+  }, [dateObjectField, isDisabled]);
 
   useEffect(() => {
     const checkIfClickedOutside = (ev: Event) => {
@@ -201,7 +261,10 @@ const DropDownComponent = ({ initialValue, field, onOptionClicked, appLanguage }
 
   return (
     <StyledControl $hasValue={selectedValue !== undefined} ref={optionsRef} >
-      <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
+      <label><Translate
+        id={(field === InputFields.DATE_OF_BIRTH && dateObjectField)
+          || (field === InputFields.DATE_OF_EXPIRY && dateObjectField) ? dateObjectField : field}
+        language={appLanguage} />:<span>*</span></label>
       <StyledSelect $isFocus={showOptions} onClick={handleClick}>
         {options.optionValues.find(option => option === selectedValue)}
       </StyledSelect>

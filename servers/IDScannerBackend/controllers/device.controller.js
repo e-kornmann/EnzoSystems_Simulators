@@ -203,9 +203,9 @@ async function updateScanIDSession (session, req, res) {
 
   newData.documentType = type;
   // Date of Birth: turn YYMMDD into an ISO string representation
-  newData.dateOfBirth = convertYear(newData.dateOfBirth);
+  newData.dateOfBirth = convertYear(newData.dateOfBirth, true);
   // Date of Expiry: turn YYMMDD into an ISO string representation
-  newData.dateOfExpiry = convertYear(newData.dateOfExpiry);
+  newData.dateOfExpiry = convertYear(newData.dateOfExpiry, false);
   // Sex?
   // Nationality?
 
@@ -215,7 +215,7 @@ async function updateScanIDSession (session, req, res) {
   session.status = SESSION_STATUS.FINISHED;
 }
 
-const convertYear = (date) => {
+const convertYear = (date, dateOfBirth) => {
   const yearValue = date.slice(0, 2);
 
   const currentDate = new Date(Date.now());
@@ -223,7 +223,7 @@ const convertYear = (date) => {
   const currentYear = currentDate.getFullYear().toString().slice(3, 5);
   const thisCenturyDate = parse(`${currentCentury}${date}`, 'yyyyMMdd', new Date(Date.now()));
 
-  if (yearValue > currentYear || (thisCenturyDate > currentDate)) { // last century
+  if (dateOfBirth && (yearValue > currentYear || (thisCenturyDate > currentDate))) { // last century
     const priorCenturyDate = parse(`${currentCentury - 1}${date}`, 'yyyyMMdd', new Date(Date.now()));
     const newDate = format(priorCenturyDate, 'yyyy-MM-dd');
     return newDate;

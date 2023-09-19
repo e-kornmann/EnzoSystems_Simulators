@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useReducer, Reducer } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useReducer, Reducer, useState } from 'react';
 // styled components
 import styled from 'styled-components';
 // components
@@ -94,10 +94,10 @@ type AddIdStateType = {
 
 export enum InputFields {
   ISSUER_CODE = 'issuerCode',
-  DOCUMENT_NR = 'documentNr',
+  DOCUMENT_NR = 'documentNumber',
   DOCUMENT_TYPE = 'documentType',
-  NAME_PRIMARY = 'primaryName',
-  NAME_SECONDARY = 'secondaryeName',
+  NAME_PRIMARY = 'namePrimary',
+  NAME_SECONDARY = 'nameSecondary',
   SEX = 'sex',
   NATIONALITY = 'nationality',
   DATE_OF_BIRTH = 'dateOfBirth',
@@ -142,19 +142,114 @@ type Props = {
   appLanguage: Lang;
 };
 
+export type DateObjectType = {
+  year: string | undefined,
+  month: string | undefined,
+  day: string | undefined,
+  leapYear: boolean,
+};
+
 const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useContext(AppDispatchContext);
+  const [dateOfBirthObject, setDateOfBirthObject] = useState<DateObjectType>({ year: undefined, month: undefined, day: undefined, leapYear: false });
+  const [dateOfExpiry, setDateOfExpiry] = useState<DateObjectType>({ year: undefined, month: undefined, day: undefined, leapYear: false });
 
+  // this useEffect updates leapYear condition
+  useEffect(() => {
+    const isLeapYearCalculator = (fourDigitYear: number) => (fourDigitYear % 4 === 0 && fourDigitYear % 100 !== 0) || (fourDigitYear % 400 === 0);
+
+    const convertTwoDigitYearToFourDigit = (twoDigitYear: number, dateOfBirth: boolean) => {
+      const currentYear = new Date().getFullYear();
+      const currentCentury = Math.floor(currentYear / 100);
+      const currentTwoDigitYear = currentYear % 100;
+
+      if (dateOfBirth && twoDigitYear >= currentTwoDigitYear) {
+        return (currentCentury - 1) * 100 + twoDigitYear;
+      }
+      return currentCentury * 100 + twoDigitYear;
+    };
+
+    if (dateOfBirthObject.year !== undefined) {
+      const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfBirthObject.year), true);
+      const isLeapYear = isLeapYearCalculator(fourDigitYear);
+
+      setDateOfBirthObject(prev => ({
+        ...prev,
+        leapYear: isLeapYear,
+      }));
+    }
+  }, [dateOfBirthObject.year]);
+
+  // this useEffect fills inputfields when in Edit mode
   useEffect(() => {
     if (editMode && currentId) {
       dispatch({ type: InputActionType.SET_ID, payload: currentId });
+      if (state.iD.dateOfBirth) {
+        setDateOfBirthObject(prev => ({
+          ...prev,
+          year: state.iD.dateOfBirth?.slice(2),
+          month: state.iD.dateOfBirth?.slice(4, 6),
+          day: state.iD.dateOfBirth?.slice(6),
+        }
+        ));
+      }
+      // nof afmaken
     }
-  }, [editMode, currentId]);
+  }, [editMode, currentId, state.iD.dateOfBirth]);
 
+  // wordt geroepen vanuit onOptionClick
   const handleInput = useCallback((payload: string, field: string) => {
     dispatch({ type: InputActionType.INPUT_VALUE, field, payload });
   }, []);
+
+  // wordt geroepen vanuit onOptionClick
+  const handleDateInput = useCallback((option: string, field: InputFields, dateObjectField: string | undefined) => {
+    if (field === InputFields.DATE_OF_BIRTH && dateObjectField) setDateOfBirthObject(prev => ({ ...prev, [dateObjectField]: option }));
+    if (field === InputFields.DATE_OF_EXPIRY && dateObjectField) setDateOfExpiry(prev => ({ ...prev, [dateObjectField]: option }));
+  }, []);
+
+  const amountOfDays = useCallback((month: string | undefined, field: InputFields): string[] => {
+    const numbersArray: string[] = [];
+
+    const makeArray = (number: number) => {
+      for (let i = 1; i <= number; i++) {
+        const formattedNumber = i.toString().padStart(2, '0'); // Add leading zero if needed
+        numbersArray.push(formattedNumber);
+      }
+    };
+    switch (month) {
+      case '01': // January
+      case '03': // March
+      case '05': // May
+      case '07': // July
+      case '08': // August
+      case '10': // October
+      case '12': // December
+        makeArray(31);
+        break;
+      case '04': // April
+      case '06': // June
+      case '09': // September
+      case '11': // November
+        makeArray(30);
+        break;
+      case '02': // February
+        if (field === InputFields.DATE_OF_BIRTH && dateOfBirthObject.leapYear === true) {
+          makeArray(29);
+          break;
+        }
+        if (field === InputFields.DATE_OF_EXPIRY && dateOfExpiry.leapYear === true) {
+          makeArray(29);
+          break;
+        }
+        makeArray(28);
+        break;
+      default:
+        break; // Invalid month
+    }
+    return numbersArray;
+  }, [dateOfBirthObject.leapYear, dateOfExpiry.leapYear]);
 
   useEffect(() => {
     if (saveKeyClicked) {
@@ -178,6 +273,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
   }, [appDispatch, state.iD]);
 
   console.log(state.iD);
+  console.log(dateOfBirthObject);
   return (
     <StyledWrapper>
       <StyledForm>
@@ -192,13 +288,42 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
             case InputFields.DATE_OF_BIRTH:
             case InputFields.DATE_OF_EXPIRY:
               return (
-                <StyledControl key={field} $hasValue={state.iD && state.iD[field] !== undefined}>
-                  <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
-                  <input
-                    type='date'
-                    value={state.iD[field]}
-                    onChange={e => { handleInput(e.target.value, field); }} />
-                </StyledControl>
+                <React.Fragment key={field}>
+                <DropDown
+                  initialValue={field === InputFields.DATE_OF_BIRTH
+                    ? dateOfBirthObject.year
+                    : dateOfExpiry.year}
+                  key={`${field}_year`}
+                  field={field}
+                  dateObjectField={'year'}
+                  onOptionClicked={handleDateInput}
+                  appLanguage={appLanguage}/>
+                  <DropDown
+                  initialValue={field === InputFields.DATE_OF_BIRTH
+                    ? dateOfBirthObject.month
+                    : dateOfExpiry.month}
+                  key={`${field}_month`}
+                  field={field}
+                  dateObjectField={'month'}
+                  onOptionClicked={handleDateInput}
+                  appLanguage={appLanguage}/>
+                  <DropDown
+                  initialValue={field === InputFields.DATE_OF_BIRTH
+                    ? dateOfBirthObject.day
+                    : dateOfExpiry.day}
+                  key={`${field}_day`}
+                  field={field}
+                  dateObjectField={'day'}
+                  onOptionClicked={handleDateInput}
+                  appLanguage={appLanguage}
+                  isDisabled={field === InputFields.DATE_OF_BIRTH
+                    ? (dateOfBirthObject.year === undefined || dateOfBirthObject.month === undefined)
+                    : (dateOfExpiry.year === undefined || dateOfExpiry.month === undefined)}
+                  amountOfDays={field === InputFields.DATE_OF_BIRTH
+                    ? amountOfDays(dateOfBirthObject.month, field)
+                    : amountOfDays(dateOfExpiry.month, field)}
+                  />
+                  </React.Fragment>
               );
             default:
               return (

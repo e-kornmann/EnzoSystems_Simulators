@@ -128,6 +128,30 @@ const TsComponent = ({ id, language, indexed }: Props) => {
         [Lang.GERMAN]: 'Französisch',
       },
     ],
+    year: [
+      {
+        [Lang.DUTCH]: 'jaar',
+        [Lang.ENGLISH]: 'year',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
+    month: [
+      {
+        [Lang.DUTCH]: 'maand',
+        [Lang.ENGLISH]: 'month',
+        [Lang.FRENCH]: 'NON',
+        [Lang.GERMAN]: 'NEIN',
+      },
+    ],
+    day: [
+      {
+        [Lang.DUTCH]: 'dag',
+        [Lang.ENGLISH]: 'day',
+        [Lang.FRENCH]: 'NON',
+        [Lang.GERMAN]: 'NEIN',
+      },
+    ],
     yes: [
       {
         [Lang.DUTCH]: 'JA',

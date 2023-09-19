@@ -1,6 +1,4 @@
-import React, {
-  ReactNode, Reducer, createContext, useReducer,
-} from 'react';
+import React, { ReactNode, Reducer, createContext, useReducer } from 'react';
 import CurrencyCode from '../../../../types/CurrencyTypes';
 import { OperationalModeOptionsType } from '../DeviceSettings/AvailableSettings/OperationalModeOptions';
 import { SupportedSchemesType } from '../../../shared/PayProvider';
