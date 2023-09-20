@@ -127,7 +127,7 @@ const StyledCard = styled('div')<{ $animateText: boolean }>`
   box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
   color: ${props => props.theme.colors.text.primary};
   & > div {
-    opacity: ${props => props.$animateText ? 0 : 1};
+    opacity: ${props => (props.$animateText ? 0 : 1)};
   }
 `;
 
@@ -163,7 +163,6 @@ const StyledEndDate = styled(StyledStartDate)`
   align-items: flex-start;
   animation: ${textFadeInAnimation} 0.2s ease 1.75s 1 normal forwards;
 `;
-
 
 type KeyContentProps = {
   selectedKey: KeyType | null,
@@ -205,8 +204,8 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
         data: {
           data: {
             keyId: '43764387634',
-            status: "FINISHED"
-          }
+            status: 'FINISHED',
+          },
         },
       };
 
@@ -239,7 +238,7 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
       pushReadKeyRef.current = true;
 
       const data = { ...selectedKey, status: 'FINISHED' };
-      const newData = { data: data };
+      const newData = { data };
 
       const config = {
         url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
@@ -363,31 +362,29 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
           <StyledCard $animateText={!(type === CommandTypes.READ_KEY)}>
 
             <StyledRoomNumber>
-              {type === CommandTypes.READ_KEY 
-                ? selectedKey?.roomAccess.join(', ') 
+              {type === CommandTypes.READ_KEY
+                ? selectedKey?.roomAccess.join(', ')
                 : createdKeyData?.roomAccess.join(', ')}
             </StyledRoomNumber>
 
             <StyledAdditionalAccess>
-              {type === CommandTypes.READ_KEY 
+              {type === CommandTypes.READ_KEY
                 ? `Access to: \n ${selectedKey?.additionalAccess.join(', ')}`
                 : `Access to: \n ${createdKeyData?.additionalAccess.join(', ')}`}
             </StyledAdditionalAccess>
 
-
             <StyledStartDate >
-              {type === CommandTypes.READ_KEY 
+              {type === CommandTypes.READ_KEY
                 ? `${(selectedKey && isoParser(selectedKey.startDateTime))}`
                 : `${(createdKeyData && isoParser(createdKeyData.startDateTime))}`
               }
             </StyledStartDate>
             <StyledEndDate>
-              {type === CommandTypes.READ_KEY 
+              {type === CommandTypes.READ_KEY
                 ? `${(selectedKey && isoParser(selectedKey.endDateTime))}`
                 : `${(createdKeyData && isoParser(createdKeyData.endDateTime))}`
               }
             </StyledEndDate>
-
 
           </StyledCard>
 

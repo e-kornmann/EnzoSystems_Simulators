@@ -1,6 +1,4 @@
 import DeviceStatuses from '../../enums/DeviceStatuses';
-import ProcessStatuses from '../../enums/ProcessStatuses';
-import TokenType from '../TokenType';
 import ActionType from '../../enums/ActionTypes';
 import { IdType } from '../IdType';
 
@@ -20,12 +18,18 @@ type BooleanAction = {
   | ActionType.EDIT_IDS_MODE
   | ActionType.DELETE_IDS_MODE
   | ActionType.SET_CLICKED_SETTING
-  | ActionType.SET_SEND_NEXT_SESSION_REQUEST
   | ActionType.SAVE_ID_CLICKED
   | ActionType.SELECT_ALL_ID_CLICKED
   | ActionType.DESELECT_ALL_ID_CLICKED
   | ActionType.SHOW_DELETE_DIALOG,
   payload: boolean
+};
+
+// All string Actions
+type StringAction = {
+  type:
+  ActionType.SET_HEADER_TITLE,
+  payload: string
 };
 
 // Without Payload
@@ -36,27 +40,19 @@ type NoPayLoadAction = {
   | ActionType.DELETE_ID_CLICKED
 };
 
-// RoomkeyActions
-type RoomKeyAction = { type: ActionType.SAVE_ID | ActionType.UPDATE_ID | ActionType.SELECT_ID, payload: IdType };
-type AllKeysAction = { type: ActionType.SET_ALL_LOCALIDS, payload: IdType[] };
+// IdActions
+type IdAction = { type: ActionType.SAVE_ID | ActionType.UPDATE_ID | ActionType.SELECT_ID, payload: IdType };
+type AllIdsAction = { type: ActionType.SET_ALL_LOCALIDS, payload: IdType[] };
 
-// Status Actions
+// Device status Actions
 type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses };
-type SetProcessStatusAction = { type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses };
-
-// Other Actions
-type SetHeaderTitleAction = { type: ActionType.SET_HEADER_TITLE, payload: string };
-type SetTokensAction = { type: ActionType.SET_TOKENS, payload: TokenType | null };
 
 type AppDispatchActions =
   BooleanAction
   | NoPayLoadAction
-  | RoomKeyAction
+  | IdAction
   | SetDeviceStatusAction
-  | SetHeaderTitleAction
-  | SetProcessStatusAction
-  | SetTokensAction
-  | RoomKeyAction
-  | AllKeysAction;
+  | StringAction
+  | AllIdsAction;
 
 export default AppDispatchActions;

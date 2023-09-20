@@ -7,9 +7,10 @@ import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import { ReactComponent as AddIdIcon } from '../../../local_assets/add_id.svg';
 import { ReactComponent as IdsIcon } from '../../../local_assets/ids.svg';
 import { ReactComponent as SettingsIcon } from '../../../local_assets/settings.svg';
-import ShowAddKeyType from '../../types/ShowAddKeyType';
+// types
+import ShowAddIdType from '../../types/ShowAddIdType';
 import ActionType from '../../enums/ActionTypes';
-import ShowIdType from '../../types/ShowKeyType';
+import ShowIdType from '../../types/ShowIdType';
 
 const StyledFooter = styled('footer')(({ theme }) => ({
   height: '40px',
@@ -79,12 +80,12 @@ const StyledAddIdButton = styled('div')(({ theme }) => ({
 }));
 
 type Props = {
-  showAddKey: ShowAddKeyType,
+  showAddKey: ShowAddIdType,
   showSettings: boolean,
   showIds: ShowIdType,
   saveButtonIsEnabled: boolean,
   deleteButtonIsEnabled: boolean,
-  allKeysAreSelected: boolean,
+  allIdsAreSelected: boolean,
   enableEditandDeleteButton: boolean,
 };
 
@@ -94,7 +95,7 @@ const FooterComponent = ({
   showIds,
   saveButtonIsEnabled,
   deleteButtonIsEnabled,
-  allKeysAreSelected,
+  allIdsAreSelected,
   enableEditandDeleteButton,
 }: Props) => {
   const appDispatch = useContext(AppDispatchContext);
@@ -174,8 +175,8 @@ const FooterComponent = ({
             }
             {!showIds.editMode && showIds.deleteMode
             && <>
-              <button type="button" onClick={() => (allKeysAreSelected ? handleDeselectAllKey() : handleSelectAllKey()) }>
-                { allKeysAreSelected ? 'Deselect all' : 'Select all' }
+              <button type="button" onClick={() => (allIdsAreSelected ? handleDeselectAllKey() : handleSelectAllKey()) }>
+                { allIdsAreSelected ? 'Deselect all' : 'Select all' }
               </button>
               <button type="button" onClick={handleDeleteDialog} disabled={!deleteButtonIsEnabled}>Delete</button>
             </>

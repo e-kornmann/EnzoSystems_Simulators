@@ -1,5 +1,5 @@
 import { createContext, Dispatch } from 'react';
-import AppDispatchActions from '../../local_types/reducerActions/AppDispatchActions';
+import AppDispatchActions from '../../types/reducerActions/AppDispatchActions';
 
 const AppDispatchContext = createContext<Dispatch<AppDispatchActions>>(() => null);
 

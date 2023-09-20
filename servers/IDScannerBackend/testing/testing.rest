@@ -7,7 +7,7 @@ GET http://localhost:9007/api/simulator/id-scanner/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTUwNzczNDEsImV4cCI6MTY5NTE2Mzc0MSwiaXNzIjoiRW56b3N5c3RlbXMifQ.v7tvPwLp6cdeziDhqqeRLcu6jJD2OJMS63m71YaCtNM
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MTA3MDU3LCJleHAiOjE2OTUxOTM0NTcsImlzcyI6IkVuem9zeXN0ZW1zIn0.1cTUsyjre1rWFd6Suyh-F8pOP6b49Fb3PgztwXs-RnA
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MTk1NjYyLCJleHAiOjE2OTUyODIwNjIsImlzcyI6IkVuem9zeXN0ZW1zIn0.BeAO1PSCqnqpzUGUsuDq4p7vm_NBjhVQrlAAlRBAVIk
 
 
 ### DEVICE
@@ -38,7 +38,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
-  "status": "DISCONNECTED"
+  "status": "CONNECTED"
 }
 
 ####################################################################################
@@ -78,7 +78,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PUT http://localhost:9007/api/simulator/id-scanner/v1/session/ab35749b-c44a-42e9-9746-7d6523b8ac16
+PUT http://localhost:9007/api/simulator/id-scanner/v1/session/102d7e51-9817-4127-95f3-2ba7d02d70af
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 

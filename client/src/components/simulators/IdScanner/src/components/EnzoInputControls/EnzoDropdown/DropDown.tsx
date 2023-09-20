@@ -12,9 +12,9 @@ import { Lang } from '../../../App';
 import { MonthEnum } from '../../../enums/MonthEnum';
 
 const StyledControl = styled('div')<{
-  $hasValue?: boolean
-}>(({ theme, $hasValue }) => ({
-  marginTop: '10px',
+  $hasValue?: boolean,
+  $isDisabled?: boolean
+}>(({ theme, $hasValue, $isDisabled }) => ({
   height: '100%',
   width: '100%',
   display: 'flex',
@@ -30,7 +30,7 @@ const StyledControl = styled('div')<{
     top: $hasValue ? '-6px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
-    color: '#7A7A7A',
+    color: $isDisabled ? theme.colors.buttons.gray : theme.colors.text.tertiary,
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
     transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
@@ -49,8 +49,9 @@ const StyledControl = styled('div')<{
   },
 }));
 const StyledSelect = styled('div')<{
-  $isFocus: boolean
-}>(({ theme, $isFocus }) => ({
+  $isFocus: boolean,
+  $isDisabled?: boolean
+}>(({ theme, $isFocus, $isDisabled }) => ({
   backgroundColor: theme.colors.background.primary,
   color: theme.colors.text.primary,
   fontSize: '1.0em',
@@ -61,30 +62,41 @@ const StyledSelect = styled('div')<{
   padding: '10px 8px 5px 6px',
   width: '100%',
   height: '35px',
-  cursor: 'pointer',
+  cursor: $isDisabled ? 'default' : 'pointer',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
 }));
 const StyledArrow = styled('div')<{
-  $arrowDown: boolean
-}>(({ theme, $arrowDown }) => ({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: '20px',
-  height: '20px',
-  position: 'absolute',
-  right: '5px',
-  top: '8px',
-  transform: $arrowDown ? 'rotate(180deg)' : 'rotate(0deg)',
-  pointerEvents: 'none',
-  '& > svg': {
-    fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
-    width: '13px',
-    height: '6px',
-  },
-}));
+  $arrowDown: boolean,
+  $isDisabled?: boolean,
+}>(({ theme, $arrowDown, $isDisabled }) => {
+  let fill;
+  if ($isDisabled) {
+    fill = 'transparent';
+  } else {
+    fill = $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary;
+  }
+
+  return {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '20px',
+    height: '20px',
+    position: 'absolute',
+    right: '4px',
+    top: '8px',
+    transform: $arrowDown ? 'rotate(180deg)' : 'rotate(0deg)',
+    pointerEvents: 'none',
+    '& > svg': {
+      fill,
+      width: '12px',
+      height: '5px',
+    },
+  };
+});
+
 const StyledOptionsContainer = styled('div')<{
   $showOptions: boolean
 }>(({ $showOptions }) => ({
@@ -122,7 +134,7 @@ const StyledOption = styled('div')<{
 }>(({ theme, $isSelected }) => ({
   backgroundColor: $isSelected ? theme.colors.buttons.special : theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
-  padding: '4px 9px',
+  padding: '4px 6px',
   cursor: 'pointer',
   '&:hover': {
     backgroundColor: theme.colors.buttons.specialTransparent,
@@ -260,12 +272,12 @@ const DropDownComponent = ({
   }, [showOptions]);
 
   return (
-    <StyledControl $hasValue={selectedValue !== undefined} ref={optionsRef} >
-      <label><Translate
-        id={(field === InputFields.DATE_OF_BIRTH && dateObjectField)
-          || (field === InputFields.DATE_OF_EXPIRY && dateObjectField) ? dateObjectField : field}
-        language={appLanguage} />:<span>*</span></label>
-      <StyledSelect $isFocus={showOptions} onClick={handleClick}>
+    <StyledControl $hasValue={selectedValue !== undefined} $isDisabled={isDisabled} ref={optionsRef} >
+      <label><Translate id={dateObjectField || field} language={appLanguage} />
+      {!dateObjectField && ':'}
+      {!dateObjectField && <span>*</span>}
+      </label>
+      <StyledSelect $isFocus={showOptions} $isDisabled={isDisabled} onClick={handleClick}>
         {options.optionValues.find(option => option === selectedValue)}
       </StyledSelect>
 
@@ -285,7 +297,7 @@ const DropDownComponent = ({
 </StyledOptions>
       </StyledOptionsContainer>
 
-      <StyledArrow $arrowDown={showOptions}>
+      <StyledArrow $arrowDown={showOptions} $isDisabled={isDisabled}>
         <ArrowIcon />
       </StyledArrow>
     </StyledControl>

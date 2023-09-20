@@ -3,9 +3,9 @@ import { CountriesAlpha3 } from '../enums/CountryCodesISO3166Alpha3';
 
 export enum TypeOfDocument {
   'PASSPORT' = 'P',
-  'ID_CARD_I' = 'I',
-  'ID_CARD_B' = 'A',
+  'ID_CARD_A' = 'A',
   'ID_CARD_C' = 'C',
+  'ID_CARD_I' = 'I',
   'VISA' = 'V',
   'DRIVER_LICENSE' = 'DL',
 }

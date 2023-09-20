@@ -3,7 +3,6 @@ import { memo, useEffect, useReducer } from 'react';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 // components
-import { format, parseISO } from 'date-fns';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { LocalAddId } from './components/LocalAddId/LocalAddId';
@@ -18,12 +17,13 @@ import DeviceStatuses from './enums/DeviceStatuses';
 import theme from './theme/theme.json';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
-import ShowAddKeyType from './types/ShowAddKeyType';
-import ShowKeyType from './types/ShowKeyType';
+
 import ActionType from './enums/ActionTypes';
 import { IdReader } from './components/IdReader/IdReader';
 import { CountriesAlpha3 } from './enums/CountryCodesISO3166Alpha3';
 import { IdType } from './types/IdType';
+import ShowAddIdType from './types/ShowAddIdType';
+import ShowIdType from './types/ShowIdType';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -102,19 +102,19 @@ type AppStateType = {
   headerTitle: string,
   localIds: IdType[],
   currentId: IdType | undefined,
-  saveKeyClicked: boolean,
-  showAddKey: ShowAddKeyType,
+  saveIdClicked: boolean,
+  showAddKey: ShowAddIdType,
   // footer
   saveButtonIsEnabled: boolean,
   deleteButtonIsEnabled: boolean,
-  allKeysAreSelected: boolean,
+  allIdsAreSelected: boolean,
   // --
   showDeleteDialog: boolean,
   showBack: boolean,
   showCross: boolean,
   clickedBack: boolean,
   clickedCross: boolean,
-  showIds: ShowKeyType,
+  showIds: ShowIdType,
   showSettings: boolean,
 };
 
@@ -125,12 +125,12 @@ const initialState: AppStateType = {
   headerTitle: 'ID Scanner',
   localIds: [],
   currentId: undefined,
-  saveKeyClicked: false,
+  saveIdClicked: false,
   showAddKey: { showComponent: false, editMode: false },
   // footer
   saveButtonIsEnabled: false,
   deleteButtonIsEnabled: false,
-  allKeysAreSelected: false,
+  allIdsAreSelected: false,
   // --
   showDeleteDialog: false,
   showBack: false,
@@ -141,9 +141,9 @@ const initialState: AppStateType = {
     showComponent: false,
     editMode: false,
     deleteMode: false,
-    selectAllKeyClicked: false,
-    deselectAllKeyClicked: false,
-    deleteKeyClicked: false,
+    selectAllIdsClicked: false,
+    deselectAllIdsClicked: false,
+    deleteIdClicked: false,
   },
   showSettings: false,
 };
@@ -162,7 +162,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       };
     }
     case ActionType.DELETE_ID_CLICKED: {
-      return { ...state, showIds: { ...state.showIds, deleteKeyClicked: true } };
+      return { ...state, showIds: { ...state.showIds, deleteIdClicked: true } };
     }
     case ActionType.SET_ALL_LOCALIDS: {
       return { ...state, localIds: action.payload };
@@ -172,7 +172,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return {
         ...state,
         localIds: newIds,
-        saveKeyClicked: false,
+        saveIdClicked: false,
         showBack: false,
         showIds: { ...state.showIds, showComponent: true },
         currentId: action.payload,
@@ -181,7 +181,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       };
     }
     case ActionType.SAVE_ID_CLICKED: {
-      return { ...state, saveKeyClicked: action.payload };
+      return { ...state, saveIdClicked: action.payload };
     }
     case ActionType.SELECT_ID: {
       return { ...state, currentId: action.payload };
@@ -193,7 +193,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, saveButtonIsEnabled: action.payload };
     }
     case ActionType.ALL_IDS_ARE_SELECTED: {
-      return { ...state, allKeysAreSelected: action.payload };
+      return { ...state, allIdsAreSelected: action.payload };
     }
     case ActionType.SET_DEVICE_STATUS: {
       return { ...state, deviceStatus: action.payload };
@@ -202,10 +202,10 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, clickedSetting: action.payload };
     }
     case ActionType.SELECT_ALL_ID_CLICKED: {
-      return { ...state, showIds: { ...state.showIds, selectAllKeyClicked: action.payload, deselectAllKeyClicked: false } };
+      return { ...state, showIds: { ...state.showIds, selectAllIdsClicked: action.payload, deselectAllIdsClicked: false } };
     }
     case ActionType.DESELECT_ALL_ID_CLICKED: {
-      return { ...state, showIds: { ...state.showIds, selectAllKeyClicked: false, deselectAllKeyClicked: action.payload } };
+      return { ...state, showIds: { ...state.showIds, selectAllIdsClicked: false, deselectAllIdsClicked: action.payload } };
     }
     case ActionType.SET_HEADER_TITLE: {
       return { ...state, headerTitle: action.payload };
@@ -256,7 +256,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     }
     case ActionType.UPDATE_ID: {
       const newIds = state.localIds ? [...state.localIds] : [];
-      const index = newIds.findIndex(iD => iD.documentNr === action.payload.documentNr);
+      const index = newIds.findIndex(iD => iD.documentNumber === action.payload.documentNumber);
 
       if (index !== -1) {
         newIds[index] = action.payload;
@@ -306,7 +306,6 @@ const App = () => {
     if (getSelectedId) dispatch({ type: ActionType.SELECT_ID, payload: JSON.parse(getSelectedId) });
   }, []);
 
-  if (state.currentId?.dateOfExpiry) console.log(format(parseISO(state.currentId.dateOfExpiry), 'yyMMdd'));
   return (
     <ThemeProvider theme={theme}>
       <StyledWrapper>
@@ -326,7 +325,7 @@ const App = () => {
                 {/* TODO: processStatus ERROR */}
                 {!state.showSettings && !state.showIds.showComponent && state.showAddKey.showComponent
                   && <LocalAddId
-                  saveKeyClicked={state.saveKeyClicked}
+                  saveKeyClicked={state.saveIdClicked}
                   currentId={state.currentId}
                   editMode={state.showAddKey.editMode}
                   appLanguage={state.appLanguage} />
@@ -348,7 +347,7 @@ const App = () => {
                     showIds={state.showIds}
                     saveButtonIsEnabled={state.saveButtonIsEnabled}
                     deleteButtonIsEnabled={state.deleteButtonIsEnabled}
-                    allKeysAreSelected={state.allKeysAreSelected}
+                    allIdsAreSelected={state.allIdsAreSelected}
                     enableEditandDeleteButton={state.localIds.length >= 1} />
                 }
             </StyledApp>

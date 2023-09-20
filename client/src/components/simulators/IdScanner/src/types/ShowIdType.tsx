@@ -2,9 +2,9 @@ type ShowIdType = {
   showComponent: boolean,
   editMode: boolean,
   deleteMode: boolean,
-  selectAllKeyClicked: boolean,
-  deselectAllKeyClicked: boolean,
-  deleteKeyClicked: boolean,
+  selectAllIdsClicked: boolean,
+  deselectAllIdsClicked: boolean,
+  deleteIdClicked: boolean,
 };
 
 export default ShowIdType;

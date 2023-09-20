@@ -193,18 +193,17 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
       const response = await idScanApi.post('/auth', reqBody, config);
       if (!response?.data) {
         throw Error('Missing response data');
+      } else {
+        const { accessToken } = response.data;
+        setToken(accessToken);
+        console.log(`Id-scanner has been able to get a Token: ${accessToken}`);
+        setTimeout(() => {
+          setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+        }, 500);
       }
-      const { accessToken } = response.data;
-      setToken(accessToken);
-      console.log(`id-scanner has been able to get a Token: ${accessToken}`);
-      setTimeout(() => {
-        setOperationalState(OperationalStatuses.DEVICE_CONNECT);
-      }, 500);
-      return true;
     } catch (error) {
-      console.error('Error: id-scanner retrieving authentication token:', error);
       setOperationalState(OperationalStatuses.API_ERROR);
-      return false;
+      console.error(`Error: Id-scanner: "${scannerCredentials.userName}" is unable to get authentication token:`, error);
     }
   }, []);
 
@@ -234,18 +233,22 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
     let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
     let checkCounter = 0; // Counter for the number of checks
-
+    const handleAsyncOperation = async(operationalState: OperationalStatuses) => {
     switch (operationalState) {
       case OperationalStatuses.DEVICE_START_UP:
         setInstructionText('');
-        if (!token) getToken();
+        getToken();
         break;
       case OperationalStatuses.API_ERROR:
         setInstructionText('SERVER ERROR');
-        waitTime = 3000;
+        waitTime = 5000;
         break;
       case OperationalStatuses.DEVICE_CONNECT:
         setInstructionText('');
+        // if setting isn't already connected, then set it.
+        if (deviceStatus !== DeviceStatuses.CONNECTED) {
+          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
+        }
         waitTime = 2000;
         break;
       case OperationalStatuses.DEVICE_DISCONNECT:
@@ -263,15 +266,19 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         if (deviceStatus !== DeviceStatuses.OUT_OF_ORDER) {
           appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.OUT_OF_ORDER });
         }
-        waitTime = 3000;
+        waitTime = 10000;
         break;
       case OperationalStatuses.DEVICE_CONNECTED:
         setInstructionText('CONNECTED');
         // longpolling interval;
-        waitTime = 2500;
+        waitTime = 500;
         break;
       case OperationalStatuses.DEVICE_COULD_NOT_CONNECT:
         setInstructionText('Could not connect');
+        waitTime = 3500;
+        break;
+      case OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT:
+        setInstructionText('Could not disconnect');
         waitTime = 3500;
         break;
       case OperationalStatuses.DEVICE_WAITING_FOR_ID:
@@ -301,32 +308,37 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
       default:
         break;
     }
+    await handleAsyncOperation(operationalState);
+    
     if (intervalId) {
       clearInterval(intervalId);
     }
     // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
     if (waitTime) {
       let response;
+      let sessionDetails;
+      console.log(sessionDetails);
       intervalId = setInterval(async () => {
         switch (operationalState) {
           case OperationalStatuses.API_ERROR:
-            setOperationalState(OperationalStatuses.DEVICE_START_UP);
+            if (!token) setOperationalState(OperationalStatuses.DEVICE_START_UP);
+            else setOperationalState(OperationalStatuses.DEVICE_CONNECT);
             break;
           case OperationalStatuses.DEVICE_CONNECT:
             if (token) {
               response = await changeDeviceStatus(DeviceStatuses.CONNECTED);
-              if (response.status !== DeviceStatuses.CONNECTED) {
-                setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-              } else if (response.status === DeviceStatuses.CONNECTED) {
-                setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
-                checkCounter = 0;
-                appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
+              if (response) {
+                if (response.status === DeviceStatuses.CONNECTED) {
+                  setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
+                  checkCounter = 0;
+                } else {
+                  // if response.status is something else
+                  setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
+                }
+              // and also if there is no response
               } else {
-                setOperationalState(OperationalStatuses.API_ERROR);
+                setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
               }
-            } else {
-              // if there is no token try again to get one.
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.DEVICE_DISCONNECT:
@@ -335,71 +347,39 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
               if (response) {
                 if (response.status === DeviceStatuses.DISCONNECTED) {
                   setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
+                } else {
+                  setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT);
                 }
+              } else {
+                setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT);
               }
-            } else {
-              // if there is no token try again to get one.
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.DEVICE_CONNECTED:
             checkCounter += 1;
+            console.log(checkCounter);
             if (token) {
               // If connected look if scanner needs to be activated
-              const sessionDetails = await getSession(token);
-              console.log(sessionDetails);
-              if (sessionDetails) {
-                if (sessionDetails.command === 'SCAN_ID') {
-                  setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
-                }
+              sessionDetails = await getSession(token);
+              if (sessionDetails.command === 'SCAN_ID') {
+                setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
               }
+
               // This endpoint need to be called by the device on a regular base to stay in connected state.
               // In case the status is not updated in time, the internal status will fallback to "not_found"
               // Timeout is set to 60000 on backend. Maybe to put checkcounter dynamically
-              if (checkCounter >= 5) {
+              if (checkCounter >= 20) {
                 setOperationalState(OperationalStatuses.DEVICE_CONNECT);
               }
-            } else {
-              // if there is no token try again to get one.
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.DEVICE_COULD_NOT_CONNECT:
-            // If you cannot connect you probarly also cannot set to DISCONNECT...
-            // either way i put the code here maybe this state can be deleted.
-            if (token) {
-              response = await changeDeviceStatus(DeviceStatuses.DISCONNECTED);
-              if (response) {
-                if (response.status === DeviceStatuses.DISCONNECTED) {
-                  setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
-                } else {
-                  setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
-                }
-                // if response is undefined but token is there, maybe device is out of order?
-              } else if (response === undefined) {
-                setOperationalState(OperationalStatuses.DEVICE_OUT_OF_ORDER);
-              }
-            } else {
-              // if there is no token try again to get one.
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
-            }
-            break;
-          case OperationalStatuses.DEVICE_OUT_OF_ORDER:
-            if (token) {
-              response = await changeDeviceStatus(DeviceStatuses.OUT_OF_ORDER);
-              if (response) {
-                if (response.status === 200) {
-                  setOperationalState(OperationalStatuses.API_ERROR);
-                }
-              }
-            } else {
-              // if there is no token try again to get one.
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
-            }
+          case OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT:
+            setOperationalState(OperationalStatuses.API_ERROR);
             break;
           case OperationalStatuses.DEVICE_WAITING_FOR_ID:
             if (token) {
-              const sessionDetails = await getSession(token);
+              sessionDetails = await getSession(token);
               if (sessionDetails) {
                 if (sessionDetails.status === 'CANCELLING') {
                   setOperationalState(OperationalStatuses.DEVICE_STOPPED);
@@ -411,7 +391,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
                 checkCounter += 1;
               }
             }
-            // either way set to TIMEDOUT
+            // either way set to TIMED_OUT
             if (checkCounter >= 13000) {
               setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
             }
@@ -436,21 +416,30 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
           case OperationalStatuses.DEVICE_STOPPED:
             if (token) {
               const res = await stopSession(token);
-              if (res === 200) {
+              if (res.status === 'STOPPED') {
+                // stop session is succesfull, now try again to connect;
                 setOperationalState(OperationalStatuses.DEVICE_CONNECT);
               } else {
                 console.log(res);
                 setOperationalState(OperationalStatuses.API_ERROR);
               }
-            } else {
-              // if there is no token try again to get one. (and start over)
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.DEVICE_TIMED_OUT:
           case OperationalStatuses.API_SCAN_SUCCESS:
           case OperationalStatuses.API_SCAN_FAILED:
+            // now try again to connect:
             setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+            break;
+            // initial state:
+          case OperationalStatuses.DEVICE_OUT_OF_ORDER:
+            if (token) {
+              // try to change device status on the backend, but stay in this state regardless
+              await changeDeviceStatus(DeviceStatuses.OUT_OF_ORDER);
+            } else {
+              // if there is no token try again to get one. (in case of a restart)
+              setOperationalState(OperationalStatuses.DEVICE_START_UP);
+            }
             break;
           default:
             break;

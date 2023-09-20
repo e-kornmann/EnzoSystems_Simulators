@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useReducer, Reducer, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useReducer, Reducer, useState } from 'react';
 // styled components
 import styled from 'styled-components';
 // components
@@ -6,7 +6,7 @@ import { Translate } from '../../Translations/Translations';
 import { DropDown } from '../EnzoInputControls/EnzoDropdown/DropDown';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
-import AddKeyDispatchActions from '../../types/reducerActions/AddKeyDispatchActions';
+import AddIdDispatchActions from '../../types/reducerActions/AddIdDispatchActions';
 // types
 import InputActionType from '../../enums/InputActionTypes';
 import ActionType from '../../enums/ActionTypes';
@@ -20,6 +20,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
   left: '0',
   height: 'calc(100% - 75px)',
   width: '100%',
+  maxWidth: '500px',
   zIndex: '600',
 }));
 const StyledForm = styled('form')({
@@ -28,7 +29,8 @@ const StyledForm = styled('form')({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  padding: '8px 18px 18px',
+  gap: '10px',
+  padding: '18px 18px 18px',
   justifyItems: 'flex-start',
   alignItems: 'center',
   overflowY: 'scroll',
@@ -37,7 +39,6 @@ const StyledControl = styled('div')<{
   key?: string,
   $hasValue?: boolean,
 }>(({ theme, $hasValue }) => ({
-  marginTop: '10px',
   height: '35px',
   width: '100%',
   display: 'flex',
@@ -68,7 +69,7 @@ const StyledControl = styled('div')<{
     top: $hasValue ? '-6px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
-    color: '#7A7A7A',
+    color: 'theme.colors.text.tertiary',
     pointerEvents: 'none',
     transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
     transition: 'transform 0.05s, font-size 0.05s, top 0.05s',
@@ -84,6 +85,34 @@ const StyledControl = styled('div')<{
     left: '5px',
     fontSize: '0.6em',
     transform: 'translateY(0)',
+  },
+}));
+
+const StyledDateFieldsWrapper = styled('div')(({ theme }) => ({
+  position: 'relative',
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+  columnGap: '6px',
+  width: '100%',
+  maxWidth: '500px',
+  '& > p': {
+    color: theme.colors.text.tertiary,
+    margin: '2px 0 13px',
+    fontWeight: '600',
+    fontSize: '0.65em',
+    padding: '6px 3px 0',
+    gridColumn: 'span 3',
+    borderTop: '0.2em solid',
+    borderColor: theme.colors.buttons.lightgray,
+    '& > span': {
+      color: theme.colors.text.secondary,
+      position: 'relative',
+      top: '-0.45em',
+      fontSize: '80%',
+    },
+  },
+  '&:last-child': {
+    marginBottom: '25px',
   },
 }));
 
@@ -121,7 +150,7 @@ const initialState: AddIdStateType = {
   iD: examplePassPort,
 };
 
-const reducer: Reducer<AddIdStateType, AddKeyDispatchActions> = (state, action): AddIdStateType => {
+const reducer: Reducer<AddIdStateType, AddIdDispatchActions> = (state, action): AddIdStateType => {
   switch (action.type) {
     case InputActionType.SET_ID: {
       return { ...state, initialized: true, iD: action.payload };
@@ -130,7 +159,7 @@ const reducer: Reducer<AddIdStateType, AddKeyDispatchActions> = (state, action):
       return { ...state, iD: { ...state.iD, [action.field]: action.payload } };
     }
     default:
-      console.error(`ERROR: this add key reducer action type does not exist: ${action.type}`);
+      console.error('ERROR: this add ID reducer action type does not exist');
       return initialState;
   }
 };
@@ -152,8 +181,12 @@ export type DateObjectType = {
 const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useContext(AppDispatchContext);
-  const [dateOfBirthObject, setDateOfBirthObject] = useState<DateObjectType>({ year: undefined, month: undefined, day: undefined, leapYear: false });
-  const [dateOfExpiry, setDateOfExpiry] = useState<DateObjectType>({ year: undefined, month: undefined, day: undefined, leapYear: false });
+  const [dateOfBirthObject, setDateOfBirthObject] = useState<DateObjectType>({
+    year: undefined, month: undefined, day: undefined, leapYear: false,
+  });
+  const [dateOfExpiryObject, setDateOfExpiryObject] = useState<DateObjectType>({
+    year: undefined, month: undefined, day: undefined, leapYear: false,
+  });
 
   // this useEffect updates leapYear condition
   useEffect(() => {
@@ -164,7 +197,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
       const currentCentury = Math.floor(currentYear / 100);
       const currentTwoDigitYear = currentYear % 100;
 
-      if (dateOfBirth && twoDigitYear >= currentTwoDigitYear) {
+      if (dateOfBirth && twoDigitYear > currentTwoDigitYear) {
         return (currentCentury - 1) * 100 + twoDigitYear;
       }
       return currentCentury * 100 + twoDigitYear;
@@ -173,13 +206,20 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
     if (dateOfBirthObject.year !== undefined) {
       const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfBirthObject.year), true);
       const isLeapYear = isLeapYearCalculator(fourDigitYear);
-
       setDateOfBirthObject(prev => ({
         ...prev,
         leapYear: isLeapYear,
       }));
     }
-  }, [dateOfBirthObject.year]);
+    if (dateOfExpiryObject.year !== undefined) {
+      const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfExpiryObject.year), false);
+      const isLeapYear = isLeapYearCalculator(fourDigitYear);
+      setDateOfExpiryObject(prev => ({
+        ...prev,
+        leapYear: isLeapYear,
+      }));
+    }
+  }, [dateOfBirthObject.year, dateOfExpiryObject.year]);
 
   // this useEffect fills inputfields when in Edit mode
   useEffect(() => {
@@ -188,15 +228,21 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
       if (state.iD.dateOfBirth) {
         setDateOfBirthObject(prev => ({
           ...prev,
-          year: state.iD.dateOfBirth?.slice(2),
-          month: state.iD.dateOfBirth?.slice(4, 6),
-          day: state.iD.dateOfBirth?.slice(6),
-        }
-        ));
+          year: state.iD.dateOfBirth?.slice(0, 2),
+          month: state.iD.dateOfBirth?.slice(2, 4),
+          day: state.iD.dateOfBirth?.slice(-2),
+        }));
       }
-      // nof afmaken
+      if (state.iD.dateOfExpiry) {
+        setDateOfExpiryObject(prev => ({
+          ...prev,
+          year: state.iD.dateOfExpiry?.slice(0, 2),
+          month: state.iD.dateOfExpiry?.slice(2, 4),
+          day: state.iD.dateOfExpiry?.slice(-2),
+        }));
+      }
     }
-  }, [editMode, currentId, state.iD.dateOfBirth]);
+  }, [currentId, editMode, state.iD.dateOfBirth, state.iD.dateOfExpiry]);
 
   // wordt geroepen vanuit onOptionClick
   const handleInput = useCallback((payload: string, field: string) => {
@@ -206,7 +252,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
   // wordt geroepen vanuit onOptionClick
   const handleDateInput = useCallback((option: string, field: InputFields, dateObjectField: string | undefined) => {
     if (field === InputFields.DATE_OF_BIRTH && dateObjectField) setDateOfBirthObject(prev => ({ ...prev, [dateObjectField]: option }));
-    if (field === InputFields.DATE_OF_EXPIRY && dateObjectField) setDateOfExpiry(prev => ({ ...prev, [dateObjectField]: option }));
+    if (field === InputFields.DATE_OF_EXPIRY && dateObjectField) setDateOfExpiryObject(prev => ({ ...prev, [dateObjectField]: option }));
   }, []);
 
   const amountOfDays = useCallback((month: string | undefined, field: InputFields): string[] => {
@@ -239,41 +285,70 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
           makeArray(29);
           break;
         }
-        if (field === InputFields.DATE_OF_EXPIRY && dateOfExpiry.leapYear === true) {
+        if (field === InputFields.DATE_OF_EXPIRY && dateOfExpiryObject.leapYear === true) {
           makeArray(29);
           break;
         }
         makeArray(28);
         break;
       default:
-        break; // Invalid month
+        break;
     }
     return numbersArray;
-  }, [dateOfBirthObject.leapYear, dateOfExpiry.leapYear]);
+  }, [dateOfBirthObject.leapYear, dateOfExpiryObject.leapYear]);
 
   useEffect(() => {
     if (saveKeyClicked) {
-      if (editMode && state.iD) {
-        appDispatch({ type: ActionType.UPDATE_ID, payload: state.iD });
-        // go back to initial screen.
-        appDispatch({ type: ActionType.CLICKED_CROSS });
-      } else {
-        appDispatch({ type: ActionType.SAVE_ID, payload: state.iD });
+      if (state.iD) {
+        appDispatch({
+          type: editMode ? ActionType.UPDATE_ID : ActionType.SAVE_ID,
+          payload: {
+            ...state.iD,
+            dateOfBirth: dateOfBirthObject.year && dateOfBirthObject.year + dateOfBirthObject.month + dateOfBirthObject.day,
+            dateOfExpiry: dateOfExpiryObject.year && dateOfExpiryObject.year + dateOfExpiryObject.month + dateOfExpiryObject.day,
+          },
+        });
+        // go back to initial screen when in edit mode
+        if (editMode) appDispatch({ type: ActionType.CLICKED_CROSS });
       }
     }
-  }, [appDispatch, editMode, saveKeyClicked, state.iD]);
+  }, [appDispatch,
+    dateOfBirthObject.day,
+    dateOfBirthObject.month,
+    dateOfBirthObject.year,
+    dateOfExpiryObject.day,
+    dateOfExpiryObject.month,
+    dateOfExpiryObject.year,
+    editMode,
+    saveKeyClicked,
+    state.iD]);
 
-  // this useEffects Enables AND Disables the save button
   useEffect(() => {
-    if (state.iD[InputFields.DOCUMENT_NR] !== '') {
+    const allFieldsAreValid = Object.entries(state.iD).every(([key, value]) => {
+      if (key === InputFields.DATE_OF_BIRTH || key === InputFields.DATE_OF_EXPIRY) {
+        return true;
+      }
+      return (value !== '' && value !== undefined);
+    });
+    const allDateOfBirthFieldsAreValid = Object.entries(dateOfBirthObject).every(([key, value]) => {
+      if (key === 'leapYear' as keyof DateObjectType) {
+        return true;
+      }
+      return value !== undefined;
+    });
+    const allDateOfExpiryFieldsAreValid = Object.entries(dateOfExpiryObject).every(([key, value]) => {
+      if (key === 'leapYear' as keyof DateObjectType) {
+        return true;
+      }
+      return value !== undefined;
+    });
+    if (allFieldsAreValid && allDateOfBirthFieldsAreValid && allDateOfExpiryFieldsAreValid) {
       appDispatch({ type: ActionType.SET_SAVE_BUTTON, payload: true });
     } else {
       appDispatch({ type: ActionType.SET_SAVE_BUTTON, payload: false });
     }
-  }, [appDispatch, state.iD]);
+  }, [appDispatch, dateOfBirthObject, dateOfExpiryObject, state.iD]);
 
-  console.log(state.iD);
-  console.log(dateOfBirthObject);
   return (
     <StyledWrapper>
       <StyledForm>
@@ -288,11 +363,12 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
             case InputFields.DATE_OF_BIRTH:
             case InputFields.DATE_OF_EXPIRY:
               return (
-                <React.Fragment key={field}>
+                <StyledDateFieldsWrapper key={field}>
+                  <p><Translate id={field} language={appLanguage} />:<span>*</span></p>
                 <DropDown
                   initialValue={field === InputFields.DATE_OF_BIRTH
                     ? dateOfBirthObject.year
-                    : dateOfExpiry.year}
+                    : dateOfExpiryObject.year}
                   key={`${field}_year`}
                   field={field}
                   dateObjectField={'year'}
@@ -301,7 +377,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
                   <DropDown
                   initialValue={field === InputFields.DATE_OF_BIRTH
                     ? dateOfBirthObject.month
-                    : dateOfExpiry.month}
+                    : dateOfExpiryObject.month}
                   key={`${field}_month`}
                   field={field}
                   dateObjectField={'month'}
@@ -310,7 +386,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
                   <DropDown
                   initialValue={field === InputFields.DATE_OF_BIRTH
                     ? dateOfBirthObject.day
-                    : dateOfExpiry.day}
+                    : dateOfExpiryObject.day}
                   key={`${field}_day`}
                   field={field}
                   dateObjectField={'day'}
@@ -318,12 +394,12 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
                   appLanguage={appLanguage}
                   isDisabled={field === InputFields.DATE_OF_BIRTH
                     ? (dateOfBirthObject.year === undefined || dateOfBirthObject.month === undefined)
-                    : (dateOfExpiry.year === undefined || dateOfExpiry.month === undefined)}
+                    : (dateOfExpiryObject.year === undefined || dateOfExpiryObject.month === undefined)}
                   amountOfDays={field === InputFields.DATE_OF_BIRTH
                     ? amountOfDays(dateOfBirthObject.month, field)
-                    : amountOfDays(dateOfExpiry.month, field)}
+                    : amountOfDays(dateOfExpiryObject.month, field)}
                   />
-                  </React.Fragment>
+                  </StyledDateFieldsWrapper>
               );
             default:
               return (

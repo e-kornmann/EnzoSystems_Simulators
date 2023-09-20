@@ -2,28 +2,6 @@ import axios from 'axios';
 import idScanApi from '../../../../../api/idScannerApi';
 import { IdType } from '../types/IdType';
 
-// const changeDeviceStatus = useCallback( async(accessToken: string, changeToThisState: string) => {
-//   try {
-//     const config = {
-//       headers: {
-//         contentType: 'application/json',
-//         authorization: `Bearer ${accessToken}`,
-//       },
-//     };
-//     const response = await idScanApi.put(
-//       '/status',
-//       {
-//         status: changeToThisState,
-//       },
-//       config,
-//     );
-//     return response;
-//   } catch (error) {
-//     console.error('Unable to connect:', error);
-//     return undefined;
-//   }
-// }, []);
-
 const getSession = async (accessToken: string) => {
   try {
     const config = {
@@ -42,7 +20,7 @@ const getSession = async (accessToken: string) => {
       return error.response;
     }
     console.error('Unable to get session:', error);
-    return undefined;
+    return error;
   }
 };
 const putScannedData = async (accessToken: string, idData: IdType) => {
@@ -56,26 +34,6 @@ const putScannedData = async (accessToken: string, idData: IdType) => {
     const response = await idScanApi.put(
       '/active-session',
       {
-
-        // data: {
-        //   status: 'FINISHED',
-        //   // dateOfBirth: idData.dateOfBirth ? format(parseISO(idData.dateOfBirth), 'yyMMdd') : '',
-        //   // dateOfExpiry: idData.dateOfExpiry ? format(parseISO(idData.dateOfExpiry), 'yyMMdd') : '',
-        //   dateOfBirth: idData.dateOfBirth,
-        //   dateOfExpiry: idData.dateOfExpiry,
-        //   documentNumber: 'KeyEncoder789',
-        //   documentType: 'P<',
-        //   issuerCode: 'NLD',
-        //   namePrimary: 'Erik',
-        //   nameSecondary: 'de Vries',
-        //   nationality: 'NLD',
-        //   sex: 'M',
-        //   images: {
-        //     cardHolder: 'imagehere',
-        //     docFront: 'imagehere',
-        //     docBack: 'imagehere',
-        //   },
-        // },
         data: {
           ...idData,
           status: 'FINISHED',
@@ -108,7 +66,7 @@ const stopSession = async (accessToken: string) => {
       },
       config,
     );
-    return response.status;
+    return response.data.metadata ? response.data.metadata : response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return error.response?.status;
@@ -117,27 +75,5 @@ const stopSession = async (accessToken: string) => {
     return error;
   }
 };
-
-// const getDeviceMode = async (accessToken: string, currentModus: string) => {
-//   try {
-//     const config = {
-//       headers: {
-//         contentType: 'application/json',
-//         authorization: `Bearer ${accessToken}`,
-//       },
-//     };
-//     const response = await idScanApi.get(
-//       `/mode?currentMode=${currentModus}&longPollingSecs=15`,
-//       config,
-//     );
-//     return response.data.mode;
-//   } catch (error) {
-//     if (axios.isAxiosError(error)) {
-//       return error.response;
-//     }
-//     console.error('Unable to get mode:', error);
-//     return undefined;
-//   }
-// };
 
 export { putScannedData, getSession, stopSession };
