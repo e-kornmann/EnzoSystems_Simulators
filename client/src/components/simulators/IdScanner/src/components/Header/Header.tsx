@@ -3,7 +3,7 @@ import { memo, useCallback, useContext } from 'react';
 import styled from 'styled-components';
 // context
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
-// svgs
+// svg images
 import { ReactComponent as ArrowBack } from '../../../local_assets/arrow_back.svg';
 import { ReactComponent as CloseIcon } from '../../../local_assets/close.svg';
 import ActionType from '../../enums/ActionTypes';

@@ -17,7 +17,7 @@ export enum Sex {
 }
 
 export type IdType = {
-  [InputFields.ISSUER_CODE]: string;
+  [InputFields.ISSUER_CODE]: CountriesAlpha3 | undefined;
   [InputFields.DOCUMENT_NR]: string;
   [InputFields.DOCUMENT_TYPE]: TypeOfDocument | undefined;
   [InputFields.NAME_PRIMARY]: string;

@@ -58,16 +58,16 @@ const TsComponent = ({ id, language, indexed }: Props) => {
     ],
     [InputFields.NAME_PRIMARY]: [
       {
-        [Lang.DUTCH]: 'Hoofdnaam',
-        [Lang.ENGLISH]: 'Primary Name',
+        [Lang.DUTCH]: 'Achternaam',
+        [Lang.ENGLISH]: 'Surname',
         [Lang.FRENCH]: 'Nom principal',
         [Lang.GERMAN]: 'Hauptname',
       },
     ],
     [InputFields.NAME_SECONDARY]: [
       {
-        [Lang.DUTCH]: 'Secundaire naam',
-        [Lang.ENGLISH]: 'Secondary Name',
+        [Lang.DUTCH]: 'Voornaam',
+        [Lang.ENGLISH]: 'Given names',
         [Lang.FRENCH]: 'Nom secondaire',
         [Lang.GERMAN]: 'Sekundärname',
       },

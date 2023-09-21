@@ -134,7 +134,7 @@ export enum InputFields {
 }
 
 const examplePassPort: IdType = {
-  [InputFields.ISSUER_CODE]: '',
+  [InputFields.ISSUER_CODE]: undefined,
   [InputFields.DOCUMENT_NR]: '',
   [InputFields.DOCUMENT_TYPE]: undefined,
   [InputFields.NAME_PRIMARY]: '',
@@ -324,25 +324,17 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
     state.iD]);
 
   useEffect(() => {
-    const allFieldsAreValid = Object.entries(state.iD).every(([key, value]) => {
-      if (key === InputFields.DATE_OF_BIRTH || key === InputFields.DATE_OF_EXPIRY) {
-        return true;
-      }
-      return (value !== '' && value !== undefined);
-    });
-    const allDateOfBirthFieldsAreValid = Object.entries(dateOfBirthObject).every(([key, value]) => {
-      if (key === 'leapYear' as keyof DateObjectType) {
-        return true;
-      }
-      return value !== undefined;
-    });
-    const allDateOfExpiryFieldsAreValid = Object.entries(dateOfExpiryObject).every(([key, value]) => {
-      if (key === 'leapYear' as keyof DateObjectType) {
-        return true;
-      }
-      return value !== undefined;
-    });
-    if (allFieldsAreValid && allDateOfBirthFieldsAreValid && allDateOfExpiryFieldsAreValid) {
+    const allFieldsExeptDateFieldsAreValid = Object
+      .entries(state.iD)
+      .every(([key, value]) => (key === InputFields.DATE_OF_BIRTH || key === InputFields.DATE_OF_EXPIRY) || (value !== '' && value !== undefined));
+    const allDateOfBirthFieldsAreValid = Object
+      .entries(dateOfBirthObject)
+      .every(([key, value]) => value !== undefined || key === 'leapYear' as keyof DateObjectType);
+    const allDateOfExpiryFieldsAreValid = Object
+      .entries(dateOfExpiryObject)
+      .every(([key, value]) => value !== undefined || key === 'leapYear' as keyof DateObjectType);
+
+    if (allFieldsExeptDateFieldsAreValid && allDateOfBirthFieldsAreValid && allDateOfExpiryFieldsAreValid) {
       appDispatch({ type: ActionType.SET_SAVE_BUTTON, payload: true });
     } else {
       appDispatch({ type: ActionType.SET_SAVE_BUTTON, payload: false });
@@ -354,6 +346,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
       <StyledForm>
         {Object.values(InputFields).map(field => {
           switch (field) {
+            case InputFields.ISSUER_CODE:
             case InputFields.DOCUMENT_TYPE:
             case InputFields.SEX:
             case InputFields.NATIONALITY:
@@ -365,41 +358,43 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
               return (
                 <StyledDateFieldsWrapper key={field}>
                   <p><Translate id={field} language={appLanguage} />:<span>*</span></p>
-                <DropDown
-                  initialValue={field === InputFields.DATE_OF_BIRTH
-                    ? dateOfBirthObject.year
-                    : dateOfExpiryObject.year}
-                  key={`${field}_year`}
-                  field={field}
-                  dateObjectField={'year'}
-                  onOptionClicked={handleDateInput}
-                  appLanguage={appLanguage}/>
                   <DropDown
-                  initialValue={field === InputFields.DATE_OF_BIRTH
-                    ? dateOfBirthObject.month
-                    : dateOfExpiryObject.month}
-                  key={`${field}_month`}
-                  field={field}
-                  dateObjectField={'month'}
-                  onOptionClicked={handleDateInput}
-                  appLanguage={appLanguage}/>
-                  <DropDown
-                  initialValue={field === InputFields.DATE_OF_BIRTH
-                    ? dateOfBirthObject.day
-                    : dateOfExpiryObject.day}
-                  key={`${field}_day`}
-                  field={field}
-                  dateObjectField={'day'}
-                  onOptionClicked={handleDateInput}
-                  appLanguage={appLanguage}
-                  isDisabled={field === InputFields.DATE_OF_BIRTH
-                    ? (dateOfBirthObject.year === undefined || dateOfBirthObject.month === undefined)
-                    : (dateOfExpiryObject.year === undefined || dateOfExpiryObject.month === undefined)}
-                  amountOfDays={field === InputFields.DATE_OF_BIRTH
-                    ? amountOfDays(dateOfBirthObject.month, field)
-                    : amountOfDays(dateOfExpiryObject.month, field)}
+                    initialValue={field === InputFields.DATE_OF_BIRTH
+                      ? dateOfBirthObject.year
+                      : dateOfExpiryObject.year}
+                    key={`${field}_year`}
+                    field={field}
+                    dateObjectField={'year'}
+                    onOptionClicked={handleDateInput}
+                    appLanguage={appLanguage}
                   />
-                  </StyledDateFieldsWrapper>
+                  <DropDown
+                    initialValue={field === InputFields.DATE_OF_BIRTH
+                      ? dateOfBirthObject.month
+                      : dateOfExpiryObject.month}
+                    key={`${field}_month`}
+                    field={field}
+                    dateObjectField={'month'}
+                    onOptionClicked={handleDateInput}
+                    appLanguage={appLanguage}
+                  />
+                  <DropDown
+                    initialValue={field === InputFields.DATE_OF_BIRTH
+                      ? dateOfBirthObject.day
+                      : dateOfExpiryObject.day}
+                    key={`${field}_day`}
+                    field={field}
+                    dateObjectField={'day'}
+                    onOptionClicked={handleDateInput}
+                    appLanguage={appLanguage}
+                    isDisabled={field === InputFields.DATE_OF_BIRTH
+                      ? (dateOfBirthObject.year === undefined || dateOfBirthObject.month === undefined)
+                      : (dateOfExpiryObject.year === undefined || dateOfExpiryObject.month === undefined)}
+                    amountOfDays={field === InputFields.DATE_OF_BIRTH
+                      ? amountOfDays(dateOfBirthObject.month, field)
+                      : amountOfDays(dateOfExpiryObject.month, field)}
+                  />
+                </StyledDateFieldsWrapper>
               );
             default:
               return (

@@ -3,7 +3,7 @@ import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
-// svgs
+// svg images
 import { ReactComponent as CheckmarkIcon } from '../../../local_assets/checkmark.svg';
 // types
 
@@ -64,22 +64,23 @@ const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
 }));
 const StyledItem = styled('div')({
   display: 'grid',
-  gridTemplateColumns: '30% 70%',
+  gridTemplateColumns: '20% 80%',
   alignItems: 'center',
   columnGap: '8px',
   width: '100%',
   position: 'relative',
 });
-const StyledRoomNumber = styled('div')<{
+const StyledTypeOfDocument = styled('div')<{
   $showAddMark?: boolean
 }>(({ $showAddMark }) => ({
   display: 'flex',
   fontWeight: '600',
-  fontVariantNumeric: 'tabular-nums',
   width: '100%',
+  fontSize: '1.2em',
   '& > span': {
     overflow: 'hidden',
     whiteSpace: 'nowrap',
+    fontVariantNumeric: 'tabular-nums',
     textOverflow: 'ellipsis',
     maxWidth: '72%',
   },
@@ -90,13 +91,13 @@ const StyledRoomNumber = styled('div')<{
     bottom: '6px',
   },
 }));
-const StyledDates = styled('div')({
+const StyledInfo = styled('div')({
   display: 'flex',
   flexWrap: 'wrap',
   flexDirection: 'column',
-  justifyContent: 'space-between',
-  height: '29px',
-  paddingBottom: '3px',
+  gap: '1px',
+  justifyContent: 'center',
+  height: '100%',
   '& > span': {
     fontVariantNumeric: 'tabular-nums',
     fontWeight: '500',
@@ -226,12 +227,12 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewIdsProps) => {
                 </StyledSharedCheckBox>
               }
 
-              <StyledRoomNumber $showAddMark={false}><span>{`(${id[InputFields.DOCUMENT_TYPE]})`}</span></StyledRoomNumber>
+              <StyledTypeOfDocument $showAddMark={false}><span>{`${id[InputFields.DOCUMENT_TYPE]}`}</span></StyledTypeOfDocument>
             </StyledWrap>
-            <StyledDates>
+            <StyledInfo>
               <span>{id[InputFields.DOCUMENT_NR]}</span>
-              <span>{`${id[InputFields.NAME_PRIMARY]} ${id[InputFields.NAME_SECONDARY]}`}</span>
-            </StyledDates>
+              <span>{` ${id[InputFields.NAME_SECONDARY]} ${id[InputFields.NAME_PRIMARY]}`}</span>
+            </StyledInfo>
 
           </StyledItem>
           {(id === currentId && !editMode && !deleteMode) && <StyledCheckMark />}

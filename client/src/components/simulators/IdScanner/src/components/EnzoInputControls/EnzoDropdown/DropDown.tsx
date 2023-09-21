@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // styled components
 import styled from 'styled-components';
-// import StyledArrow from './EnzoCheckBoxDropDown';
+// svg images
 import { ReactComponent as ArrowIcon } from '../../../../local_assets/arrow_up-down.svg';
 // types
 import { Sex, TypeOfDocument } from '../../../types/IdType';
@@ -197,6 +197,7 @@ const DropDownComponent = ({
         });
         break;
       case InputFields.NATIONALITY:
+      case InputFields.ISSUER_CODE:
         setOptions({
           optionKeys: Object.keys(CountriesAlpha3) as string[],
           optionValues: Object.values(CountriesAlpha3) as string[],

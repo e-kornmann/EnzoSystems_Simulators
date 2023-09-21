@@ -2,33 +2,56 @@ import axios from 'axios';
 import idScanApi from '../../../../../api/idScannerApi';
 import { IdType } from '../types/IdType';
 
-const getSession = async (accessToken: string) => {
+const changeDeviceStatus = async (token: string, changeToThisState: string) => {
   try {
     const config = {
       headers: {
         contentType: 'application/json',
-        authorization: `Bearer ${accessToken}`,
+        authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await idScanApi.put(
+      '/status',
+      {
+        status: changeToThisState,
+      },
+      config,
+    );
+    return response.data.metadata;
+  } catch (error) {
+    console.error('Unable to connect:', error);
+    return undefined;
+  }
+};
+
+const getSession = async (token: string) => {
+  try {
+    const config = {
+      headers: {
+        contentType: 'application/json',
+        authorization: `Bearer ${token}`,
       },
     };
     const response = await idScanApi.get(
       '/active-session/', // longPollingMS=250&result=NO_ACTIVE_SESSION',
       config,
     );
-    return response.data.metadata ? response.data.metadata : response.data;
+    return response.data.result ? response.data.result : response.data.metadata;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response;
+      console.error(error.response);
     }
     console.error('Unable to get session:', error);
-    return error;
+    return undefined;
   }
 };
-const putScannedData = async (accessToken: string, idData: IdType) => {
+
+const putScannedData = async (token: string, idData: IdType) => {
   try {
     const config = {
       headers: {
         contentType: 'application/json',
-        authorization: `Bearer ${accessToken}`,
+        authorization: `Bearer ${token}`,
       },
     };
     const response = await idScanApi.put(
@@ -51,12 +74,12 @@ const putScannedData = async (accessToken: string, idData: IdType) => {
   }
 };
 
-const stopSession = async (accessToken: string) => {
+const stopSession = async (token: string) => {
   try {
     const config = {
       headers: {
         contentType: 'application/json',
-        authorization: `Bearer ${accessToken}`,
+        authorization: `Bearer ${token}`,
       },
     };
     const response = await idScanApi.put(
@@ -76,4 +99,4 @@ const stopSession = async (accessToken: string) => {
   }
 };
 
-export { putScannedData, getSession, stopSession };
+export { putScannedData, getSession, stopSession, changeDeviceStatus };

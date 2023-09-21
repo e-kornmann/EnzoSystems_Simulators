@@ -57,7 +57,7 @@ const StyledCheckMark = styled(CheckmarkIcon)(({ theme }) => ({
 }));
 const StyledItem = styled('div')({
   display: 'grid',
-  gridTemplateColumns: '30% 70%',
+  gridTemplateColumns: '25% 75%',
   alignItems: 'center',
   columnGap: '8px',
   width: '100%',
@@ -72,6 +72,7 @@ const StyledRoomNumber = styled('div')<{
   width: '100%',
   '& > span': {
     overflow: 'hidden',
+    fontVariantNumeric: 'tabular-nums',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     maxWidth: '72%',
@@ -87,9 +88,9 @@ const StyledDates = styled('div')({
   display: 'flex',
   flexWrap: 'wrap',
   flexDirection: 'column',
-  justifyContent: 'space-between',
-  height: '29px',
-  paddingBottom: '3px',
+  gap: '1px',
+  justifyContent: 'center',
+  height: '100%',
   '& > span': {
     fontVariantNumeric: 'tabular-nums',
     fontWeight: '500',

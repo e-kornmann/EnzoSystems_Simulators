@@ -6,8 +6,9 @@ GET http://localhost:9007/api/simulator/id-scanner/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXIiLCJpYXQiOjE2OTUwNzczNDEsImV4cCI6MTY5NTE2Mzc0MSwiaXNzIjoiRW56b3N5c3RlbXMifQ.v7tvPwLp6cdeziDhqqeRLcu6jJD2OJMS63m71YaCtNM
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MTk1NjYyLCJleHAiOjE2OTUyODIwNjIsImlzcyI6IkVuem9zeXN0ZW1zIn0.BeAO1PSCqnqpzUGUsuDq4p7vm_NBjhVQrlAAlRBAVIk
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXJ0ZXN0IiwiaWF0IjoxNjk1Mjk1Nzk2LCJleHAiOjE2OTUzODIxOTYsImlzcyI6IkVuem9zeXN0ZW1zIn0.oF5o9IShy4N-r0Kdol2q5Xj6o6cIASDWd9-JIHifwC0
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MjgzNTQ5LCJleHAiOjE2OTUzNjk5NDksImlzcyI6IkVuem9zeXN0ZW1zIn0.6zZvoy149Bz7gT-kH5OIIrK6Gooyjfp7mWnF1bCNNLo
+
 
 
 ### DEVICE
@@ -69,7 +70,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/a4fe1756-c0dd-46bd-8493-e01a00dba042
+PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/0b9b96ea-742d-4620-9f7c-19e786e74657
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -78,7 +79,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PUT http://localhost:9007/api/simulator/id-scanner/v1/session/102d7e51-9817-4127-95f3-2ba7d02d70af
+PUT http://localhost:9007/api/simulator/id-scanner/v1/session/d4cea207-2143-4558-975a-9e2fa01ba2f5
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -87,7 +88,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST get session by id
-GET http://localhost:9007/api/simulator/id-scanner/v1/session/82661569-f76f-4f3d-bc97-458fe78c14ae
+GET http://localhost:9007/api/simulator/id-scanner/v1/session/e04c4532-d034-44c4-8088-86d008d59442
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 

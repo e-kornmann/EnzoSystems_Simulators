@@ -1,7 +1,7 @@
 import { memo } from 'react';
 // styled components
 import styled from 'styled-components';
-// svgs
+// svg images
 import { ReactComponent as Arrow } from '../../../../local_assets/arrow.svg';
 import { ReactComponent as CheckmarkIcon } from '../../../../local_assets/success.svg';
 
