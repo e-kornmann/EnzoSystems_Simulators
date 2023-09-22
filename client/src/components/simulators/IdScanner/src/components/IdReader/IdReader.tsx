@@ -219,50 +219,55 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
     console.log(res);
     if (!res) {
       setOperationalState(OperationalStatuses.API_ERROR);
+      setNextPoll(true);
     } else {
-    //   if (res.result === 'NO_ACTIVE_SESSION') {
-    //     setNextPoll(true);
-    //   }
-
-      //   if (res.command === 'SCAN_ID') {
-      //     setNextPoll(false);
-      //     initialSessionRequest.current = true;
-      //     setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
-      //   }
-      //   if (res.status === 'TIMED_OUT') {
-      //     setNextPoll(false);
-      //     initialSessionRequest.current = true;
-      //     setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
-      //   }
-      //   if (res.status === 'CANCELLING') {
-      //     setNextPoll(false);
-      //     initialSessionRequest.current = true;
-      //     setOperationalState(OperationalStatuses.API_CANCEL);
-      //   }
-      // }
-
       if (res.result === 'NO_ACTIVE_SESSION') {
         setNextPoll(true);
       }
-      if (res.command === 'SCAN_ID') {
-        if (res.status === 'ACTIVE') {
-          setNextPoll(false);
-          initialSessionRequest.current = true;
+
+      if (res.status === 'TIMED_OUT') {
+        setNextPoll(false);
+        initialSessionRequest.current = true;
+        setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
+      }
+      if (res.status === 'CANCELLING') {
+        setNextPoll(false);
+        initialSessionRequest.current = true;
+        setOperationalState(OperationalStatuses.API_CANCEL);
+      }
+      // only do next poll if in CONNECTED MODE otherwhise you will get conflicts.
+      if (res.command === 'SCAN_ID' && res.status === 'ACTIVE') {
+        // only do next poll if in CONNECTED MODE otherwhise you will get conflicts.
+        if (operationalState === OperationalStatuses.DEVICE_CONNECTED) {
+          setNextPoll(true);
           setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
-        }
-        if (res.status === 'CANCELLING') {
-          setNextPoll(false);
-          initialSessionRequest.current = true;
-          setOperationalState(OperationalStatuses.API_CANCEL);
-        } else if (res.status === 'TIMED_OUT') {
-          setNextPoll(false);
-          initialSessionRequest.current = true;
-          setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
         }
       }
     }
+
+    //   if (res.result === 'NO_ACTIVE_SESSION') {
+    //     setNextPoll(true);
+    //     // initialSessionRequest.current = false;
+    //   }
+    //   if (res.command === 'SCAN_ID') {
+    //     if (res.status === 'ACTIVE') {
+    //       setNextPoll(true);
+    //       setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
+    //     }
+    //     if (res.status === 'CANCELLING') {
+    //       setNextPoll(false);
+    //       initialSessionRequest.current = true;
+    //       setOperationalState(OperationalStatuses.API_CANCEL);
+    //     } else if (res.status === 'TIMED_OUT') {
+    //       setNextPoll(false);
+    //       initialSessionRequest.current = true;
+    //       setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
+    //     }
+    //   }
+    // }
     setNextPoll(true);
-  }, [token]);
+    // initialSessionRequest.current = false;
+  }, [operationalState, token]);
 
   useEffect(() => {
     let waitTime: number | undefined;
@@ -271,8 +276,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
     switch (operationalState) {
       case OperationalStatuses.DEVICE_START_UP:
         setInstructionText('');
-        getToken();
-        waitTime = 2000;
+        waitTime = 800;
         break;
       case OperationalStatuses.API_ERROR:
         setInstructionText('SERVER ERROR');
@@ -304,7 +308,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         waitTime = 10000;
         break;
       case OperationalStatuses.DEVICE_CONNECTED:
-        setInstructionText('CONNECTED');
+        setInstructionText('');
         waitTime = 50000;
         // when in this state getSession is initiated
         break;
@@ -321,20 +325,20 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         waitTime = 50000;
         break;
       case OperationalStatuses.API_CANCEL:
-        setNextPoll(false);
-        initialSessionRequest.current = true;
+        // setNextPoll(false);
+        // initialSessionRequest.current = true;
         setInstructionText('Scanning cancelled');
         waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_TIMED_OUT:
-        setNextPoll(false);
-        initialSessionRequest.current = true;
+        // setNextPoll(false);
+        // initialSessionRequest.current = true;
         setInstructionText('TIMED OUT');
         waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_IS_SCANNING:
-        setNextPoll(false);
-        initialSessionRequest.current = true;
+        // setNextPoll(false);
+        // initialSessionRequest.current = true;
         setInstructionText('Scanning...');
         waitTime = 3500;
         break;
@@ -357,6 +361,9 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
     if (waitTime) {
       intervalId = setInterval(async () => {
         switch (operationalState) {
+          case OperationalStatuses.DEVICE_START_UP:
+            getToken();
+            break;
           case OperationalStatuses.API_ERROR:
             if (!token) setOperationalState(OperationalStatuses.DEVICE_START_UP);
             else setOperationalState(OperationalStatuses.DEVICE_CONNECT);
@@ -409,25 +416,18 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
               console.log(res);
               if (res) {
                 if (res.status === 'FINISHED') {
-                  setNextPoll(false);
-                  initialSessionRequest.current = false;
                   setOperationalState(OperationalStatuses.API_SCAN_SUCCESS);
                 } else {
                   console.log(res);
                   setOperationalState(OperationalStatuses.API_SCAN_FAILED);
                 }
               }
-            } else {
-              // if there is no token try again to get one. (and start over)
-              setOperationalState(OperationalStatuses.DEVICE_START_UP);
             }
             break;
           case OperationalStatuses.API_CANCEL:
             if (token) {
               const res = await stopSession(token);
               if (res.status === 'STOPPED') {
-                setNextPoll(false);
-                initialSessionRequest.current = true;
                 // stop session is succesfull, now try again to connect;
                 setOperationalState(OperationalStatuses.DEVICE_CONNECT);
               } else {
@@ -471,20 +471,34 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
 
   /* Repeatedly Get Session Based on operationalState */
   useEffect(() => {
-    if ((operationalState === OperationalStatuses.DEVICE_CONNECTED
-      || operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID)
-      && token) {
+    if (token) {
       // while WAITING, send a new "long" poll for a new session (1st request)
-      if (!nextPoll && initialSessionRequest.current) {
+      if ((operationalState === OperationalStatuses.DEVICE_CONNECTED
+        || operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID)
+        && initialSessionRequest.current) {
         initialSessionRequest.current = false;
         console.log('initiate getScanSession');
-        getScanSession();
+        if (operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) {
+          // mimmick long poll because somehow it doesn't work when status = ACTIVE
+          setTimeout(async () => {
+            await getScanSession();
+          }, 500);
+        } else {
+          getScanSession();
+        }
         // any subsequent request
-      } else if (nextPoll && !initialSessionRequest.current) {
+      } else if ((operationalState === OperationalStatuses.DEVICE_CONNECTED
+        || operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID)
+        && nextPoll && !initialSessionRequest.current) {
         console.log('next getScanSession');
         setNextPoll(false);
-        if (operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) setTimeout(async () => getScanSession(), 500);
-        else getScanSession();
+        if (operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) {
+          setTimeout(async () => {
+            await getScanSession();
+          }, 500);
+        } else {
+          getScanSession();
+        }
       }
     }
   }, [getScanSession, nextPoll, operationalState, token]);
@@ -493,8 +507,12 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
       <QrScannerWrapper>
         <InstructionBox>
           {/* {Show loading dots by start-up} */}
-          {((operationalState === OperationalStatuses.DEVICE_START_UP) || (operationalState === OperationalStatuses.DEVICE_CONNECT))
-          && <SharedLoading/>}
+          {(
+            operationalState === OperationalStatuses.DEVICE_START_UP
+          || operationalState === OperationalStatuses.DEVICE_CONNECT
+          || operationalState === OperationalStatuses.DEVICE_CONNECTED
+          )
+          && <SharedLoading $isConnected={ operationalState === OperationalStatuses.DEVICE_CONNECTED } />}
           <span> {instructionText}</span>
         </InstructionBox>
         <IconBox>

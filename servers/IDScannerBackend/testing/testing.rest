@@ -70,7 +70,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/0b9b96ea-742d-4620-9f7c-19e786e74657
+PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/e21ff2c2-64a2-4886-9cd8-dcbf47c1fcf0
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 

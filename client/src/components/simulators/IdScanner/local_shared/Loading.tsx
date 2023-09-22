@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 const scaleUp = keyframes`
@@ -6,43 +5,60 @@ const scaleUp = keyframes`
     transform: translate(-50%, -50%) scale(0) 
   }
   60% , 100% { 
-    transform: translate(-50%, -50%)  scale(1)}
+    transform: translate(-50%, -50%) scale(1)}
 `;
-const pulse = keyframes`
-  0% , 60% , 100% { 
-    transform:  scale(1) 
+
+const breath = keyframes`
+  0% , 100% { 
+    transform: translate(-50%, -50%) scale(0.85) 
   }
-  80% { 
-    transform:  scale(1.2)
+  50% { 
+    transform: translate(-50%, -50%) scale(1)}
+`;
+
+const pulse = keyframes`
+  0% , 70% , 100% { 
+    transform: scale(1) 
+  }
+  30% { 
+    transform: scale(1.2)
   }
 `;
 
-const Loader = styled.div`
-  width: 30px;
-  height: 30px;
-  border: 3px solid #FFF;
+const heartbeat = keyframes`
+  0% , 100% { 
+    transform: scale(0.85) 
+  }
+  50% { 
+    transform: scale(1.2)
+  }
+`;
+
+const SharedLoading = styled.div<{ $isHidden?: boolean, $isConnected?: boolean }>`
+  width: 25px;
+  height: 25px;
+  border: 2px solid  ${props => (props.$isConnected ? 'transparent' : '#FFF')};
   border-radius: 50%;
-  display: inline-block;
+  display: ${props => (props.$isHidden ? 'none' : 'inline-block')};
   box-sizing: border-box;
   position: relative;
-  animation: ${pulse} 1s linear infinite;
+  animation: ${props => (props.$isConnected ? heartbeat : pulse)} ${props => (props.$isConnected ? '2s' : '1s')} ease-in-out infinite;
   &::after {
   content: '';
   position: absolute;
-  width: 30px;
-  height: 30px;
-  border: 4px solid ${props => props.theme.colors.text.secondary};
+  width: 25px;
+  height: 25px;
+  border: 4px solid ${props => (props.$isConnected ? props.theme.colors.buttons.special : props.theme.colors.buttons.special)};
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  animation: ${scaleUp} 1s linear infinite;
+  animation: ${props => (props.$isConnected ? breath : scaleUp)} ${props => (props.$isConnected ? '2s' : '1s')} linear infinite;
   }`;
 
-const Loading = ({ isDisplayed }: { isDisplayed?: boolean }) => isDisplayed !== false
-  && <Loader/>;
-const SharedLoading = memo(Loading);
+
+  // animation: ${props => (props.$isConnected ? breath : scaleUp)} ${props => (props.$isConnected ? '2s' : '1s')} linear infinite;
 
 export default SharedLoading;
