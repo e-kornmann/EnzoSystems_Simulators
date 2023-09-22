@@ -7,7 +7,7 @@ GET http://localhost:9007/api/simulator/id-scanner/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXJ0ZXN0IiwiaWF0IjoxNjk1Mjk1Nzk2LCJleHAiOjE2OTUzODIxOTYsImlzcyI6IkVuem9zeXN0ZW1zIn0.oF5o9IShy4N-r0Kdol2q5Xj6o6cIASDWd9-JIHifwC0
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MjgzNTQ5LCJleHAiOjE2OTUzNjk5NDksImlzcyI6IkVuem9zeXN0ZW1zIn0.6zZvoy149Bz7gT-kH5OIIrK6Gooyjfp7mWnF1bCNNLo
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1MzgxMjg3LCJleHAiOjE2OTU0Njc2ODcsImlzcyI6IkVuem9zeXN0ZW1zIn0.ranWrTq9vatrRyoFT44c2NubpFTp0Sse4wHZPXpq4S4
 
 
 

@@ -30,7 +30,7 @@ const heartbeat = keyframes`
     transform: scale(0.85) 
   }
   50% { 
-    transform: scale(1.2)
+    transform: scale(1.15)
   }
 `;
 
@@ -42,7 +42,7 @@ const SharedLoading = styled.div<{ $isHidden?: boolean, $isConnected?: boolean }
   display: ${props => (props.$isHidden ? 'none' : 'inline-block')};
   box-sizing: border-box;
   position: relative;
-  animation: ${props => (props.$isConnected ? heartbeat : pulse)} ${props => (props.$isConnected ? '2s' : '1s')} ease-in-out infinite;
+  animation: ${props => (props.$isConnected ? heartbeat : pulse)} ${props => (props.$isConnected ? '3s' : '1s')} ease-in-out infinite;
   &::after {
   content: '';
   position: absolute;
@@ -55,10 +55,7 @@ const SharedLoading = styled.div<{ $isHidden?: boolean, $isConnected?: boolean }
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  animation: ${props => (props.$isConnected ? breath : scaleUp)} ${props => (props.$isConnected ? '2s' : '1s')} linear infinite;
+  animation: ${props => (props.$isConnected ? breath : scaleUp)} ${props => (props.$isConnected ? '3s' : '1s')} linear infinite;
   }`;
-
-
-  // animation: ${props => (props.$isConnected ? breath : scaleUp)} ${props => (props.$isConnected ? '2s' : '1s')} linear infinite;
 
 export default SharedLoading;

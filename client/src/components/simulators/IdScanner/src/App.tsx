@@ -319,7 +319,11 @@ const App = () => {
                 goBackToKeysButton={state.showAddKey.showComponent || state.showIds.editMode || state.showIds.deleteMode} />
               <StyledContentWrapper>
 
-                <IdReader deviceStatus={state.deviceStatus} currentId={state.currentId} clickedSetting={state.clickedSetting} />
+                <IdReader
+                 deviceStatus={state.deviceStatus}
+                 currentId={state.currentId}
+                 clickedSetting={state.clickedSetting}
+                 appLanguage={state.appLanguage}/>
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showIds.showComponent }
 
                 {/* TODO: processStatus ERROR */}

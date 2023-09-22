@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 // styled components
 import styled, { keyframes } from 'styled-components';
 // api
@@ -22,6 +22,9 @@ import DeviceStatuses from '../../enums/DeviceStatuses';
 import ShowIcon from '../../../local_types/ShowIcon';
 import ActionType from '../../enums/ActionTypes';
 import { IdType } from '../../types/IdType';
+import { calculateCheckDigit } from '../../utils/mrcUtils';
+import { Translate } from '../../Translations/Translations';
+import { Lang } from '../../App';
 
 const QrScannerWrapper = styled('div')({
   width: '100%',
@@ -127,27 +130,57 @@ const slideAnimation = keyframes`
       transform: translateX(200vw);
     }
   `;
-
-const AnimatedQr = styled.div<{ $animate: boolean }>`
+const AnimatedId = styled.div<{ $animate: boolean }>`
   position: absolute;
   display: ${props => (props.$animate ? 'flex' : 'none')};
   align-items: center;
   justify-content: center;
-  top: 30%;
+  top: 25%;
   width: 100%;
-  height: 40%;
+  height: 45%;
   overflow: hidden;
   z-index: 300;
   & > div {
-    width: 60%;
-    padding: 7%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: column;
+    gap: 25px;
+    width: 93%;
+    height: 65%;
+    padding: 10% 2%;
+    line-height: 0.87em;
     background-color: white;
     animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
-    border-radius: 3px;
-     & > svg {
+    border-radius: 7px;
+    & > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid black;
+      height: 60px;
       width: 100%;
-      height: 100%;
-      fill: ${props => props.theme.colors.text.black};
+      text-align: center;
+      font-family: monospace;
+      white-space: pre-line;
+      font-variant-numeric: tabular-nums;
+      font-weight: bold;
+      font-size: 0.6em;
+    }
+    & > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3em;
+      font-weight: 500;
+      height: 80%;
+      color: ${props => props.theme.colors.text.tertiary};
+      & > svg {
+        fill: ${props => props.theme.colors.text.tertiary};
+        margin-right: 13px;
+        width: 35px;
+        height: 20px;
+        margin-top: -3px;
      }
     }
   `;
@@ -156,9 +189,10 @@ const AnimatedQr = styled.div<{ $animate: boolean }>`
     deviceStatus: DeviceStatuses;
     currentId: IdType | undefined;
     clickedSetting: boolean;
+    appLanguage: Lang;
   };
 
-const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) => {
+const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguage }: Props) => {
   const appDispatch = useContext(AppDispatchContext);
   const [token, setToken] = useState('');
   const [nextPoll, setNextPoll] = useState(false);
@@ -236,36 +270,14 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         setOperationalState(OperationalStatuses.API_CANCEL);
       }
       // only do next poll if in CONNECTED MODE otherwhise you will get conflicts.
-      if (res.command === 'SCAN_ID' && res.status === 'ACTIVE') {
-        // only do next poll if in CONNECTED MODE otherwhise you will get conflicts.
-        if (operationalState === OperationalStatuses.DEVICE_CONNECTED) {
-          setNextPoll(true);
-          setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
-        }
+      if (res.command === 'SCAN_ID' && res.status === 'ACTIVE' && operationalState === OperationalStatuses.DEVICE_CONNECTED) {
+        setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
       }
     }
-
-    //   if (res.result === 'NO_ACTIVE_SESSION') {
-    //     setNextPoll(true);
-    //     // initialSessionRequest.current = false;
-    //   }
-    //   if (res.command === 'SCAN_ID') {
-    //     if (res.status === 'ACTIVE') {
-    //       setNextPoll(true);
-    //       setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
-    //     }
-    //     if (res.status === 'CANCELLING') {
-    //       setNextPoll(false);
-    //       initialSessionRequest.current = true;
-    //       setOperationalState(OperationalStatuses.API_CANCEL);
-    //     } else if (res.status === 'TIMED_OUT') {
-    //       setNextPoll(false);
-    //       initialSessionRequest.current = true;
-    //       setOperationalState(OperationalStatuses.DEVICE_TIMED_OUT);
-    //     }
-    //   }
-    // }
-    setNextPoll(true);
+    if (operationalState === OperationalStatuses.DEVICE_CONNECTED || operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) {
+      console.log('hidden');
+      setNextPoll(true);
+    }
     // initialSessionRequest.current = false;
   }, [operationalState, token]);
 
@@ -482,7 +494,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
           // mimmick long poll because somehow it doesn't work when status = ACTIVE
           setTimeout(async () => {
             await getScanSession();
-          }, 500);
+          }, 2500);
         } else {
           getScanSession();
         }
@@ -495,13 +507,53 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         if (operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) {
           setTimeout(async () => {
             await getScanSession();
-          }, 500);
+          }, 2500);
         } else {
           getScanSession();
         }
       }
     }
   }, [getScanSession, nextPoll, operationalState, token]);
+
+  const passPortMrcCode = useMemo(() => {
+    let firstLine = '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
+    let secondLine = '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
+    let documentNr = '<<<<<<<<<';
+    const slicedDateOfBirthYear = currentId?.dateOfBirth?.slice(2);
+    const slicedDateOfExpiryYear = currentId?.dateOfExpiry?.slice(2);
+    const documentNrData = `${currentId?.documentNumber}`;
+    documentNr = documentNrData + documentNr.slice(documentNrData.length);
+    const checkDigit = calculateCheckDigit(documentNr);
+    const lastCheckDigit = 'XX';
+
+    // eslint-disable-next-line operator-linebreak
+    let firstLineData =
+    `${currentId?.documentType}<${currentId?.issuerCode}${currentId?.namePrimary}<<${currentId?.nameSecondary}`;
+
+    // eslint-disable-next-line operator-linebreak
+    let secondLineData =
+     `${documentNr}${checkDigit}${currentId?.nationality}${slicedDateOfBirthYear}${currentId?.sex}${slicedDateOfExpiryYear}PERSNUMBER`;
+
+    // Replace any character not in the range A-Z or 0-9 with a <
+    firstLineData = firstLineData.replace(/[^A-Z0-9]/g, '<');
+
+    // Ensure firstLineData does not exceed initial length
+    if (firstLineData.length > firstLine.length) {
+      firstLineData = firstLineData.slice(0, firstLine.length);
+    }
+
+    // Ensure firstLineData does not exceed initial length
+    if (secondLineData.length > secondLine.length) {
+      secondLineData = secondLineData.slice(0, secondLine.length);
+    }
+
+    firstLine = firstLineData + firstLine.slice(firstLineData.length);
+    secondLine = secondLineData + secondLine.slice(secondLineData.length);
+
+    secondLine = secondLine.slice(0, -lastCheckDigit.length) + lastCheckDigit;
+
+    return `${firstLine}\n${secondLine}`;
+  }, [currentId]);
 
   return (
       <QrScannerWrapper>
@@ -523,20 +575,17 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting }: Props) =
         </IconBox>
         <ScannerBox>
 
-            <AnimatedQr $animate={
+            <AnimatedId $animate={
               operationalState === OperationalStatuses.DEVICE_IS_SCANNING
               || operationalState === OperationalStatuses.API_SCAN_SUCCESS
               || operationalState === OperationalStatuses.API_SCAN_FAILED
               }>
+
               <div>
-                <span>{`${currentId?.documentType}<${currentId?.issuerCode}${currentId?.namePrimary}`}</span>
-                <span></span>
-                <span>{currentId?.namePrimary}</span>
-                <span>{currentId?.nameSecondary}</span>
-                <span>{currentId?.nationality}</span>
-                <span>{currentId?.sex}</span>
+                <div><QrCodeIconNoCanvas /><Translate id={currentId?.documentType} language={appLanguage} /></div>
+                <span>{passPortMrcCode}</span>
               </div>
-            </AnimatedQr>
+            </AnimatedId>
 
           <AnimatedCrossHair
             animate={

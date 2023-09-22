@@ -181,11 +181,13 @@ const DropDownComponent = ({
     for (let i = 0; i <= 99; i++) {
       const year = currentYear - i;
       birthYearOptions = [...birthYearOptions, year.toString()];
+      // we dont't use the sliced yy format any more
       birthYearValues = [...birthYearValues, year.toString().slice(-2)];
     }
     for (let i = 0; i <= 10; i++) {
       const year = currentYear + i;
       expiryYearOptions = [...expiryYearOptions, year.toString()];
+      // we dont't use the sliced yy format any more
       expiryYearValues = [...expiryYearValues, year.toString().slice(-2)];
     }
 
@@ -213,8 +215,9 @@ const DropDownComponent = ({
       case InputFields.DATE_OF_EXPIRY:
         switch (dateObjectField) {
           case 'year':
-            if (field === InputFields.DATE_OF_BIRTH) setOptions({ optionKeys: birthYearOptions, optionValues: birthYearValues });
-            if (field === InputFields.DATE_OF_EXPIRY) setOptions({ optionKeys: expiryYearOptions, optionValues: expiryYearValues });
+            // display full year instead of yy so only pass birthYearOptions
+            if (field === InputFields.DATE_OF_BIRTH) setOptions({ optionKeys: birthYearOptions, optionValues: birthYearOptions });
+            if (field === InputFields.DATE_OF_EXPIRY) setOptions({ optionKeys: expiryYearOptions, optionValues: expiryYearOptions });
             break;
           case 'month':
             setOptions({

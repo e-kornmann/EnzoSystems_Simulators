@@ -12,6 +12,7 @@ import InputActionType from '../../enums/InputActionTypes';
 import ActionType from '../../enums/ActionTypes';
 import { IdType } from '../../types/IdType';
 import { Lang } from '../../App';
+import { encodeInput } from '../../utils/mrcUtils';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -91,7 +92,7 @@ const StyledControl = styled('div')<{
 const StyledDateFieldsWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
   display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr',
+  gridTemplateColumns: '1fr 28% 28%',
   columnGap: '6px',
   width: '100%',
   maxWidth: '500px',
@@ -192,28 +193,28 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
   useEffect(() => {
     const isLeapYearCalculator = (fourDigitYear: number) => (fourDigitYear % 4 === 0 && fourDigitYear % 100 !== 0) || (fourDigitYear % 400 === 0);
 
-    const convertTwoDigitYearToFourDigit = (twoDigitYear: number, dateOfBirth: boolean) => {
-      const currentYear = new Date().getFullYear();
-      const currentCentury = Math.floor(currentYear / 100);
-      const currentTwoDigitYear = currentYear % 100;
+    // const convertTwoDigitYearToFourDigit = (twoDigitYear: number, dateOfBirth: boolean) => {
+    //   const currentYear = new Date().getFullYear();
+    //   const currentCentury = Math.floor(currentYear / 100);
+    //   const currentTwoDigitYear = currentYear % 100;
 
-      if (dateOfBirth && twoDigitYear > currentTwoDigitYear) {
-        return (currentCentury - 1) * 100 + twoDigitYear;
-      }
-      return currentCentury * 100 + twoDigitYear;
-    };
+    //   if (dateOfBirth && twoDigitYear > currentTwoDigitYear) {
+    //     return (currentCentury - 1) * 100 + twoDigitYear;
+    //   }
+    //   return currentCentury * 100 + twoDigitYear;
+    // };
 
     if (dateOfBirthObject.year !== undefined) {
-      const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfBirthObject.year), true);
-      const isLeapYear = isLeapYearCalculator(fourDigitYear);
+      // const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfBirthObject.year), true);
+      const isLeapYear = isLeapYearCalculator(Number(dateOfBirthObject.year));
       setDateOfBirthObject(prev => ({
         ...prev,
         leapYear: isLeapYear,
       }));
     }
     if (dateOfExpiryObject.year !== undefined) {
-      const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfExpiryObject.year), false);
-      const isLeapYear = isLeapYearCalculator(fourDigitYear);
+      // const fourDigitYear = convertTwoDigitYearToFourDigit(Number(dateOfExpiryObject.year), false);
+      const isLeapYear = isLeapYearCalculator(Number(dateOfBirthObject.year));
       setDateOfExpiryObject(prev => ({
         ...prev,
         leapYear: isLeapYear,
@@ -228,16 +229,16 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
       if (state.iD.dateOfBirth) {
         setDateOfBirthObject(prev => ({
           ...prev,
-          year: state.iD.dateOfBirth?.slice(0, 2),
-          month: state.iD.dateOfBirth?.slice(2, 4),
+          year: state.iD.dateOfBirth?.slice(0, 4),
+          month: state.iD.dateOfBirth?.slice(4, 6),
           day: state.iD.dateOfBirth?.slice(-2),
         }));
       }
       if (state.iD.dateOfExpiry) {
         setDateOfExpiryObject(prev => ({
           ...prev,
-          year: state.iD.dateOfExpiry?.slice(0, 2),
-          month: state.iD.dateOfExpiry?.slice(2, 4),
+          year: state.iD.dateOfExpiry?.slice(0, 4),
+          month: state.iD.dateOfExpiry?.slice(4, 6),
           day: state.iD.dateOfExpiry?.slice(-2),
         }));
       }
@@ -246,7 +247,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
 
   // wordt geroepen vanuit onOptionClick
   const handleInput = useCallback((payload: string, field: string) => {
-    dispatch({ type: InputActionType.INPUT_VALUE, field, payload });
+    dispatch({ type: InputActionType.INPUT_VALUE, field, payload: encodeInput(payload) });
   }, []);
 
   // wordt geroepen vanuit onOptionClick
@@ -402,6 +403,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
                   <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
                   <input
                     type="text"
+                    maxLength={field === InputFields.DOCUMENT_NR ? 9 : undefined}
                     value={state.iD[field]}
                     onChange={e => { handleInput(e.target.value, field); }} />
                 </StyledControl>

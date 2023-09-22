@@ -2,9 +2,10 @@ import { memo, useMemo } from 'react';
 import { CountriesAlpha3 } from '../enums/CountryCodesISO3166Alpha3';
 import { Lang } from '../App';
 import { InputFields } from '../components/LocalAddId/LocalAddId';
+import { TypeOfDocument } from '../types/IdType';
 
 type Props = {
-  id: string,
+  id: string | undefined,
   language: Lang,
   indexed?: number
 };
@@ -128,6 +129,54 @@ const TsComponent = ({ id, language, indexed }: Props) => {
         [Lang.GERMAN]: 'Französisch',
       },
     ],
+    P: [
+      {
+        [Lang.DUTCH]: 'Paspoort',
+        [Lang.ENGLISH]: 'Passport',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
+    [TypeOfDocument.ID_CARD_A]: [
+      {
+        [Lang.DUTCH]: 'ID Card A',
+        [Lang.ENGLISH]: 'ID Card A',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
+    [TypeOfDocument.ID_CARD_C]: [
+      {
+        [Lang.DUTCH]: 'ID Card C',
+        [Lang.ENGLISH]: 'ID Card C',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
+    [TypeOfDocument.ID_CARD_I]: [
+      {
+        [Lang.DUTCH]: 'ID Card I',
+        [Lang.ENGLISH]: 'ID Card I',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
+    [TypeOfDocument.VISA]: [
+      {
+        [Lang.DUTCH]: 'VISA',
+        [Lang.ENGLISH]: 'VISA',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
+    [TypeOfDocument.DRIVER_LICENSE]: [
+      {
+        [Lang.DUTCH]: 'Rijbewijs',
+        [Lang.ENGLISH]: 'Driver License',
+        [Lang.FRENCH]: '..',
+        [Lang.GERMAN]: '..',
+      },
+    ],
     year: [
       {
         [Lang.DUTCH]: 'jj',
@@ -170,6 +219,9 @@ const TsComponent = ({ id, language, indexed }: Props) => {
     ],
   }), []);
 
+  if (!id) {
+    return '';
+  }
   const translation = translations[id];
   // If 'indexed' is valid use it, otherwise use the first index '[0]' as default if no index or invalid idex is given.
   const selectedTranslationIndex = (indexed && indexed >= 0 && indexed < translation.length) ? indexed : 0;

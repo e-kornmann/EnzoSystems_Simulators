@@ -59,6 +59,8 @@ const putScannedData = async (token: string, idData: IdType) => {
       {
         data: {
           ...idData,
+          dateOfBirth: idData.dateOfBirth?.slice(2),
+          dateOfExpiry: idData.dateOfExpiry?.slice(2),
           status: 'FINISHED',
         },
       },
