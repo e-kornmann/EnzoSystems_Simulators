@@ -1,8 +1,9 @@
 import axios from 'axios';
 import idScanApi from '../../../../../api/idScannerApi';
 import { IdType } from '../types/IdType';
+import DeviceStatuses from '../enums/DeviceStatuses';
 
-const changeDeviceStatus = async (token: string, changeToThisState: string) => {
+const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatuses) => {
   try {
     const config = {
       headers: {

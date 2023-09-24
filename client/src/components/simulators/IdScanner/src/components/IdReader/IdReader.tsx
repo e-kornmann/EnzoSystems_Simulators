@@ -6,6 +6,7 @@ import { scannerCredentials, reqBody } from '../../config';
 import idScanApi from '../../../../../../api/idScannerApi';
 // utils
 import { changeDeviceStatus, getSession, putScannedData, stopSession } from '../../utils/iDscanApiRequests';
+import { calculateCheckDigit } from '../../utils/mrcUtils';
 // components
 import AnimatedCrossHair from './AnimatedCrossHair';
 import SharedLoading from '../../../local_shared/Loading';
@@ -18,13 +19,12 @@ import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_n
 // enums
 import { OperationalStatuses } from '../../enums/OperationalStatuses';
 import DeviceStatuses from '../../enums/DeviceStatuses';
-// types
-import ShowIcon from '../../../local_types/ShowIcon';
 import ActionType from '../../enums/ActionTypes';
-import { IdType } from '../../types/IdType';
-import { calculateCheckDigit } from '../../utils/mrcUtils';
-import { Translate } from '../../Translations/Translations';
 import { Lang } from '../../App';
+import ShowIcon from '../../../local_types/ShowIcon';
+// types
+import { IdType } from '../../types/IdType';
+import { Translate } from '../../Translations/Translations';
 
 const QrScannerWrapper = styled('div')({
   width: '100%',
@@ -153,37 +153,39 @@ const AnimatedId = styled.div<{ $animate: boolean }>`
     background-color: white;
     animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
     border-radius: 7px;
-    & > span {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid black;
-      height: 60px;
-      width: 100%;
-      text-align: center;
-      font-family: monospace;
-      white-space: pre-line;
-      font-variant-numeric: tabular-nums;
-      font-weight: bold;
-      font-size: 0.6em;
-    }
-    & > div {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3em;
-      font-weight: 500;
-      height: 80%;
-      color: ${props => props.theme.colors.text.tertiary};
-      & > svg {
-        fill: ${props => props.theme.colors.text.tertiary};
-        margin-right: 13px;
-        width: 35px;
-        height: 20px;
-        margin-top: -3px;
-     }
-    }
   `;
+
+const StyledIdHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '1.3em',
+  fontWeight: '500',
+  height: '80%',
+  color: theme.colors.text.tertiary,
+  '& > svg': {
+    fill: theme.colors.text.tertiary,
+    marginRight: '13px',
+    width: '35px',
+    height: '20px',
+    marginTop: '-3px',
+  },
+}));
+
+const StyledMrcArea = styled('span')({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: '1px solid black',
+  height: '60px',
+  width: '100%',
+  textAlign: 'center',
+  fontFamily: 'monospace',
+  whiteSpace: 'pre-line',
+  fontVariantNumeric: 'tabular-nums',
+  fontWeight: 'bold',
+  fontSize: '0.6em',
+});
 
   type Props = {
     deviceStatus: DeviceStatuses;
@@ -213,7 +215,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
           appDispatch({ type: ActionType.CLICKED_CROSS });
           break;
         case DeviceStatuses.CONNECTED:
-          setOperationalState(OperationalStatuses.DEVICE_CONNECT);
+          setOperationalState(OperationalStatuses.DEVICE_START_UP);
           appDispatch({ type: ActionType.CLICKED_CROSS });
           break;
         default:
@@ -250,15 +252,17 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
 
   const getScanSession = useCallback(async () => {
     const res = await getSession(token);
-    console.log(res);
     if (!res) {
       setOperationalState(OperationalStatuses.API_ERROR);
-      setNextPoll(true);
+      setNextPoll(false);
+      initialSessionRequest.current = true;
     } else {
-      if (res.result === 'NO_ACTIVE_SESSION') {
+      // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
+      if ((operationalState === OperationalStatuses.DEVICE_CONNECTED)
+      || operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) {
+        console.log(res);
         setNextPoll(true);
       }
-
       if (res.status === 'TIMED_OUT') {
         setNextPoll(false);
         initialSessionRequest.current = true;
@@ -269,17 +273,32 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
         initialSessionRequest.current = true;
         setOperationalState(OperationalStatuses.API_CANCEL);
       }
-      // only do next poll if in CONNECTED MODE otherwhise you will get conflicts.
       if (res.command === 'SCAN_ID' && res.status === 'ACTIVE' && operationalState === OperationalStatuses.DEVICE_CONNECTED) {
         setOperationalState(OperationalStatuses.DEVICE_WAITING_FOR_ID);
       }
     }
-    if (operationalState === OperationalStatuses.DEVICE_CONNECTED || operationalState === OperationalStatuses.DEVICE_WAITING_FOR_ID) {
-      console.log('hidden');
-      setNextPoll(true);
-    }
-    // initialSessionRequest.current = false;
   }, [operationalState, token]);
+
+  const changeStatus = useCallback(async (changeToThisState: DeviceStatuses) => {
+    if (token) {
+      if (OperationalStatuses.DEVICE_CONNECT) {
+        const res = await changeDeviceStatus(token, changeToThisState);
+        if (res) {
+          if (res.status === DeviceStatuses.CONNECTED) {
+            setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
+          }
+          if (res.status === DeviceStatuses.DISCONNECTED) {
+            setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
+          }
+        // if there is no res.data.metadata
+        } else if (changeToThisState === DeviceStatuses.CONNECTED) {
+          setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
+        } else if (changeToThisState === DeviceStatuses.DISCONNECTED) {
+          setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT);
+        }
+      }
+    }
+  }, [token]);
 
   useEffect(() => {
     let waitTime: number | undefined;
@@ -292,15 +311,15 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
         break;
       case OperationalStatuses.API_ERROR:
         setInstructionText('SERVER ERROR');
-        waitTime = 5000;
+        waitTime = 15000;
         break;
       case OperationalStatuses.DEVICE_CONNECT:
         setInstructionText('');
+        changeStatus(DeviceStatuses.CONNECTED);
         // if setting isn't already connected, then set it.
         if (deviceStatus !== DeviceStatuses.CONNECTED) {
           appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses.CONNECTED });
         }
-        waitTime = 100;
         break;
       case OperationalStatuses.DEVICE_DISCONNECT:
         setInstructionText('Disconnecting...');
@@ -337,20 +356,14 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
         waitTime = 50000;
         break;
       case OperationalStatuses.API_CANCEL:
-        // setNextPoll(false);
-        // initialSessionRequest.current = true;
         setInstructionText('Scanning cancelled');
         waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_TIMED_OUT:
-        // setNextPoll(false);
-        // initialSessionRequest.current = true;
         setInstructionText('TIMED OUT');
         waitTime = 2500;
         break;
       case OperationalStatuses.DEVICE_IS_SCANNING:
-        // setNextPoll(false);
-        // initialSessionRequest.current = true;
         setInstructionText('Scanning...');
         waitTime = 3500;
         break;
@@ -374,27 +387,11 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
       intervalId = setInterval(async () => {
         switch (operationalState) {
           case OperationalStatuses.DEVICE_START_UP:
-            getToken();
-            break;
-          case OperationalStatuses.API_ERROR:
-            if (!token) setOperationalState(OperationalStatuses.DEVICE_START_UP);
+            if (!token) getToken();
             else setOperationalState(OperationalStatuses.DEVICE_CONNECT);
             break;
-          case OperationalStatuses.DEVICE_CONNECT:
-            if (token) {
-              const res = await changeDeviceStatus(token, DeviceStatuses.CONNECTED);
-              if (res) {
-                if (res.status === DeviceStatuses.CONNECTED) {
-                  setOperationalState(OperationalStatuses.DEVICE_CONNECTED);
-                } else {
-                  // if response.status is something else
-                  setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-                }
-                // and also if there is no response
-              } else {
-                setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_CONNECT);
-              }
-            }
+          case OperationalStatuses.API_ERROR:
+            setOperationalState(OperationalStatuses.DEVICE_START_UP);
             break;
           case OperationalStatuses.DEVICE_CONNECTED:
             setOperationalState(OperationalStatuses.DEVICE_CONNECT);
@@ -404,24 +401,12 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
             setOperationalState(OperationalStatuses.API_CANCEL);
             break;
           case OperationalStatuses.DEVICE_DISCONNECT:
-            if (token) {
-              const res = await changeDeviceStatus(token, DeviceStatuses.DISCONNECTED);
-              if (res) {
-                if (res.status === DeviceStatuses.DISCONNECTED) {
-                  setOperationalState(OperationalStatuses.DEVICE_DISCONNECTED);
-                } else {
-                  setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT);
-                }
-              } else {
-                setOperationalState(OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT);
-              }
-            }
+            changeStatus(DeviceStatuses.DISCONNECTED);
             break;
           case OperationalStatuses.DEVICE_COULD_NOT_CONNECT:
           case OperationalStatuses.DEVICE_COULD_NOT_DISCONNECT:
             setOperationalState(OperationalStatuses.API_ERROR);
             break;
-
           case OperationalStatuses.DEVICE_IS_SCANNING:
             if (token && currentId) {
               const res = await putScannedData(token, currentId);
@@ -458,7 +443,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
           case OperationalStatuses.DEVICE_OUT_OF_ORDER:
             if (token) {
               // try to change device status on the backend, but stay in this state regardless
-              await changeDeviceStatus(token, DeviceStatuses.OUT_OF_ORDER);
+              changeStatus(DeviceStatuses.OUT_OF_ORDER);
             } else {
               // if there is no token try again to get one. (in case of a restart)
               setOperationalState(OperationalStatuses.DEVICE_START_UP);
@@ -475,7 +460,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
         clearInterval(intervalId);
       }
     };
-  }, [appDispatch, currentId, deviceStatus, getToken, operationalState, token]);
+  }, [appDispatch, changeStatus, currentId, deviceStatus, getToken, operationalState, token]);
 
   const scanQrButtonHandler = async () => {
     setOperationalState(OperationalStatuses.DEVICE_IS_SCANNING);
@@ -582,8 +567,13 @@ const IdReaderComponent = ({ deviceStatus, currentId, clickedSetting, appLanguag
               }>
 
               <div>
-                <div><QrCodeIconNoCanvas /><Translate id={currentId?.documentType} language={appLanguage} /></div>
-                <span>{passPortMrcCode}</span>
+                <StyledIdHeader>
+                  <QrCodeIconNoCanvas />
+                  <Translate id={currentId?.documentType} language={appLanguage} />
+                </StyledIdHeader>
+                <StyledMrcArea>
+                  {passPortMrcCode}
+                </StyledMrcArea>
               </div>
             </AnimatedId>
 

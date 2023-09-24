@@ -179,8 +179,8 @@ const TsComponent = ({ id, language, indexed }: Props) => {
     ],
     year: [
       {
-        [Lang.DUTCH]: 'jj',
-        [Lang.ENGLISH]: 'yy',
+        [Lang.DUTCH]: 'jjjj',
+        [Lang.ENGLISH]: 'yyyy',
         [Lang.FRENCH]: '..',
         [Lang.GERMAN]: '..',
       },
