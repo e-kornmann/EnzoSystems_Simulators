@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useReducer, useRef, useState } from 'reac
 import axios from 'axios';
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { SharedStyledContainer } from '../local_shared/DraggableModal/ModalTemplate';
 // components
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
@@ -17,7 +18,7 @@ import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
 import TokenContext from './contexts/data/TokenContext';
 // enums
 import CommandTypes from './enums/CommandTypes';
-import DeviceStatuses from './enums/DeviceStatuses';
+import DeviceStatusOptions from './enums/DeviceStatusOptions';
 import ProcessStatuses from './enums/ProcessStatuses';
 // theme
 import theme from './theme/theme.json';
@@ -38,7 +39,7 @@ const GlobalStyle = createGlobalStyle({
   },
   html: {
     color: theme.colors.text.primary,
-    fontFamily: "'Inter', -apple-system, Helvetica, Arial, sans-serif",
+    fontFamily: '\'Inter\', -apple-system, Helvetica, Arial, sans-serif',
     fontSize: '14px',
     lineHeight: 1.15,
     overflow: 'hidden',
@@ -60,31 +61,22 @@ const GlobalStyle = createGlobalStyle({
     border: 'none',
   },
   '::-webkit-scrollbar': {
-    width: '10px',
+    width: '0.35rem',
   },
   '::-webkit-scrollbar-thumb': {
-    background: '#707070',
+    background: theme.colors.buttons.gray,
     borderRadius: '5px',
   },
+  '::-webkit-scrollbar-thumb:hover': {
+    background: 'orange',
+  },
 });
-const StyledWrapper = styled('div')({
-  alignItems: 'center',
-  display: 'flex',
-  height: '100%',
-  justifyContent: 'center',
-  width: '100%',
-});
-const StyledApp = styled('div')({
-  display: 'grid',
+
+const StyledApp = styled(SharedStyledContainer)({
   gridTemplateRows: '35px 1fr 40px',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: '13px',
-  width: '100%',
-  height: '100%',
-  minHeight: '420px',
   overflowY: 'hidden',
-  borderRadius: '5px',
 });
+
 const StyledContentWrapper = styled('div')({
   backgroundColor: theme.colors.background.secondary,
   height: '100%',
@@ -94,7 +86,7 @@ const StyledContentWrapper = styled('div')({
 });
 
 type AppStateType = {
-  deviceStatus: DeviceStatuses,
+  operationalState: DeviceStatusOptions,
   headerTitle: string,
   initialized: boolean,
   localKeys: KeyType[],
@@ -120,7 +112,7 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  deviceStatus: DeviceStatuses.CONNECTED,
+  operationalState: DeviceStatusOptions.CONNECTED,
   headerTitle: 'Room Key Encoder',
   initialized: false,
   localKeys: [],
@@ -163,7 +155,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         tokens: state.tokens,
         localKeys: state.localKeys,
         selectedKey: state.selectedKey,
-        deviceStatus: state.deviceStatus,
+        operationalState: state.operationalState,
         initialized: state.initialized,
       };
     }
@@ -202,7 +194,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, allKeysAreSelected: action.payload };
     }
     case ActionType.SET_DEVICE_STATUS: {
-      return { ...state, deviceStatus: action.payload };
+      return { ...state, operationalState: action.payload };
     }
     case ActionType.SELECT_ALL_KEY_CLICKED: {
       return { ...state, showKeys: { ...state.showKeys, selectAllKeyClicked: action.payload, deselectAllKeyClicked: false } };
@@ -372,7 +364,7 @@ const App = () => {
   }, [state.tokens, tick, getToken]);
 
   /* Key Encoder Status */
-  const handleStatus = useCallback((status: DeviceStatuses) => {
+  const handleStatus = useCallback((status: DeviceStatusOptions) => {
     if (state.tokens && state.tokens.accessToken) {
       const config = {
         url: `${import.meta.env.VITE_BACKEND_BASE_URL}/status`,
@@ -405,9 +397,9 @@ const App = () => {
   /* Key Encoder Status */
   useEffect(() => {
     if (state.tokens && state.tokens.accessToken) {
-      handleStatus(state.deviceStatus);
+      handleStatus(state.operationalState);
     }
-  }, [state.deviceStatus, state.tokens, tick, handleStatus]);
+  }, [state.operationalState, state.tokens, tick, handleStatus]);
 
   /* Process Status */
   useEffect(() => {
@@ -424,10 +416,10 @@ const App = () => {
       || state?.session?.metadata?.command === CommandTypes.CREATE_JOINNER_KEY
       || state?.session?.metadata?.command === CommandTypes.CREATE_NEW_KEY) {
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.CREATE_KEY });
-    } else if (state.deviceStatus === DeviceStatuses.CONNECTED) { // waiting for session
+    } else if (state.operationalState === DeviceStatusOptions.CONNECTED) { // waiting for session
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.WAITING });
     }
-  }, [state.deviceStatus, state.session, state.showAddKey, state.showKeys, state.showSettings]);
+  }, [state.operationalState, state.session, state.showAddKey, state.showKeys, state.showSettings]);
 
   /* Get Session */
   const getSession = useCallback(() => {
@@ -482,11 +474,10 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <StyledWrapper>
         { !import.meta.env.VITE_EXPORT_MEMO_APP && <GlobalStyle /> }
         <AppDispatchContext.Provider value={dispatch}>
           <TokenContext.Provider value={state.tokens}>
-            <StyledApp>
+            <StyledApp $isDraggable={import.meta.env.VITE_EXPORT_MEMO_APP}>
               <Header
                 showBack={state.showBack}
                 showCross={state.showCross}
@@ -497,7 +488,7 @@ const App = () => {
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showKeys.showComponent
                   && <>
                     {(state.processStatus === ProcessStatuses.WAITING)
-                      && <Waiting deviceStatus={state.deviceStatus} selectedKey={state.selectedKey} />}
+                      && <Waiting operationalState={state.operationalState} selectedKey={state.selectedKey} />}
                     {(state.processStatus === ProcessStatuses.SCANNING || state.processStatus === ProcessStatuses.CREATE_KEY)
                       && <KeyContent selectedKey={state.selectedKey} type={state.session?.metadata.command as CommandTypes} />}
                   </>
@@ -514,7 +505,7 @@ const App = () => {
                 }
 
                 {state.processStatus === ProcessStatuses.SETTINGS
-                  && <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
+                  && <Settings clickedBack={state.clickedBack} operationalState={state.operationalState} />}
               </StyledContentWrapper>
               {state
                 && <Footer
@@ -529,7 +520,6 @@ const App = () => {
             </StyledApp>
           </TokenContext.Provider>
         </AppDispatchContext.Provider>
-      </StyledWrapper>
     </ThemeProvider>
   );
 };

@@ -12,23 +12,23 @@ const Settings = ({ menuToggler }: Props) => {
   const { state } = useContext(AppContext);
 
   return (
-<S.GenericList>
-  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.OPERATIONAL_MODE)} >
-    {ts('operationalMode', state.language)} <Arrow height={11} />
-  </S.GenericListButtonWithArrow>
-  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.CURRENCY)} >
-    {ts('currency', state.language)} <Arrow height={11} />
-  </S.GenericListButtonWithArrow>
-  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.LANGUAGE)} >
-    {ts('defaultLanguage', state.language)} <Arrow height={11} />
-  </S.GenericListButtonWithArrow>
-  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.ASK_FOR_PIN)} >
-    {ts('askForPin', state.language)} <Arrow height={11} />
-  </S.GenericListButtonWithArrow>
-  <S.GenericListButtonWithArrow onClick={() => menuToggler(SettingModes.AVAILABLE_SCHEMES)} >
-    {ts('supportedSchemes', state.language)} <Arrow height={11} />
-  </S.GenericListButtonWithArrow>
-</S.GenericList>
+<S.SharedStyledList>
+  <S.SharedStyledListButtonWithArrow onClick={() => menuToggler(SettingModes.OPERATIONAL_MODE)} >
+    {ts('operationalMode', state.language)} <Arrow />
+  </S.SharedStyledListButtonWithArrow>
+  <S.SharedStyledListButtonWithArrow onClick={() => menuToggler(SettingModes.CURRENCY)} >
+    {ts('currency', state.language)} <Arrow />
+  </S.SharedStyledListButtonWithArrow>
+  <S.SharedStyledListButtonWithArrow onClick={() => menuToggler(SettingModes.LANGUAGE)} >
+    {ts('defaultLanguage', state.language)} <Arrow />
+  </S.SharedStyledListButtonWithArrow>
+  <S.SharedStyledListButtonWithArrow onClick={() => menuToggler(SettingModes.ASK_FOR_PIN)} >
+    {ts('askForPin', state.language)} <Arrow />
+  </S.SharedStyledListButtonWithArrow>
+  <S.SharedStyledListButtonWithArrow onClick={() => menuToggler(SettingModes.AVAILABLE_SCHEMES)} >
+    {ts('supportedSchemes', state.language)} <Arrow />
+  </S.SharedStyledListButtonWithArrow>
+</S.SharedStyledList>
   );
 };
 

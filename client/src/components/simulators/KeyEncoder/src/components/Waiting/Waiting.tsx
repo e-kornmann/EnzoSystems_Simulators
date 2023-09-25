@@ -4,11 +4,11 @@ import styled from 'styled-components';
 // date fns
 import { format, parseISO } from 'date-fns';
 // enums
-import DeviceStatuses from '../../enums/DeviceStatuses';
+import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
 // types
 import KeyType from '../../types/KeyType';
-// components 
-import SharedLoading from '../../../local_shared/Loading';
+// components
+import { SharedLoading } from '../../../local_shared/Loading';
 
 const StyledWrapper = styled('div')({
   height: '100%',
@@ -44,7 +44,7 @@ const StyledBoxHeader = styled('div')(({ theme }) => ({
   fontSize: '0.78em',
   fontWeight: 500,
   textAlign: 'center',
-  width: '100%'
+  width: '100%',
 }));
 const StyledBoxContent = styled('div')(({ theme }) => ({
   display: 'grid',
@@ -79,7 +79,7 @@ const StyledRoomNumber = styled('div')<{
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
-    maxWidth: '90%'
+    maxWidth: '90%',
   },
   '&::after': {
     content: $showAddMark ? '" +"' : '" "',
@@ -108,39 +108,39 @@ const StyledDate = styled('span')({
 });
 
 type WaitingProps = {
-  deviceStatus: DeviceStatuses,
+  operationalState: DeviceStatusOptions,
   selectedKey: KeyType | null
 };
 
-const WaitingComponent = ({ deviceStatus, selectedKey }: WaitingProps) => {
-
+const WaitingComponent = ({ operationalState, selectedKey }: WaitingProps) => {
   const title = useMemo(() => {
-    switch (deviceStatus) {
-      case DeviceStatuses.DISCONNECTED:
+    switch (operationalState) {
+      case DeviceStatusOptions.DISCONNECTED:
         return 'Disconnected';
-      case DeviceStatuses.OUT_OF_ORDER:
+      case DeviceStatusOptions.OUT_OF_ORDER:
         return 'Out of order';
       default:
         return 'Waiting';
     }
-  }, [deviceStatus]);
+  }, [operationalState]);
 
   return (
     <StyledWrapper>
       <StyledHeader>
-        { title === 'Waiting' ? <SharedLoading /> : title }
+        { title === 'Waiting' ? <SharedLoading $isConnected={operationalState === DeviceStatusOptions.CONNECTED} /> : title }
       </StyledHeader>
 
-      {selectedKey &&
-        <StyledKeyBox>
+      {selectedKey
+      && <StyledKeyBox>
           <StyledBoxHeader>Available Key</StyledBoxHeader>
           <StyledBoxContent>
             <StyledKeyId>{selectedKey.keyId}</StyledKeyId>
-
-            <StyledRoomNumber $showAddMark={selectedKey && selectedKey.roomAccess && selectedKey.roomAccess.length > 1}><span>{selectedKey && selectedKey.roomAccess && selectedKey.roomAccess[0]}</span></StyledRoomNumber>
+            <StyledRoomNumber $showAddMark={selectedKey && selectedKey.roomAccess && selectedKey.roomAccess.length > 1}>
+              <span>{selectedKey && selectedKey.roomAccess && selectedKey.roomAccess[0]}</span>
+            </StyledRoomNumber>
             <StyledDates>
-              <StyledDate>{format(parseISO(selectedKey.startDateTime), 'yyyy-MM-dd | HH:mm')}</StyledDate>
-              <StyledDate>{format(parseISO(selectedKey.endDateTime), 'yyyy-MM-dd | HH:mm')}</StyledDate>
+              <StyledDate>{selectedKey.startDateTime && format(parseISO(selectedKey.startDateTime), 'yyyy-MM-dd | HH:mm')}</StyledDate>
+              <StyledDate>{selectedKey.endDateTime && format(parseISO(selectedKey?.endDateTime), 'yyyy-MM-dd | HH:mm')}</StyledDate>
             </StyledDates>
 
           </StyledBoxContent>

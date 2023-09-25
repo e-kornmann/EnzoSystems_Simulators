@@ -19,14 +19,14 @@ const LanguageOptions = () => {
   };
 
   return (
-    <S.GenericList>
+    <S.SharedStyledList>
       {Object.values(Lang).map(language => (
-        <S.GenericListButton key={language} onClick={() => onChangeEventHandler(language)}>
+        <S.SharedStyledListButton key={language} onClick={() => onChangeEventHandler(language)}>
           { ts(language, state.language) }
           <SharedCheckMark isDisplayed={state.language === language} width={14} height={11} />
-        </S.GenericListButton>
+        </S.SharedStyledListButton>
       ))}
-    </S.GenericList>
+    </S.SharedStyledList>
   );
 };
 

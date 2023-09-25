@@ -13,16 +13,16 @@ const PinOptions = () => {
   };
 
   return (
-    <S.GenericList>
-      <S.GenericListButton key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
+    <S.SharedStyledList>
+      <S.SharedStyledListButton key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
       {ts('yes', state.language)}
         <SharedCheckMark isDisplayed={ state.askForPin === true } width={14} height={11} />
-      </S.GenericListButton>
-      <S.GenericListButton key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
+      </S.SharedStyledListButton>
+      <S.SharedStyledListButton key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
       {ts('no', state.language)}
         <SharedCheckMark isDisplayed={ state.askForPin === false } width={14} height={11} />
-      </S.GenericListButton>
-    </S.GenericList>
+      </S.SharedStyledListButton>
+    </S.SharedStyledList>
   );
 };
 export default PinOptions;

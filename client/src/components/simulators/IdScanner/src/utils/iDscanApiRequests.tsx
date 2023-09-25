@@ -1,9 +1,9 @@
 import axios from 'axios';
 import idScanApi from '../../../../../api/idScannerApi';
 import { IdType } from '../types/IdType';
-import DeviceStatuses from '../enums/DeviceStatuses';
+import DeviceStatusOptions from '../enums/DeviceStatusOptions';
 
-const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatuses) => {
+const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatusOptions) => {
   try {
     const config = {
       headers: {
@@ -34,10 +34,10 @@ const getSession = async (token: string) => {
       },
     };
     const response = await idScanApi.get(
-      '/active-session/', // longPollingMS=250&result=NO_ACTIVE_SESSION',
+      '/active-session',
       config,
     );
-    return response.data.result ? response.data.result : response.data.metadata;
+    return response.data.metadata ? response.data.metadata : response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(error.response);

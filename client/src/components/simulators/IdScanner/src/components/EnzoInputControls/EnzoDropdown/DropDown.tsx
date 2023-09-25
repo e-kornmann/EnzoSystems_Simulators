@@ -15,11 +15,11 @@ const StyledControl = styled('div')<{
   $hasValue?: boolean,
   $isDisabled?: boolean
 }>(({ theme, $hasValue, $isDisabled }) => ({
-  height: '100%',
+  height: '35px',
   width: '100%',
+  maxWidth: '400px',
   display: 'flex',
   justifyContent: 'flex-start',
-  alignSelf: 'flex-start',
   position: 'relative',
   '& > label': {
     position: 'absolute',
@@ -77,7 +77,6 @@ const StyledArrow = styled('div')<{
   } else {
     fill = $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary;
   }
-
   return {
     display: 'flex',
     justifyContent: 'center',

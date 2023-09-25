@@ -1,27 +1,25 @@
-import {
-  useCallback, useEffect, useRef, useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import * as Sv from '../../../../styles/stylevariables';
-import { Header } from '../../../shared/DraggableModal/ModalTemplate';
+import { SharedStyledContainer, SharedStyledHeader } from '../../../shared/DraggableModal/ModalTemplate';
 import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg';
 import TurnOnDevice from '../../../shared/TurnOnDevice';
 import useLogOn from '../../../../hooks/useLogOn';
 import { scannerCredentials, reqBody } from './config/ScanConfig';
 import { changeDeviceMode, getScannedData, getStatus } from './utils/scanApiRequests';
 
-const DemoAppContainer = styled.div`
-  display: grid;
-  grid-template-rows: auto 1fr;
-  position: absolute;
+const DemoAppContainer = styled(SharedStyledContainer)`
   width: 130px;
+  height: auto;
+  min-height: 0px;
   left: 330px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 5px;
-  overflow-y: sunset;
-  background-color: ${Sv.appBackground};
+  position: absolute;
 `;
+
+const StyledHeader = styled(SharedStyledHeader)({
+  justifyContent: 'center',
+});
+
 const blinkAnimation = keyframes`
   90%, 100% {
     opacity: 1;
@@ -132,7 +130,7 @@ export enum DeviceMode {
 
 const ScanQr = () => {
   const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'barcode-scanner');
-  const [deviceStatus, setDeviceStatus] = useState('disconnected');
+  const [deviceStatus, setOperationalState] = useState('disconnected');
   const [deviceMode, setDeviceMode] = useState(DeviceMode.DEVICE_DISABLED);
   const [standByText, setStandByText] = useState<string>('OFF');
   const [init, setInit] = useState(false);
@@ -199,7 +197,7 @@ const ScanQr = () => {
     if (token) {
       setTimeout(async () => {
         const newDeviceStatus = await getStatus(token, deviceStatus);
-        setDeviceStatus(newDeviceStatus);
+        setOperationalState(newDeviceStatus);
       }, 500);
     }
   }, [deviceStatus, token]);
@@ -231,8 +229,8 @@ const ScanQr = () => {
 
   return (
     <DemoAppContainer>
+       <StyledHeader>Demo App</StyledHeader>
       <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
-      <Header>Demo App</Header>
 
       <Content>
 

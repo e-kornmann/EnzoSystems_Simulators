@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AxiosResponse } from 'axios';
 import pinApi from '../api/pinApi';
 import scanApi from '../api/scannerApi';
 import idScanApi from '../api/idScannerApi';
@@ -24,7 +25,7 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
           authorization: `Basic ${authCredentials}`,
         },
       };
-      let response;
+      let response: AxiosResponse;
 
       switch (apiEndpoint) {
         case 'id-scanner':
@@ -46,10 +47,10 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, apiEndpoin
       const { accessToken } = response.data;
       setToken(accessToken);
 
-      console.log(`${endpointMap[apiEndpoint]} has been able to get a Token`);
+      console.log(`${endpointMap[apiEndpoint]} has been able to get a Token: ${accessToken}`);
       return true;
     } catch (error) {
-      console.error(`Error: ${endpointMap[apiEndpoint as keyof typeof endpointMap]} retrieving authentication token:`, error);
+      console.error(`Error: ${endpointMap[apiEndpoint as keyof typeof endpointMap]} is unable to get authentication token:`, error);
       return false;
     }
   };

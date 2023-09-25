@@ -74,6 +74,7 @@ const StyledTypeOfDocument = styled('div')<{
   $showAddMark?: boolean
 }>(({ $showAddMark }) => ({
   display: 'flex',
+  justifyContent: 'center',
   fontWeight: '600',
   width: '100%',
   fontSize: '1.2em',

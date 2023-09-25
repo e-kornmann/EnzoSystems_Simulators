@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { ReactComponent as CrossHairIcon } from '../../../local_assets/present_id.svg';
 
@@ -35,10 +36,10 @@ type Props = {
   animate: boolean;
 };
 
-const AnimatedCrossHair = ({ animate }: Props) => (
+const AnimatedCrossHairComponent = ({ animate }: Props) => (
     <QrIconWrapper $animate={animate}>
-      <CrossHairIcon width={80} height={80}/>
+      <CrossHairIcon />
     </QrIconWrapper>
 );
 
-export default AnimatedCrossHair;
+export const AnimatedCrossHair = memo(AnimatedCrossHairComponent);

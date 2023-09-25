@@ -5,7 +5,7 @@ import { DndContext } from '@dnd-kit/core';
 import theme from './theme/theme.json';
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import DemoApp from './components/simulators/DemoApp/DemoApp';
-import QrScanner from './components/simulators/QR-Scanner';
+import QrScanner from './components/simulators/QR-Scanner/src/App';
 import PaymentTerminalSimulator from './components/simulators/PaymentDevice';
 import IdScanner from './components/simulators/IdScanner/src/App';
 import KeyEncoder from './components/simulators/KeyEncoder/src/App';

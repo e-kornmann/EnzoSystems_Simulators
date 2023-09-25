@@ -1,4 +1,4 @@
-import DeviceStatuses from '../../enums/DeviceStatuses';
+import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
 import KeyType from '../KeyType';
 import ProcessStatuses from '../../enums/ProcessStatuses';
 import SessionType from '../SessionType';
@@ -41,7 +41,7 @@ type RoomKeyAction = { type: ActionType.SAVE_KEY | ActionType.UPDATE_KEY | Actio
 type AllKeysAction = { type: ActionType.SET_ALL_LOCALKEYS, payload: KeyType[] };
 
 // Status Actions
-type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatuses };
+type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatusOptions };
 type SetProcessStatusAction = { type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses };
 
 // Other Actions

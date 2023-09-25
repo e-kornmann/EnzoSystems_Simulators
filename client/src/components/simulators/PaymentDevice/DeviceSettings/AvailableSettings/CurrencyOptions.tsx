@@ -20,14 +20,14 @@ const CurrencyOptions = () => {
   };
 
   return (
-    <S.GenericList>
+    <S.SharedStyledList>
       {currencies.map(currency => (
-        <S.GenericListButton key={currency} onClick={() => onChangeEventHandler(currency)}>
+        <S.SharedStyledListButton key={currency} onClick={() => onChangeEventHandler(currency)}>
           {currency}
           <SharedCheckMark isDisplayed={state.currency === currency } width={14} height={11} />
-        </S.GenericListButton>
+        </S.SharedStyledListButton>
       ))}
-    </S.GenericList>
+    </S.SharedStyledList>
   );
 };
 export default CurrencyOptions;

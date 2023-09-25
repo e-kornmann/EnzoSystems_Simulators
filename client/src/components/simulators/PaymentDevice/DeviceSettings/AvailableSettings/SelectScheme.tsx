@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svgs/close.svg';
-import { Container } from '../../../../shared/DraggableModal/ModalTemplate';
 import { SettingHeader, SettingsWrapper } from '../DeviceSettings';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import { Wrap } from './SchemeOptions';
@@ -24,21 +23,21 @@ const SelectScheme = ({ hide, onHide }: Props) => {
 
   return (
     <SettingsWrapper $hide={hide}>
-      <Container>
+      <S.SharedStyledContainer>
         <SettingHeader>
           <div>{null}</div>
           {ts('paymentMethod', state.language)}
           <CloseIcon width={11} height={11} onClick={onHide} />
         </SettingHeader>
-        <S.GenericList>
+        <S.SharedStyledList>
           {state.selectedSchemes.map(scheme => (
-            <S.GenericListButton key={scheme} onClick={() => onChangeEventHandler(scheme)}>
+            <S.SharedStyledListButton key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
               <SharedCheckMark isDisplayed={ state.schemeInUse === scheme } width={14} height={11} />
-            </S.GenericListButton>
+            </S.SharedStyledListButton>
           ))}
-        </S.GenericList>
-      </Container>
+        </S.SharedStyledList>
+      </S.SharedStyledContainer>
     </SettingsWrapper>
   );
 };

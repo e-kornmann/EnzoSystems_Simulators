@@ -11,51 +11,7 @@ import { ReactComponent as SettingsIcon } from '../../../local_assets/settings.s
 import ShowAddIdType from '../../types/ShowAddIdType';
 import ActionType from '../../enums/ActionTypes';
 import ShowIdType from '../../types/ShowIdType';
-
-const StyledFooter = styled('footer')(({ theme }) => ({
-  height: '40px',
-  width: '100%',
-  display: 'flex',
-  justifyContent: 'space-between',
-  padding: '6px 13px 10px',
-  backgroundColor: 'white',
-  borderRadius: '0 0 5px 5px',
-  '& > button': {
-    display: 'flex',
-    alignItems: 'top',
-    padding: '2px',
-    justifyContent: 'center',
-    color: 'orange',
-    fontSize: '0.80em',
-    cursor: 'pointer',
-    '&:disabled': {
-      color: 'gray',
-      cursor: 'inherit',
-    },
-  },
-  '& > svg': {
-    margin: '2px',
-  },
-  '& > div': {
-    cursor: 'pointer',
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    columnGap: '8px',
-    alignItems: 'center',
-    color: 'asphalt',
-    '&:first-of-type': {
-      justifyContent: 'flex-start',
-    },
-    '&:last-of-type': {
-      justifyContent: 'flex-end',
-    },
-    '& > svg': {
-      fill: theme.colors.text.primary,
-    },
-  },
-}));
+import { SharedStyledFooter } from '../../../local_shared/DraggableModal/ModalTemplate';
 
 const StyledSettingsButton = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
@@ -140,9 +96,7 @@ const FooterComponent = ({
   }, [appDispatch]);
 
   return (
-    <>
-      <StyledFooter>
-
+  <SharedStyledFooter>
         {(!showAddKey.showComponent && !showSettings && !showIds.showComponent)
           && <>
             <StyledSettingsButton onClick={handleToggleSettings}>
@@ -188,8 +142,7 @@ const FooterComponent = ({
 
           </>
         }
-      </StyledFooter>
-    </>
+      </SharedStyledFooter>
   );
 };
 

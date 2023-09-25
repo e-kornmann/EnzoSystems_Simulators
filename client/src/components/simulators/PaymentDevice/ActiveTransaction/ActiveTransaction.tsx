@@ -4,7 +4,7 @@ import { AppContext } from '../utils/settingsReducer';
 import { PayMethod, PinTerminalStatus } from '../types';
 import * as Sv from '../../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
-import SharedLoading from '../../../shared/Loading';
+import { SharedLoading } from '../../../shared/Loading';
 import PinDigits from './PinDigits/PinDigits';
 import ts from '../Translations/translations';
 import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';

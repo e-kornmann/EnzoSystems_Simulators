@@ -12,14 +12,14 @@ import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
 import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
-import { Container, GenericFooter, Header } from '../../shared/DraggableModal/ModalTemplate';
+import * as S from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon';
 import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
 import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 import { AppContext } from './utils/settingsReducer';
-import SharedLoading from '../../shared/Loading';
+import { SharedLoading } from '../../shared/Loading';
 import ShowIcon from '../../../types/ShowIcon';
 
 const Content = styled.div`
@@ -29,7 +29,11 @@ const Content = styled.div`
   overflow-y: sunset;
 `;
 
-const Footer = styled(GenericFooter)`
+const StyledHeader = styled(S.SharedStyledHeader)({
+  justifyContent: 'center',
+});
+
+const StyledFooter = styled(S.SharedStyledFooter)`
   position: absolute;
   height: 40px;
   bottom: 0px;
@@ -213,9 +217,6 @@ const PaymentTerminal = () => {
       default:
         setTerminalState(PinTerminalStatus.UNKNOWN);
     }
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
     // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
     if (waitTime) {
       intervalId = setInterval(async () => {
@@ -311,7 +312,7 @@ const PaymentTerminal = () => {
 
     return () => {
       if (intervalId) {
-        clearInterval(intervalId);
+        clearInterval(Number(intervalId));
       }
     };
   }, [activePayMethod,
@@ -347,8 +348,8 @@ const PaymentTerminal = () => {
     <>
       <DeviceSettings hide={hideSettings} onHide={settingsButtonHandler} />
       <SelectScheme hide={hidePayProviders} onHide={payProviderButtonHandler} />
-      <Container>
-        <Header>Payment Terminal</Header>
+      <S.SharedStyledContainer $isDraggable={true}>
+        <StyledHeader>Payment Terminal</StyledHeader>
         <TimeRibbon />
         <Content>
 
@@ -372,15 +373,15 @@ const PaymentTerminal = () => {
                 init={init} />
           }
         </Content>
-        <Footer>
+        <StyledFooter>
 
           <div><SettingsIcon width={16} height={16} onClick={settingsButtonHandler} /></div>
           <div onClick={payProviderButtonHandler}>
             <PayProvider width={30} height={21} border={true} provider={state.schemeInUse} />
             <ExpandIcon width={12} height={8} />
           </div>
-        </Footer>
-      </Container>
+        </StyledFooter>
+      </S.SharedStyledContainer>
     </>
   );
 };

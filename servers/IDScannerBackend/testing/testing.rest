@@ -7,7 +7,7 @@ GET http://localhost:9007/api/simulator/id-scanner/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXJ0ZXN0IiwiaWF0IjoxNjk1Mjk1Nzk2LCJleHAiOjE2OTUzODIxOTYsImlzcyI6IkVuem9zeXN0ZW1zIn0.oF5o9IShy4N-r0Kdol2q5Xj6o6cIASDWd9-JIHifwC0
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1NTg2NjY2LCJleHAiOjE2OTU2NzMwNjYsImlzcyI6IkVuem9zeXN0ZW1zIn0.X_Nw2rUIxZchDO-lXjGRP0g66eimtW2FfJVrATaF5Zs
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1NjM0MjM5LCJleHAiOjE2OTU3MjA2MzksImlzcyI6IkVuem9zeXN0ZW1zIn0.E95p76DqyBobsBgz9uBJq4vc3dHEUasoGOiGVzGHe1w
 
 
 
@@ -17,7 +17,7 @@ Content-type: application/json
 Authorization: Basic device:device
 
 {
-  "deviceId": "KeyEncoder"
+  "deviceId": "IdScanner"
 }
 
 ### HOST
@@ -47,12 +47,12 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 ####################################################################################
 
 ### HOST
-GET http://localhost:9007/api/simulator/id-scanner/v1/KeyEncoder/status
+GET http://localhost:9007/api/simulator/id-scanner/v1/IdScanner/status
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 ### HOST
-GET http://localhost:9007/api/simulator/id-scanner/v1/KeyEncoder/status?referenceDeviceStatus=DISCONNECTED
+GET http://localhost:9007/api/simulator/id-scanner/v1/IdScanner/status?referenceDeviceStatus=DISCONNECTED
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -65,12 +65,12 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "KeyEncoder",
+  "deviceId": "IdScanner",
   "command": "SCAN_ID"
 }
 
 ### HOST request to cancel session by id
-PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/e21ff2c2-64a2-4886-9cd8-dcbf47c1fcf0
+PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/4d99db59-c0a6-404c-af03-87ca834369a6
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -113,7 +113,7 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
     "status": "FINISHED",
     "dateOfBirth": "661231",
     "dateOfExpiry": "661231",
-    "documentNumber": "KeyEncoder789",
+    "documentNumber": "IdScanner789",
     "documentType": "P<",
     "issuerCode": "NLD",
     "namePrimary": "Erik",

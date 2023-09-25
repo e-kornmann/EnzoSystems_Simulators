@@ -7,7 +7,7 @@ import createTransaction from './utils/createTransaction';
 import useLogOn from '../../../hooks/useLogOn';
 import options from './settings/settings';
 import useGetTransaction from '../../../hooks/useGetTransaction';
-import { Container, Header } from '../../shared/DraggableModal/ModalTemplate';
+import { SharedStyledContainer, SharedStyledHeader } from '../../shared/DraggableModal/ModalTemplate';
 import TransactionDetails from './TransactionDetails/TransactionDetails';
 import { IntlConfigType } from '../../../types/IntlConfigType';
 import TurnOnDevice from '../../shared/TurnOnDevice';
@@ -27,6 +27,10 @@ const Content = styled.div`
   flex-direction: column;
   overflow-y: sunset;
 `;
+
+const StyledHeader = styled(SharedStyledHeader)({
+  justifyContent: 'center',
+});
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -210,11 +214,11 @@ const DemoApp = () => {
   }, [isActive, getTransactionId, transactionDetails, transactionIdApp]);
 
   return (
-    <Container>
+    <SharedStyledContainer $isDraggable={true}>
 
       <ScanQr />
        <TurnOnDevice init={init} logInButtonHandler={logInButtonHandler} standByText={standByText} />
-      <Header>Demo App</Header>
+      <StyledHeader>Demo App</StyledHeader>
       <Content>
         <DemoAppContainer>
 
@@ -243,7 +247,7 @@ const DemoApp = () => {
         </DemoAppContainer>
 
       </Content>
-    </Container>
+    </SharedStyledContainer>
   );
 };
 

@@ -21,8 +21,8 @@ const StyledWrapper = styled('div')(({ theme }) => ({
   left: '0',
   height: 'calc(100% - 75px)',
   width: '100%',
-  maxWidth: '500px',
   zIndex: '600',
+
 }));
 const StyledForm = styled('form')({
   position: 'relative',
@@ -32,7 +32,7 @@ const StyledForm = styled('form')({
   flexDirection: 'column',
   gap: '10px',
   padding: '18px 18px 18px',
-  justifyItems: 'flex-start',
+  justifyItems: 'center',
   alignItems: 'center',
   overflowY: 'scroll',
 });
@@ -42,6 +42,7 @@ const StyledControl = styled('div')<{
 }>(({ theme, $hasValue }) => ({
   height: '35px',
   width: '100%',
+  maxWidth: '400px',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'flex-start',
@@ -95,7 +96,7 @@ const StyledDateFieldsWrapper = styled('div')(({ theme }) => ({
   gridTemplateColumns: '1fr 28% 28%',
   columnGap: '6px',
   width: '100%',
-  maxWidth: '500px',
+  maxWidth: '400px',
   '& > p': {
     color: theme.colors.text.tertiary,
     margin: '2px 0 13px',

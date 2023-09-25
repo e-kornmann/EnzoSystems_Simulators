@@ -2,24 +2,25 @@ import { memo, useEffect, useReducer } from 'react';
 // axios
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+// shared component
+import { SharedStyledContainer } from '../local_shared/DraggableModal/ModalTemplate';
 // components
-import { Footer } from './components/Footer/Footer';
-import { Header } from './components/Header/Header';
+import { IdReader } from './components/IdReader/IdReader';
 import { LocalAddId } from './components/LocalAddId/LocalAddId';
-import { Settings } from './components/Settings/Settings';
 import { ViewIds } from './components/ViewIds/ViewIds';
+import { Settings } from './components/Settings/Settings';
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer/Footer';
 import { DeleteDialog } from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
 // enums
-import DeviceStatuses from './enums/DeviceStatuses';
+import DeviceStatusOptions from './enums/DeviceStatusOptions';
 // theme
 import theme from './theme/theme.json';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
-
 import ActionType from './enums/ActionTypes';
-import { IdReader } from './components/IdReader/IdReader';
 import { CountriesAlpha3 } from './enums/CountryCodesISO3166Alpha3';
 import { IdType } from './types/IdType';
 import ShowAddIdType from './types/ShowAddIdType';
@@ -28,12 +29,12 @@ import ShowIdType from './types/ShowIdType';
 const GlobalStyle = createGlobalStyle({
   '*': {
     boxSizing: 'border-box',
+    color: theme.colors.text.primary,
+    fontFamily: '\'Inter\', -apple-system, Helvetica, Arial, sans-serif',
     margin: 0,
     padding: 0,
   },
   html: {
-    color: theme.colors.text.primary,
-    fontFamily: "'Inter', -apple-system, Helvetica, Arial, sans-serif",
     fontSize: '14px',
     lineHeight: 1.15,
     overflow: 'hidden',
@@ -55,31 +56,22 @@ const GlobalStyle = createGlobalStyle({
     border: 'none',
   },
   '::-webkit-scrollbar': {
-    width: '10px',
+    width: '0.35rem',
   },
   '::-webkit-scrollbar-thumb': {
-    background: '#707070',
+    background: theme.colors.buttons.gray,
     borderRadius: '5px',
   },
+  '::-webkit-scrollbar-thumb:hover': {
+    background: 'orange',
+  },
 });
-const StyledWrapper = styled('div')({
-  alignItems: 'center',
-  display: 'flex',
-  height: '100%',
-  justifyContent: 'center',
-  width: '100%',
-});
-const StyledApp = styled('div')({
-  display: 'grid',
+
+const StyledApp = styled(SharedStyledContainer)({
   gridTemplateRows: '35px 1fr 40px',
-  fontFamily: "'Inter', sans-serif",
-  fontSize: '13px',
-  width: '100%',
-  height: '100%',
-  minHeight: '420px',
   overflowY: 'hidden',
-  borderRadius: '5px',
 });
+
 const StyledContentWrapper = styled('div')({
   backgroundColor: theme.colors.background.secondary,
   height: '100%',
@@ -96,8 +88,8 @@ export enum Lang {
 }
 
 type AppStateType = {
-  deviceStatus: DeviceStatuses,
-  clickedSetting: boolean,
+  deviceStatus: DeviceStatusOptions,
+  statusSettingIsClicked: boolean,
   appLanguage: Lang,
   headerTitle: string,
   localIds: IdType[],
@@ -119,8 +111,8 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  deviceStatus: DeviceStatuses.OUT_OF_ORDER,
-  clickedSetting: false,
+  deviceStatus: DeviceStatusOptions.OUT_OF_ORDER,
+  statusSettingIsClicked: false,
   appLanguage: Lang.ENGLISH,
   headerTitle: 'ID Scanner',
   localIds: [],
@@ -198,8 +190,8 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.SET_DEVICE_STATUS: {
       return { ...state, deviceStatus: action.payload };
     }
-    case ActionType.SET_CLICKED_SETTING: {
-      return { ...state, clickedSetting: action.payload };
+    case ActionType.STATUS_OPTION_IS_CLICKED: {
+      return { ...state, statusSettingIsClicked: action.payload };
     }
     case ActionType.SELECT_ALL_ID_CLICKED: {
       return { ...state, showIds: { ...state.showIds, selectAllIdsClicked: action.payload, deselectAllIdsClicked: false } };
@@ -308,10 +300,9 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <StyledWrapper>
         { !import.meta.env.VITE_EXPORT_MEMO_APP && <GlobalStyle /> }
         <AppDispatchContext.Provider value={dispatch}>
-          <StyledApp>
+          <StyledApp $isDraggable={import.meta.env.VITE_EXPORT_MEMO_APP}>
               <Header
                 showBack={state.showBack}
                 showCross={state.showCross}
@@ -322,7 +313,7 @@ const App = () => {
                 <IdReader
                  deviceStatus={state.deviceStatus}
                  currentId={state.currentId}
-                 clickedSetting={state.clickedSetting}
+                 statusSettingIsClicked={state.statusSettingIsClicked}
                  appLanguage={state.appLanguage}/>
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showIds.showComponent }
 
@@ -344,8 +335,7 @@ const App = () => {
                 {state.showSettings
                   && <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
               </StyledContentWrapper>
-                {state
-                  && <Footer
+                 <Footer
                     showAddKey={state.showAddKey}
                     showSettings={state.showSettings}
                     showIds={state.showIds}
@@ -353,10 +343,8 @@ const App = () => {
                     deleteButtonIsEnabled={state.deleteButtonIsEnabled}
                     allIdsAreSelected={state.allIdsAreSelected}
                     enableEditandDeleteButton={state.localIds.length >= 1} />
-                }
             </StyledApp>
         </AppDispatchContext.Provider>
-      </StyledWrapper>
     </ThemeProvider>
   );
 };

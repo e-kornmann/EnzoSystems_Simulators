@@ -9,7 +9,7 @@ import LanguageOptions from './AvailableSettings/LanguageOptions';
 import PinOptions from './AvailableSettings/PinOptions';
 import { SchemeOptions } from './AvailableSettings/SchemeOptions';
 import { AppContext, SettingModes } from '../utils/settingsReducer';
-import { Container, Header } from '../../../shared/DraggableModal/ModalTemplate';
+import { SharedStyledContainer, SharedStyledHeader } from '../../../shared/DraggableModal/ModalTemplate';
 import ts from '../Translations/translations';
 
 type HideProp = {
@@ -27,7 +27,7 @@ export const SettingsWrapper = styled.div<HideProp>`
   overflow: hidden;
 `;
 
-export const SettingHeader = styled(Header)`  
+export const SettingHeader = styled(SharedStyledHeader)`  
   padding: 0 8px 0 9px;
   justify-content: space-between;
 `;
@@ -79,7 +79,7 @@ const AppSettings = ({ hide, onHide }: Props) => {
 <>
 
 <SettingsWrapper $hide={hide}>
-<Container>
+<SharedStyledContainer>
 <SettingHeader>
   <div>
   { settingMode !== SettingModes.SETTINGS
@@ -89,7 +89,7 @@ const AppSettings = ({ hide, onHide }: Props) => {
   <CloseIcon width={11} height={11} onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide(); }} />
 </SettingHeader>
   { list }
-  </Container>
+  </SharedStyledContainer>
 </SettingsWrapper>
 </>
   );

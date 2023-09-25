@@ -1,6 +1,4 @@
-import {
-  memo, useCallback, useEffect, useRef, useState,
-} from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 // styled components
 import styled from 'styled-components';
 // import StyledArrow from './EnzoCheckBoxDropDown';
@@ -11,13 +9,12 @@ import KeyType from '../../../types/KeyType';
 
 const StyledControl = styled('div')<{
   $hasValue?: boolean
-}>(({ $hasValue }) => ({
-  marginTop: '4px',
-  height: '34px',
+}>(({ theme, $hasValue }) => ({
+  height: '35px',
   width: '100%',
+  maxWidth: '400px',
   display: 'flex',
   justifyContent: 'flex-start',
-  alignSelf: 'flex-start',
   position: 'relative',
   '& > label': {
     position: 'absolute',
@@ -25,13 +22,19 @@ const StyledControl = styled('div')<{
     backgroundColor: 'white',
     borderRadius: '1px',
     fontWeight: '600',
-    top: $hasValue ? '-5px' : '50%',
+    top: $hasValue ? '-6px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
-    color: '#7A7A7A',
+    color: theme.colors.text.tertiary,
     pointerEvents: 'none',
-    transform: $hasValue ? 'translateY(0)' : 'translateY(-50%)',
+    transform: $hasValue ? 'translateY(0)' : 'translateY(-53%)',
     transition: 'transform 0.2s, font-size 0.2s, top 0.2s',
+    '& > span': {
+      color: theme.colors.text.secondary,
+      position: 'relative',
+      top: '-0.45em',
+      fontSize: '80%',
+    },
   },
   '&:focus-within > label': {
     top: '-5px',
@@ -50,10 +53,9 @@ const StyledSelect = styled('div')<{
   border: '0.12em solid',
   borderColor: $isFocus ? theme.colors.buttons.special : theme.colors.buttons.gray,
   borderRadius: '3px',
-  padding: '9px 8px 0px',
+  padding: '10px 8px 5px 6px',
   width: '100%',
-  height: '100%',
-  cursor: 'pointer',
+  height: '35px',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
@@ -67,16 +69,17 @@ const StyledArrow = styled('div')<{
   width: '20px',
   height: '20px',
   position: 'absolute',
-  right: '5px',
+  right: '4px',
   top: '8px',
   transform: $arrowDown ? 'rotate(180deg)' : 'rotate(0deg)',
   '& > svg': {
     fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
-    width: '13px',
-    height: '6px',
+    width: '12px',
+    height: '5px',
   },
   pointerEvents: 'none',
 }));
+
 const StyledOptionsContainer = styled('div')<{
   $showOptions: boolean
 }>(({ $showOptions }) => ({
@@ -84,10 +87,10 @@ const StyledOptionsContainer = styled('div')<{
   display: $showOptions ? 'flex' : 'none',
   position: 'absolute',
   flexDirection: 'column',
-  top: '14px',
+  top: '4px',
   width: '100%',
   zIndex: '2',
-  height: '100px',
+  maxHeight: '200px',
 }));
 const StyledClickableContainer = styled('div')({
   backgroundColor: 'transparent',
@@ -101,8 +104,9 @@ const StyledOptions = styled('div')(({ theme }) => ({
   border: `1px solid ${theme.colors.buttons.lightgray}`,
   borderRadius: '2px',
   width: '100%',
-  height: '100%',
-  marginBottom: '10px',
+  height: 'fit-content',
+  maxHeight: '120px',
+  marginBottom: '50px',
   zIndex: '2',
   overflowY: 'scroll',
   overflowX: 'hidden',
@@ -113,13 +117,10 @@ const StyledOption = styled('div')<{
 }>(({ theme, $isSelected }) => ({
   backgroundColor: $isSelected ? theme.colors.buttons.special : theme.colors.background.primary,
   color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
-  padding: '3px 9px',
+  padding: '4px 6px',
   cursor: 'pointer',
-  '&:first-child': {
-    padding: '7px 9px 3px',
-  },
-  '&:last-child': {
-    padding: '3px 9px 7px',
+  '&:hover': {
+    backgroundColor: theme.colors.buttons.specialTransparent,
   },
 }));
 
@@ -181,7 +182,11 @@ const TimeDropDown = ({
         <StyledClickableContainer onClick={handleClick} />
         <StyledOptions>
           {options.map(option => (
-            <StyledOption key={option.name} value={option.value} $isSelected={selectedValue === option.value} onClick={() => { handleOptionClicked(option); }}>
+            <StyledOption
+              key={option.name}
+              value={option.value}
+              $isSelected={selectedValue === option.value}
+              onClick={() => { handleOptionClicked(option); }}>
               {option.name}
             </StyledOption>
           ))}

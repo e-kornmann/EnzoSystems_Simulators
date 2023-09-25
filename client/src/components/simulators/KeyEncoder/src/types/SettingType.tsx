@@ -1,9 +1,9 @@
-import DeviceStatuses from '../enums/DeviceStatuses';
+import DeviceStatusOptions from '../enums/DeviceStatusOptions';
 import SettingsTypes from '../enums/SettingsTypes';
 
 type SettingType = {
-  currentValue: DeviceStatuses,
-  options: DeviceStatuses[],
+  currentValue: DeviceStatusOptions,
+  options: DeviceStatusOptions[],
   title: string,
   type: SettingsTypes
 };

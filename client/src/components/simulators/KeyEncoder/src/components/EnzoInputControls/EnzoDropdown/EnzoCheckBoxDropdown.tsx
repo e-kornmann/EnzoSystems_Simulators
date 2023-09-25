@@ -11,7 +11,7 @@ const StyledControl = styled('div')<{
   $hasValue?: boolean
 }>(({ $hasValue }) => ({
   marginTop: '8px',
-  height: '34px',
+  height: '35px',
   width: '100%',
   display: 'flex',
   justifyContent: 'space-between',
@@ -23,7 +23,7 @@ const StyledControl = styled('div')<{
     backgroundColor: 'white',
     borderRadius: '1px',
     fontWeight: '600',
-    top: $hasValue ? '-5px' : '53%',
+    top: $hasValue ? '-4px' : '53%',
     left: '5px',
     fontSize: $hasValue ? '0.6em' : '0.9em',
     color: '#7A7A7A',
@@ -48,7 +48,7 @@ const StyledSelect = styled('div')<{
   border: '0.12em solid',
   borderColor: $isFocus ? theme.colors.buttons.special : theme.colors.buttons.gray,
   borderRadius: '3px',
-  padding: '11px 8px 0px',
+  padding: '10px 8px 0px',
   width: '100%',
   height: '100%',
   cursor: 'pointer',
@@ -65,13 +65,13 @@ const StyledArrow = styled('div')<{
   width: '20px',
   height: '20px',
   position: 'absolute',
-  right: '5px',
+  right: '4px',
   top: '8px',
   transform: $arrowDown ? 'rotate(180deg)' : 'rotate(0deg)',
   '& > svg': {
     fill: $arrowDown ? theme.colors.text.secondary : theme.colors.text.primary,
-    width: '13px',
-    height: '6px',
+    width: '12px',
+    height: '5px',
   },
   pointerEvents: 'none',
 }));
@@ -139,7 +139,7 @@ const StyledOption = styled('div')<{
   value: string
 }>(({ theme, $isSelected }) => ({
   backgroundColor: theme.colors.background.primary,
-  color: $isSelected ? theme.colors.text.secondary : theme.colors.text.primary,
+  color: $isSelected ? theme.colors.text.black : theme.colors.text.primary,
   padding: '5px 9px',
   cursor: 'pointer',
 }));

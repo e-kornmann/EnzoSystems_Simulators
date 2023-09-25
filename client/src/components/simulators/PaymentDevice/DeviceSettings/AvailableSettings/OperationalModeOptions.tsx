@@ -19,16 +19,16 @@ const OperationalModeOptions = () => {
   };
 
   return (
-    <S.GenericList>
+    <S.SharedStyledList>
       {Object.values(OperationalModeOptionsType).map(mode => (
-        <S.GenericListButton key={mode} onClick={() => onChangeEventHandler(mode)}>
+        <S.SharedStyledListButton key={mode} onClick={() => onChangeEventHandler(mode)}>
 
           {ts(mode, state.language)}
 
           <SharedCheckMark isDisplayed={state.operationalModeOption === mode } width={14} height={11} />
-        </S.GenericListButton>
+        </S.SharedStyledListButton>
       ))}
-    </S.GenericList>
+    </S.SharedStyledList>
   );
 };
 

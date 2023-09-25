@@ -55,6 +55,7 @@ const StyledControl = styled('div')<{
   '& > input': {
     paddingTop: '5px',
     color: theme.colors.text.primary,
+    fontFamily: '\'Inter\', -apple-system, Helvetica, Arial, sans-serif',
     fontSize: '1.0em',
     fontWeight: '500',
     border: '0.12em solid',
@@ -101,6 +102,13 @@ const StyledControl = styled('div')<{
     fontWeight: '800',
   },
 }));
+const StyledDateInputWrapper = styled('div')({
+  display: 'flex',
+  width: '100%',
+  flexDirection: 'column',
+  gap: '5px',
+  marginTop: '2px',
+});
 const StyledTimeWrapper = styled('div')({
   position: 'relative',
   display: 'grid',
@@ -376,7 +384,7 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }: Props) => {
             }
 
             {field.type === AddKeyFieldTypes.START_DATE_TIME
-              && <>
+              && <StyledDateInputWrapper>
                 <StyledControl style={{ marginTop: '15px' }}>
                   <div>Starts:</div>
                   <StyledDateInput type='date' value={state.initialized
@@ -393,11 +401,11 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }: Props) => {
                     ? format(parseISO(state.key.startDateTime), 'mm')
                     : initialCheckInTime.minutes} label='' field={field} options={minutes} onOptionClicked={handleMinuteInput} />
                 </StyledTimeWrapper>
-              </>
+              </StyledDateInputWrapper>
             }
 
             {field.type === AddKeyFieldTypes.END_DATE_TIME
-              && <>
+              && <StyledDateInputWrapper>
                 <StyledControl >
                   <div>Ends:</div>
                   <StyledDateInput type='date' value={state.initialized
@@ -414,7 +422,7 @@ const LocalAddKeyForm = ({ saveKeyClicked, selectedKey, editMode }: Props) => {
                     ? format(parseISO(state.key.endDateTime), 'mm')
                     : initialCheckOutTime.minutes} label='' field={field} options={minutes} onOptionClicked={handleMinuteInput} />
                 </StyledTimeWrapper>
-              </>
+              </StyledDateInputWrapper>
             }
           </React.Fragment>
         ))}

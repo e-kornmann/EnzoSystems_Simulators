@@ -3,14 +3,27 @@ import styled from 'styled-components';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import { GenericFooter } from '../../../../shared/DraggableModal/ModalTemplate';
 import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
 
-const Footer = styled(GenericFooter)({
+const StyledFooter = styled(S.SharedStyledFooter)({
   position: 'absolute',
   height: '40px',
   bottom: '0px',
 });
+
+const StyledList = styled('div')(({ theme }) => ({
+  backgroundColor: theme.colors.background.secondary,
+  position: 'fixed',
+  top: '34px',
+  left: '0',
+  height: 'calc(100% - 75px)',
+  width: '100%',
+  padding: '2px 0',
+  display: 'flex',
+  flexDirection: 'column',
+  overflowY: 'scroll',
+  zIndex: '600',
+}));
 
 export const Wrap = styled('div')({
   display: 'flex',
@@ -82,10 +95,10 @@ const SchemeOptionsScreen = ({ onHide }: Props) => {
 
   return (
     <>
-      <S.GenericList>
-        <S.GenericListButton onClick={randomHandler}> Random </S.GenericListButton>
+      <StyledList>
+        <S.SharedStyledListButton onClick={randomHandler}> Random </S.SharedStyledListButton>
         {Object.values(SupportedSchemesType).map(scheme => (
-          <S.GenericListButton key={scheme} onClick={() => toggleScheme(scheme)}>
+          <S.SharedStyledListButton key={scheme} onClick={() => toggleScheme(scheme)}>
             <Wrap>
             <S.SharedStyledCheckBox $isSelected={isSchemeSelected(scheme)}>
             <SharedCheckMark width={9} height={6} />
@@ -94,17 +107,17 @@ const SchemeOptionsScreen = ({ onHide }: Props) => {
               {scheme}
             </Wrap>
 
-          </S.GenericListButton>
+          </S.SharedStyledListButton>
         ))}
-      </S.GenericList>
-      <Footer>
+      </StyledList>
+      <StyledFooter>
         <button type="button" onClick={selectOrDeselectAllHandler}>
           { allSelected ? 'Deselect all' : 'Select all' }
         </button>
         <button type="button" onClick={saveHandler} disabled={!saveButtonIsActive}>
           Save
         </button>
-      </Footer>
+      </StyledFooter>
     </>
   );
 };
