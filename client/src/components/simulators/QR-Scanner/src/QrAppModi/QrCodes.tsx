@@ -11,6 +11,7 @@ const QrCodesWrapper = styled('div')(({ theme }) => ({
   position: 'absolute',
   top: '35px',
   height: 'calc(100% - 35px)',
+  width: '100%',
   borderRadius: '0 0 5px 5px',
   backgroundColor: theme.colors.background.secondary,
   display: 'grid',

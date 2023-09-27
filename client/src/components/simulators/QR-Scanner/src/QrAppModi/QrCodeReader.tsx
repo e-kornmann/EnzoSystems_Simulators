@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 // styled components
 import styled, { keyframes } from 'styled-components';
 // components
@@ -14,12 +14,12 @@ import { ReactComponent as SettingsIcon } from '../../local_assets/settings.svg'
 import { ReactComponent as AddIcon } from '../../local_assets/add_qr_code.svg';
 // api
 import useLogOn from '../../local_hooks/useLogOn';
-import { reqBody, scannerCredentials } from '../config';
+import { axiosUrl, reqBody, scannerCredentials } from '../config';
 // types
 import { QrAppModi, QrCode } from '../App';
 import ShowIcon from '../../local_types/ShowIcon';
 import DeviceStatusOptions from '../enums/DeviceStatusOptions';
-import { changeDeviceStatus, getSession, putScannedData } from '../utils/scanApiRequests';
+import { changeDeviceStatus, getSession, putScannedData, stopSession } from '../utils/scanApiRequests';
 // translations
 import ts from '../Translations/translations';
 import { SharedStyledFooter } from '../../local_shared/DraggableModal/ModalTemplate';
@@ -175,9 +175,9 @@ type Props = {
 
 const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   const { state, dispatch } = useContext(AppContext);
-  const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'barcode-scanner');
-  // const [nextPoll, setNextPoll] = useState(false);
-  // const initialSessionRequest = useRef(true);
+  const { token, logOn } = useLogOn(scannerCredentials, reqBody, axiosUrl);
+  const [nextPoll, setNextPoll] = useState(false);
+  const initialSessionRequest = useRef(true);
   const [operationalState, setOperationalState] = useState<OperationalState>(OperationalState.DEVICE_START_UP);
   const [instructionText, setInstructionText] = useState('');
 
@@ -185,14 +185,14 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   useEffect(() => {
     if (state.statusSettingIsClicked) {
       switch (state.statusOption) {
+        case DeviceStatusOptions.CONNECTED:
+          setOperationalState(OperationalState.DEVICE_START_UP);
+          break;
         case DeviceStatusOptions.DISCONNECTED:
           setOperationalState(OperationalState.DEVICE_DISCONNECT);
           break;
         case DeviceStatusOptions.OUT_OF_ORDER:
           setOperationalState(OperationalState.DEVICE_OUT_OF_ORDER);
-          break;
-        case DeviceStatusOptions.CONNECTED:
-          setOperationalState(OperationalState.DEVICE_START_UP);
           break;
         default:
           break;
@@ -207,41 +207,47 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
       : setOperationalState(OperationalState.API_ERROR)));
   }, [logOn]);
 
-  // const getScanSession = useCallback(async () => {
-  //   if (token) {
-  //     const res = await getSession(token);
-  //     if (!res) {
-  //       setOperationalState(OperationalState.API_ERROR);
-  //       setNextPoll(false);
-  //       initialSessionRequest.current = true;
-  //     } else {
-  //       // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
-  //       if (operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE) {
-  //         if (res.status === 'TIMED_OUT') {
-  //           setNextPoll(false);
-  //           initialSessionRequest.current = true;
-  //           setOperationalState(OperationalState.API_TIMED_OUT);
-  //         } else if (res.status === 'STOPPED') {
-  //           setNextPoll(false);
-  //           initialSessionRequest.current = true;
-  //           setOperationalState(OperationalState.API_CANCEL);
-  //         } else if (res.status === 'WAITING_FOR_BARCODE' && res.name === 'SCAN_BARCODE') {
-  //           setNextPoll(true);
-  //         }
-  //       }
-  //       if (operationalState === OperationalState.DEVICE_CONNECTED) {
-  //         if (res.status === 'WAITING_FOR_BARCODE' && res.name === 'SCAN_BARCODE') {
-  //           setNextPoll(false);
-  //           initialSessionRequest.current = true;
-  //           setOperationalState(OperationalState.DEVICE_WAITING_FOR_BARCODE);
-  //         } else if (res.statuscode === 409) {
-  //           console.log(res);
-  //           setNextPoll(true);
-  //         }
-  //       }
-  //     }
-  //   }
-  // }, [operationalState, token]);
+  const getScanSession = useCallback(async () => {
+    if (token) {
+      const res = await getSession(token);
+      if (!res) {
+        setOperationalState(OperationalState.API_ERROR);
+        setNextPoll(false);
+        initialSessionRequest.current = true;
+      } else {
+        // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
+        if (operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE) {
+          // remove this if when
+          if (res === 'NO_ACTIVE_SESSION') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OperationalState.API_TIMED_OUT);
+          } else if (res.status === 'TIMED_OUT') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OperationalState.API_TIMED_OUT);
+          } else if (res.status === 'CANCELLING') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OperationalState.API_CANCEL);
+          } else {
+            console.log(res);
+            setNextPoll(true);
+          }
+        }
+        if (operationalState === OperationalState.DEVICE_CONNECTED) {
+          if (res.command === 'SCAN_BARCODE' && res.status === 'ACTIVE') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OperationalState.DEVICE_WAITING_FOR_BARCODE);
+          } else {
+            console.log(res);
+            setNextPoll(true);
+          }
+        }
+      }
+    }
+  }, [operationalState, token]);
 
   const changeStatus = useCallback(async (changeToThisState: DeviceStatusOptions) => {
     if (token) {
@@ -267,7 +273,6 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   useEffect(() => {
     let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
-    let checkCounter = 0;
 
     switch (operationalState) {
       case OperationalState.DEVICE_START_UP:
@@ -301,11 +306,12 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         if (state.statusOption !== DeviceStatusOptions.OUT_OF_ORDER) {
           dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.OUT_OF_ORDER });
         }
-        waitTime = 10000;
+        waitTime = 15000;
         break;
       case OperationalState.DEVICE_CONNECTED:
-        setInstructionText('  ');
-        waitTime = 1000;
+        setInstructionText('');
+        waitTime = 50000;
+        // when in this state getSession is initiated
         break;
       case OperationalState.DEVICE_COULD_NOT_CONNECT:
         setInstructionText(ts('couldNotConnect', state.language));
@@ -317,8 +323,6 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         break;
       case OperationalState.DEVICE_WAITING_FOR_BARCODE:
         setInstructionText(ts('readyToScan', state.language));
-        waitTime = 1000;
-        checkCounter = 0;
         break;
       case OperationalState.API_CANCEL:
         setInstructionText('Scanning cancelled');
@@ -329,8 +333,8 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         waitTime = 2500;
         break;
       case OperationalState.DEVICE_IS_SCANNING:
-        // setNextPoll(false);
-        // initialSessionRequest.current = true;
+        setNextPoll(false);
+        initialSessionRequest.current = true;
         setInstructionText('Scanning...');
         waitTime = 3500;
         break;
@@ -357,50 +361,8 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             setOperationalState(OperationalState.DEVICE_START_UP);
             break;
           case OperationalState.DEVICE_CONNECTED:
-            if (token) {
-              // If still connected look if scanner needs to be activated
-              const newMode = await getSession(token);
-              if (newMode.status === 'WAITING_FOR_BARCODE') {
-                setOperationalState(OperationalState.DEVICE_WAITING_FOR_BARCODE);
-              } else {
-                checkCounter += 1;
-              }
-              // This endpoint need to be called by the device on a regular base to stay in connected state.
-              // In case the status is not updated in time, the internal status will fallback to "not_found"
-              // Timeout is set to 60000 on backend. Maybe to put checkcounter dynamically
-              if (checkCounter >= 50) {
-                const response = await changeDeviceStatus(token, DeviceStatusOptions.CONNECTED);
-                if (response) {
-                  if (response.status !== 200) {
-                    setOperationalState(OperationalState.DEVICE_COULD_NOT_CONNECT);
-                  }
-                } else {
-                  // also if response is undefined.
-                  setOperationalState(OperationalState.DEVICE_COULD_NOT_CONNECT);
-                }
-              }
-            }
-            break;
-          case OperationalState.DEVICE_WAITING_FOR_BARCODE:
-            if (token) {
-              const newMode = await getSession(token);
-              console.log(`newMode: ${newMode.status}`);
-              if (newMode.status === 409) {
-                setOperationalState(OperationalState.API_CANCEL);
-              }
-              if (newMode.status === 'STOPPED') {
-                setOperationalState(OperationalState.API_CANCEL);
-              }
-              if (newMode.status === 'TIMED_OUT') {
-                setOperationalState(OperationalState.API_TIMED_OUT);
-              }
-            } else {
-              checkCounter += 1;
-            }
-            // either way set to API_TIMED_OUT
-            if (checkCounter >= 13000) {
-              setOperationalState(OperationalState.API_TIMED_OUT);
-            }
+            // connect again to avoid server TIMEOUT
+            setOperationalState(OperationalState.DEVICE_CONNECT);
             break;
           case OperationalState.DEVICE_DISCONNECT:
             changeStatus(DeviceStatusOptions.DISCONNECTED);
@@ -410,17 +372,31 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             setOperationalState(OperationalState.API_ERROR);
             break;
           case OperationalState.DEVICE_IS_SCANNING:
-            if (token) {
+            if (token && currentQrCode.data) {
               const res = await putScannedData(token, currentQrCode.data);
-              if (res === 200) {
-                setOperationalState(OperationalState.API_SCAN_SUCCESS);
-              } else {
-                console.log(res);
-                setOperationalState(OperationalState.API_SCAN_FAILED);
+              console.log(res);
+              if (res) {
+                if (res.status === 'FINISHED') {
+                  setOperationalState(OperationalState.API_SCAN_SUCCESS);
+                } else {
+                  console.log(res);
+                  setOperationalState(OperationalState.API_SCAN_FAILED);
+                }
               }
             }
             break;
           case OperationalState.API_CANCEL:
+            if (token) {
+              const res = await stopSession(token);
+              if (res.status === 'STOPPED') {
+                // stop session is succesfull, now try again to connect;
+                setOperationalState(OperationalState.DEVICE_CONNECT);
+              } else {
+                console.log(res);
+                setOperationalState(OperationalState.API_ERROR);
+              }
+            }
+            break;
           case OperationalState.API_TIMED_OUT:
           case OperationalState.API_SCAN_SUCCESS:
           case OperationalState.API_SCAN_FAILED:
@@ -453,31 +429,36 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
     setOperationalState(OperationalState.DEVICE_IS_SCANNING);
   };
 
-  // /* Repeatedly Get Session Based on operationalState */
-  // useEffect(() => {
-  //   // while WAITING, send a new "long" poll for a new session (1st request)
-  //   if ((operationalState === OperationalState.DEVICE_CONNECTED
-  //       || operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE)
-  //       && initialSessionRequest.current) {
-  //     initialSessionRequest.current = false;
-  //     console.log('initiate getScanSession');
-  //     // mimmick longpoll
-  //     setTimeout(async () => {
-  //       await getScanSession();
-  //     }, 1000);
-
-  //     // any subsequent request
-  //   } else if ((operationalState === OperationalState.DEVICE_CONNECTED
-  //       || operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE)
-  //       && nextPoll && !initialSessionRequest.current) {
-  //     console.log('next getScanSession');
-  //     setNextPoll(false);
-  //     // mimmick longpoll
-  //     setTimeout(async () => {
-  //       await getScanSession();
-  //     }, 1000);
-  //   }
-  // }, [getScanSession, nextPoll, operationalState, token]);
+  /* Repeatedly Get Session Based on operationalState */
+  useEffect(() => {
+    // while WAITING, send a new "long" poll for a new session (1st request)
+    if ((operationalState === OperationalState.DEVICE_CONNECTED
+        || operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE)
+        && initialSessionRequest.current) {
+      initialSessionRequest.current = false;
+      console.log('initiate getScanSession');
+      if (operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE) {
+        setTimeout(async () => {
+          await getScanSession();
+        }, 1000);
+      } else {
+        getScanSession();
+      }
+      // any subsequent request
+    } else if ((operationalState === OperationalState.DEVICE_CONNECTED
+        || operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE)
+        && nextPoll && !initialSessionRequest.current) {
+      console.log('next getScanSession');
+      setNextPoll(false);
+      if (operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE) {
+        setTimeout(async () => {
+          await getScanSession();
+        }, 1000);
+      } else {
+        getScanSession();
+      }
+    }
+  }, [getScanSession, nextPoll, operationalState, token]);
 
   return (
     <QrScannerWrapper>

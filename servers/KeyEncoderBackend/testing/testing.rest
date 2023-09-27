@@ -15,7 +15,7 @@ Content-type: application/json
 Authorization: Basic device:device
 
 {
-  "deviceId": "123456"
+  "deviceId": "KeyEncoder"
 }
 
 ### HOST
@@ -45,12 +45,12 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 ####################################################################################
 
 ### HOST
-GET http://localhost:9006/api/simulator/key-encoder/v1/123456/status
+GET http://localhost:9006/api/simulator/key-encoder/v1/KeyEncoder/status
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 ### HOST
-GET http://localhost:9006/api/simulator/key-encoder/v1/123456/status?referenceDeviceStatus=DISCONNECTED
+GET http://localhost:9006/api/simulator/key-encoder/v1/KeyEncoder/status?referenceDeviceStatus=DISCONNECTED
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -64,7 +64,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "123456",
+  "deviceId": "KeyEncoder",
   "command": "CREATE_NEW_KEY",
   "data": {
     "roomAccess": ["123"],
@@ -80,7 +80,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "123456",
+  "deviceId": "KeyEncoder",
   "command": "CREATE_COPY_KEY",
   "data": {
     "roomAccess": ["123"],
@@ -96,7 +96,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "123456",
+  "deviceId": "KeyEncoder",
   "command": "CREATE_JOINNER_KEY",
   "data": {
     "roomAccess": ["123"],
@@ -113,7 +113,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "123456",
+  "deviceId": "KeyEncoder",
   "command": "READ_KEY"
 }
 
@@ -172,7 +172,7 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
   "data": {
-    "keyId": "123456789",
+    "keyId": "KeyEncoder789",
     "status": "FINISHED",
     "roomAccess": ["123"],
     "additionalAccess": ["ENTREE", "PARKING", "GYM"],

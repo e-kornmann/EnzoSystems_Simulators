@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components';
 import { useState, useEffect, useCallback } from 'react';
 import * as Sv from '../../../styles/stylevariables';
-import { hostCredentials, reqBody } from './config';
+import { axiosUrl, hostCredentials, reqBody } from './config';
 import InputAmount from './input/InputAmount';
 import createTransaction from './utils/createTransaction';
 import useLogOn from '../../../hooks/useLogOn';
@@ -120,13 +120,13 @@ const BlinkingDot = styled(StatusText)`
 
 const DemoApp = () => {
   const [init, setInit] = useState(false);
-  const { token, logOn } = useLogOn(hostCredentials, reqBody, 'payment-terminal');
+  const { token, logOn } = useLogOn(hostCredentials, reqBody, axiosUrl);
   const [standByText, setStandByText] = useState<string>('OFF');
 
   const [isActive, setIsActive] = useState(false);
   const [transactionIdApp, setTransactionIdApp] = useState('');
-  const { stopTransaction } = useStopTransaction(token, reqBody, transactionIdApp);
-  const { transactionDetails, getTransaction } = useGetTransaction(token, transactionIdApp);
+  const { stopTransaction } = useStopTransaction(token, transactionIdApp, reqBody, axiosUrl);
+  const { transactionDetails, getTransaction } = useGetTransaction(token, transactionIdApp, reqBody, axiosUrl);
 
   const [intlConfig, setIntlConfig] = useState<IntlConfigType>(options[0]);
   const [value, setValue] = useState<string | undefined>('123');
@@ -226,7 +226,7 @@ const DemoApp = () => {
 
           <ButtonContainer>
             {isActive ? <StopButton type="button" onClick={stopHandler} >Stop</StopButton>
-              : <OkButton type="button" onClick={() => createTransaction(token, value, setTransactionIdApp, intlConfig)} disabled={!init}>
+              : <OkButton type="button" onClick={() => token && createTransaction(token, value, setTransactionIdApp, intlConfig)} disabled={!init}>
                 OK</OkButton>}
           </ButtonContainer>
 

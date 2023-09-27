@@ -1,0 +1,10 @@
+enum CommandTypes {
+  CANCEL = 'CANCEL',
+  CREATE_COPY_ID = 'CREATE_COPY_ID',
+  CREATE_JOINNER_ID = 'CREATE_JOINNER_ID',
+  CREATE_ID = 'CREATE_ID',
+  CREATE_NEW_ID = 'CREATE_NEW_ID',
+  READ_ID = 'READ_ID',
+}
+
+export default CommandTypes;

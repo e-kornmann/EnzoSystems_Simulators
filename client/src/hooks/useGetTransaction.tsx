@@ -1,8 +1,9 @@
+import { AxiosInstance } from 'axios';
 import { useCallback, useState } from 'react';
 import { GetTransactionDetails } from '../components/simulators/PaymentDevice/types';
-import pinApi from '../api/pinApi';
 import CurrencyCode from '../types/CurrencyTypes';
 import Locale from '../types/LocaleTypes';
+import { ReqLogOnType } from '../types/LogOnTypes';
 
 const initialReceipt: GetTransactionDetails = {
   terminalId: '',
@@ -16,7 +17,7 @@ const initialReceipt: GetTransactionDetails = {
   status: '',
 };
 
-const useGetTransaction = (accessToken: string, transactionId: string) => {
+const useGetTransaction = (accessToken: string | undefined, transactionId: string, reqBody: ReqLogOnType, axiosUrl: AxiosInstance) => {
   const [transactionDetails, setTransactionDetails] = useState<GetTransactionDetails>(initialReceipt);
 
   const getTransaction = useCallback(async () => {
@@ -31,13 +32,13 @@ const useGetTransaction = (accessToken: string, transactionId: string) => {
           authorization: `Bearer ${accessToken}`,
         },
       };
-      await pinApi.get(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`, config)
+      await axiosUrl.put(`/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`, config)
         .then(response => setTransactionDetails(response.data));
     } catch (error) {
       console.error('Unable to get transaction:', error);
     }
     return { transactionDetails, getTransaction };
-  }, [accessToken, transactionDetails, transactionId]);
+  }, [accessToken, axiosUrl, reqBody.merchantId, reqBody.terminalId, transactionDetails, transactionId]);
   return { transactionDetails, getTransaction };
 };
 

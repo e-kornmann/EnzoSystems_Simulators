@@ -1,8 +1,8 @@
+import { AxiosInstance } from 'axios';
 import { useCallback } from 'react';
-import api from '../api/pinApi';
 import { ReqLogOnType } from '../types/LogOnTypes';
 
-const useStopTransaction = (accessToken: string, reqBody: ReqLogOnType, transactionId: string | undefined) => {
+const useStopTransaction = (accessToken: string | undefined, transactionId: string | undefined, reqBody: ReqLogOnType, axiosUrl: AxiosInstance) => {
   const stopTransaction = useCallback(async () => {
     try {
       const config = {
@@ -11,11 +11,11 @@ const useStopTransaction = (accessToken: string, reqBody: ReqLogOnType, transact
           authorization: `Bearer ${accessToken}`,
         },
       };
-      await api.put(`/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`, { action: 'STOP' }, config);
+      await axiosUrl.put(`/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`, { action: 'STOP' }, config);
     } catch (error) {
       console.error('Unable to stop transaction:', error);
     }
-  }, [accessToken, reqBody, transactionId]);
+  }, [accessToken, axiosUrl, reqBody.merchantId, reqBody.terminalId, transactionId]);
   return { stopTransaction };
 };
 

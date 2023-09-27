@@ -1,4 +1,4 @@
-import scanApi from '../../../../../api/scannerApi';
+import { axiosUrl } from '../../config';
 
 export const getScannedData = async (accessToken: string) => {
   try {
@@ -8,7 +8,7 @@ export const getScannedData = async (accessToken: string) => {
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await scanApi.get('/scan?longPollingSecs=10', config);
+    const response = await axiosUrl.get('/scan?longPollingSecs=10', config);
     return response;
   } catch (error) {
     console.error('Error:', error);
@@ -24,7 +24,7 @@ export const changeDeviceMode = async (accessToken: string, deviceMode: string) 
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await scanApi.put(
+    const response = await axiosUrl.put(
       '/mode',
       {
         mode: deviceMode,
@@ -46,7 +46,7 @@ export const getStatus = async (accessToken: string, currentStatus: string) => {
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await scanApi.get(`/status?currentStatus=${currentStatus}&longPollingSecs=15`, config);
+    const response = await axiosUrl.get(`/status?currentStatus=${currentStatus}&longPollingSecs=15`, config);
     return response.data.status;
   } catch (error) {
     console.error('Error fetching status:', error);

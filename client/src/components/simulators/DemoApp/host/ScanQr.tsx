@@ -5,7 +5,7 @@ import { SharedStyledContainer, SharedStyledHeader } from '../../../shared/Dragg
 import { ReactComponent as CrossHairIcon } from '../../../../assets/svgs/crosshair.svg';
 import TurnOnDevice from '../../../shared/TurnOnDevice';
 import useLogOn from '../../../../hooks/useLogOn';
-import { scannerCredentials, reqBody } from './config/ScanConfig';
+import { scannerCredentials, reqBody, axiosUrl } from './config/ScanConfig';
 import { changeDeviceMode, getScannedData, getStatus } from './utils/scanApiRequests';
 
 const DemoAppContainer = styled(SharedStyledContainer)`
@@ -129,7 +129,7 @@ export enum DeviceMode {
 }
 
 const ScanQr = () => {
-  const { token, logOn } = useLogOn(scannerCredentials, reqBody, 'barcode-scanner');
+  const { token, logOn } = useLogOn(scannerCredentials, reqBody, axiosUrl);
   const [deviceStatus, setOperationalState] = useState('disconnected');
   const [deviceMode, setDeviceMode] = useState(DeviceMode.DEVICE_DISABLED);
   const [standByText, setStandByText] = useState<string>('OFF');

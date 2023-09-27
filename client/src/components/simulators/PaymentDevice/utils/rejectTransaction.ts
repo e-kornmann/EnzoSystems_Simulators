@@ -1,4 +1,4 @@
-import pinApi from '../../../../api/pinApi';
+import { axiosUrl, reqBody } from '../Config';
 
 const rejectTransaction = async (accessToken: string, transactionId: string, failOrDecline: string) => {
   try {
@@ -8,8 +8,8 @@ const rejectTransaction = async (accessToken: string, transactionId: string, fai
         authorization: `Bearer ${accessToken}`,
       },
     };
-    await pinApi.put(
-      `/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`,
+    await axiosUrl.put(
+      `/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`,
       {
         action: failOrDecline,
       },

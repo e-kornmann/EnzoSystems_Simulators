@@ -112,7 +112,7 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  operationalState: DeviceStatusOptions.CONNECTED,
+  operationalState: DeviceStatusOptions.OUT_OF_ORDER,
   headerTitle: 'Room Key Encoder',
   initialized: false,
   localKeys: [],
@@ -318,7 +318,7 @@ const App = () => {
   useEffect(() => {
     const intervalTick = setInterval(() => {
       setTick(prev => prev + 1);
-    }, import.meta.env.VITE_TICK_RATE);
+    }, import.meta.env.VITE_KEY_ENCODER_TICK_RATE);
 
     return () => {
       clearInterval(intervalTick);
@@ -328,15 +328,15 @@ const App = () => {
   /* Get Token for Key Encoder "Device" */
   const getToken = useCallback(() => {
     const config = {
-      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth`,
+      url: `${import.meta.env.VITE_KEY_ENCODER_LOCAL_BASE_URL}/auth`,
       headers: {
         authorization: `Basic ${window.btoa('device:device')}`,
       },
       method: 'post',
       data: {
-        deviceId: '123456',
+        deviceId: 'KeyEncoder',
       },
-      timeout: import.meta.env.VITE_TIMEOUT,
+      timeout: import.meta.env.VITE_KEY_ENCODER_TIMEOUT,
     };
 
     const getAuthenticationToken = async () => {
@@ -367,7 +367,7 @@ const App = () => {
   const handleStatus = useCallback((status: DeviceStatusOptions) => {
     if (state.tokens && state.tokens.accessToken) {
       const config = {
-        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/status`,
+        url: `${import.meta.env.VITE_KEY_ENCODER_LOCAL_BASE_URL}/status`,
         headers: {
           authorization: `Bearer ${state.tokens.accessToken}`,
         },
@@ -375,7 +375,7 @@ const App = () => {
         data: {
           status,
         },
-        timeout: import.meta.env.VITE_TIMEOUT,
+        timeout: import.meta.env.VITE_KEY_ENCODER_TIMEOUT,
       };
 
       const updateStatus = async () => {
@@ -385,6 +385,7 @@ const App = () => {
             throw Error('Missing response data');
           }
           console.log(`Updated Status! Key encoder status: ${status}`);
+          dispatch({ type: ActionType.SET_DEVICE_STATUS, payload: status });
         } catch (error) {
           console.error('Error: updating key encoder status: ', error);
         }
@@ -425,7 +426,7 @@ const App = () => {
   const getSession = useCallback(() => {
     if (state.tokens && state.tokens.accessToken) {
       const config = {
-        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
+        url: `${import.meta.env.VITE_KEY_ENCODER_LOCAL_BASE_URL}/active-session`,
         headers: {
           authorization: `Bearer ${state.tokens.accessToken}`,
         },

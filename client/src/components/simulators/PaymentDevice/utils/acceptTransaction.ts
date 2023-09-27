@@ -1,5 +1,5 @@
 import axios from 'axios';
-import pinApi from '../../../../api/pinApi';
+import { axiosUrl, reqBody } from '../Config';
 import { AcceptTransactionStateType } from '../types';
 
 const acceptTransaction = async (
@@ -15,8 +15,8 @@ const acceptTransaction = async (
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await pinApi.post(
-      `/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`,
+    const response = await axiosUrl.post(
+      `/${reqBody.merchantId}/${reqBody.terminalId}/transactions`,
       {
         action: 'RUN',
       },

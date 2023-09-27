@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/Expand';
 import useLogOn from '../../../hooks/useLogOn';
-import { cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
+import { axiosUrl, cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
 import useStopTransaction from '../../../hooks/useStopTransaction';
 import rejectTransaction from './utils/rejectTransaction';
 import updateTransaction from './utils/updateTransaction';
@@ -47,11 +47,11 @@ const initialMessage = {
 
 const PaymentTerminal = () => {
   const { state } = useContext(AppContext);
-  const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody, 'payment-terminal');
+  const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody, axiosUrl);
   const [terminalState, setTerminalState] = useState(PinTerminalStatus.START_UP);
   const [transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
-  const { transactionDetails, getTransaction } = useGetTransaction(token, transactionState.transactionId);
-  const { stopTransaction } = useStopTransaction(token, reqBody, transactionState.transactionId);
+  const { transactionDetails, getTransaction } = useGetTransaction(token, transactionState.transactionId, reqBody, axiosUrl);
+  const { stopTransaction } = useStopTransaction(token, transactionState.transactionId, reqBody, axiosUrl);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE);
   const [pincode, setPincode] = useState('');
   const [pinAttempts, setPinAttempts] = useState(0);
@@ -194,13 +194,17 @@ const PaymentTerminal = () => {
         waitTime = 1000;
         break;
       case PinTerminalStatus.PIN_ERROR:
-        rejectTransaction(token, transactionState.transactionId, 'FAIL');
-        setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+        if (token) {
+          rejectTransaction(token, transactionState.transactionId, 'FAIL');
+          setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+        }
         waitTime = 4500;
         break;
       case PinTerminalStatus.AMOUNT_ERROR:
-        rejectTransaction(token, transactionState.transactionId, 'DECLINE');
-        setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+        if (token) {
+          rejectTransaction(token, transactionState.transactionId, 'DECLINE');
+          setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+        }
         waitTime = 4500;
         break;
       case PinTerminalStatus.UPDATE_TRANSACTION:
@@ -229,8 +233,10 @@ const PaymentTerminal = () => {
             }
             break;
           case PinTerminalStatus.IDLE:
-            acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
-            if (acceptTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.CHOOSE_METHOD);
+            if (token) {
+              acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
+              if (acceptTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.CHOOSE_METHOD);
+            }
             break;
           case PinTerminalStatus.CHOOSE_METHOD:
             setTerminalState(PinTerminalStatus.TIMED_OUT);
@@ -286,14 +292,12 @@ const PaymentTerminal = () => {
             }
             break;
           case PinTerminalStatus.UPDATE_TRANSACTION:
-            updateTransactionStatusCode = await updateTransaction(
-              token,
-              transactionState.transactionId,
-              transactionState.amountToPay,
-              setTerminalState,
-            );
-            if (updateTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.SUCCESS);
-            else setTerminalState(PinTerminalStatus.SERVER_ERROR);
+            if (token) {
+              updateTransactionStatusCode = await
+              updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setTerminalState);
+              if (updateTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.SUCCESS);
+              else setTerminalState(PinTerminalStatus.SERVER_ERROR);
+            }
             break;
           case PinTerminalStatus.PIN_ERROR || PinTerminalStatus.AMOUNT_ERROR:
             setTerminalState(PinTerminalStatus.IDLE);

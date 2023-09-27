@@ -1,7 +1,7 @@
 import axios from 'axios';
-import idScanApi from '../../../../../api/idScannerApi';
 import { IdType } from '../types/IdType';
 import DeviceStatusOptions from '../enums/DeviceStatusOptions';
+import { axiosUrl } from '../config';
 
 const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatusOptions) => {
   try {
@@ -11,7 +11,7 @@ const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatus
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await idScanApi.put(
+    const response = await axiosUrl.put(
       '/status',
       {
         status: changeToThisState,
@@ -33,7 +33,7 @@ const getSession = async (token: string) => {
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await idScanApi.get(
+    const response = await axiosUrl.get(
       '/active-session',
       config,
     );
@@ -55,7 +55,7 @@ const putScannedData = async (token: string, idData: IdType) => {
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await idScanApi.put(
+    const response = await axiosUrl.put(
       '/active-session',
       {
         data: {
@@ -85,7 +85,7 @@ const stopSession = async (token: string) => {
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await idScanApi.put(
+    const response = await axiosUrl.put(
       '/active-session',
       {
         data: { status: 'STOPPED' },

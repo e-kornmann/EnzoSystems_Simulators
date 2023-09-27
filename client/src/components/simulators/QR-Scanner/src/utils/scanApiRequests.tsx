@@ -1,6 +1,6 @@
 import axios from 'axios';
-import scanApi from '../../local_api/scannerApi';
 import DeviceStatusOptions from '../enums/DeviceStatusOptions';
+import { axiosUrl } from '../config';
 
 const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatusOptions) => {
   try {
@@ -10,7 +10,7 @@ const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatus
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await scanApi.put(
+    const response = await axiosUrl.put(
       '/status',
       {
         status: changeToThisState,
@@ -32,11 +32,11 @@ const getSession = async (token: string) => {
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await scanApi.get(
+    const response = await axiosUrl.get(
       '/active-session',
       config,
     );
-    return response.data.metadata;
+    return response.data.metadata ? response.data.metadata : response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return error.response;
@@ -54,14 +54,17 @@ const putScannedData = async (token: string, qrData: string) => {
         authorization: `Bearer ${token}`,
       },
     };
-    const response = await scanApi.put(
+    const response = await axiosUrl.put(
       '/active-session',
       {
-        barcodeData: qrData,
+        data: {
+          barcodeData: qrData,
+          status: 'FINISHED',
+        },
       },
       config,
     );
-    return response.status;
+    return response.data.metadata ? response.data.metadata : response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return error.response?.status;
@@ -71,4 +74,29 @@ const putScannedData = async (token: string, qrData: string) => {
   }
 };
 
-export { putScannedData, changeDeviceStatus, getSession };
+const stopSession = async (token: string) => {
+  try {
+    const config = {
+      headers: {
+        contentType: 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await axiosUrl.put(
+      '/active-session',
+      {
+        data: { status: 'STOPPED' },
+      },
+      config,
+    );
+    return response.data.metadata ? response.data.metadata : response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return error.response?.status;
+    }
+    console.error('Unable to stop session', error);
+    return error;
+  }
+};
+
+export { putScannedData, changeDeviceStatus, getSession, stopSession };

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import pinApi from '../../../../api/pinApi';
 import { PinTerminalStatus } from '../types';
+import { axiosUrl, reqBody } from '../Config';
 
 const updateTransaction = async (
   accessToken: string,
@@ -15,8 +15,8 @@ const updateTransaction = async (
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await pinApi.put(
-      `/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions/${transactionId}`,
+    const response = await axiosUrl.put(
+      `/${reqBody.merchantId}/${reqBody.terminalId}/transactions/${transactionId}`,
       {
         action: 'FINISH',
         amountPaid,

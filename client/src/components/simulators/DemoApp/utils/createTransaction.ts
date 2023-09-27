@@ -1,5 +1,5 @@
-import pinApi from '../../../../api/pinApi';
 import { IntlConfigType } from '../../../../types/IntlConfigType';
+import { axiosUrl } from '../config';
 
 function processAmount(amountToPay: string | undefined): number {
   if (amountToPay) {
@@ -30,7 +30,7 @@ const createTransaction = async (
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await pinApi.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
+    const response = await axiosUrl.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
       amountToPay: processAmount(amountToPay),
       locale: intlConfig.locale,
       currency: intlConfig.currency,

@@ -63,7 +63,6 @@ const DeviceSettings = ({ modusSetterHandler }: Props) => {
   }, [arrowBackButtonHandler, modusSetterHandler, settingMode]);
 
   return (
-
     <SettingsWrapper>
          {list}
     </SettingsWrapper>

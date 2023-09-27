@@ -196,7 +196,7 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
       confirmCreateKeyRef.current = true;
 
       const config = {
-        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
+        url: `${import.meta.env.VITE_KEY_ENCODER_LOCAL_BASE_URL}/active-session`,
         headers: {
           authorization: `Bearer ${tokens.accessToken}`,
         },
@@ -241,7 +241,7 @@ const KeyContentComponent = ({ selectedKey, type }: KeyContentProps) => {
       const newData = { data };
 
       const config = {
-        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/active-session`,
+        url: `${import.meta.env.VITE_KEY_ENCODER_LOCAL_BASE_URL}/active-session`,
         headers: {
           authorization: `Bearer ${tokens.accessToken}`,
         },

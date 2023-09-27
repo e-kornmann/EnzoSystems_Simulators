@@ -52,7 +52,7 @@ const translations: Translations = {
   couldNotConnect: [
     {
       dutch: 'Kan geen verbinding maken',
-      english: 'Device could not connect',
+      english: 'Could not connect',
 
     },
   ],
