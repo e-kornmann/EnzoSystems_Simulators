@@ -1,4 +1,3 @@
-import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
 import ActionType from '../../enums/ActionTypes';
 import { IdType } from '../IdType';
 
@@ -17,7 +16,6 @@ type BooleanAction = {
   | ActionType.EDIT_ID
   | ActionType.EDIT_IDS_MODE
   | ActionType.DELETE_IDS_MODE
-  | ActionType.STATUS_OPTION_IS_CLICKED
   | ActionType.SAVE_ID_CLICKED
   | ActionType.SELECT_ALL_ID_CLICKED
   | ActionType.DESELECT_ALL_ID_CLICKED
@@ -44,14 +42,10 @@ type NoPayLoadAction = {
 type IdAction = { type: ActionType.SAVE_ID | ActionType.UPDATE_ID | ActionType.SELECT_ID, payload: IdType };
 type AllIdsAction = { type: ActionType.SET_ALL_LOCALIDS, payload: IdType[] };
 
-// Device status Actions
-type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatusOptions };
-
 type AppDispatchActions =
   BooleanAction
   | NoPayLoadAction
   | IdAction
-  | SetDeviceStatusAction
   | StringAction
   | AllIdsAction;
 

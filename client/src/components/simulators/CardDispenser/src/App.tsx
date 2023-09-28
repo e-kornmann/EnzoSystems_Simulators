@@ -5,7 +5,7 @@ import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 // shared component
 import { SharedStyledContainer } from '../local_shared/DraggableModal/ModalTemplate';
 // components
-import { IdReader } from './components/IdReader/IdReader';
+import { CardDispenser } from './components/CardDispenser/CardDispenser';
 import { LocalAddId } from './components/LocalAddId/LocalAddId';
 import { ViewIds } from './components/ViewIds/ViewIds';
 import { Settings } from './components/Settings/Settings';
@@ -14,8 +14,6 @@ import { Footer } from './components/Footer/Footer';
 import { DeleteDialog } from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
-// enums
-import DeviceStatusOptions from './enums/DeviceStatusOptions';
 // theme
 import theme from './theme/theme.json';
 // types
@@ -25,6 +23,7 @@ import { CountriesAlpha3 } from './enums/CountryCodesISO3166Alpha3';
 import { IdType } from './types/IdType';
 import ShowAddIdType from './types/ShowAddIdType';
 import ShowIdType from './types/ShowIdType';
+import { SettingContextProvider } from './contexts/dispatch/SettingContext';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -40,6 +39,7 @@ const GlobalStyle = createGlobalStyle({
     overflow: 'hidden',
     textSizeAdjust: '100%',
   },
+
   body: {
     backgroundColor: theme.colors.background.primary,
     overflowY: 'auto',
@@ -88,8 +88,6 @@ export enum Lang {
 }
 
 type AppStateType = {
-  deviceStatus: DeviceStatusOptions,
-  statusSettingIsClicked: boolean,
   appLanguage: Lang,
   headerTitle: string,
   localIds: IdType[],
@@ -111,10 +109,8 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  deviceStatus: DeviceStatusOptions.OUT_OF_ORDER,
-  statusSettingIsClicked: false,
   appLanguage: Lang.ENGLISH,
-  headerTitle: 'Card Dispenser',
+  headerTitle: 'Room Key Dispenser',
   localIds: [],
   currentId: undefined,
   saveIdClicked: false,
@@ -148,7 +144,6 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.CLICKED_CROSS: { // close window and return to main screen
       return {
         ...initialState,
-        deviceStatus: state.deviceStatus,
         localIds: state.localIds,
         currentId: state.currentId,
       };
@@ -187,12 +182,6 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.ALL_IDS_ARE_SELECTED: {
       return { ...state, allIdsAreSelected: action.payload };
     }
-    case ActionType.SET_DEVICE_STATUS: {
-      return { ...state, deviceStatus: action.payload };
-    }
-    case ActionType.STATUS_OPTION_IS_CLICKED: {
-      return { ...state, statusSettingIsClicked: action.payload };
-    }
     case ActionType.SELECT_ALL_ID_CLICKED: {
       return { ...state, showIds: { ...state.showIds, selectAllIdsClicked: action.payload, deselectAllIdsClicked: false } };
     }
@@ -221,6 +210,16 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         headerTitle: 'Edit ID',
       };
     }
+    case ActionType.SHOW_IDS: {
+      return {
+        ...state,
+        showIds: { ...initialState.showIds, showComponent: action.payload },
+        showCross: true,
+        headerTitle: 'IDs',
+        showBack: false,
+        showAddKey: initialState.showAddKey,
+      };
+    }
     case ActionType.EDIT_IDS_MODE: {
       return { ...state, showIds: { ...state.showIds, editMode: action.payload }, headerTitle: 'Edit IDs' };
     }
@@ -236,16 +235,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.SHOW_CROSS: {
       return { ...state, showCross: action.payload };
     }
-    case ActionType.SHOW_IDS: {
-      return {
-        ...state,
-        showIds: { ...initialState.showIds, showComponent: action.payload },
-        showCross: true,
-        headerTitle: 'IDs',
-        showBack: false,
-        showAddKey: initialState.showAddKey,
-      };
-    }
+
     case ActionType.UPDATE_ID: {
       const newIds = state.localIds ? [...state.localIds] : [];
       const index = newIds.findIndex(iD => iD.documentNumber === action.payload.documentNumber);
@@ -299,6 +289,7 @@ const App = () => {
   }, []);
 
   return (
+    <SettingContextProvider>
     <ThemeProvider theme={theme}>
         { !import.meta.env.VITE_EXPORT_MEMO_APP && <GlobalStyle /> }
         <AppDispatchContext.Provider value={dispatch}>
@@ -310,10 +301,8 @@ const App = () => {
                 goBackToKeysButton={state.showAddKey.showComponent || state.showIds.editMode || state.showIds.deleteMode} />
               <StyledContentWrapper>
 
-                <IdReader
-                 deviceStatus={state.deviceStatus}
+                <CardDispenser
                  currentId={state.currentId}
-                 statusSettingIsClicked={state.statusSettingIsClicked}
                  appLanguage={state.appLanguage}/>
                 {!state.showSettings && !state.showAddKey.showComponent && !state.showIds.showComponent }
 
@@ -333,7 +322,7 @@ const App = () => {
                 }
 
                 {state.showSettings
-                  && <Settings clickedBack={state.clickedBack} deviceStatus={state.deviceStatus} />}
+                  && <Settings clickedBack={state.clickedBack} />}
               </StyledContentWrapper>
                  <Footer
                     showAddKey={state.showAddKey}
@@ -346,8 +335,9 @@ const App = () => {
             </StyledApp>
         </AppDispatchContext.Provider>
     </ThemeProvider>
+    </SettingContextProvider>
   );
 };
 
-const CardDispenser = import.meta.env.VITE_EXPORT_MEMO_APP ? memo(App) : App;
-export default CardDispenser;
+const RoomKeyDispenser = import.meta.env.VITE_EXPORT_MEMO_APP ? memo(App) : App;
+export default RoomKeyDispenser;

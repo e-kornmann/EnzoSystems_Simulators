@@ -24,10 +24,18 @@ import { changeDeviceStatus, getSession, putScannedData, stopSession } from '../
 import ts from '../Translations/translations';
 import { SharedStyledFooter } from '../../local_shared/DraggableModal/ModalTemplate';
 
-const QrScannerWrapper = styled('div')({
+const StyledWrapper = styled('div')({
   display: 'grid',
-  gridTemplateRows: '14% 16% 1fr 20% auto',
+  gridTemplateRows: '1fr 40px',
+});
+
+const QrScannerWrapper = styled('div')({
+  width: '100%',
+  height: '100%',
+  display: 'grid',
+  gridTemplateRows: '16% 16% 1fr 22%',
   rowGap: '2%',
+  padding: '8px 0',
 });
 
 const InstructionBox = styled('div')({
@@ -65,7 +73,7 @@ const ButtonBox = styled('div')({
 });
 
 const ScanActionButton = styled('button')(({ theme }) => ({
-  backgroundColor: 'orange',
+  backgroundcolor: theme.colors.text.secondary,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -461,6 +469,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   }, [getScanSession, nextPoll, operationalState, token]);
 
   return (
+    <StyledWrapper>
     <QrScannerWrapper>
       <InstructionBox>
          {/* {Show loading dots by start-up} */}
@@ -512,6 +521,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
           </span>
         </ScanActionButton>
       </ButtonBox>
+      </QrScannerWrapper>
       <SharedStyledFooter>
       <div onClick={() => modusSetterHandler(QrAppModi.SETTINGS)}><SettingsIcon width={16} height={16} /></div>
       <div onClick={() => modusSetterHandler(QrAppModi.QR_CODES)}>
@@ -523,7 +533,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         </div>
 
       </SharedStyledFooter>
-    </QrScannerWrapper>
+    </StyledWrapper>
   );
 };
 

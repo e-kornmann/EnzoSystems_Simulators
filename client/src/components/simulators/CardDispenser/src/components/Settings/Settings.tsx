@@ -8,11 +8,16 @@ import { ReactComponent as CheckmarkIcon } from '../../../local_assets/success.s
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // enums
-import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
-import SettingsTypes from '../../enums/SettingsTypes';
+import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import ActionType from '../../enums/ActionTypes';
 // types
 import SettingType from '../../types/SettingType';
+import APPSETTINGS from '../../enums/AppSettings';
+import { SettingContext } from '../../contexts/dispatch/SettingContext';
+import STACKSTATUSES from '../../enums/StackStatus';
+import BINSTATUSES from '../../enums/BinStatus';
+import CARDPOSITIONS from '../../enums/CardPosition';
+import { AllOptions } from '../../utils/settingReducer';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -30,37 +35,32 @@ const StyledWrapper = styled('div')(({ theme }) => ({
 
 type SettingsProps = {
   clickedBack: boolean,
-  deviceStatus: DeviceStatusOptions
 };
 
-const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
+const SettingsComponent = ({ clickedBack }: SettingsProps) => {
   const appDispatch = useContext(AppDispatchContext);
+  const { settingState, settingDispatch } = useContext(SettingContext);
   const [settingIsClicked, setSettingClicked] = useState<SettingType | null>(null);
 
-  const settings = useMemo(() => [{
-    currentValue: deviceStatus,
-    options: [DeviceStatusOptions.CONNECTED, DeviceStatusOptions.DISCONNECTED, DeviceStatusOptions.OUT_OF_ORDER],
-    title: 'Device status',
-    type: SettingsTypes.DEVICE_STATUS,
-  }], [deviceStatus]);
+  const settings = useMemo<SettingType[]>(() => [
+    { options: Object.values(DEVICESTATUSOPTIONS), type: APPSETTINGS.DEVICE_STATUS },
+    { options: Object.values(STACKSTATUSES), type: APPSETTINGS.CARD_STACK },
+    { options: Object.values(BINSTATUSES), type: APPSETTINGS.BIN },
+    { options: Object.values(CARDPOSITIONS), type: APPSETTINGS.CARD_POSITION },
+  ], []);
 
-  const handleSettingClicked = useCallback((setting: SettingType) => { // toggle displaying options for this setting
-    setSettingClicked(setting);
-    appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: setting.title });
+  const handleSettingClicked = useCallback((appsetting: SettingType) => { // toggle displaying options for this setting
+    setSettingClicked(appsetting);
+    appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: appsetting.type });
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
   }, [appDispatch]);
 
-  const handleOptionClicked = useCallback((option: DeviceStatusOptions, setting: SettingType) => { // select an option in the currently active setting
+  const handleOptionClicked = useCallback((option: AllOptions, setting: SettingType) => { // select an option in the currently active setting
     if (setting) {
-      if (setting.type === SettingsTypes.DEVICE_STATUS) {
-        appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: option });
-        appDispatch({ type: ActionType.STATUS_OPTION_IS_CLICKED, payload: true });
-        const newSetting = { ...setting };
-        newSetting.currentValue = option;
-        setSettingClicked(newSetting);
-      }
+      settingDispatch({ type: setting.type, payload: option });
+      settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
     }
-  }, [appDispatch]);
+  }, [settingDispatch]);
 
   useEffect(() => { // Return to Settings menu from an Options list
     if (clickedBack && settingIsClicked) {
@@ -76,15 +76,15 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
 
   return (
     <StyledWrapper>
-      {!settingIsClicked && settings.map(setting => (
-        <S.SharedStyledListButtonWithArrow key={setting.type} onClick={() => { handleSettingClicked(setting); }}>
-          {setting.title} <Arrow />
+      {!settingIsClicked && settings.map((appsetting, index) => (
+        <S.SharedStyledListButtonWithArrow key={appsetting.type + index} onClick={() => { handleSettingClicked(appsetting); }}>
+          {appsetting.type} <Arrow />
         </S.SharedStyledListButtonWithArrow>
       ))}
       {settingIsClicked && settingIsClicked.options.map(option => (
         <S.SharedStyledListButton key={option} onClick={() => { handleOptionClicked(option, settingIsClicked); }}>
         {option}
-        { settingIsClicked.currentValue === option
+        { settingState[settingIsClicked.type] === option
         && <CheckmarkIcon width={14} height={11} /> }
         </S.SharedStyledListButton>
       ))}

@@ -52,23 +52,24 @@ export const CloseButton = styled.button`
   }
 `;
 type ContentProps = {
-  $width: string;
-  $height: string;
+  $width: number;
+  $height: number;
 };
-export const Content = styled.div<ContentProps>`
-  width: ${props => props.$width};
-  height: ${props => props.$height};
-  border-radius: 5px;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
-`;
+export const Content = styled('div')<ContentProps>(({ $width, $height }) => ({
+  width: $width,
+  height: $height,
+  borderRadius: '5px',
+  overflowX: 'hidden',
+  overflowY: 'hidden',
+  boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px',
+}));
+
 export interface ModalProps {
   isShown: boolean;
   hide: () => void;
-  modalContent: JSX.Element;
-  modalWidth: string,
-  modalHeight: string,
+  modalContent: JSX.Element | null;
+  modalWidth: number,
+  modalHeight: number,
 }
 export const DraggableModal: FunctionComponent<ModalProps> = ({
   isShown,

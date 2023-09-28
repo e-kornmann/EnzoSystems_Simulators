@@ -13,27 +13,18 @@ import ActionType from '../../enums/ActionTypes';
 import ShowIdType from '../../types/ShowIdType';
 import { SharedStyledFooter } from '../../../local_shared/DraggableModal/ModalTemplate';
 
-const StyledSettingsButton = styled('div')(({ theme }) => ({
-  justifyContent: 'flex-start',
-  '& > svg': {
-    fill: theme.colors.text.primary,
-  },
-}));
-const StyledKeysButton = styled('div')(({ theme }) => ({
-  justifyContent: 'center',
-  '& > svg': {
-    fill: theme.colors.text.primary,
-    marginBottom: '3px',
-    marginRight: '-2px',
-  },
-}));
-const StyledAddIdButton = styled('div')(({ theme }) => ({
-  justifyContent: 'flex-end',
-  '& > svg': {
-    fill: theme.colors.text.primary,
-    marginBottom: '3px',
-  },
-}));
+const StyledIdsIcon = styled(IdsIcon)({
+  marginBottom: '4px',
+  marginRight: '-2px',
+  width: 25,
+  height: 19,
+});
+
+const StyledAddIdIcon = styled(AddIdIcon)({
+  marginBottom: '4px',
+  width: 25,
+  height: 19,
+});
 
 type Props = {
   showAddKey: ShowAddIdType,
@@ -99,15 +90,15 @@ const FooterComponent = ({
   <SharedStyledFooter>
         {(!showAddKey.showComponent && !showSettings && !showIds.showComponent)
           && <>
-            <StyledSettingsButton onClick={handleToggleSettings}>
+            <div onClick={handleToggleSettings}>
               <SettingsIcon width={16} height={16} />
-            </StyledSettingsButton>
-            <StyledKeysButton onClick={handleViewKeys}>
-              <IdsIcon width={25} height={19} /> IDs
-            </StyledKeysButton>
-            <StyledAddIdButton onClick={handleAddKey}>
-              <AddIdIcon width={25} height={19} />
-            </StyledAddIdButton>
+            </div>
+            <div onClick={handleViewKeys}>
+              <StyledIdsIcon />IDs
+            </div>
+            <div onClick={handleAddKey}>
+              <StyledAddIdIcon />
+            </div>
           </>
         }
         {showAddKey.showComponent

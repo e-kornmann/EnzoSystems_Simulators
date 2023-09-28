@@ -1,0 +1,7 @@
+enum CARD_POSITION {
+  BEZEL = 'BEZEL',
+  ENCODER = 'ENCODER',
+  STACK = 'STACK'
+};
+
+export default CARD_POSITION;

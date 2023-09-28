@@ -67,7 +67,7 @@ const ButtonBox = styled('div')({
   overflowY: 'hidden',
 });
 const ScanActionButton = styled('button')(({ theme }) => ({
-  backgroundColor: 'orange',
+  backgroundcolor: theme.colors.text.secondary,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',

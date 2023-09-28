@@ -67,7 +67,7 @@ export const SharedStyledFooter = styled('footer')(({ theme }) => ({
     alignItems: 'top',
     padding: '2px',
     justifyContent: 'center',
-    color: 'orange',
+    color: theme.colors.text.secondary,
     fontSize: '0.80em',
     cursor: 'pointer',
     '&:disabled': {

@@ -24,7 +24,7 @@ const StyledFooter = styled('footer')(({ theme }) => ({
     alignItems: 'top',
     padding: '2px',
     justifyContent: 'center',
-    color: 'orange',
+    color: theme.colors.text.secondary,
     fontSize: '0.80em',
     cursor: 'pointer',
     '&:disabled': {
@@ -56,27 +56,18 @@ const StyledFooter = styled('footer')(({ theme }) => ({
   },
 }));
 
-const StyledSettingsButton = styled('div')(({ theme }) => ({
-  justifyContent: 'flex-start',
-  '& > svg': {
-    fill: theme.colors.text.primary,
-  },
-}));
-const StyledKeysButton = styled('div')(({ theme }) => ({
-  justifyContent: 'center',
-  '& > svg': {
-    fill: theme.colors.text.primary,
-    marginBottom: '3px',
-    marginRight: '-2px',
-  },
-}));
-const StyledAddKeyButton = styled('div')(({ theme }) => ({
-  justifyContent: 'flex-end',
-  '& > svg': {
-    fill: theme.colors.text.primary,
-    marginBottom: '3px',
-  },
-}));
+const StyledKeysIcon = styled(KeysIcon)({
+  marginBottom: '4px',
+  marginRight: '-2px',
+  width: 25,
+  height: 19,
+});
+
+const StyledAddKeyIcon = styled(AddKeyIcon)({
+  marginBottom: '4px',
+  width: 25,
+  height: 19,
+});
 
 type Props = {
   showAddKey: ShowAddKeyType,
@@ -144,15 +135,15 @@ const FooterComponent = ({
 
         {(!showAddKey.showComponent && !showSettings && !showKeys.showComponent)
           && <>
-            <StyledSettingsButton onClick={handleToggleSettings}>
+            <div onClick={handleToggleSettings}>
               <SettingsIcon width={16} height={16} />
-            </StyledSettingsButton>
-            <StyledKeysButton onClick={handleViewKeys}>
-              <KeysIcon width={25} height={19} /> Keys
-            </StyledKeysButton>
-            <StyledAddKeyButton onClick={handleAddKey}>
-              <AddKeyIcon width={25} height={19} />
-            </StyledAddKeyButton>
+            </div>
+            <div onClick={handleViewKeys}>
+              <StyledKeysIcon />Keys
+            </div>
+            <div onClick={handleAddKey}>
+              <StyledAddKeyIcon />
+            </div>
           </>
         }
         {showAddKey.showComponent

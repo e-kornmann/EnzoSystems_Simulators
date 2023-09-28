@@ -1,330 +1,92 @@
-# BarcodeScannerBackend
+# CardDispenserBackend
 
 
-## Introduction
 
-This API is used to simulate a barcode scanner. It has endpoints for both the calling application (host) as for the React Frontend simulator (device).
+## Getting started
 
-The following endpoints are available:
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
-- Generic health check
-- Login for host and device, to exchange username/password for an API access token that is valid for 24 hours
-- Set status endpoint to set simulator in CONNECTED status, to be called on regular base (DEVICE only)
-- Get status endpoint to get the current status (HOST only)
-- Set mode endpoint to set the scanner in scanning mode (HOST only)
-- Get mode endpoint to get the current mode (DEVICE only)
-- New scan endpoint to store scanned barcode data (DEVICE only)
-- Get scan endpoint to retrieve scanned barcode data (HOST only)
+Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
 
+## Add your files
 
-## How to start
+- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
+- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
 
-To be able to start scanning barcodes, the following steps need to be taken:
+```
+cd existing_repo
+git remote add origin https://gitlab.com/Enzosystems/Sandbox/CardDispenserBackend.git
+git branch -M main
+git push -uf origin main
+```
 
-- both host and device has to us the LOGIN endpoint to get the required API token
-- device has to use the SET STATUS endpoint to set the status to CONNECTED and call the endpoint on a regular base to stay CONNECTED
-- host has to use the SET MODE endpoint to set the mode to ENABLED 
-- device is now ready to scan a barcode and store the scanned data via the NEW SCAN endpoint
-- host can use the GET SCAN endpoint (with long polling) to poll for the scanned data
+## Integrate with your tools
 
-See the next section for the details of each endpoint
+- [ ] [Set up project integrations](https://gitlab.com/Enzosystems/Sandbox/CardDispenserBackend/-/settings/integrations)
 
+## Collaborate with your team
 
-## API endpoints
-Use the correct server address and port number.
+- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
+- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
+- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
+- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
+- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
 
-### 1. Health check
-#### Request
-Use this endpoint to see if the backend service is running correctly.
+## Test and Deploy
 
-**GET http://localhost:9001/api/simulator/barcode-scanner/v1/health**
+Use the built-in continuous integration in GitLab.
 
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/health
+- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
+- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
+- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
+- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
+- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
+***
 
+# Editing this README
 
-#### Response
-On success: HTTP-status: 200
+When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
-{
-  "info": "The BarcodeScanner back-end server is healthy!"
-}
+## Suggestions for a good README
+Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-### 2. Login (HOST and DEVICE)
-#### Request
-Use this endpoint to exchange the user name and password for the device or host for the correct access token.
-This token is valid for 24 hours.
+## Name
+Choose a self-explaining name for your project.
 
-**POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth**
+## Description
+Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
+## Badges
+On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-- As a device, use the following details<br>
+## Visuals
+Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-        POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth
+## Installation
+Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-        Content-type: application/json
-        Authorization: Basic device:device
+## Usage
+Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-        {
-        "deviceId": "BarcodeScanner"
-        }
+## Support
+Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-- As a host, use the following details:
+## Roadmap
+If you have ideas for releases in the future, it is a good idea to list them in the README.
 
-        POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth
+## Contributing
+State if you are open to contributions and what your requirements are for accepting them.
 
-        Content-type: application/json
-        Authorization: Basic host:host
+For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-        {
-        "hostId": "AnyNameYouWant"
-        }
+You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
 
-#### Response
-On success: HTTP-status: 201
+## Authors and acknowledgment
+Show your appreciation to those who have contributed to the project.
 
-The result is a JWT access token that is returned in the following JSON structure:
+## License
+For open source projects, say how it is licensed.
 
-    {
-      "accessToken": "...here the access token data..."
-    }
-
-
-### 3. Set device status (DEVICE only)
-#### Request
-The device can call this endpoint to set the device in one of the following statuses:
-- CONNECTED
-- DISCONNECTED
-- OUT_OF_ORDER
-
-This endpoint need to be called by the device on a regular base to stay in the requested status.
-In the case the status is not updated in time, the internal status will fallback to "NOT_FOUND"
-
-**PUT http://localhost:9001/api/simulator/barcode-scanner/v1/status**
-
-    PUT http://localhost:9001/api/simulator/barcode-scanner/v1/status
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-    {
-      "status": "CONNECTED"
-    }
-
-#### Response
-On success: HTTP-status: 200<br>
-The result is the following JSON object:
-
-    {
-      "result: "success",
-      "status": "CONNECTED",
-      "timeoutSecs": 30
-    }
-
-The device has to call this endpoint repeately within the timeoutSecs.
-
-On bad request: HTTP-status: 400<br>
-The result is the following JSON object:
-
-    {
-      "error": "...error description here..."
-    }
-
-### 4. Get device status (HOST only)
-#### Request
-**GET http://localhost:9001/api/simulator/barcode-scanner/v1/status**
-
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/status
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-### Long polling
-Optionally long-polling can be used. With long polling the result is only returned when the status is different than the status that is send with the call or when the long polling timeout expired.
-
-To use long polling, add the two following query parameter: 
-- 'longPollingMS' with a value between 1 - 60000
-- 'referenceStatus' with a value of 'CONNECTED or 'DISCONNECTED', 'OUT_OF_ORDER' or 'NOT_FOUND'
- 
-
-Below an example with a long polling setting of 10 seconds and the last know status was NOT_FOUND:
-
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/status?longPollingMS=10&referenceStatus=NOT_FOUND
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-#### Response
-On success: HTTP-status: 200<br>
-The result is the following JSON object:
-
-    {
-      "status": "CONNECTED"
-    }
-
-
-### 5. Set device mode (HOST only)
-#### Request
-The host can call this endpoint to set the device in one of the following modes:
-- enabled  (scanner sesnor is turned ON)
-- disabled (scanner sensor is turned OFF)
-
-**PUT http://localhost:9001/api/simulator/barcode-scanner/v1/mode**
-
-    http://localhost:9001/api/simulator/barcode-scanner/v1/mode
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-    {
-      "mode": "enabled"
-    }
-
-#### Response
-On success: HTTP-status: 200<br>
-The result is the following JSON object:
-
-    {
-      "result": "success",
-      "newMode": "enabled"
-    }
-
-On bad request: HTTP-status: 400<br>
-The result is the following JSON object:
-
-    {
-      "error": "...error description here..."
-    }
-
-On conflict: HTTP-status: 409<br>
-The result is the following JSON object:
-
-    {
-      "error": "Device is not found"
-    }    
-
-### 6. Get device mode (DEVICE only)
-#### Request
-**GET http://localhost:9001/api/simulator/barcode-scanner/v1/mode**
-
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/mode
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-### Long polling
-Optionally long-polling can be used. With long polling the result is only returned when the mode is different than the mode that is send with the call or when the long polling timeout expired.
-
-To use long polling, add the two following query parameter: 
-- 'longPollingMS' with a value between 1 - 60000
-- 'currentMode' with a value of 'enabled or 'disabled'
- 
-
-Below an example with a long polling setting of 10 seconds and the last know mode was disabled:
-
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/mode?longPollingMS=10&currentMode=disabled
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-#### Response
-On success: HTTP-status: 200<br>
-The result is the following JSON object:
-
-    {
-      "mode": "enabled"
-    }
-
-On conflict: HTTP-status: 409<br>
-The result is the following JSON object:
-
-    {
-      "error": "...error description here..."
-    }  
-
-### 7. Post new scanned data (DEVICE only)
-#### Request
-The device can call this endpoint to post the data of a new scanned barcode
-
-
-**POST http://localhost:9001/api/simulator/barcode-scanner/v1/scan**
-
-    POST http://localhost:9001/api/simulator/barcode-scanner/v1/scan
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-    {
-      "scannedData": "This is the content or the QR-code"
-    } 
-
-#### Response
-On success: HTTP-status: 200<br>
-The result is the following JSON object:
-
-    {
-      "result": "success",
-      "newScannedData": "This is the content or the QR-code"
-    }
-
-On bad request: HTTP-status: 400<br>
-The result is the following JSON object:
-
-    {
-      "error": "...error description here..."
-    }
-
-On conflict: HTTP-status: 409<br>
-The result is the following JSON object:
-
-    {
-      "error": "...error description here..."
-    }    
-
-### 8. Get scanned data (HOST only)
-#### Request
-**GET http://localhost:9001/api/simulator/barcode-scanner/v1/scan**
-The host can call this endpoint to get the scanned data of the last code scanned. 
-Scanned data can only be retrieved once, so a next call will return null for the scanned data.
-
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/scan
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-### Long polling
-Optionally long-polling can be used. In this case the result is only returned when there is scanned data available or when the long polling timeout expired.
-
-To use long polling, add the following query parameter: 
-- 'longPollingMS' with a value between 1 - 60000
- 
-
-Below an example with a long polling setting of 10 seconds:
-
-    GET http://localhost:9001/api/simulator/barcode-scanner/v1/scan?longPollingMS=10
-
-    Content-type: application/json<br>
-    Authorization: Bearer -token here-
-
-#### Response
-On success: HTTP-status: 200<br>
-The result is the following JSON object if there is a barcode data available:
-
-    {
-      "result": "success",
-      "scannedData": "This is the content or the QR-code"
-    }
-
-The result is the following JSON object if there is no barcode data available:
-
-    {
-      "result": "no_barcode_scanned",
-      "scannedData": ""
-    }    
-
-On conflict: HTTP-status: 409<br>
-The result is the following JSON object:
-
-    {
-      "error": "...error description here..."
-    }  
-
+## Project status
+If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.

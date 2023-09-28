@@ -6,3 +6,9 @@ node_modules/
 
 # Visual Studio Code directory
 .vscode/
+
+# Ignore company configurations directory
+company-configurations/
+
+# Ignore build directory
+build/
