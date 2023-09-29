@@ -1,5 +1,5 @@
 enum BINSTATUSES {
-  EMPTY = 'Empty',
-  FULL = 'Full',
+  EMPTY = 'EMPTY',
+  FULL = 'FULL',
 }
 export default BINSTATUSES;

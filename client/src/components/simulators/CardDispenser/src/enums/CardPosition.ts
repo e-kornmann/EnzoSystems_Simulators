@@ -1,6 +1,6 @@
 enum CARDPOSITIONS {
-  STACK = 'Stack',
-  ENCODER = 'Encoder',
-  BEZEL = 'Bezel',
+  STACK = 'STACK',
+  ENCODER = 'ENCODER',
+  BEZEL = 'BEZEL',
 }
 export default CARDPOSITIONS;

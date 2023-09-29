@@ -18,7 +18,7 @@ import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
 // enums
 import { OperationalState } from '../../enums/OperationalState';
-import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import ActionType from '../../enums/ActionTypes';
 import { Lang } from '../../App';
 import ShowIcon from '../../../local_types/ShowIcon';
@@ -67,7 +67,7 @@ const ButtonBox = styled('div')({
   overflowY: 'hidden',
 });
 const ScanActionButton = styled('button')(({ theme }) => ({
-  backgroundcolor: theme.colors.text.secondary,
+  backgroundColor: theme.colors.buttons.special,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -77,7 +77,7 @@ const ScanActionButton = styled('button')(({ theme }) => ({
   cursor: 'pointer',
   zIndex: '300',
   '&:active': {
-    backgroundColor: theme.colors.buttons.special,
+    backgroundColor: theme.colors.buttons.specialTransparent,
   },
   '& > span': {
     fontWeight: '300',
@@ -185,7 +185,7 @@ const StyledMrcArea = styled('span')({
 });
 
   type Props = {
-    deviceStatus: DeviceStatusOptions;
+    deviceStatus: DEVICESTATUSOPTIONS;
     currentId: IdType | undefined;
     statusSettingIsClicked: boolean;
     appLanguage: Lang;
@@ -204,18 +204,19 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
   useEffect(() => {
     if (statusSettingIsClicked) {
       switch (deviceStatus) {
-        case DeviceStatusOptions.CONNECTED:
+        case DEVICESTATUSOPTIONS.CONNECTED:
           setOperationalState(OperationalState.DEVICE_START_UP);
           break;
-        case DeviceStatusOptions.DISCONNECTED:
+        case DEVICESTATUSOPTIONS.DISCONNECTED:
           setOperationalState(OperationalState.DEVICE_DISCONNECT);
           break;
-        case DeviceStatusOptions.OUT_OF_ORDER:
+        case DEVICESTATUSOPTIONS.OUT_OF_ORDER:
           setOperationalState(OperationalState.DEVICE_OUT_OF_ORDER);
           break;
         default:
           break;
       }
+      appDispatch({ type: ActionType.STATUS_OPTION_IS_CLICKED, payload: false });
       appDispatch({ type: ActionType.CLICKED_CROSS });
     }
   }, [deviceStatus, statusSettingIsClicked, appDispatch]);
@@ -268,21 +269,21 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
     }
   }, [operationalState, token]);
 
-  const changeStatus = useCallback(async (changeToThisState: DeviceStatusOptions) => {
+  const changeStatus = useCallback(async (changeToThisState: DEVICESTATUSOPTIONS) => {
     if (token) {
       if (OperationalState.DEVICE_CONNECT) {
         const res = await changeDeviceStatus(token, changeToThisState);
         if (res) {
-          if (res.status === DeviceStatusOptions.CONNECTED) {
+          if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
             setOperationalState(OperationalState.DEVICE_CONNECTED);
           }
-          if (res.status === DeviceStatusOptions.DISCONNECTED) {
+          if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
             setOperationalState(OperationalState.DEVICE_DISCONNECTED);
           }
         // if there is no res.data.metadata
-        } else if (changeToThisState === DeviceStatusOptions.CONNECTED) {
+        } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
           setOperationalState(OperationalState.DEVICE_COULD_NOT_CONNECT);
-        } else if (changeToThisState === DeviceStatusOptions.DISCONNECTED) {
+        } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
           setOperationalState(OperationalState.DEVICE_COULD_NOT_DISCONNECT);
         }
       }
@@ -304,10 +305,10 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
         break;
       case OperationalState.DEVICE_CONNECT:
         setInstructionText('');
-        changeStatus(DeviceStatusOptions.CONNECTED);
+        changeStatus(DEVICESTATUSOPTIONS.CONNECTED);
         // if setting isn't already connected, then set it.
-        if (deviceStatus !== DeviceStatusOptions.CONNECTED) {
-          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatusOptions.CONNECTED });
+        if (deviceStatus !== DEVICESTATUSOPTIONS.CONNECTED) {
+          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.CONNECTED });
         }
         break;
       case OperationalState.DEVICE_DISCONNECT:
@@ -316,14 +317,14 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
         break;
       case OperationalState.DEVICE_DISCONNECTED:
         setInstructionText('DISCONNECTED');
-        if (deviceStatus !== DeviceStatusOptions.DISCONNECTED) {
-          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatusOptions.DISCONNECTED });
+        if (deviceStatus !== DEVICESTATUSOPTIONS.DISCONNECTED) {
+          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
         }
         break;
       case OperationalState.DEVICE_OUT_OF_ORDER:
         setInstructionText('OUT OF ORDER');
-        if (deviceStatus !== DeviceStatusOptions.OUT_OF_ORDER) {
-          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatusOptions.OUT_OF_ORDER });
+        if (deviceStatus !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
         }
         waitTime = 15000;
         break;
@@ -384,7 +385,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
             setOperationalState(OperationalState.DEVICE_CONNECT);
             break;
           case OperationalState.DEVICE_DISCONNECT:
-            changeStatus(DeviceStatusOptions.DISCONNECTED);
+            changeStatus(DEVICESTATUSOPTIONS.DISCONNECTED);
             break;
           case OperationalState.DEVICE_COULD_NOT_CONNECT:
           case OperationalState.DEVICE_COULD_NOT_DISCONNECT:
@@ -426,7 +427,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
           case OperationalState.DEVICE_OUT_OF_ORDER:
             if (token) {
               // try to change device status on the backend, but stay in this state regardless
-              changeStatus(DeviceStatusOptions.OUT_OF_ORDER);
+              changeStatus(DEVICESTATUSOPTIONS.OUT_OF_ORDER);
             } else {
               // if there is no token try again to get one. (in case of a restart)
               setOperationalState(OperationalState.DEVICE_START_UP);

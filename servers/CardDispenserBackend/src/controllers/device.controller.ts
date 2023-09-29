@@ -237,37 +237,9 @@ const updateCreate = (req: Request, res: Response, session: SessionData) => {
   }
 
   // Update cardId, empty cardId is allowed
-  if (!req.body.data?.cardId || typeof req.body.data?.cardId !== 'string') {
-    res.status(httpStatus.BAD_REQUEST);
-    throw new Error('Body should contain a \'cardId\' property of type string');
-  }
   if (!session.cardData) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR);
     throw new Error('There is no active card session');
-  }
-  session.cardData.cardId = req.body.data.cardId;
-
-  // Add extra additionalAccess, if available
-  if (req.body.data?.additionalAccess) {
-    if (!Array.isArray(req.body.data.additionalAccess)) {
-      res.status(httpStatus.BAD_REQUEST);
-      throw new Error('Body \'data.additionalAccess\' property must be of type string array');
-    }
-
-    for (const access of req.body.data.additionalAccess) {
-      if (typeof access !== 'string') {
-        res.status(httpStatus.BAD_REQUEST);
-        throw new Error('Body \'data.additionalAccess\' property contains items that are not of type string');
-      } else if (!access.length) {
-        res.status(httpStatus.BAD_REQUEST);
-        throw new Error('Body \'data.additionalAccess\' property contains items with empty string values');
-      }
-
-      // Add item to rq.app.locals.cardData if not already included
-      if (!session.cardData.additionalAccess.includes(access)) {
-        session.cardData.additionalAccess.push(access);
-      }
-    }
   }
 
   session.status = SESSION_STATUS.FINISHED;

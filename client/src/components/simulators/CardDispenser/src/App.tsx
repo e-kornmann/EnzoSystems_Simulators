@@ -1,4 +1,4 @@
-import { memo, useEffect, useReducer } from 'react';
+import { memo, useReducer } from 'react';
 // axios
 // styled components
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
@@ -6,12 +6,9 @@ import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { SharedStyledContainer } from '../local_shared/DraggableModal/ModalTemplate';
 // components
 import { CardDispenser } from './components/CardDispenser/CardDispenser';
-import { LocalAddId } from './components/LocalAddId/LocalAddId';
-import { ViewIds } from './components/ViewIds/ViewIds';
 import { Settings } from './components/Settings/Settings';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
-import { DeleteDialog } from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
 // theme
@@ -19,11 +16,9 @@ import theme from './theme/theme.json';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
 import ActionType from './enums/ActionTypes';
-import { CountriesAlpha3 } from './enums/CountryCodesISO3166Alpha3';
-import { IdType } from './types/IdType';
-import ShowAddIdType from './types/ShowAddIdType';
-import ShowIdType from './types/ShowIdType';
+import KeyType from './types/KeyType';
 import { SettingContextProvider } from './contexts/dispatch/SettingContext';
+import Lang from './enums/Lang';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -80,60 +75,31 @@ const StyledContentWrapper = styled('div')({
   overflowY: 'hidden',
 });
 
-export enum Lang {
-  DUTCH = CountriesAlpha3.Netherlands,
-  ENGLISH = CountriesAlpha3['United Kingdom'],
-  GERMAN = CountriesAlpha3.Germany,
-  FRENCH = CountriesAlpha3.France,
-}
-
 type AppStateType = {
   appLanguage: Lang,
   headerTitle: string,
-  localIds: IdType[],
-  currentId: IdType | undefined,
-  saveIdClicked: boolean,
-  showAddKey: ShowAddIdType,
-  // footer
-  saveButtonIsEnabled: boolean,
-  deleteButtonIsEnabled: boolean,
-  allIdsAreSelected: boolean,
+  cardData: KeyType | undefined,
   // --
-  showDeleteDialog: boolean,
   showBack: boolean,
   showCross: boolean,
   clickedBack: boolean,
   clickedCross: boolean,
-  showIds: ShowIdType,
   showSettings: boolean,
+  showBinSettings: boolean,
+  showStackSettings: boolean,
 };
 
 const initialState: AppStateType = {
   appLanguage: Lang.ENGLISH,
   headerTitle: 'Room Key Dispenser',
-  localIds: [],
-  currentId: undefined,
-  saveIdClicked: false,
-  showAddKey: { showComponent: false, editMode: false },
-  // footer
-  saveButtonIsEnabled: false,
-  deleteButtonIsEnabled: false,
-  allIdsAreSelected: false,
-  // --
-  showDeleteDialog: false,
+  cardData: undefined,
   showBack: false,
   showCross: false,
   clickedBack: false,
   clickedCross: false,
-  showIds: {
-    showComponent: false,
-    editMode: false,
-    deleteMode: false,
-    selectAllIdsClicked: false,
-    deselectAllIdsClicked: false,
-    deleteIdClicked: false,
-  },
   showSettings: false,
+  showBinSettings: false,
+  showStackSettings: false,
 };
 
 const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType => {
@@ -144,109 +110,29 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case ActionType.CLICKED_CROSS: { // close window and return to main screen
       return {
         ...initialState,
-        localIds: state.localIds,
-        currentId: state.currentId,
+        cardData: state.cardData,
       };
     }
-    case ActionType.DELETE_ID_CLICKED: {
-      return { ...state, showIds: { ...state.showIds, deleteIdClicked: true } };
-    }
-    case ActionType.SET_ALL_LOCALIDS: {
-      return { ...state, localIds: action.payload };
-    }
-    case ActionType.SAVE_ID: {
-      const newIds = state.localIds ? [...state.localIds, action.payload] : [action.payload];
+    case ActionType.RECEIVE_KEY_DATA: {
       return {
         ...state,
-        localIds: newIds,
-        saveIdClicked: false,
-        showBack: false,
-        showIds: { ...state.showIds, showComponent: true },
-        currentId: action.payload,
-        headerTitle: 'IDs',
-        showAddKey: initialState.showAddKey,
+        cardData: action.payload,
       };
-    }
-    case ActionType.SAVE_ID_CLICKED: {
-      return { ...state, saveIdClicked: action.payload };
-    }
-    case ActionType.SELECT_ID: {
-      return { ...state, currentId: action.payload };
-    }
-    case ActionType.SET_DELETE_BUTTON: {
-      return { ...state, deleteButtonIsEnabled: action.payload };
-    }
-    case ActionType.SET_SAVE_BUTTON: {
-      return { ...state, saveButtonIsEnabled: action.payload };
-    }
-    case ActionType.ALL_IDS_ARE_SELECTED: {
-      return { ...state, allIdsAreSelected: action.payload };
-    }
-    case ActionType.SELECT_ALL_ID_CLICKED: {
-      return { ...state, showIds: { ...state.showIds, selectAllIdsClicked: action.payload, deselectAllIdsClicked: false } };
-    }
-    case ActionType.DESELECT_ALL_ID_CLICKED: {
-      return { ...state, showIds: { ...state.showIds, selectAllIdsClicked: false, deselectAllIdsClicked: action.payload } };
     }
     case ActionType.SET_HEADER_TITLE: {
       return { ...state, headerTitle: action.payload };
     }
-    case ActionType.SHOW_ADD_ID: {
-      return {
-        ...state,
-        showAddKey: { ...state.showAddKey, showComponent: action.payload },
-        showCross: true,
-        showBack: false,
-        showIds: initialState.showIds,
-        headerTitle: 'Add new ID',
-      };
+    case ActionType.SHOW_BIN_SETTINGS: {
+      return { ...state, showSettings: true, showBinSettings: true, showCross: true, showBack: true };
     }
-    case ActionType.EDIT_ID: {
-      return {
-        ...state,
-        showAddKey: { ...state.showAddKey, showComponent: action.payload, editMode: action.payload },
-        showCross: true,
-        showIds: initialState.showIds,
-        headerTitle: 'Edit ID',
-      };
-    }
-    case ActionType.SHOW_IDS: {
-      return {
-        ...state,
-        showIds: { ...initialState.showIds, showComponent: action.payload },
-        showCross: true,
-        headerTitle: 'IDs',
-        showBack: false,
-        showAddKey: initialState.showAddKey,
-      };
-    }
-    case ActionType.EDIT_IDS_MODE: {
-      return { ...state, showIds: { ...state.showIds, editMode: action.payload }, headerTitle: 'Edit IDs' };
-    }
-    case ActionType.DELETE_IDS_MODE: {
-      return { ...state, showIds: { ...state.showIds, editMode: false, deleteMode: true }, headerTitle: 'Delete IDs' };
-    }
-    case ActionType.SHOW_DELETE_DIALOG: {
-      return { ...state, showDeleteDialog: action.payload, showCross: !action.payload };
+    case ActionType.SHOW_STACK_SETTINGS: {
+      return { ...state, showSettings: true, showStackSettings: true, showCross: true, showBack: true };
     }
     case ActionType.SHOW_BACK: {
       return { ...state, showBack: action.payload };
     }
     case ActionType.SHOW_CROSS: {
       return { ...state, showCross: action.payload };
-    }
-
-    case ActionType.UPDATE_ID: {
-      const newIds = state.localIds ? [...state.localIds] : [];
-      const index = newIds.findIndex(iD => iD.documentNumber === action.payload.documentNumber);
-
-      if (index !== -1) {
-        newIds[index] = action.payload;
-      } else {
-        newIds.push(action.payload);
-      }
-
-      return { ...state, localIds: newIds, currentId: action.payload };
     }
     case ActionType.TOGGLE_SETTINGS: {
       return {
@@ -264,77 +150,36 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  // set LocalStorage Keys if update is needed
-  useEffect(() => {
-    // set localIds in case of no storage or unsynced data,
-    const getSelectedId = localStorage.getItem('currentId');
-    if (state.currentId && (!getSelectedId || (getSelectedId && getSelectedId !== JSON.stringify(state.currentId)))) {
-      localStorage.setItem('currentId', JSON.stringify(state.currentId));
-    }
-    // set currentId
-    const getIDs = localStorage.getItem('IDs');
-    if (state.localIds && state.localIds.length > 0 && (!getIDs || (getIDs && getIDs !== JSON.stringify(state.localIds)))) {
-      localStorage.setItem('IDs', JSON.stringify(state.localIds));
-    }
-  }, [state.currentId, state.localIds]);
-
-  // load LocalStorage Keys if available
-  useEffect(() => {
-    // get localIds
-    const getLocalStorageIds = localStorage.getItem('IDs');
-    if (getLocalStorageIds) dispatch({ type: ActionType.SET_ALL_LOCALIDS, payload: JSON.parse(getLocalStorageIds) });
-    // get currentId
-    const getSelectedId = localStorage.getItem('currentId');
-    if (getSelectedId) dispatch({ type: ActionType.SELECT_ID, payload: JSON.parse(getSelectedId) });
-  }, []);
 
   return (
     <SettingContextProvider>
-    <ThemeProvider theme={theme}>
-        { !import.meta.env.VITE_EXPORT_MEMO_APP && <GlobalStyle /> }
+      <ThemeProvider theme={theme}>
+        {!import.meta.env.VITE_EXPORT_MEMO_APP && <GlobalStyle />}
         <AppDispatchContext.Provider value={dispatch}>
           <StyledApp $isDraggable={import.meta.env.VITE_EXPORT_MEMO_APP}>
-              <Header
-                showBack={state.showBack}
-                showCross={state.showCross}
-                title={state.headerTitle}
-                goBackToKeysButton={state.showAddKey.showComponent || state.showIds.editMode || state.showIds.deleteMode} />
-              <StyledContentWrapper>
+            <Header
+              showBack={state.showBack}
+              showCross={state.showCross}
+              title={state.headerTitle} />
+          <StyledContentWrapper>
 
-                <CardDispenser
-                 currentId={state.currentId}
-                 appLanguage={state.appLanguage}/>
-                {!state.showSettings && !state.showAddKey.showComponent && !state.showIds.showComponent }
+              <CardDispenser
+                cardData={state.cardData}
+                appLanguage={state.appLanguage} />
 
-                {/* TODO: processStatus ERROR */}
-                {!state.showSettings && !state.showIds.showComponent && state.showAddKey.showComponent
-                  && <LocalAddId
-                  saveKeyClicked={state.saveIdClicked}
-                  currentId={state.currentId}
-                  editMode={state.showAddKey.editMode}
-                  appLanguage={state.appLanguage} />
-                }
-                {!state.showSettings && !state.showAddKey.showComponent && state.showIds.showComponent
-                  && <>
-                    <ViewIds iDs={state.localIds} currentId={state.currentId} showIds={state.showIds} />
-                    {state.showDeleteDialog && <DeleteDialog />}
-                  </>
-                }
-
-                {state.showSettings
-                  && <Settings clickedBack={state.clickedBack} />}
-              </StyledContentWrapper>
-                 <Footer
-                    showAddKey={state.showAddKey}
-                    showSettings={state.showSettings}
-                    showIds={state.showIds}
-                    saveButtonIsEnabled={state.saveButtonIsEnabled}
-                    deleteButtonIsEnabled={state.deleteButtonIsEnabled}
-                    allIdsAreSelected={state.allIdsAreSelected}
-                    enableEditandDeleteButton={state.localIds.length >= 1} />
-            </StyledApp>
+              {state.showSettings
+                && <Settings
+                  clickedBack={state.clickedBack}
+                  appLanguage={state.appLanguage}
+                  showBinSettings={state.showBinSettings}
+                  showStackSettings={state.showStackSettings}
+                />}
+            </StyledContentWrapper>
+            <Footer
+              showSettings={state.showSettings} />
+          </StyledApp>
         </AppDispatchContext.Provider>
-    </ThemeProvider>
+      </ThemeProvider>
     </SettingContextProvider>
   );
 };

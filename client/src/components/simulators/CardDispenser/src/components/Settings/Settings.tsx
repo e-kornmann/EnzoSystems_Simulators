@@ -18,6 +18,8 @@ import STACKSTATUSES from '../../enums/StackStatus';
 import BINSTATUSES from '../../enums/BinStatus';
 import CARDPOSITIONS from '../../enums/CardPosition';
 import { AllOptions } from '../../utils/settingReducer';
+import translate from '../../Translations/translate';
+import Lang from '../../enums/Lang';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -35,12 +37,15 @@ const StyledWrapper = styled('div')(({ theme }) => ({
 
 type SettingsProps = {
   clickedBack: boolean,
+  appLanguage: Lang;
+  showBinSettings: boolean,
+  showStackSettings: boolean
 };
 
-const SettingsComponent = ({ clickedBack }: SettingsProps) => {
+const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStackSettings }: SettingsProps) => {
   const appDispatch = useContext(AppDispatchContext);
   const { settingState, settingDispatch } = useContext(SettingContext);
-  const [settingIsClicked, setSettingClicked] = useState<SettingType | null>(null);
+  const [settingIsClicked, setSettingIsClicked] = useState<SettingType | null>(null);
 
   const settings = useMemo<SettingType[]>(() => [
     { options: Object.values(DEVICESTATUSOPTIONS), type: APPSETTINGS.DEVICE_STATUS },
@@ -49,26 +54,40 @@ const SettingsComponent = ({ clickedBack }: SettingsProps) => {
     { options: Object.values(CARDPOSITIONS), type: APPSETTINGS.CARD_POSITION },
   ], []);
 
-  const handleSettingClicked = useCallback((appsetting: SettingType) => { // toggle displaying options for this setting
-    setSettingClicked(appsetting);
+  // toggle displaying options for this setting
+  const handleSettingClicked = useCallback((appsetting: SettingType) => {
+    setSettingIsClicked(appsetting);
     appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: appsetting.type });
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
   }, [appDispatch]);
 
-  const handleOptionClicked = useCallback((option: AllOptions, setting: SettingType) => { // select an option in the currently active setting
+  // show designated settings if someone clicks on footer buttons
+  useEffect(() => {
+    if (showBinSettings) {
+      handleSettingClicked({ options: Object.values(BINSTATUSES), type: APPSETTINGS.BIN });
+    }
+    if (showStackSettings) {
+      handleSettingClicked({ options: Object.values(STACKSTATUSES), type: APPSETTINGS.CARD_STACK });
+    }
+  }, [handleSettingClicked, settings, showBinSettings, showStackSettings]);
+
+  // select an option in the currently active setting
+  const handleOptionClicked = useCallback((option: AllOptions, setting: SettingType) => {
     if (setting) {
       settingDispatch({ type: setting.type, payload: option });
-      settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
+      if (setting.type === APPSETTINGS.DEVICE_STATUS) {
+        settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
+      }
     }
   }, [settingDispatch]);
 
   useEffect(() => { // Return to Settings menu from an Options list
     if (clickedBack && settingIsClicked) {
-      setSettingClicked(null);
+      setSettingIsClicked(null);
       appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: 'Settings' });
       appDispatch({ type: ActionType.CLICKED_BACK, payload: false });
     }
-  }, [appDispatch, clickedBack, settingIsClicked]);
+  }, [appDispatch, clickedBack, settingDispatch, settingIsClicked]);
 
   useEffect(() => { // On load, set header to display 'Settings' as title
     appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: 'Settings' });
@@ -78,14 +97,14 @@ const SettingsComponent = ({ clickedBack }: SettingsProps) => {
     <StyledWrapper>
       {!settingIsClicked && settings.map((appsetting, index) => (
         <S.SharedStyledListButtonWithArrow key={appsetting.type + index} onClick={() => { handleSettingClicked(appsetting); }}>
-          {appsetting.type} <Arrow />
+         {translate(appsetting.type, appLanguage)}<Arrow/>
         </S.SharedStyledListButtonWithArrow>
       ))}
       {settingIsClicked && settingIsClicked.options.map(option => (
         <S.SharedStyledListButton key={option} onClick={() => { handleOptionClicked(option, settingIsClicked); }}>
-        {option}
+         {translate(option, appLanguage)}
         { settingState[settingIsClicked.type] === option
-        && <CheckmarkIcon width={14} height={11} /> }
+        && <CheckmarkIcon width={14} height={11}/> }
         </S.SharedStyledListButton>
       ))}
     </StyledWrapper>

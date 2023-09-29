@@ -15,7 +15,7 @@ import { DeleteDialog } from './components/Footer/DeleteDialog';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
 // enums
-import DeviceStatusOptions from './enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from './enums/DeviceStatusOptions';
 // theme
 import theme from './theme/theme.json';
 // types
@@ -88,7 +88,7 @@ export enum Lang {
 }
 
 type AppStateType = {
-  deviceStatus: DeviceStatusOptions,
+  deviceStatus: DEVICESTATUSOPTIONS,
   statusSettingIsClicked: boolean,
   appLanguage: Lang,
   headerTitle: string,
@@ -111,7 +111,7 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  deviceStatus: DeviceStatusOptions.OUT_OF_ORDER,
+  deviceStatus: DEVICESTATUSOPTIONS.OUT_OF_ORDER,
   statusSettingIsClicked: false,
   appLanguage: Lang.ENGLISH,
   headerTitle: 'ID Scanner',

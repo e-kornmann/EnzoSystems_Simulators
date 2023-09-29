@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 // styled components
 import styled, { keyframes } from 'styled-components';
 // api
@@ -6,11 +6,9 @@ import useLogOn from '../../../local_hooks/useLogOn';
 import { scannerCredentials, reqBody, axiosUrl } from '../../config';
 // utils
 import { changeDeviceStatus, getSession, putScannedData, stopSession } from '../../utils/iDscanApiRequests';
-import { calculateCheckDigit } from '../../utils/mrcUtils';
 // components
 import { AnimatedCrossHair } from './AnimatedCrossHair';
 import { SharedLoading } from '../../../local_shared/Loading';
-import { InputFields } from '../LocalAddId/LocalAddId';
 import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
@@ -19,14 +17,14 @@ import { SettingContext } from '../../contexts/dispatch/SettingContext';
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
 // enums
 import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
-import { OperationalState } from '../../enums/OperationalState';
+import OperationalState from '../../enums/OperationalState';
+import Lang from '../../enums/Lang';
 import ActionType from '../../enums/ActionTypes';
-import { Lang } from '../../App';
 import ShowIcon from '../../../local_types/ShowIcon';
 // types
-import { IdType } from '../../types/IdType';
+import KeyType from '../../types/KeyType';
+import { DeviceStateType } from '../../types/DeviceStateType';
 // translations
-import { Translate } from '../../Translations/Translations';
 import APPSETTINGS from '../../enums/AppSettings';
 
 const QrScannerWrapper = styled('div')({
@@ -69,7 +67,7 @@ const ButtonBox = styled('div')({
   overflowY: 'hidden',
 });
 const ScanActionButton = styled('button')(({ theme }) => ({
-  backgroundcolor: theme.colors.text.secondary,
+  backgroundColor: theme.colors.text.secondary,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -171,31 +169,16 @@ const StyledIdHeader = styled('div')(({ theme }) => ({
   },
 }));
 
-const StyledMrcArea = styled('span')({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  border: '1px solid black',
-  height: '60px',
-  width: '100%',
-  textAlign: 'center',
-  fontFamily: 'monospace',
-  whiteSpace: 'pre-line',
-  fontVariantNumeric: 'tabular-nums',
-  fontWeight: 'bold',
-  fontSize: '0.6em',
-});
-
   type Props = {
-    currentId: IdType | undefined;
-    appLanguage: Lang;
+    cardData: KeyType | undefined;
+    appLanguage?: Lang;
   };
 
-const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
+const CardDispenserComponent = ({ cardData }: Props) => {
   const { settingState, settingDispatch } = useContext(SettingContext);
+  const { statusSettingIsClicked, ...rest } = settingState;
   const appDispatch = useContext(AppDispatchContext);
   const { token, logOn } = useLogOn(scannerCredentials, reqBody, axiosUrl);
-  // const [checkCounter, setCheckCounter] = useState(0);
   const [nextPoll, setNextPoll] = useState(false);
   const initialSessionRequest = useRef(true);
   const [operationalState, setOperationalState] = useState<OperationalState>(OperationalState.DEVICE_START_UP);
@@ -206,20 +189,27 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
     if (settingState.statusSettingIsClicked) {
       switch (settingState[APPSETTINGS.DEVICE_STATUS]) {
         case DEVICESTATUSOPTIONS.CONNECTED:
-          setOperationalState(OperationalState.DEVICE_START_UP);
+          setNextPoll(false);
+          initialSessionRequest.current = true;
+          setOperationalState(OperationalState.DEVICE_CONNECT);
           break;
         case DEVICESTATUSOPTIONS.DISCONNECTED:
+          setNextPoll(false);
+          initialSessionRequest.current = true;
           setOperationalState(OperationalState.DEVICE_DISCONNECT);
           break;
         case DEVICESTATUSOPTIONS.OUT_OF_ORDER:
+          setNextPoll(false);
+          initialSessionRequest.current = true;
           setOperationalState(OperationalState.DEVICE_OUT_OF_ORDER);
           break;
         default:
           break;
       }
+      settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: false });
       appDispatch({ type: ActionType.CLICKED_CROSS });
     }
-  }, [appDispatch, settingState]);
+  }, [appDispatch, settingDispatch, settingState]);
 
   const getToken = useCallback(async () => {
     await logOn().then(success => (success
@@ -230,23 +220,27 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
   const getScanSession = useCallback(async () => {
     if (token) {
       const res = await getSession(token);
+      if (res.result === 'NO_ACTIVE_SESSION') {
+        console.log(`new res: ${res.result}`);
+      }
       if (!res) {
         setOperationalState(OperationalState.API_ERROR);
         setNextPoll(false);
         initialSessionRequest.current = true;
       } else {
         // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
-        if (operationalState === OperationalState.DEVICE_WAITING_FOR_ID) {
-          // remove this if when
-          if (res === 'NO_ACTIVE_SESSION') {
+        if (operationalState === OperationalState.DEVICE_KEY_IS_READY) {
+          // remove this if when TIMED OUT WORKS
+          if (res.result === 'NO_ACTIVE_SESSION') {
+            setNextPoll(false);
+            console.log('DEVICE TIMED OUT');
+            initialSessionRequest.current = true;
+            setOperationalState(OperationalState.API_TIMED_OUT);
+          } else if (res.metadata?.status === 'TIMED_OUT') {
             setNextPoll(false);
             initialSessionRequest.current = true;
             setOperationalState(OperationalState.API_TIMED_OUT);
-          } else if (res.status === 'TIMED_OUT') {
-            setNextPoll(false);
-            initialSessionRequest.current = true;
-            setOperationalState(OperationalState.API_TIMED_OUT);
-          } else if (res.status === 'CANCELLING') {
+          } else if (res.metadata?.status === 'CANCELLING') {
             setNextPoll(false);
             initialSessionRequest.current = true;
             setOperationalState(OperationalState.API_CANCEL);
@@ -256,10 +250,11 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
           }
         }
         if (operationalState === OperationalState.DEVICE_CONNECTED) {
-          if (res.command === 'SCAN_ID' && res.status === 'ACTIVE') {
+          if (res.metadata?.command === 'CREATE_CARD' && res.metadata?.status === 'ACTIVE') {
             setNextPoll(false);
             initialSessionRequest.current = true;
-            setOperationalState(OperationalState.DEVICE_WAITING_FOR_ID);
+            appDispatch({ type: ActionType.RECEIVE_KEY_DATA, payload: res.cardData });
+            setOperationalState(OperationalState.DEVICE_CREATING_A_KEY);
           } else {
             console.log(res);
             setNextPoll(true);
@@ -267,23 +262,28 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
         }
       }
     }
-  }, [operationalState, token]);
+  }, [appDispatch, operationalState, token]);
 
-  const changeStatus = useCallback(async (changeToThisState: DEVICESTATUSOPTIONS) => {
+  const changeStatus = useCallback(async (changeToThisState: DeviceStateType) => {
     if (token) {
       if (OperationalState.DEVICE_CONNECT) {
         const res = await changeDeviceStatus(token, changeToThisState);
         if (res) {
           if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
+            console.log(`Device succesfully updated device state on the backend: ${res.status}`);
             setOperationalState(OperationalState.DEVICE_CONNECTED);
           }
           if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+            console.log(`Device succesfully updated device state on the backend: ${res.status}`);
             setOperationalState(OperationalState.DEVICE_DISCONNECTED);
           }
+          if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+            console.log(`Device succesfully updated device state on the backend: ${res.status}`);
+          }
         // if there is no res.data.metadata
-        } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
+        } else if (changeToThisState.status === DEVICESTATUSOPTIONS.CONNECTED) {
           setOperationalState(OperationalState.DEVICE_COULD_NOT_CONNECT);
-        } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
+        } else if (changeToThisState.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
           setOperationalState(OperationalState.DEVICE_COULD_NOT_DISCONNECT);
         }
       }
@@ -293,6 +293,7 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
   useEffect(() => {
     let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
+    const deviceState: DeviceStateType = rest;
 
     switch (operationalState) {
       case OperationalState.DEVICE_START_UP:
@@ -305,7 +306,7 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
         break;
       case OperationalState.DEVICE_CONNECT:
         setInstructionText('');
-        changeStatus(DEVICESTATUSOPTIONS.CONNECTED);
+        changeStatus(deviceState);
         // if setting isn't already connected, then set it.
         if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.CONNECTED) {
           settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.CONNECTED });
@@ -321,13 +322,6 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
           settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
         }
         break;
-      case OperationalState.DEVICE_OUT_OF_ORDER:
-        setInstructionText('OUT OF ORDER');
-        if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
-          settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
-        }
-        waitTime = 15000;
-        break;
       case OperationalState.DEVICE_CONNECTED:
         setInstructionText('');
         waitTime = 50000;
@@ -341,13 +335,19 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
         setInstructionText('Could not disconnect');
         waitTime = 3500;
         break;
-      case OperationalState.DEVICE_WAITING_FOR_ID:
-        setInstructionText('Ready to scan ID');
+      case OperationalState.DEVICE_CREATING_A_KEY:
+        setInstructionText('Creating a key...');
+        waitTime = 2000;
         break;
+      case OperationalState.DEVICE_KEY_IS_READY:
+        setInstructionText('Key is ready');
+        break;
+      // not working.. check getSession and Backend.
       case OperationalState.API_CANCEL:
         setInstructionText('Scanning cancelled');
         waitTime = 2500;
         break;
+      // not working.. check getSession and Backend.
       case OperationalState.API_TIMED_OUT:
         setInstructionText('TIMED OUT');
         waitTime = 2500;
@@ -365,6 +365,19 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
       case OperationalState.API_SCAN_SUCCESS:
         setInstructionText('SUCCESS');
         waitTime = 2500;
+        break;
+      case OperationalState.DEVICE_OUT_OF_ORDER:
+        setInstructionText('OUT OF ORDER');
+        if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
+        }
+        if (token) {
+          // try to change device status on the backend, but stay in this state regardless
+          changeStatus(deviceState);
+        } else {
+          // if there is no token try again to get one. (in case of a restart)
+          setOperationalState(OperationalState.DEVICE_START_UP);
+        }
         break;
       default:
         break;
@@ -384,16 +397,19 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
             // connect again to avoid server TIMEOUT
             setOperationalState(OperationalState.DEVICE_CONNECT);
             break;
+          case OperationalState.DEVICE_CREATING_A_KEY:
+            setOperationalState(OperationalState.DEVICE_KEY_IS_READY);
+            break;
           case OperationalState.DEVICE_DISCONNECT:
-            changeStatus(DEVICESTATUSOPTIONS.DISCONNECTED);
+            changeStatus(deviceState);
             break;
           case OperationalState.DEVICE_COULD_NOT_CONNECT:
           case OperationalState.DEVICE_COULD_NOT_DISCONNECT:
             setOperationalState(OperationalState.API_ERROR);
             break;
           case OperationalState.DEVICE_IS_SCANNING:
-            if (token && currentId) {
-              const res = await putScannedData(token, currentId);
+            if (token && cardData) {
+              const res = await putScannedData(token);
               console.log(res);
               if (res) {
                 if (res.status === 'FINISHED') {
@@ -423,16 +439,6 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
             // now try again to connect:
             setOperationalState(OperationalState.DEVICE_CONNECT);
             break;
-            // initial state:
-          case OperationalState.DEVICE_OUT_OF_ORDER:
-            if (token) {
-              // try to change device status on the backend, but stay in this state regardless
-              changeStatus(DEVICESTATUSOPTIONS.OUT_OF_ORDER);
-            } else {
-              // if there is no token try again to get one. (in case of a restart)
-              setOperationalState(OperationalState.DEVICE_START_UP);
-            }
-            break;
           default:
             break;
         }
@@ -443,7 +449,7 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
         clearInterval(Number(intervalId));
       }
     };
-  }, [appDispatch, changeStatus, currentId, getToken, operationalState, settingDispatch, settingState, token]);
+  }, [changeStatus, cardData, getToken, operationalState, rest, settingDispatch, settingState, token]);
 
   const scanIdButtonHandler = async () => {
     setOperationalState(OperationalState.DEVICE_IS_SCANNING);
@@ -453,11 +459,11 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
   useEffect(() => {
     // while WAITING, send a new "long" poll for a new session (1st request)
     if ((operationalState === OperationalState.DEVICE_CONNECTED
-        || operationalState === OperationalState.DEVICE_WAITING_FOR_ID)
+        || operationalState === OperationalState.DEVICE_KEY_IS_READY)
         && initialSessionRequest.current) {
       initialSessionRequest.current = false;
       console.log('initiate getScanSession');
-      if (operationalState === OperationalState.DEVICE_WAITING_FOR_ID) {
+      if (operationalState === OperationalState.DEVICE_KEY_IS_READY) {
         setTimeout(async () => {
           await getScanSession();
         }, 1000);
@@ -466,11 +472,11 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
       }
       // any subsequent request
     } else if ((operationalState === OperationalState.DEVICE_CONNECTED
-        || operationalState === OperationalState.DEVICE_WAITING_FOR_ID)
+        || operationalState === OperationalState.DEVICE_KEY_IS_READY)
         && nextPoll && !initialSessionRequest.current) {
       console.log('next getScanSession');
       setNextPoll(false);
-      if (operationalState === OperationalState.DEVICE_WAITING_FOR_ID) {
+      if (operationalState === OperationalState.DEVICE_KEY_IS_READY) {
         setTimeout(async () => {
           await getScanSession();
         }, 1000);
@@ -479,46 +485,6 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
       }
     }
   }, [getScanSession, nextPoll, operationalState, token]);
-
-  const passPortMrcCode = useMemo(() => {
-    let firstLine = '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
-    let secondLine = '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
-    let documentNr = '<<<<<<<<<';
-    const slicedDateOfBirthYear = currentId?.dateOfBirth?.slice(2);
-    const slicedDateOfExpiryYear = currentId?.dateOfExpiry?.slice(2);
-    const documentNrData = `${currentId?.documentNumber}`;
-    documentNr = documentNrData + documentNr.slice(documentNrData.length);
-    const checkDigit = calculateCheckDigit(documentNr);
-    const lastCheckDigit = 'XX';
-
-    // eslint-disable-next-line operator-linebreak
-    let firstLineData =
-    `${currentId?.documentType}<${currentId?.issuerCode}${currentId?.namePrimary}<<${currentId?.nameSecondary}`;
-
-    // eslint-disable-next-line operator-linebreak
-    let secondLineData =
-     `${documentNr}${checkDigit}${currentId?.nationality}${slicedDateOfBirthYear}${currentId?.sex}${slicedDateOfExpiryYear}PERSNUMBER`;
-
-    // Replace any character not in the range A-Z or 0-9 with a <
-    firstLineData = firstLineData.replace(/[^A-Z0-9]/g, '<');
-
-    // Ensure firstLineData does not exceed initial length
-    if (firstLineData.length > firstLine.length) {
-      firstLineData = firstLineData.slice(0, firstLine.length);
-    }
-
-    // Ensure firstLineData does not exceed initial length
-    if (secondLineData.length > secondLine.length) {
-      secondLineData = secondLineData.slice(0, secondLine.length);
-    }
-
-    firstLine = firstLineData + firstLine.slice(firstLineData.length);
-    secondLine = secondLineData + secondLine.slice(secondLineData.length);
-
-    secondLine = secondLine.slice(0, -lastCheckDigit.length) + lastCheckDigit;
-
-    return `${firstLine}\n${secondLine}`;
-  }, [currentId]);
 
   return (
       <QrScannerWrapper>
@@ -549,17 +515,15 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
               <div>
                 <StyledIdHeader>
                   <QrCodeIconNoCanvas />
-                  <Translate id={currentId?.documentType} language={appLanguage} />
+                  {cardData?.roomAccess}
                 </StyledIdHeader>
-                <StyledMrcArea>
-                  {passPortMrcCode}
-                </StyledMrcArea>
+
               </div>
             </AnimatedId>
 
           <AnimatedCrossHair
             animate={
-              operationalState === OperationalState.DEVICE_WAITING_FOR_ID
+              operationalState === OperationalState.DEVICE_KEY_IS_READY
               || operationalState === OperationalState.DEVICE_IS_SCANNING}
           />
         </ScannerBox>
@@ -567,16 +531,11 @@ const CardDispenserComponent = ({ currentId, appLanguage }: Props) => {
           <ScanActionButton
             type="button"
             onClick={scanIdButtonHandler}
-            disabled={!currentId || !currentId[InputFields.DOCUMENT_NR]
-              || !currentId[InputFields.NAME_PRIMARY]
-              || operationalState !== OperationalState.DEVICE_WAITING_FOR_ID
-            }
+            disabled={operationalState !== OperationalState.DEVICE_KEY_IS_READY}
           >
             <QrCodeIconNoCanvas width={15} height={15} />
             <span>
-              {((!currentId || !currentId[InputFields.DOCUMENT_NR])
-                ? 'No Ids'
-                : `Scan: ${currentId[InputFields.DOCUMENT_NR]}`)}
+              Take the key
             </span>
           </ScanActionButton>
         </ButtonBox>

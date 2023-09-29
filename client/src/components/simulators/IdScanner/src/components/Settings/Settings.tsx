@@ -8,7 +8,7 @@ import { ReactComponent as CheckmarkIcon } from '../../../local_assets/success.s
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // enums
-import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import SettingsTypes from '../../enums/SettingsTypes';
 import ActionType from '../../enums/ActionTypes';
 // types
@@ -30,7 +30,7 @@ const StyledWrapper = styled('div')(({ theme }) => ({
 
 type SettingsProps = {
   clickedBack: boolean,
-  deviceStatus: DeviceStatusOptions
+  deviceStatus: DEVICESTATUSOPTIONS
 };
 
 const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
@@ -39,7 +39,7 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
 
   const settings = useMemo(() => [{
     currentValue: deviceStatus,
-    options: [DeviceStatusOptions.CONNECTED, DeviceStatusOptions.DISCONNECTED, DeviceStatusOptions.OUT_OF_ORDER],
+    options: [DEVICESTATUSOPTIONS.CONNECTED, DEVICESTATUSOPTIONS.DISCONNECTED, DEVICESTATUSOPTIONS.OUT_OF_ORDER],
     title: 'Device status',
     type: SettingsTypes.DEVICE_STATUS,
   }], [deviceStatus]);
@@ -50,7 +50,7 @@ const SettingsComponent = ({ clickedBack, deviceStatus }: SettingsProps) => {
     appDispatch({ type: ActionType.SHOW_BACK, payload: true });
   }, [appDispatch]);
 
-  const handleOptionClicked = useCallback((option: DeviceStatusOptions, setting: SettingType) => { // select an option in the currently active setting
+  const handleOptionClicked = useCallback((option: DEVICESTATUSOPTIONS, setting: SettingType) => { // select an option in the currently active setting
     if (setting) {
       if (setting.type === SettingsTypes.DEVICE_STATUS) {
         appDispatch({ type: ActionType.SET_DEVICE_STATUS, payload: option });

@@ -281,7 +281,7 @@ const createCard = (req: Request, res: Response) => {
     const sessionData: SessionData = {
       cardData: {
         additionalAccess: req.body.data.additionalAccess,
-        cardId: '',
+        cardId: crypto.randomUUID(),
         endDateTime: req.body.data.endDateTime,
         roomAccess: req.body.data.roomAccess,
         startDateTime: req.body.data.startDateTime

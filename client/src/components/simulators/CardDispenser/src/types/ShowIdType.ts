@@ -1,4 +1,4 @@
-type ShowIdType = {
+type ShowKeyType = {
   showComponent: boolean,
   editMode: boolean,
   deleteMode: boolean,
@@ -7,4 +7,4 @@ type ShowIdType = {
   deleteIdClicked: boolean,
 };
 
-export default ShowIdType;
+export default ShowKeyType;

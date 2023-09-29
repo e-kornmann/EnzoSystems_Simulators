@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { axiosUrl } from '../config';
-import { IdType } from '../types/IdType';
-import DeviceStatusOptions from '../enums/DeviceStatusOptions';
+import { DeviceStateType } from '../types/DeviceStateType';
 
-const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatusOptions) => {
+const changeDeviceStatus = async (token: string, deviceState: DeviceStateType) => {
   try {
     const config = {
       headers: {
@@ -13,9 +12,7 @@ const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatus
     };
     const response = await axiosUrl.put(
       '/status',
-      {
-        status: changeToThisState,
-      },
+      deviceState,
       config,
     );
     return response.data.metadata;
@@ -37,7 +34,7 @@ const getSession = async (token: string) => {
       '/active-session',
       config,
     );
-    return response.data.metadata ? response.data.metadata : response.data;
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(error.response);
@@ -47,7 +44,7 @@ const getSession = async (token: string) => {
   }
 };
 
-const putScannedData = async (token: string, idData: IdType) => {
+const putScannedData = async (token: string) => {
   try {
     const config = {
       headers: {
@@ -59,9 +56,6 @@ const putScannedData = async (token: string, idData: IdType) => {
       '/active-session',
       {
         data: {
-          ...idData,
-          dateOfBirth: idData.dateOfBirth?.slice(2),
-          dateOfExpiry: idData.dateOfExpiry?.slice(2),
           status: 'FINISHED',
         },
       },

@@ -1,7 +1,7 @@
 enum APPSETTINGS {
-  DEVICE_STATUS = 'Device Status',
-  CARD_STACK = 'Card Stack',
-  BIN = 'Bin',
-  CARD_POSITION = 'Card Position',
+  DEVICE_STATUS = 'status',
+  CARD_STACK = 'stackStatus',
+  BIN = 'binStatus',
+  CARD_POSITION = 'cardPosition',
 }
 export default APPSETTINGS;

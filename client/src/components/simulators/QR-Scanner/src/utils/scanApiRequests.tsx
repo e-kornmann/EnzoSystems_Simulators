@@ -1,8 +1,8 @@
 import axios from 'axios';
-import DeviceStatusOptions from '../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
 import { axiosUrl } from '../config';
 
-const changeDeviceStatus = async (token: string, changeToThisState: DeviceStatusOptions) => {
+const changeDeviceStatus = async (token: string, changeToThisState: DEVICESTATUSOPTIONS) => {
   try {
     const config = {
       headers: {

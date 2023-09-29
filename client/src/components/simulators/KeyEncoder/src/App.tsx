@@ -18,7 +18,7 @@ import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
 import TokenContext from './contexts/data/TokenContext';
 // enums
 import CommandTypes from './enums/CommandTypes';
-import DeviceStatusOptions from './enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from './enums/DeviceStatusOptions';
 import ProcessStatuses from './enums/ProcessStatuses';
 // theme
 import theme from './theme/theme.json';
@@ -86,7 +86,7 @@ const StyledContentWrapper = styled('div')({
 });
 
 type AppStateType = {
-  operationalState: DeviceStatusOptions,
+  operationalState: DEVICESTATUSOPTIONS,
   headerTitle: string,
   initialized: boolean,
   localKeys: KeyType[],
@@ -112,7 +112,7 @@ type AppStateType = {
 };
 
 const initialState: AppStateType = {
-  operationalState: DeviceStatusOptions.OUT_OF_ORDER,
+  operationalState: DEVICESTATUSOPTIONS.OUT_OF_ORDER,
   headerTitle: 'Room Key Encoder',
   initialized: false,
   localKeys: [],
@@ -364,7 +364,7 @@ const App = () => {
   }, [state.tokens, tick, getToken]);
 
   /* Key Encoder Status */
-  const handleStatus = useCallback((status: DeviceStatusOptions) => {
+  const handleStatus = useCallback((status: DEVICESTATUSOPTIONS) => {
     if (state.tokens && state.tokens.accessToken) {
       const config = {
         url: `${import.meta.env.VITE_KEY_ENCODER_LOCAL_BASE_URL}/status`,
@@ -417,7 +417,7 @@ const App = () => {
       || state?.session?.metadata?.command === CommandTypes.CREATE_JOINNER_KEY
       || state?.session?.metadata?.command === CommandTypes.CREATE_NEW_KEY) {
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.CREATE_KEY });
-    } else if (state.operationalState === DeviceStatusOptions.CONNECTED) { // waiting for session
+    } else if (state.operationalState === DEVICESTATUSOPTIONS.CONNECTED) { // waiting for session
       dispatch({ type: ActionType.SET_PROCESS_STATUS, payload: ProcessStatuses.WAITING });
     }
   }, [state.operationalState, state.session, state.showAddKey, state.showKeys, state.showSettings]);

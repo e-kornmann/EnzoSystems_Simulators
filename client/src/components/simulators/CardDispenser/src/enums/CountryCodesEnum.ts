@@ -1,4 +1,4 @@
-export enum Country {
+enum Country {
   Afghanistan = 'AF',
   AlandIslands = 'AX',
   Albania = 'AL',
@@ -249,3 +249,4 @@ export enum Country {
   Zambia = 'ZM',
   Zimbabwe = 'ZW',
 }
+export default Country;

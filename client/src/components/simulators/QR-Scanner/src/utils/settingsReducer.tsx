@@ -1,5 +1,5 @@
 import React, { ReactNode, Reducer, createContext, useReducer } from 'react';
-import DeviceStatusOptions from '../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
 
 export enum SettingModes {
   SETTINGS,
@@ -8,13 +8,13 @@ export enum SettingModes {
 }
 
 export type AllAppSettings = {
-  statusOption: DeviceStatusOptions;
+  statusOption: DEVICESTATUSOPTIONS;
   language: string;
   statusSettingIsClicked: boolean,
 };
 
 const intitialSettingState: AllAppSettings = {
-  statusOption: DeviceStatusOptions.OUT_OF_ORDER,
+  statusOption: DEVICESTATUSOPTIONS.OUT_OF_ORDER,
   language: 'english',
   // statusSettingIsClicked is needed for the click listener in de QrCodeReader component
   statusSettingIsClicked: false,
@@ -22,7 +22,7 @@ const intitialSettingState: AllAppSettings = {
 
 export type OperationalModeActionType = {
   type: SettingModes.OPERATIONAL_MODE;
-  payload: DeviceStatusOptions;
+  payload: DEVICESTATUSOPTIONS;
 };
 
 export type LanguageActionType = {

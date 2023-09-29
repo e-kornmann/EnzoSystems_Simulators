@@ -1,4 +1,5 @@
 import { Reducer } from 'react';
+import { SettingStateType } from '../types/SettingStateType';
 import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
 import APPSETTINGS from '../enums/AppSettings';
 import STACKSTATUSES from '../enums/StackStatus';
@@ -7,17 +8,9 @@ import BINSTATUSES from '../enums/BinStatus';
 
 export type AllOptions = DEVICESTATUSOPTIONS | STACKSTATUSES | CARDPOSITIONS | BINSTATUSES;
 
-export type SettingStateType = {
-  [APPSETTINGS.DEVICE_STATUS]: DEVICESTATUSOPTIONS,
-  [APPSETTINGS.CARD_STACK]: STACKSTATUSES,
-  [APPSETTINGS.BIN]: BINSTATUSES,
-  [APPSETTINGS.CARD_POSITION]: CARDPOSITIONS,
-  statusSettingIsClicked: boolean;
-};
-
 export type SettingsActionType = {
   type: APPSETTINGS;
-  payload: DEVICESTATUSOPTIONS | STACKSTATUSES | CARDPOSITIONS | BINSTATUSES;
+  payload: AllOptions;
 };
 
 export type BooleanActionType = {

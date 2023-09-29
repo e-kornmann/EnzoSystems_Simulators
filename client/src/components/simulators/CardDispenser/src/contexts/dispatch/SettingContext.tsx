@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useReducer } from 'react';
-import settingsReducer, { SettingStateType, SettingsAction } from '../../utils/settingReducer';
+import settingsReducer, { SettingsAction } from '../../utils/settingReducer';
+import { SettingStateType } from '../../types/SettingStateType';
 import APPSETTINGS from '../../enums/AppSettings';
 import BINSTATUSES from '../../enums/BinStatus';
 import CARDPOSITIONS from '../../enums/CardPosition';
@@ -15,7 +16,7 @@ type SettingContextValue = {
 };
 
 const intitialSettingState: SettingStateType = {
-  [APPSETTINGS.DEVICE_STATUS]: DEVICESTATUSOPTIONS.OUT_OF_ORDER,
+  [APPSETTINGS.DEVICE_STATUS]: DEVICESTATUSOPTIONS.CONNECTED,
   [APPSETTINGS.CARD_STACK]: STACKSTATUSES.FULL,
   [APPSETTINGS.BIN]: BINSTATUSES.FULL,
   [APPSETTINGS.CARD_POSITION]: CARDPOSITIONS.BEZEL,

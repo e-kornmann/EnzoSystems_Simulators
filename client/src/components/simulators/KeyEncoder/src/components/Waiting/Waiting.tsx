@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // date fns
 import { format, parseISO } from 'date-fns';
 // enums
-import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 // types
 import KeyType from '../../types/KeyType';
 // components
@@ -108,16 +108,16 @@ const StyledDate = styled('span')({
 });
 
 type WaitingProps = {
-  operationalState: DeviceStatusOptions,
+  operationalState: DEVICESTATUSOPTIONS,
   selectedKey: KeyType | null
 };
 
 const WaitingComponent = ({ operationalState, selectedKey }: WaitingProps) => {
   const title = useMemo(() => {
     switch (operationalState) {
-      case DeviceStatusOptions.DISCONNECTED:
+      case DEVICESTATUSOPTIONS.DISCONNECTED:
         return 'Disconnected';
-      case DeviceStatusOptions.OUT_OF_ORDER:
+      case DEVICESTATUSOPTIONS.OUT_OF_ORDER:
         return 'Out of order';
       default:
         return 'Waiting';
@@ -127,7 +127,7 @@ const WaitingComponent = ({ operationalState, selectedKey }: WaitingProps) => {
   return (
     <StyledWrapper>
       <StyledHeader>
-        { title === 'Waiting' ? <SharedLoading $isConnected={operationalState === DeviceStatusOptions.CONNECTED} /> : title }
+        { title === 'Waiting' ? <SharedLoading $isConnected={operationalState === DEVICESTATUSOPTIONS.CONNECTED} /> : title }
       </StyledHeader>
 
       {selectedKey

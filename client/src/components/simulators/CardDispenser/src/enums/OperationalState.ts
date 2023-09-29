@@ -1,4 +1,4 @@
-export enum OperationalState {
+enum OperationalState {
   DEVICE_START_UP,
   DEVICE_CONNECT,
   DEVICE_DISCONNECT,
@@ -7,7 +7,8 @@ export enum OperationalState {
   DEVICE_COULD_NOT_CONNECT,
   DEVICE_COULD_NOT_DISCONNECT,
   DEVICE_OUT_OF_ORDER,
-  DEVICE_WAITING_FOR_ID,
+  DEVICE_CREATING_A_KEY,
+  DEVICE_KEY_IS_READY,
   API_CANCEL,
   API_TIMED_OUT,
   DEVICE_IS_SCANNING,
@@ -15,3 +16,4 @@ export enum OperationalState {
   API_SCAN_SUCCESS,
   API_ERROR,
 }
+export default OperationalState;

@@ -1,6 +1,6 @@
 enum STACKSTATUSES {
-  FULL = 'Full',
-  LOW = 'Low',
-  EMPTY = 'Empty',
+  FULL = 'FULL',
+  LOW = 'LOW',
+  EMPTY = 'EMPTY',
 }
 export default STACKSTATUSES;

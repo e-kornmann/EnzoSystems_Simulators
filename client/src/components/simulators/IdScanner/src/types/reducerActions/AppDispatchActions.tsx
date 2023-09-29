@@ -1,4 +1,4 @@
-import DeviceStatusOptions from '../../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import ActionType from '../../enums/ActionTypes';
 import { IdType } from '../IdType';
 
@@ -45,7 +45,7 @@ type IdAction = { type: ActionType.SAVE_ID | ActionType.UPDATE_ID | ActionType.S
 type AllIdsAction = { type: ActionType.SET_ALL_LOCALIDS, payload: IdType[] };
 
 // Device status Actions
-type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DeviceStatusOptions };
+type SetDeviceStatusAction = { type: ActionType.SET_DEVICE_STATUS, payload: DEVICESTATUSOPTIONS };
 
 type AppDispatchActions =
   BooleanAction

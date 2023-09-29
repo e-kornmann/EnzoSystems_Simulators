@@ -18,7 +18,7 @@ import { axiosUrl, reqBody, scannerCredentials } from '../config';
 // types
 import { QrAppModi, QrCode } from '../App';
 import ShowIcon from '../../local_types/ShowIcon';
-import DeviceStatusOptions from '../enums/DeviceStatusOptions';
+import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
 import { changeDeviceStatus, getSession, putScannedData, stopSession } from '../utils/scanApiRequests';
 // translations
 import ts from '../Translations/translations';
@@ -73,7 +73,7 @@ const ButtonBox = styled('div')({
 });
 
 const ScanActionButton = styled('button')(({ theme }) => ({
-  backgroundcolor: theme.colors.text.secondary,
+  backgroundColor: theme.colors.text.secondary,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -193,13 +193,13 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   useEffect(() => {
     if (state.statusSettingIsClicked) {
       switch (state.statusOption) {
-        case DeviceStatusOptions.CONNECTED:
+        case DEVICESTATUSOPTIONS.CONNECTED:
           setOperationalState(OperationalState.DEVICE_START_UP);
           break;
-        case DeviceStatusOptions.DISCONNECTED:
+        case DEVICESTATUSOPTIONS.DISCONNECTED:
           setOperationalState(OperationalState.DEVICE_DISCONNECT);
           break;
-        case DeviceStatusOptions.OUT_OF_ORDER:
+        case DEVICESTATUSOPTIONS.OUT_OF_ORDER:
           setOperationalState(OperationalState.DEVICE_OUT_OF_ORDER);
           break;
         default:
@@ -225,9 +225,10 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
       } else {
         // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
         if (operationalState === OperationalState.DEVICE_WAITING_FOR_BARCODE) {
-          // remove this if when
+          // remove this if when TIMED OUT works
           if (res === 'NO_ACTIVE_SESSION') {
             setNextPoll(false);
+            console.log('DEVICE TIMED OUT');
             initialSessionRequest.current = true;
             setOperationalState(OperationalState.API_TIMED_OUT);
           } else if (res.status === 'TIMED_OUT') {
@@ -257,21 +258,21 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
     }
   }, [operationalState, token]);
 
-  const changeStatus = useCallback(async (changeToThisState: DeviceStatusOptions) => {
+  const changeStatus = useCallback(async (changeToThisState: DEVICESTATUSOPTIONS) => {
     if (token) {
       if (OperationalState.DEVICE_CONNECT) {
         const res = await changeDeviceStatus(token, changeToThisState);
         if (res) {
-          if (res.status === DeviceStatusOptions.CONNECTED) {
+          if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
             setOperationalState(OperationalState.DEVICE_CONNECTED);
           }
-          if (res.status === DeviceStatusOptions.DISCONNECTED) {
+          if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
             setOperationalState(OperationalState.DEVICE_DISCONNECTED);
           }
         // if there is no res.data.metadata
-        } else if (changeToThisState === DeviceStatusOptions.CONNECTED) {
+        } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
           setOperationalState(OperationalState.DEVICE_COULD_NOT_CONNECT);
-        } else if (changeToThisState === DeviceStatusOptions.DISCONNECTED) {
+        } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
           setOperationalState(OperationalState.DEVICE_COULD_NOT_DISCONNECT);
         }
       }
@@ -293,10 +294,10 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         break;
       case OperationalState.DEVICE_CONNECT:
         setInstructionText('');
-        changeStatus(DeviceStatusOptions.CONNECTED);
+        changeStatus(DEVICESTATUSOPTIONS.CONNECTED);
         // if setting isn't already connected, then set it.
-        if (state.statusOption !== DeviceStatusOptions.CONNECTED) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.CONNECTED });
+        if (state.statusOption !== DEVICESTATUSOPTIONS.CONNECTED) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DEVICESTATUSOPTIONS.CONNECTED });
         }
         break;
       case OperationalState.DEVICE_DISCONNECT:
@@ -305,14 +306,14 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         break;
       case OperationalState.DEVICE_DISCONNECTED:
         setInstructionText('DISCONNECTED');
-        if (state.statusOption !== DeviceStatusOptions.DISCONNECTED) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.DISCONNECTED });
+        if (state.statusOption !== DEVICESTATUSOPTIONS.DISCONNECTED) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
         }
         break;
       case OperationalState.DEVICE_OUT_OF_ORDER:
         setInstructionText(ts('outOfOrder', state.language));
-        if (state.statusOption !== DeviceStatusOptions.OUT_OF_ORDER) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DeviceStatusOptions.OUT_OF_ORDER });
+        if (state.statusOption !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
         }
         waitTime = 15000;
         break;
@@ -373,7 +374,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             setOperationalState(OperationalState.DEVICE_CONNECT);
             break;
           case OperationalState.DEVICE_DISCONNECT:
-            changeStatus(DeviceStatusOptions.DISCONNECTED);
+            changeStatus(DEVICESTATUSOPTIONS.DISCONNECTED);
             break;
           case OperationalState.DEVICE_COULD_NOT_CONNECT:
           case OperationalState.DEVICE_COULD_NOT_DISCONNECT:
@@ -415,7 +416,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
           case OperationalState.DEVICE_OUT_OF_ORDER:
             if (token) {
               // try to change device status on the backend, but stay in this state regardless
-              changeStatus(DeviceStatusOptions.OUT_OF_ORDER);
+              changeStatus(DEVICESTATUSOPTIONS.OUT_OF_ORDER);
             } else {
               // if there is no token try again to get one. (in case of a restart)
               setOperationalState(OperationalState.DEVICE_START_UP);

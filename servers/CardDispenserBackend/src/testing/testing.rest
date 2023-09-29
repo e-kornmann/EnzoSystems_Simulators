@@ -6,8 +6,8 @@ GET http://localhost:9010/api/simulator/card-dispenser/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMzQ1NiIsImlhdCI6MTY5NTg5MjM2MCwiZXhwIjoxNjk1OTc4NzYwLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.Ph14EnwVIpv7MvRwKx3LAhs5IorB2UG3fVVsmxcrsn8
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1ODkyMzY5LCJleHAiOjE2OTU5Nzg3NjksImlzcyI6IkVuem9zeXN0ZW1zIn0.rVkIC-ZdLmUn_dU_YC-HkF3iOqeTBq30XgjeHJ5XLXo
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkNhcmREaXNwZW5zZXIiLCJpYXQiOjE2OTU5OTMyNjIsImV4cCI6MTY5NjA3OTY2MiwiaXNzIjoiRW56b3N5c3RlbXMifQ.sy0PeU_WW-3j13NTBc8ep9tGkaYblJKUD-UR5-4prwA
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2MDAwMjg5LCJleHAiOjE2OTYwODY2ODksImlzcyI6IkVuem9zeXN0ZW1zIn0.5nR6fBjdJ4wRHxx3G5lJggHWeI-ElN3Ep3cvAU9vhGM
 
 ### DEVICE
 POST http://localhost:9010/api/simulator/card-dispenser/v1/auth
@@ -15,7 +15,7 @@ Content-type: application/json
 Authorization: Basic device:device
 
 {
-  "deviceId": "123456"
+  "deviceId": "CardDispenser"
 }
 
 ### HOST
@@ -50,12 +50,12 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 ####################################################################################
 
 ### HOST
-GET http://localhost:9010/api/simulator/card-dispenser/v1/123456/status
+GET http://localhost:9010/api/simulator/card-dispenser/v1/CardDispenser/status
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 ### HOST
-GET http://localhost:9010/api/simulator/card-dispenser/v1/123456/status?referenceDeviceStatus=DISCONNECTED
+GET http://localhost:9010/api/simulator/card-dispenser/v1/CardDispenser/status?referenceDeviceStatus=DISCONNECTED
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -70,7 +70,7 @@ Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "123456",
+  "deviceId": "CardDispenser",
   "command": "CREATE_CARD",
   "data": {
     "roomAccess": ["123"],
@@ -83,11 +83,11 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 ### HOST retract card
 POST http://localhost:9010/api/simulator/card-dispenser/v1/session
 Content-type: application/json
-Authorization: Beaer {{ACCESS_TOKEN_HOST}}
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
   "command": "RETRACT_CARD_NOT_TAKEN",
-  "deviceId": "123456"
+  "deviceId": "CardDispenser"
 }
 
 ### HOST send faulty card to bin
@@ -97,11 +97,11 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
   "command": "SEND_FAULTY_CARD_TO_BIN",
-  "deviceId": "123456"
+  "deviceId": "CardDispenser"
 }
 
 ### HOST request to cancel session by id
-PATCH http://localhost:9010/api/simulator/card-dispenser/v1/session/e99cc8f6-36df-4cdb-ae92-376aac00c3c4
+PATCH http://localhost:9010/api/simulator/card-dispenser/v1/session/4977bffa-c6a5-47fc-a8e4-e52a7c6a1c8d
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -110,7 +110,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PUT http://localhost:9010/api/simulator/card-dispenser/v1/session/2bd8a8aa-802e-4776-8a76-f1182c179436
+PUT http://localhost:9010/api/simulator/card-dispenser/v1/session/4977bffa-c6a5-47fc-a8e4-e52a7c6a1c8d
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -119,7 +119,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST get session by id
-GET http://localhost:9010/api/simulator/card-dispenser/v1/session/489d8531-8b63-400c-ac7e-697fd7e725b4
+GET http://localhost:9010/api/simulator/card-dispenser/v1/session/e92e0dd2-cb85-49ca-9c88-8dac2c7ad01b
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -140,9 +140,7 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
   "data": {
-    "cardId": "466421384",
-    "status": "FINISHED",
-    "additionalAccess": ["ENTREE"]
+    "status": "FINISHED"
   }
 }
 

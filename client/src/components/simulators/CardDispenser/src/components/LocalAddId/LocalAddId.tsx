@@ -1,17 +1,22 @@
-import { memo, useCallback, useContext, useEffect, useReducer, Reducer, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useReducer, Reducer, useState, useMemo } from 'react';
 // styled components
 import styled from 'styled-components';
 // components
-import { Translate } from '../../Translations/Translations';
+import { DropDown } from '../EnzoInputControls/EnzoDropdown/DropDown';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import AddIdDispatchActions from '../../types/reducerActions/AddIdDispatchActions';
 // types
 import InputActionType from '../../enums/InputActionTypes';
+import KeyType from '../../types/KeyType';
+
+// enums
+import Lang from '../../enums/Lang';
 import ActionType from '../../enums/ActionTypes';
-import { IdType } from '../../types/IdType';
-import { Lang } from '../../App';
+import InputFields from '../../enums/InputFields';
+// utils
 import { encodeInput } from '../../utils/mrcUtils';
+import translate from '../../Translations/translate';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -89,24 +94,40 @@ const StyledControl = styled('div')<{
   },
 }));
 
+const StyledDateFieldsWrapper = styled('div')(({ theme }) => ({
+  position: 'relative',
+  display: 'grid',
+  gridTemplateColumns: '1fr 28% 28%',
+  columnGap: '6px',
+  width: '100%',
+  maxWidth: '400px',
+  '& > p': {
+    color: theme.colors.text.tertiary,
+    margin: '2px 0 13px',
+    fontWeight: '600',
+    fontSize: '0.65em',
+    padding: '6px 3px 0',
+    gridColumn: 'span 3',
+    borderTop: '0.2em solid',
+    borderColor: theme.colors.buttons.lightgray,
+    '& > span': {
+      color: theme.colors.text.secondary,
+      position: 'relative',
+      top: '-0.45em',
+      fontSize: '80%',
+    },
+  },
+  '&:last-child': {
+    marginBottom: '25px',
+  },
+}));
+
 type AddIdStateType = {
   initialized: boolean;
-  iD: IdType;
+  iD: KeyType;
 };
 
-export enum InputFields {
-  ISSUER_CODE = 'issuerCode',
-  DOCUMENT_NR = 'documentNumber',
-  DOCUMENT_TYPE = 'documentType',
-  NAME_PRIMARY = 'namePrimary',
-  NAME_SECONDARY = 'nameSecondary',
-  SEX = 'sex',
-  NATIONALITY = 'nationality',
-  DATE_OF_BIRTH = 'dateOfBirth',
-  DATE_OF_EXPIRY = 'dateOfExpiry',
-}
-
-const examplePassPort: IdType = {
+const examplePassPort: KeyType = {
   [InputFields.ISSUER_CODE]: undefined,
   [InputFields.DOCUMENT_NR]: '',
   [InputFields.DOCUMENT_TYPE]: undefined,
@@ -139,7 +160,7 @@ const reducer: Reducer<AddIdStateType, AddIdDispatchActions> = (state, action): 
 
 type Props = {
   saveKeyClicked: boolean,
-  currentId: IdType | undefined,
+  cardData: KeyType | undefined,
   editMode: boolean,
   appLanguage: Lang;
 };
@@ -151,7 +172,7 @@ export type DateObjectType = {
   leapYear: boolean,
 };
 
-const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage }: Props) => {
+const LocalAddIdComponent = ({ saveKeyClicked, cardData, editMode, appLanguage }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const appDispatch = useContext(AppDispatchContext);
   const [dateOfBirthObject, setDateOfBirthObject] = useState<DateObjectType>({
@@ -196,8 +217,8 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
 
   // this useEffect fills inputfields when in Edit mode
   useEffect(() => {
-    if (editMode && currentId) {
-      dispatch({ type: InputActionType.SET_ID, payload: currentId });
+    if (editMode && cardData) {
+      dispatch({ type: InputActionType.SET_ID, payload: cardData });
       if (state.iD.dateOfBirth) {
         setDateOfBirthObject(prev => ({
           ...prev,
@@ -215,18 +236,143 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
         }));
       }
     }
-  }, [currentId, editMode, state.iD.dateOfBirth, state.iD.dateOfExpiry]);
+  }, [cardData, editMode, state.iD.dateOfBirth, state.iD.dateOfExpiry]);
 
   // wordt geroepen vanuit onOptionClick
   const handleInput = useCallback((payload: string, field: string) => {
     dispatch({ type: InputActionType.INPUT_VALUE, field, payload: encodeInput(payload) });
   }, []);
 
+  // wordt geroepen vanuit onOptionClick
+  const handleDateInput = useCallback((option: string, field: InputFields, dateObjectField: string | undefined) => {
+    if (field === InputFields.DATE_OF_BIRTH && dateObjectField) setDateOfBirthObject(prev => ({ ...prev, [dateObjectField]: option }));
+    if (field === InputFields.DATE_OF_EXPIRY && dateObjectField) setDateOfExpiryObject(prev => ({ ...prev, [dateObjectField]: option }));
+  }, []);
+
+  const amountOfDays = useCallback((month: string | undefined, field: InputFields): string[] => {
+    const numbersArray: string[] = [];
+
+    const makeArray = (number: number) => {
+      for (let i = 1; i <= number; i++) {
+        const formattedNumber = i.toString().padStart(2, '0'); // Add leading zero if needed
+        numbersArray.push(formattedNumber);
+      }
+    };
+    switch (month) {
+      case '01': // January
+      case '03': // March
+      case '05': // May
+      case '07': // July
+      case '08': // August
+      case '10': // October
+      case '12': // December
+        makeArray(31);
+        break;
+      case '04': // April
+      case '06': // June
+      case '09': // September
+      case '11': // November
+        makeArray(30);
+        break;
+      case '02': // February
+        if (field === InputFields.DATE_OF_BIRTH && dateOfBirthObject.leapYear === true) {
+          makeArray(29);
+          break;
+        }
+        if (field === InputFields.DATE_OF_EXPIRY && dateOfExpiryObject.leapYear === true) {
+          makeArray(29);
+          break;
+        }
+        makeArray(28);
+        break;
+      default:
+        break;
+    }
+    return numbersArray;
+  }, [dateOfBirthObject.leapYear, dateOfExpiryObject.leapYear]);
+
+  const AllInputFields = useMemo(() => Object.values(InputFields).map(field => {
+    switch (field) {
+      case InputFields.ISSUER_CODE:
+      case InputFields.DOCUMENT_TYPE:
+      case InputFields.SEX:
+      case InputFields.NATIONALITY:
+        return (
+            <DropDown initialValue={state.iD[field]} key={field} field={field} onOptionClicked={handleInput} appLanguage={appLanguage}/>
+        );
+      case InputFields.DATE_OF_BIRTH:
+      case InputFields.DATE_OF_EXPIRY:
+        return (
+            <StyledDateFieldsWrapper key={field}>
+              <p>{translate(field, appLanguage)}<span>*</span></p>
+              <DropDown
+                initialValue={field === InputFields.DATE_OF_BIRTH
+                  ? dateOfBirthObject.year
+                  : dateOfExpiryObject.year}
+                key={`${field}_year`}
+                field={field}
+                dateObjectField={'year'}
+                onOptionClicked={handleDateInput}
+                appLanguage={appLanguage}
+              />
+              <DropDown
+                initialValue={field === InputFields.DATE_OF_BIRTH
+                  ? dateOfBirthObject.month
+                  : dateOfExpiryObject.month}
+                key={`${field}_month`}
+                field={field}
+                dateObjectField={'month'}
+                onOptionClicked={handleDateInput}
+                appLanguage={appLanguage}
+              />
+              <DropDown
+                initialValue={field === InputFields.DATE_OF_BIRTH
+                  ? dateOfBirthObject.day
+                  : dateOfExpiryObject.day}
+                key={`${field}_day`}
+                field={field}
+                dateObjectField={'day'}
+                onOptionClicked={handleDateInput}
+                appLanguage={appLanguage}
+                isDisabled={field === InputFields.DATE_OF_BIRTH
+                  ? (dateOfBirthObject.year === undefined || dateOfBirthObject.month === undefined)
+                  : (dateOfExpiryObject.year === undefined || dateOfExpiryObject.month === undefined)}
+                amountOfDays={field === InputFields.DATE_OF_BIRTH
+                  ? amountOfDays(dateOfBirthObject.month, field)
+                  : amountOfDays(dateOfExpiryObject.month, field)}
+              />
+            </StyledDateFieldsWrapper>
+        );
+      default:
+        return (
+            <StyledControl key={field} $hasValue={state.iD && state.iD[field] !== ''}>
+              <label>{translate(field, appLanguage)}:<span>*</span></label>
+              <input
+                type="text"
+                maxLength={field === InputFields.DOCUMENT_NR ? 9 : undefined}
+                value={state.iD[field]}
+                onChange={e => { handleInput(e.target.value, field); }} />
+            </StyledControl>
+        );
+    }
+  }), [
+    amountOfDays,
+    appLanguage,
+    dateOfBirthObject.day,
+    dateOfBirthObject.month,
+    dateOfBirthObject.year,
+    dateOfExpiryObject.day,
+    dateOfExpiryObject.month,
+    dateOfExpiryObject.year,
+    handleDateInput,
+    handleInput,
+    state.iD]);
+
   useEffect(() => {
     if (saveKeyClicked) {
       if (state.iD) {
         appDispatch({
-          type: editMode ? ActionType.UPDATE_ID : ActionType.SAVE_ID,
+          type: editMode ? ActionType.UPDATE_ID : ActionType.RECEIVE_KEY_DATA,
           payload: {
             ...state.iD,
             dateOfBirth: dateOfBirthObject.year && dateOfBirthObject.year + dateOfBirthObject.month + dateOfBirthObject.day,
@@ -269,24 +415,7 @@ const LocalAddIdComponent = ({ saveKeyClicked, currentId, editMode, appLanguage 
   return (
     <StyledWrapper>
       <StyledForm>
-        {Object.values(InputFields).map(field => {
-          switch (field) {
-            case InputFields.ISSUER_CODE:
-            case InputFields.DOCUMENT_TYPE:
-            case InputFields.SEX:
-            default:
-              return (
-                <StyledControl key={field} $hasValue={state.iD && state.iD[field] !== ''}>
-                  <label><Translate id={field} language={appLanguage} />:<span>*</span></label>
-                  <input
-                    type="text"
-                    maxLength={field === InputFields.DOCUMENT_NR ? 9 : undefined}
-                    value={state.iD[field]}
-                    onChange={e => { handleInput(e.target.value, field); }} />
-                </StyledControl>
-              );
-          }
-        })}
+        {AllInputFields}
       </StyledForm>
     </StyledWrapper>
   );

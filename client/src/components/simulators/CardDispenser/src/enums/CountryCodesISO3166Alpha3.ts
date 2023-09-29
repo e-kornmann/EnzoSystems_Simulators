@@ -3,7 +3,7 @@
  * Code](https://www.iso.org/iso-3166-country-codes.html). These enumerables
  * were converted into alpha3 codes based on https://www.iban.com/country-codes.
  */
-export enum CountriesAlpha3 {
+enum CountriesAlpha3 {
   Afghanistan = 'AFG',
   'Aland Islands' = 'ALA',
   Albania = 'ALB',
@@ -252,3 +252,4 @@ export enum CountriesAlpha3 {
   Zambia = 'ZMB',
   'Zimbabwe' = 'ZWE',
 }
+export default CountriesAlpha3;

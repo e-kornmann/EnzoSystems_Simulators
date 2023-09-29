@@ -9,9 +9,9 @@ import { ReactComponent as CheckmarkIcon } from '../../../local_assets/checkmark
 
 import ActionType from '../../enums/ActionTypes';
 
-import { IdType } from '../../types/IdType';
-import { InputFields } from '../LocalAddId/LocalAddId';
-import ShowIdType from '../../types/ShowIdType';
+import KeyType from '../../types/KeyType';
+import ShowKeyType from '../../types/ShowKeyType';
+import InputFields from '../../enums/InputFields';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -136,27 +136,27 @@ const StyledSharedCheckBox = styled('div')<{
 );
 
 type ViewIdsProps = {
-  iDs: IdType[] | null,
-  currentId: IdType | undefined,
-  showIds: ShowIdType,
+  iDs: KeyType[] | null,
+  cardData: KeyType | undefined,
+  showIds: ShowKeyType,
 };
 
-const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewIdsProps) => {
+const ViewIdsComponent = ({ iDs, cardData, showIds }: ViewIdsProps) => {
   const { deleteIdClicked, selectAllIdsClicked, deselectAllIdsClicked, editMode, deleteMode } = showIds;
-  const [currentIdsForDeletion, setSelectedIDsForDeletion] = useState<IdType[]>([]);
+  const [cardDatasForDeletion, setSelectedIDsForDeletion] = useState<KeyType[]>([]);
   const appDispatch = useContext(AppDispatchContext);
 
-  const toggleSelectedIDForDeletion = useCallback((id: IdType) => {
-    if (currentIdsForDeletion) {
-      if (currentIdsForDeletion.includes(id)) {
-        setSelectedIDsForDeletion(currentIdsForDeletion.filter(k => k !== id));
+  const toggleSelectedIDForDeletion = useCallback((id: KeyType) => {
+    if (cardDatasForDeletion) {
+      if (cardDatasForDeletion.includes(id)) {
+        setSelectedIDsForDeletion(cardDatasForDeletion.filter(k => k !== id));
       } else {
-        setSelectedIDsForDeletion([...currentIdsForDeletion, id]);
+        setSelectedIDsForDeletion([...cardDatasForDeletion, id]);
       }
     }
-  }, [currentIdsForDeletion]);
+  }, [cardDatasForDeletion]);
 
-  const handleKeySelect = useCallback((key: IdType) => {
+  const handleKeySelect = useCallback((key: KeyType) => {
     appDispatch({ type: ActionType.SELECT_ID, payload: key });
     if (editMode) {
       appDispatch({ type: ActionType.EDIT_ID, payload: true });
@@ -171,28 +171,28 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewIdsProps) => {
   }, [appDispatch, deleteMode, editMode, toggleSelectedIDForDeletion]);
 
   useEffect(() => {
-    if (deleteIdClicked && iDs && currentIdsForDeletion) {
-      const newIds = iDs.filter(k => !currentIdsForDeletion.includes(k));
+    if (deleteIdClicked && iDs && cardDatasForDeletion) {
+      const newIds = iDs.filter(k => !cardDatasForDeletion.includes(k));
       appDispatch({ type: ActionType.SET_ALL_LOCALIDS, payload: newIds });
-      if (currentId && !newIds.includes(currentId)) {
+      if (cardData && !newIds.includes(cardData)) {
         appDispatch({ type: ActionType.SELECT_ID, payload: newIds[0] });
       }
       appDispatch({ type: ActionType.CLICKED_CROSS });
     }
-  }, [appDispatch, deleteIdClicked, iDs, currentId, currentIdsForDeletion]);
+  }, [appDispatch, deleteIdClicked, iDs, cardData, cardDatasForDeletion]);
 
   useEffect(() => {
     // Check if all Keys are selected
-    if (iDs && currentIdsForDeletion) {
+    if (iDs && cardDatasForDeletion) {
       const allKeys = Object.values(iDs);
-      const areAllSchemesSelected = allKeys.every(k => currentIdsForDeletion.includes(k));
+      const areAllSchemesSelected = allKeys.every(k => cardDatasForDeletion.includes(k));
       if (areAllSchemesSelected) {
         appDispatch({ type: ActionType.ALL_IDS_ARE_SELECTED, payload: true });
       } else {
         appDispatch({ type: ActionType.ALL_IDS_ARE_SELECTED, payload: false });
       }
     }
-  }, [appDispatch, iDs, currentIdsForDeletion]);
+  }, [appDispatch, iDs, cardDatasForDeletion]);
 
   // this is the footer button listener
   useEffect(() => {
@@ -206,14 +206,14 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewIdsProps) => {
 
   // this useEffects Enables AND Disables the Delete button when in DeleteMode
   useEffect(() => {
-    if (deleteMode && currentIdsForDeletion) {
-      if (currentIdsForDeletion.length > 0) {
+    if (deleteMode && cardDatasForDeletion) {
+      if (cardDatasForDeletion.length > 0) {
         appDispatch({ type: ActionType.SET_DELETE_BUTTON, payload: true });
-      } else if (currentIdsForDeletion.length === 0) {
+      } else if (cardDatasForDeletion.length === 0) {
         appDispatch({ type: ActionType.SET_DELETE_BUTTON, payload: false });
       }
     }
-  }, [appDispatch, deleteMode, iDs, currentIdsForDeletion]);
+  }, [appDispatch, deleteMode, iDs, cardDatasForDeletion]);
 
   return (
     <StyledWrapper>
@@ -222,8 +222,8 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewIdsProps) => {
           <StyledItem>
             <StyledWrap>
 
-              {deleteMode && currentIdsForDeletion
-                && <StyledSharedCheckBox $isSelected={currentIdsForDeletion.includes(id)}>
+              {deleteMode && cardDatasForDeletion
+                && <StyledSharedCheckBox $isSelected={cardDatasForDeletion.includes(id)}>
                   <CheckmarkIcon width={9} height={6} />
                 </StyledSharedCheckBox>
               }
@@ -235,7 +235,7 @@ const ViewIdsComponent = ({ iDs, currentId, showIds }: ViewIdsProps) => {
             </StyledInfo>
 
           </StyledItem>
-          {(id === currentId && !editMode && !deleteMode) && <StyledCheckMark />}
+          {(id === cardData && !editMode && !deleteMode) && <StyledCheckMark />}
         </StyledButton>
      ))}
     </StyledWrapper>
