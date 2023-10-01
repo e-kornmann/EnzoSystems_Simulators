@@ -62,10 +62,10 @@ const GlobalStyle = createGlobalStyle({
   },
 });
 
-const StyledApp = styled(SharedStyledContainer)({
+const StyledApp = styled(SharedStyledContainer)(() => ({
   gridTemplateRows: '35px 1fr 40px',
   overflowY: 'hidden',
-});
+}));
 
 const StyledContentWrapper = styled('div')({
   backgroundColor: theme.colors.background.secondary,

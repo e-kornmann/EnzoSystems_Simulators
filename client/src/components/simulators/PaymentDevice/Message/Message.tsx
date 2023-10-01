@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { memo } from 'react';
 import * as Sv from '../../../../styles/stylevariables';
-import { MessageContentType, PinTerminalStatus } from '../types';
+import { MessageContentType, OPSTATE } from '../types';
 import { SharedSuccesOrFailIcon } from '../../../shared/CheckAndCrossIcon';
 
 export const MessageContainer = styled.div`    
@@ -48,10 +48,10 @@ export const IconContainer = styled.div`
 
 type Props = {
   content: MessageContentType;
-  terminalState: PinTerminalStatus;
+  operationalState: OPSTATE;
 };
 
-const MessageBlock = ({ content, terminalState }: Props) => {
+const MessageBlock = ({ content, operationalState }: Props) => {
   const {
     mainline, subline, checkOrCrossIcon,
   } = content;
@@ -72,7 +72,7 @@ const MessageBlock = ({ content, terminalState }: Props) => {
             <SharedSuccesOrFailIcon isFailed={true} width={53} height={53} />
           </IconContainer>} */}
 
-        {(terminalState === PinTerminalStatus.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine>
+        {(operationalState === OPSTATE.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine>
           : <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>
 
         }

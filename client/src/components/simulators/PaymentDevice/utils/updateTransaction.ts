@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { PinTerminalStatus } from '../types';
+import { OPSTATE } from '../types';
 import { axiosUrl, reqBody } from '../Config';
 
 const updateTransaction = async (
   accessToken: string,
   transactionId: string,
   amountPaid: number,
-  setStatus: React.Dispatch<React.SetStateAction<PinTerminalStatus>>,
+  setStatus: React.Dispatch<React.SetStateAction<OPSTATE>>,
 ) => {
   try {
     const config = {
@@ -27,7 +27,7 @@ const updateTransaction = async (
     );
     return response.status;
   } catch (error) {
-    setStatus(PinTerminalStatus.SERVER_ERROR);
+    setStatus(OPSTATE.SERVER_ERROR);
 
     if (axios.isAxiosError(error)) {
       return error.response?.status;

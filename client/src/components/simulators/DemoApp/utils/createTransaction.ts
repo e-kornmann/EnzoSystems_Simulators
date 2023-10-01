@@ -30,7 +30,7 @@ const createTransaction = async (
         authorization: `Bearer ${accessToken}`,
       },
     };
-    const response = await axiosUrl.post(`/${import.meta.env.VITE_MERCHANT_ID}/${import.meta.env.VITE_TERMINAL_ID}/transactions`, {
+    const response = await axiosUrl.post(`/${import.meta.env.VITE_PIN_DEVICE_MERCHANT_ID}/${import.meta.env.VITE_PIN_DEVICE_TERMINAL_ID}/transactions`, {
       amountToPay: processAmount(amountToPay),
       locale: intlConfig.locale,
       currency: intlConfig.currency,

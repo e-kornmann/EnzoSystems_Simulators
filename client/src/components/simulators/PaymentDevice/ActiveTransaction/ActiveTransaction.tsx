@@ -1,7 +1,7 @@
 import { styled } from 'styled-components';
 import { useContext, useEffect } from 'react';
 import { AppContext } from '../utils/settingsReducer';
-import { PayMethod, PinTerminalStatus } from '../types';
+import { PayMethod, OPSTATE } from '../types';
 import * as Sv from '../../../../styles/stylevariables';
 import ChoosePayMethod from './ChoosePayMethod/ChoosePayMethod';
 import { SharedLoading } from '../../../shared/Loading';
@@ -160,7 +160,7 @@ type Props = {
   pincode: string;
   handlePincodeSetter: (value: string) => void;
   handleCorrectionEvent: ()=>void;
-  currentState: PinTerminalStatus;
+  currentState: OPSTATE;
   init: boolean;
 };
 
@@ -182,13 +182,13 @@ const ActiveTransaction = ({
 
   let instruction: string;
   switch (currentState) {
-    case PinTerminalStatus.PIN_ENTRY:
+    case OPSTATE.PIN_ENTRY:
       instruction = ts('enterPin', state.language);
       break;
-    case PinTerminalStatus.WRONG_PIN:
+    case OPSTATE.WRONG_PIN:
       instruction = ts('wrongPin', state.language);
       break;
-    case PinTerminalStatus.PIN_CONFIRM:
+    case OPSTATE.PIN_CONFIRM:
       instruction = ts('confirmPin', state.language);
       break;
     default:
@@ -196,23 +196,23 @@ const ActiveTransaction = ({
       break;
   }
 
-  const transactionIsActive: boolean = currentState === PinTerminalStatus.CHOOSE_METHOD
-    || currentState === PinTerminalStatus.ACTIVE_METHOD
-    || currentState === PinTerminalStatus.PIN_CONFIRM
-    || currentState === PinTerminalStatus.PIN_ENTRY
-    || currentState === PinTerminalStatus.CHECK_PIN
-    || currentState === PinTerminalStatus.WRONG_PIN;
+  const transactionIsActive: boolean = currentState === OPSTATE.CHOOSE_METHOD
+    || currentState === OPSTATE.ACTIVE_METHOD
+    || currentState === OPSTATE.PIN_CONFIRM
+    || currentState === OPSTATE.PIN_ENTRY
+    || currentState === OPSTATE.CHECK_PIN
+    || currentState === OPSTATE.WRONG_PIN;
 
-  const showPayMethodButtons: boolean = currentState === PinTerminalStatus.CHOOSE_METHOD
-    || currentState === PinTerminalStatus.ACTIVE_METHOD;
+  const showPayMethodButtons: boolean = currentState === OPSTATE.CHOOSE_METHOD
+    || currentState === OPSTATE.ACTIVE_METHOD;
 
-  const showNumPad: boolean = currentState === PinTerminalStatus.PIN_ENTRY
-    || currentState === PinTerminalStatus.WRONG_PIN
-    || currentState === PinTerminalStatus.PIN_CONFIRM
-    || currentState === PinTerminalStatus.CHECK_PIN;
+  const showNumPad: boolean = currentState === OPSTATE.PIN_ENTRY
+    || currentState === OPSTATE.WRONG_PIN
+    || currentState === OPSTATE.PIN_CONFIRM
+    || currentState === OPSTATE.CHECK_PIN;
 
-  const hideCorrectAndOkButton: boolean = currentState === PinTerminalStatus.CHOOSE_METHOD
-    || currentState === PinTerminalStatus.ACTIVE_METHOD;
+  const hideCorrectAndOkButton: boolean = currentState === OPSTATE.CHOOSE_METHOD
+    || currentState === OPSTATE.ACTIVE_METHOD;
 
   // This useEffect listens to KeyEvents and initiates the corrsponding functions.
   useEffect(() => {
@@ -244,10 +244,10 @@ const ActiveTransaction = ({
     <>
     <ActiveTransactionContainer>
       <AmountBox $show={transactionIsActive}>
-      { currentState === PinTerminalStatus.CHECK_PIN ? <LoadingDotsContainer><SharedLoading /></LoadingDotsContainer>
+      { currentState === OPSTATE.CHECK_PIN ? <LoadingDotsContainer><SharedLoading /></LoadingDotsContainer>
         : <>
         <IconContainer><SharedSuccesOrFailIcon
-          checkOrCrossIcon={currentState === PinTerminalStatus.WRONG_PIN ? ShowIcon.CROSS : undefined } width={15} height={15}/>
+          checkOrCrossIcon={currentState === OPSTATE.WRONG_PIN ? ShowIcon.CROSS : undefined } width={15} height={15}/>
         </IconContainer>
         <AmountText>{ ts('amountToPay', state.language) }</AmountText>
         <Price>{amountText}</Price>

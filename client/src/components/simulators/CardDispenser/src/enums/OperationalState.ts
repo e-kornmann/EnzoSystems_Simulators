@@ -1,4 +1,4 @@
-enum OperationalState {
+enum OPSTATE {
   DEVICE_START_UP,
   DEVICE_CONNECT,
   DEVICE_DISCONNECT,
@@ -14,6 +14,6 @@ enum OperationalState {
   DEVICE_IS_SCANNING,
   API_SCAN_FAILED,
   API_SCAN_SUCCESS,
-  API_ERROR,
+  SERVER_ERROR,
 }
-export default OperationalState;
+export default OPSTATE;

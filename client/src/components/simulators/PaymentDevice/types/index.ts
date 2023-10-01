@@ -1,10 +1,10 @@
 import CurrencyCode from '../../../../types/CurrencyTypes';
 import Locale from '../../../../types/LocaleTypes';
-import ShowIcon from '../../../shared/sharedTypes/ShowIcon';
+import ShowIcon from '../../QR-Scanner/local_types/ShowIcon';
 
-export enum PinTerminalStatus {
-  START_UP,
-  OUT_OF_ORDER,
+export enum OPSTATE {
+  DEVICE_START_UP,
+  DEVICE_OUT_OF_ORDER,
   IDLE,
   UPDATE_TRANSACTION,
   SERVER_ERROR,

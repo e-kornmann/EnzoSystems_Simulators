@@ -1,19 +1,18 @@
 import axios from 'axios';
 import { CredentialType, ReqLogOnType } from '../../../../types/LogOnTypes';
 
-export const pinTerminalCredentials: CredentialType = {
-  userName: 'terminal',
-  passWord: 'terminal',
-};
-
 export const correctPin = import.meta.env.VITE_PINCODE_SUCCEEDED;
 export const negBalancePin = import.meta.env.VITE_NEGBALANCE;
 export const cardlessSecurityPoint = import.meta.env.VITE_CARDLESS_SECURITY_POINT;
-export const merchantId = import.meta.env.VITE_MERCHANT_ID;
-export const terminalId = import.meta.env.VITE_TERMINAL_ID;
 
-export const reqBody: ReqLogOnType = { merchantId, terminalId };
+export const pinTerminalCredentials: CredentialType = {
+  userName: import.meta.env.VITE_PIN_DEVICE_USERNAME,
+  passWord: import.meta.env.VITE_PIN_DEVICE_PASSWORD,
+};
 
-const baseURL = import.meta.env.VITE_BASE_API_URL
-|| `http://localhost:${import.meta.env.VITE_PORT}/${import.meta.env.VITE_API_BASE_PATH}/v${import.meta.env.VITE_API_VERSION}`;
+export const reqBody: ReqLogOnType = {
+  deviceId: import.meta.env.VITE_PIN_DEVICE_TERMINAL_ID,
+};
+
+const baseURL = import.meta.env.VITE_PIN_DEVICE_BASE_URL || import.meta.env.VITE_PIN_DEVICE_LOCAL_BASE_URL || 'updateyour.env-file';
 export const axiosUrl = axios.create({ baseURL });

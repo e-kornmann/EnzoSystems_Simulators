@@ -7,7 +7,7 @@ import { axiosUrl, cardlessSecurityPoint, correctPin, negBalancePin, pinTerminal
 import useStopTransaction from '../../../hooks/useStopTransaction';
 import rejectTransaction from './utils/rejectTransaction';
 import updateTransaction from './utils/updateTransaction';
-import { AcceptTransactionStateType, MessageContentType, PayMethod, PinTerminalStatus } from './types';
+import { AcceptTransactionStateType, MessageContentType, PayMethod, OPSTATE } from './types';
 import acceptTransaction from './utils/acceptTransaction';
 import useGetTransaction from '../../../hooks/useGetTransaction';
 import PayProvider from '../../shared/PayProvider';
@@ -48,7 +48,7 @@ const initialMessage = {
 const PaymentTerminal = () => {
   const { state } = useContext(AppContext);
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody, axiosUrl);
-  const [terminalState, setTerminalState] = useState(PinTerminalStatus.START_UP);
+  const [operationalState, setOperationalState] = useState(OPSTATE.DEVICE_START_UP);
   const [transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
   const { transactionDetails, getTransaction } = useGetTransaction(token, transactionState.transactionId, reqBody, axiosUrl);
   const { stopTransaction } = useStopTransaction(token, transactionState.transactionId, reqBody, axiosUrl);
@@ -57,24 +57,19 @@ const PaymentTerminal = () => {
   const [pinAttempts, setPinAttempts] = useState(0);
   const [hideSettings, setHideSettings] = useState(true);
   const [hidePayProviders, setHidePayProviders] = useState(true);
-  const [init, setInit] = useState(false);
   const [messageContent, setMessageContent] = useState<MessageContentType>(initialMessage);
 
-  useEffect(() => {
-    if (init === false) {
-      const doLogOn = async () => {
-        const logOnSucceeded = await logOn();
-        setInit(logOnSucceeded);
-      };
-      doLogOn();
-    }
-  }, [init, logOn, stopTransaction]);
+  const getToken = useCallback(async () => {
+    await logOn().then(success => (success
+      ? setOperationalState(OPSTATE.IDLE)
+      : setOperationalState(OPSTATE.SERVER_ERROR)));
+  }, [logOn]);
 
-  // Fetch transaction details at regular intervals (1 second) if the terminalState is not idle,
+  // Fetch transaction details at regular intervals (1 second) if the operationalState is not idle,
   // and put the response in transactionDetails:
   // eslint-disable-next-line consistent-return
   useEffect(() => {
-    if (terminalState !== PinTerminalStatus.IDLE && terminalState !== PinTerminalStatus.START_UP) {
+    if (operationalState !== OPSTATE.IDLE && operationalState !== OPSTATE.DEVICE_START_UP) {
       const interval = setInterval(() => {
         getTransaction();
       }, 1000);
@@ -82,12 +77,12 @@ const PaymentTerminal = () => {
         clearInterval(interval);
       };
     }
-  }, [terminalState, getTransaction]);
+  }, [operationalState, getTransaction]);
 
   // check if the transactionDetails.Status is 'STOPPED' and go back to IDLE mode with:
   useEffect(() => {
     if (transactionDetails.status === 'STOPPED') {
-      setTerminalState(PinTerminalStatus.STOP_TRANSACTION);
+      setOperationalState(OPSTATE.STOP_TRANSACTION);
     }
   }, [transactionDetails.status]);
 
@@ -97,7 +92,7 @@ const PaymentTerminal = () => {
 
   useEffect(() => {
     if (pincode.length === 4) {
-      setTerminalState(PinTerminalStatus.PIN_CONFIRM);
+      setOperationalState(OPSTATE.PIN_CONFIRM);
     }
   }, [pincode]);
 
@@ -108,14 +103,14 @@ const PaymentTerminal = () => {
   }, [setPincode, pincode]);
 
   const chooseMethodHandler = (method: PayMethod) => {
-    setTerminalState(PinTerminalStatus.ACTIVE_METHOD);
+    setOperationalState(OPSTATE.ACTIVE_METHOD);
     setActivePayMethod(method);
   };
 
   const handleConfirmEvent = () => {
     if (pincode.length === 4) {
       setPinAttempts(pinAttempts + 1);
-      setTerminalState(PinTerminalStatus.CHECK_PIN);
+      setOperationalState(OPSTATE.CHECK_PIN);
     }
   };
 
@@ -128,22 +123,22 @@ const PaymentTerminal = () => {
     let acceptTransactionStatusCode: number | undefined;
     let updateTransactionStatusCode: number | undefined;
 
-    switch (terminalState) {
-      case PinTerminalStatus.START_UP:
+    switch (operationalState) {
+      case OPSTATE.DEVICE_START_UP:
         setMessageContent(initialMessage);
-        waitTime = 1000;
+        waitTime = 1500;
         break;
-      case PinTerminalStatus.OUT_OF_ORDER:
+      case OPSTATE.DEVICE_OUT_OF_ORDER:
         setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         break;
-      case PinTerminalStatus.IDLE:
+      case OPSTATE.IDLE:
         setMessageContent({ ...initialMessage, mainline: ts('welcome', state.language) });
         setPinAttempts(0);
         setActivePayMethod(PayMethod.NONE);
         setPincode('');
         waitTime = 1000;
         break;
-      case PinTerminalStatus.SERVER_ERROR:
+      case OPSTATE.SERVER_ERROR:
         if (updateTransactionStatusCode === 409) {
           setMessageContent({
             ...initialMessage,
@@ -161,16 +156,16 @@ const PaymentTerminal = () => {
         }
         waitTime = 4500;
         break;
-      case PinTerminalStatus.CHOOSE_METHOD:
+      case OPSTATE.CHOOSE_METHOD:
         waitTime = 15000;
         break;
-      case PinTerminalStatus.ACTIVE_METHOD:
+      case OPSTATE.ACTIVE_METHOD:
         waitTime = 500;
         break;
-      case PinTerminalStatus.PIN_CONFIRM:
+      case OPSTATE.PIN_CONFIRM:
         waitTime = 7000;
         break;
-      case PinTerminalStatus.STOP_TRANSACTION:
+      case OPSTATE.STOP_TRANSACTION:
         setMessageContent({
           ...initialMessage,
           subline: ts('stopTransaction', state.language),
@@ -178,135 +173,132 @@ const PaymentTerminal = () => {
         });
         waitTime = 4500;
         break;
-      case PinTerminalStatus.PIN_ENTRY:
-      case PinTerminalStatus.WRONG_PIN:
+      case OPSTATE.PIN_ENTRY:
+      case OPSTATE.WRONG_PIN:
         waitTime = 10000;
         break;
-      case PinTerminalStatus.CHECK_PIN:
+      case OPSTATE.CHECK_PIN:
         waitTime = 1500;
         break;
-      case PinTerminalStatus.TIMED_OUT:
+      case OPSTATE.TIMED_OUT:
         setMessageContent({ ...initialMessage, mainline: ts('timedOut', state.language), subline: ts('timedOut', state.language, 1) });
         waitTime = 2000;
         break;
-      case PinTerminalStatus.CHECK_AMOUNT:
+      case OPSTATE.CHECK_AMOUNT:
         setMessageContent({ ...initialMessage, subline: ts('oneMoment', state.language) });
         waitTime = 1000;
         break;
-      case PinTerminalStatus.PIN_ERROR:
+      case OPSTATE.PIN_ERROR:
         if (token) {
           rejectTransaction(token, transactionState.transactionId, 'FAIL');
           setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         }
         waitTime = 4500;
         break;
-      case PinTerminalStatus.AMOUNT_ERROR:
+      case OPSTATE.AMOUNT_ERROR:
         if (token) {
           rejectTransaction(token, transactionState.transactionId, 'DECLINE');
           setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         }
         waitTime = 4500;
         break;
-      case PinTerminalStatus.UPDATE_TRANSACTION:
+      case OPSTATE.UPDATE_TRANSACTION:
         setMessageContent({ ...initialMessage, subline: ts('oneMoment', state.language) });
         waitTime = 500;
         break;
-      case PinTerminalStatus.SUCCESS:
+      case OPSTATE.SUCCESS:
         setMessageContent({ ...initialMessage, subline: ts('paymentAccepted', state.language), checkOrCrossIcon: ShowIcon.CHECK });
         waitTime = 3500;
         break;
-      case PinTerminalStatus.STOPPED:
-        setTerminalState(PinTerminalStatus.OUT_OF_ORDER);
+      case OPSTATE.STOPPED:
+        setOperationalState(OPSTATE.DEVICE_OUT_OF_ORDER);
         break;
       default:
-        setTerminalState(PinTerminalStatus.UNKNOWN);
+        break;
     }
     // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
     if (waitTime) {
       intervalId = setInterval(async () => {
-        switch (terminalState) {
-          case PinTerminalStatus.START_UP:
-            if (init === false) {
-              setTerminalState(PinTerminalStatus.OUT_OF_ORDER);
-            } else {
-              setTerminalState(PinTerminalStatus.IDLE);
-            }
+        switch (operationalState) {
+          case OPSTATE.DEVICE_START_UP:
+            if (!token) getToken();
+            else setOperationalState(OPSTATE.IDLE);
             break;
-          case PinTerminalStatus.IDLE:
+          case OPSTATE.IDLE:
             if (token) {
               acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
-              if (acceptTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.CHOOSE_METHOD);
+              if (acceptTransactionStatusCode === 200) setOperationalState(OPSTATE.CHOOSE_METHOD);
             }
             break;
-          case PinTerminalStatus.CHOOSE_METHOD:
-            setTerminalState(PinTerminalStatus.TIMED_OUT);
+          case OPSTATE.CHOOSE_METHOD:
+            setOperationalState(OPSTATE.TIMED_OUT);
             break;
-          case PinTerminalStatus.ACTIVE_METHOD:
+          case OPSTATE.ACTIVE_METHOD:
             if ((activePayMethod === PayMethod.CONTACTLESS && transactionState.amountToPay <= cardlessSecurityPoint)
              || activePayMethod === PayMethod.SMARTPHONE) {
-              setTerminalState(PinTerminalStatus.CHECK_AMOUNT);
+              setOperationalState(OPSTATE.CHECK_AMOUNT);
             } else {
-              setTerminalState(PinTerminalStatus.PIN_ENTRY);
+              setOperationalState(OPSTATE.PIN_ENTRY);
             }
             break;
-          case PinTerminalStatus.STOP_TRANSACTION:
+          case OPSTATE.STOP_TRANSACTION:
             stopTransaction();
-            setTerminalState(PinTerminalStatus.IDLE); // hier ook misschien nog samenvoegen.
+            setOperationalState(OPSTATE.IDLE); // hier ook misschien nog samenvoegen.
             break;
-          case PinTerminalStatus.SERVER_ERROR:
+          case OPSTATE.SERVER_ERROR:
             stopTransaction();
-            setTerminalState(PinTerminalStatus.IDLE);
+            setOperationalState(OPSTATE.IDLE);
             break;
-          case PinTerminalStatus.PIN_CONFIRM:
-            setTerminalState(PinTerminalStatus.TIMED_OUT);
+          case OPSTATE.PIN_CONFIRM:
+            setOperationalState(OPSTATE.TIMED_OUT);
             break;
-          case PinTerminalStatus.PIN_ENTRY:
-            setTerminalState(PinTerminalStatus.TIMED_OUT);
+          case OPSTATE.PIN_ENTRY:
+            setOperationalState(OPSTATE.TIMED_OUT);
             break;
-          case PinTerminalStatus.TIMED_OUT:
+          case OPSTATE.TIMED_OUT:
             stopTransaction();
-            setTerminalState(PinTerminalStatus.IDLE);
+            setOperationalState(OPSTATE.IDLE);
             break;
-          case PinTerminalStatus.WRONG_PIN:
-            setTerminalState(PinTerminalStatus.TIMED_OUT);
+          case OPSTATE.WRONG_PIN:
+            setOperationalState(OPSTATE.TIMED_OUT);
             break;
-          case PinTerminalStatus.CHECK_PIN:
+          case OPSTATE.CHECK_PIN:
             if ((pincode !== correctPin && pincode !== negBalancePin) && pinAttempts === 3) {
               // Too many attempts
-              setTerminalState(PinTerminalStatus.PIN_ERROR);
+              setOperationalState(OPSTATE.PIN_ERROR);
             } else if (pincode !== correctPin && pincode !== negBalancePin) {
               // Try again (counter is located in the handleConfirmButton)
               setPincode('');
-              setTerminalState(PinTerminalStatus.WRONG_PIN);
+              setOperationalState(OPSTATE.WRONG_PIN);
             } else {
-              setTerminalState(PinTerminalStatus.CHECK_AMOUNT);
+              setOperationalState(OPSTATE.CHECK_AMOUNT);
             }
             break;
-          case PinTerminalStatus.CHECK_AMOUNT:
+          case OPSTATE.CHECK_AMOUNT:
             // You do not have enough money!
             if (pincode === negBalancePin) {
-              setTerminalState(PinTerminalStatus.AMOUNT_ERROR);
+              setOperationalState(OPSTATE.AMOUNT_ERROR);
             } else {
               // other conditions.. so if pin is correct but also when payMethod = contactless
-              setTerminalState(PinTerminalStatus.UPDATE_TRANSACTION);
+              setOperationalState(OPSTATE.UPDATE_TRANSACTION);
             }
             break;
-          case PinTerminalStatus.UPDATE_TRANSACTION:
+          case OPSTATE.UPDATE_TRANSACTION:
             if (token) {
               updateTransactionStatusCode = await
-              updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setTerminalState);
-              if (updateTransactionStatusCode === 200) setTerminalState(PinTerminalStatus.SUCCESS);
-              else setTerminalState(PinTerminalStatus.SERVER_ERROR);
+              updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setOperationalState);
+              if (updateTransactionStatusCode === 200) setOperationalState(OPSTATE.SUCCESS);
+              else setOperationalState(OPSTATE.SERVER_ERROR);
             }
             break;
-          case PinTerminalStatus.PIN_ERROR || PinTerminalStatus.AMOUNT_ERROR:
-            setTerminalState(PinTerminalStatus.IDLE);
+          case OPSTATE.PIN_ERROR || OPSTATE.AMOUNT_ERROR:
+            setOperationalState(OPSTATE.IDLE);
             break;
-          case PinTerminalStatus.AMOUNT_ERROR:
-            setTerminalState(PinTerminalStatus.IDLE);
+          case OPSTATE.AMOUNT_ERROR:
+            setOperationalState(OPSTATE.IDLE);
             break;
-          case PinTerminalStatus.SUCCESS:
-            setTerminalState(PinTerminalStatus.IDLE);
+          case OPSTATE.SUCCESS:
+            setOperationalState(OPSTATE.IDLE);
             break;
           default:
             break;
@@ -320,32 +312,43 @@ const PaymentTerminal = () => {
       }
     };
   }, [activePayMethod,
-    pincode,
-    init,
+    getToken,
+    operationalState,
     pinAttempts,
-    setMessageContent,
+    pincode,
     state.language,
     stopTransaction,
-    terminalState,
     token,
     transactionState.amountToPay,
     transactionState.transactionId]);
+// ]
+  
+//   [activePayMethod,
+//     getToken,
+//     operationalState,
+//     pinAttempts,
+//     pincode,
+//     state.language,
+//     stopTransaction,
+//     token,
+//     transactionState.amountToPay,
+//     transactionState.transactionId]);
 
   const showMessage = useMemo(() => {
-    if (terminalState === PinTerminalStatus.OUT_OF_ORDER
-      || terminalState === PinTerminalStatus.IDLE
-      || terminalState === PinTerminalStatus.SERVER_ERROR
-      || terminalState === PinTerminalStatus.STOP_TRANSACTION
-      || terminalState === PinTerminalStatus.TIMED_OUT
-      || terminalState === PinTerminalStatus.CHECK_AMOUNT
-      || terminalState === PinTerminalStatus.PIN_ERROR
-      || terminalState === PinTerminalStatus.AMOUNT_ERROR
-      || terminalState === PinTerminalStatus.UPDATE_TRANSACTION
-      || terminalState === PinTerminalStatus.SUCCESS) {
+    if (operationalState === OPSTATE.DEVICE_OUT_OF_ORDER
+      || operationalState === OPSTATE.IDLE
+      || operationalState === OPSTATE.SERVER_ERROR
+      || operationalState === OPSTATE.STOP_TRANSACTION
+      || operationalState === OPSTATE.TIMED_OUT
+      || operationalState === OPSTATE.CHECK_AMOUNT
+      || operationalState === OPSTATE.PIN_ERROR
+      || operationalState === OPSTATE.AMOUNT_ERROR
+      || operationalState === OPSTATE.UPDATE_TRANSACTION
+      || operationalState === OPSTATE.SUCCESS) {
       return true;
     }
     return false;
-  }, [terminalState]);
+  }, [operationalState]);
 
   return (
 
@@ -358,12 +361,12 @@ const PaymentTerminal = () => {
         <Content>
 
           {/* {Show loading dots by start-up} */}
-          {terminalState === PinTerminalStatus.START_UP && <MessageContainer><SharedLoading /></MessageContainer>}
+          {operationalState === OPSTATE.DEVICE_START_UP && <MessageContainer><SharedLoading /></MessageContainer>}
 
           {/* {Show window without numpad OR numpad} */}
           {
             showMessage
-              ? <Message content={messageContent} terminalState={terminalState} />
+              ? <Message content={messageContent} operationalState={operationalState} />
               : <ActiveTransaction
                 chooseMethodHandler={chooseMethodHandler}
                 activePayMethod={activePayMethod}
@@ -371,10 +374,10 @@ const PaymentTerminal = () => {
                 handleCorrectionEvent={handleCorrectionEvent}
                 handleStopEvent={stopTransaction}
                 handleConfirmEvent={handleConfirmEvent}
-                currentState={terminalState}
+                currentState={operationalState}
                 pincode={pincode}
                 amount={transactionState.amountToPay}
-                init={init} />
+                init={token !== undefined } />
           }
         </Content>
         <StyledFooter>

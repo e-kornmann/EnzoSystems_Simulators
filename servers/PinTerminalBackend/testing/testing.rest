@@ -1,0 +1,154 @@
+### Get Health info
+GET http://localhost:9020/api/simulator/payment-terminal/v1/health
+
+
+####################################################################################
+### Log-on host/device with username/password and exchange for access token (24 hours valid)
+####################################################################################
+
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMy00NTYtNzg5IiwiaWF0IjoxNjk1NzI3NTA2LCJleHAiOjE2OTU4MTM5MDYsImlzcyI6IkVuem9zeXN0ZW1zIn0.y7DPJ-9VgP5CDQfJPoVddqS3KRL6c5URMzgtUquw79E
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1NzI3NTE5LCJleHAiOjE2OTU4MTM5MTksImlzcyI6IkVuem9zeXN0ZW1zIn0.KWCYh2m--ez6N3RaaD5FvCo1U4SRP8XNYeoI1tSFiLg
+### DEVICE
+POST http://localhost:9020/api/simulator/payment-terminal/v1/auth
+Content-type: application/json
+Authorization: Basic device:device
+
+{
+  "deviceId": "PaymentTerminal"
+}
+
+### HOST
+POST http://localhost:9020/api/simulator/payment-terminal/v1/auth
+Content-type: application/json
+Authorization: Basic host:host
+
+{
+  "hostId": "DEMOAPP"
+}
+
+####################################################################################
+### Set device status and connect it to the back-end (DEVICE only, call on regular base, check .env for time-out)
+####################################################################################
+
+### DEVICE
+PUT http://localhost:9020/api/simulator/payment-terminal/v1/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "status": "CONNECTED"
+}
+
+####################################################################################
+### Get device status (HOST)
+####################################################################################
+
+### HOST
+GET http://localhost:9020/api/simulator/payment-terminal/v1/PaymentTerminal/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+### HOST
+GET http://localhost:9020/api/simulator/payment-terminal/v1/PaymentTerminal/status?referenceDeviceStatus=NOT_FOUND
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+####################################################################################
+### POST request for starting new payment session (HOST)
+####################################################################################
+
+### HOST
+POST http://localhost:9020/api/simulator/payment-terminal/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "PAYMENT",
+  "data": {
+    "deviceId": "PaymentTerminal",
+    "amount": 1000,
+    "currency": "EUR",
+    "locale": "nl-NL",
+    "merchantId": "Enzosystems",
+    "systemId": "DTK-3-300",
+    "orderId": "123456",
+    "description": "Test betaling"
+  }
+}
+
+
+####################################################################################
+### GET request for getting a specific payment session by session id (HOST)
+####################################################################################
+
+### HOST
+GET http://localhost:9020/api/simulator/payment-terminal/v1/session/c495366d-056f-4ba9-b05d-ebad5bfd914c
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+####################################################################################
+### PUT request for stopping an active session by session id (HOST)
+####################################################################################
+
+### HOST
+PATCH http://localhost:9020/api/simulator/payment-terminal/v1/session/ca914bb9-8c28-4f0f-acec-0ddd996fc262
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CANCEL"
+}
+
+
+####################################################################################
+### GET/PUT requests for getting and updating current active session (DEVICE)
+####################################################################################
+
+### DEVICE 
+GET http://localhost:9020/api/simulator/payment-terminal/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+
+
+### DEVICE
+PUT http://localhost:9020/api/simulator/payment-terminal/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "amountPaid": 1000,
+    "scheme": "VISA",
+    "status": "APPROVED",
+    "pan": "1234 5678 9012 3456"
+  }
+}
+
+
+### DEVICE
+PUT http://localhost:9020/api/simulator/payment-terminal/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "status": "STOPPED"
+  }
+}
+
+### DEVICE
+PUT http://localhost:9020/api/simulator/payment-terminal/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "status": "DECLINED"
+  }
+}
+
+
