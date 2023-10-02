@@ -220,15 +220,12 @@ const CardDispenserComponent = ({ cardData }: Props) => {
   const getScanSession = useCallback(async () => {
     if (token) {
       const res = await getSession(token);
-      if (res.result === 'NO_ACTIVE_SESSION') {
-        console.log(`new res: ${res.result}`);
-      }
       if (!res) {
         setOperationalState(OPSTATE.SERVER_ERROR);
         setNextPoll(false);
         initialSessionRequest.current = true;
       } else {
-        // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
+        // only do next poll if status is IDLE or WAITING_FOR_ID otherwhise you will get conflicts.
         if (operationalState === OPSTATE.DEVICE_KEY_IS_READY) {
           // remove this if when TIMED OUT WORKS
           if (res.result === 'NO_ACTIVE_SESSION') {
@@ -249,7 +246,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             setNextPoll(true);
           }
         }
-        if (operationalState === OPSTATE.DEVICE_CONNECTED) {
+        if (operationalState === OPSTATE.DEVICE_IDLE) {
           if (res.metadata?.command === 'CREATE_CARD' && res.metadata?.status === 'ACTIVE') {
             setNextPoll(false);
             initialSessionRequest.current = true;
@@ -266,26 +263,24 @@ const CardDispenserComponent = ({ cardData }: Props) => {
 
   const changeStatus = useCallback(async (changeToThisState: DeviceStateType) => {
     if (token) {
-      if (OPSTATE.DEVICE_CONNECT) {
-        const res = await changeDeviceStatus(token, changeToThisState);
-        if (res) {
-          if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
-            console.log(`Device succesfully updated device state on the backend: ${res.status}`);
-            setOperationalState(OPSTATE.DEVICE_CONNECTED);
-          }
-          if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
-            console.log(`Device succesfully updated device state on the backend: ${res.status}`);
-            setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
-          }
-          if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
-            console.log(`Device succesfully updated device state on the backend: ${res.status}`);
-          }
-        // if there is no res.data.metadata
-        } else if (changeToThisState.status === DEVICESTATUSOPTIONS.CONNECTED) {
-          setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
-        } else if (changeToThisState.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
-          setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
+      const res = await changeDeviceStatus(token, changeToThisState);
+      if (res) {
+        if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_IDLE);
         }
+        if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
+        }
+        if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+        }
+        // if there is no res.data.metadata
+      } else if (changeToThisState.status === DEVICESTATUSOPTIONS.CONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
+      } else if (changeToThisState.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
       }
     }
   }, [token]);
@@ -300,10 +295,6 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setInstructionText('');
         waitTime = 1500;
         break;
-      case OPSTATE.SERVER_ERROR:
-        setInstructionText('SERVER ERROR');
-        waitTime = 15000;
-        break;
       case OPSTATE.DEVICE_CONNECT:
         setInstructionText('');
         changeStatus(deviceState);
@@ -311,6 +302,15 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.CONNECTED) {
           settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.CONNECTED });
         }
+        break;
+      case OPSTATE.DEVICE_IDLE:
+        setInstructionText('');
+        waitTime = 50000;
+        // when in this state getSession is initiated
+        break;
+      case OPSTATE.DEVICE_COULD_NOT_CONNECT:
+        setInstructionText('Could not connect');
+        waitTime = 3500;
         break;
       case OPSTATE.DEVICE_DISCONNECT:
         setInstructionText('Disconnecting...');
@@ -321,15 +321,6 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.DISCONNECTED) {
           settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
         }
-        break;
-      case OPSTATE.DEVICE_CONNECTED:
-        setInstructionText('');
-        waitTime = 50000;
-        // when in this state getSession is initiated
-        break;
-      case OPSTATE.DEVICE_COULD_NOT_CONNECT:
-        setInstructionText('Could not connect');
-        waitTime = 3500;
         break;
       case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
         setInstructionText('Could not disconnect');
@@ -366,6 +357,10 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setInstructionText('SUCCESS');
         waitTime = 2500;
         break;
+      case OPSTATE.SERVER_ERROR:
+        setInstructionText('SERVER ERROR');
+        waitTime = 15000;
+        break;
       case OPSTATE.DEVICE_OUT_OF_ORDER:
         setInstructionText('OUT OF ORDER');
         if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
@@ -388,12 +383,10 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         switch (operationalState) {
           case OPSTATE.DEVICE_START_UP:
             if (!token) getToken();
+            // dont try again to get one but try to connect
             else setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
-          case OPSTATE.SERVER_ERROR:
-            setOperationalState(OPSTATE.DEVICE_START_UP);
-            break;
-          case OPSTATE.DEVICE_CONNECTED:
+          case OPSTATE.DEVICE_IDLE:
             // connect again to avoid server TIMEOUT
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
@@ -458,7 +451,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
   /* Repeatedly Get Session Based on operationalState */
   useEffect(() => {
     // while WAITING, send a new "long" poll for a new session (1st request)
-    if ((operationalState === OPSTATE.DEVICE_CONNECTED
+    if ((operationalState === OPSTATE.DEVICE_IDLE
         || operationalState === OPSTATE.DEVICE_KEY_IS_READY)
         && initialSessionRequest.current) {
       initialSessionRequest.current = false;
@@ -471,7 +464,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         getScanSession();
       }
       // any subsequent request
-    } else if ((operationalState === OPSTATE.DEVICE_CONNECTED
+    } else if ((operationalState === OPSTATE.DEVICE_IDLE
         || operationalState === OPSTATE.DEVICE_KEY_IS_READY)
         && nextPoll && !initialSessionRequest.current) {
       console.log('next getScanSession');
@@ -493,9 +486,9 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           {(
             operationalState === OPSTATE.DEVICE_START_UP
           || operationalState === OPSTATE.DEVICE_CONNECT
-          || operationalState === OPSTATE.DEVICE_CONNECTED
+          || operationalState === OPSTATE.DEVICE_IDLE
           )
-          && <SharedLoading $isConnected={ operationalState === OPSTATE.DEVICE_CONNECTED } />}
+          && <SharedLoading $isConnected={ operationalState === OPSTATE.DEVICE_IDLE } />}
           <span> {instructionText}</span>
         </InstructionBox>
         <IconBox>

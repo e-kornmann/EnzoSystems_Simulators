@@ -1,26 +1,24 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.svg';
 import ExpandIcon from '../../shared/Expand';
 import useLogOn from '../../../hooks/useLogOn';
 import { axiosUrl, cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
-import useStopTransaction from '../../../hooks/useStopTransaction';
-import rejectTransaction from './utils/rejectTransaction';
-import updateTransaction from './utils/updateTransaction';
-import { AcceptTransactionStateType, MessageContentType, PayMethod, OPSTATE } from './types';
-import acceptTransaction from './utils/acceptTransaction';
-import useGetTransaction from '../../../hooks/useGetTransaction';
+// import updateTransaction from './utils/updateTransaction';
+import { MessageContentType, PayMethod, OPSTATE } from './types';
+import { changeDeviceStatus, getSession, stopTransaction, updateTransaction } from './utils/acceptTransaction';
 import PayProvider from '../../shared/PayProvider';
 import ActiveTransaction from './ActiveTransaction/ActiveTransaction';
 import * as S from '../../shared/DraggableModal/ModalTemplate';
 import TimeRibbon from '../../shared/TimeRibbon';
 import SelectScheme from './DeviceSettings/AvailableSettings/SelectScheme';
-import DeviceSettings from './DeviceSettings/DeviceSettings';
 import { Message, MessageContainer } from './Message/Message';
 import ts from './Translations/translations';
 import { AppContext } from './utils/settingsReducer';
 import { SharedLoading } from '../../shared/Loading';
+import { DeviceSettings } from './DeviceSettings/DeviceSettings';
 import ShowIcon from '../../../types/ShowIcon';
+import DEVICESTATUSOPTIONS from './enums/DeviceStatusOptions';
 
 const Content = styled.div`
   padding: 0 10px 50px;
@@ -45,48 +43,33 @@ const initialMessage = {
   checkOrCrossIcon: undefined,
 };
 
-const PaymentTerminal = () => {
+const PaymentTerminalComponent = () => {
   const { state } = useContext(AppContext);
   const { token, logOn } = useLogOn(pinTerminalCredentials, reqBody, axiosUrl);
+  const [init, setInit] = useState(false);
+  const [nextPoll, setNextPoll] = useState(false);
+  const initialSessionRequest = useRef(true);
   const [operationalState, setOperationalState] = useState(OPSTATE.DEVICE_START_UP);
-  const [transactionState, setTransactionState] = useState<AcceptTransactionStateType>({ transactionId: '', amountToPay: 0 });
-  const { transactionDetails, getTransaction } = useGetTransaction(token, transactionState.transactionId, reqBody, axiosUrl);
-  const { stopTransaction } = useStopTransaction(token, transactionState.transactionId, reqBody, axiosUrl);
+  const [amountToPay, setAmountToPay] = useState(0);
   const [activePayMethod, setActivePayMethod] = useState(PayMethod.NONE);
   const [pincode, setPincode] = useState('');
   const [pinAttempts, setPinAttempts] = useState(0);
   const [hideSettings, setHideSettings] = useState(true);
   const [hidePayProviders, setHidePayProviders] = useState(true);
   const [messageContent, setMessageContent] = useState<MessageContentType>(initialMessage);
+  const [deviceState, setDeviceState] = useState(DEVICESTATUSOPTIONS.CONNECTED);
 
-  const getToken = useCallback(async () => {
-    await logOn().then(success => (success
-      ? setOperationalState(OPSTATE.IDLE)
-      : setOperationalState(OPSTATE.SERVER_ERROR)));
-  }, [logOn]);
-
-  // Fetch transaction details at regular intervals (1 second) if the operationalState is not idle,
-  // and put the response in transactionDetails:
-  // eslint-disable-next-line consistent-return
   useEffect(() => {
-    if (operationalState !== OPSTATE.IDLE && operationalState !== OPSTATE.DEVICE_START_UP) {
-      const interval = setInterval(() => {
-        getTransaction();
-      }, 1000);
-      return () => {
-        clearInterval(interval);
+    if (init === false) {
+      const doLogOn = async () => {
+        const logOnSucceeded = await logOn();
+        setInit(logOnSucceeded);
       };
+      doLogOn();
     }
-  }, [operationalState, getTransaction]);
+  }, [init, logOn]);
 
-  // check if the transactionDetails.Status is 'STOPPED' and go back to IDLE mode with:
-  useEffect(() => {
-    if (transactionDetails.status === 'STOPPED') {
-      setOperationalState(OPSTATE.STOP_TRANSACTION);
-    }
-  }, [transactionDetails.status]);
-
-  const handleCorrectionEvent = React.useCallback(() => {
+  const handleCorrectionEvent = useCallback(() => {
     setPincode('');
   }, [setPincode]);
 
@@ -96,7 +79,7 @@ const PaymentTerminal = () => {
     }
   }, [pincode]);
 
-  const handlePincodeSetter = React.useCallback((value: string) => {
+  const handlePincodeSetter = useCallback((value: string) => {
     if (pincode.length < 4) {
       setPincode(pincode + value);
     }
@@ -106,6 +89,10 @@ const PaymentTerminal = () => {
     setOperationalState(OPSTATE.ACTIVE_METHOD);
     setActivePayMethod(method);
   };
+
+  const stopTransactionHandler = useCallback(() => {
+    setOperationalState(OPSTATE.STOP_TRANSACTION);
+  }, []);
 
   const handleConfirmEvent = () => {
     if (pincode.length === 4) {
@@ -117,10 +104,79 @@ const PaymentTerminal = () => {
   const settingsButtonHandler = useCallback(() => setHideSettings(prev => !prev), []);
   const payProviderButtonHandler = useCallback(() => setHidePayProviders(prev => !prev), []);
 
+  const getPaymentSession = useCallback(async () => {
+    if (token) {
+      const res = await getSession(token);
+      if (!res) {
+        setOperationalState(OPSTATE.SERVER_ERROR);
+        setNextPoll(false);
+        initialSessionRequest.current = true;
+      } else {
+        // only do next poll if status is IDLE or CHOOSE_METHOD otherwhise you will get conflicts.
+        if (operationalState === OPSTATE.DEVICE_IDLE) {
+          if (res.metadata?.command === 'PAYMENT' && res.metadata?.status === 'ACTIVE') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setAmountToPay(res.transactionData.amount);
+            setOperationalState(OPSTATE.CHOOSE_METHOD);
+          } else {
+            console.log(res);
+            setNextPoll(true);
+          }
+        }
+        if (operationalState === OPSTATE.CHOOSE_METHOD) {
+          // but don't do a next poll when these situations occur.
+          if (res.result === 'NO_ACTIVE_SESSION') {
+            // this one can be deleted when timed_out works
+            setNextPoll(false);
+            console.log('DEVICE TIMED OUT');
+            initialSessionRequest.current = true;
+            setOperationalState(OPSTATE.API_TIMED_OUT);
+          } else if (res.metadata?.status === 'TIMED_OUT') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OPSTATE.API_TIMED_OUT);
+          } else if (res.metadata?.status === 'CANCELLING') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OPSTATE.API_CANCEL);
+            // no timeout? en no cancelling? get another session.
+          } else {
+            console.log(res);
+            setNextPoll(true);
+          }
+        }
+      }
+    }
+  }, [operationalState, token]);
+
+  const changeStatus = useCallback(async (changeToThisState: DEVICESTATUSOPTIONS) => {
+    if (token) {
+      const res = await changeDeviceStatus(token, changeToThisState);
+      if (res) {
+        if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_IDLE);
+        }
+        if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
+        }
+        if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+        }
+        // if there is no res.data.metadata
+      } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
+      } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
+      }
+    }
+  }, [token]);
+
   useEffect(() => {
     let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
-    let acceptTransactionStatusCode: number | undefined;
     let updateTransactionStatusCode: number | undefined;
 
     switch (operationalState) {
@@ -128,36 +184,44 @@ const PaymentTerminal = () => {
         setMessageContent(initialMessage);
         waitTime = 1500;
         break;
-      case OPSTATE.DEVICE_OUT_OF_ORDER:
-        setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+      case OPSTATE.DEVICE_CONNECT:
+        setNextPoll(false);
+        initialSessionRequest.current = true;
+        setMessageContent(initialMessage);
+        changeStatus(DEVICESTATUSOPTIONS.CONNECTED);
+        // if setting isn't already connected, then set it.
+        if (deviceState !== DEVICESTATUSOPTIONS.CONNECTED) {
+          setDeviceState(DEVICESTATUSOPTIONS.CONNECTED);
+        }
         break;
-      case OPSTATE.IDLE:
+      case OPSTATE.DEVICE_IDLE:
         setMessageContent({ ...initialMessage, mainline: ts('welcome', state.language) });
         setPinAttempts(0);
         setActivePayMethod(PayMethod.NONE);
         setPincode('');
-        waitTime = 1000;
+        waitTime = 25000;
+        // when in this state getSession is initiated
         break;
-      case OPSTATE.SERVER_ERROR:
-        if (updateTransactionStatusCode === 409) {
-          setMessageContent({
-            ...initialMessage,
-            mainline: ts('serverError409', state.language),
-            subline: ts('serverError409', state.language, 1),
-            checkOrCrossIcon: ShowIcon.CROSS,
-          });
-        } else { // if response status code is not 409, set message with a regular serverError;
-          setMessageContent({
-            ...initialMessage,
-            mainline: ts('serverError', state.language),
-            subline: ts('serverError', state.language, 1),
-            checkOrCrossIcon: ShowIcon.CROSS,
-          });
-        }
-        waitTime = 4500;
+      case OPSTATE.DEVICE_COULD_NOT_CONNECT:
+        setMessageContent({ ...initialMessage, mainline: ts('couldNotConnect', state.language) });
+        waitTime = 3500;
         break;
+      // case OPSTATE.DEVICE_DISCONNECT:
+      //   setMessageContent({ ...initialMessage, subline: ts('Disconnecting...', state.language) });
+      //   waitTime = 1000;
+      //   break;
+      // case OPSTATE.DEVICE_DISCONNECTED:
+      //   setMessageContent({ ...initialMessage, subline: ts('DISCONNECTED', state.language) });
+      //   if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.DISCONNECTED) {
+      //     settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
+      //   }
+      //   break;
+      // case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
+      //   setMessageContent({ ...initialMessage, mainline: ts('couldNotDisconnect', state.language) });
+      //   waitTime = 3500;
+      //   break;
       case OPSTATE.CHOOSE_METHOD:
-        waitTime = 15000;
+        waitTime = 12000;
         break;
       case OPSTATE.ACTIVE_METHOD:
         waitTime = 500;
@@ -180,7 +244,7 @@ const PaymentTerminal = () => {
       case OPSTATE.CHECK_PIN:
         waitTime = 1500;
         break;
-      case OPSTATE.TIMED_OUT:
+      case OPSTATE.API_TIMED_OUT:
         setMessageContent({ ...initialMessage, mainline: ts('timedOut', state.language), subline: ts('timedOut', state.language, 1) });
         waitTime = 2000;
         break;
@@ -190,14 +254,14 @@ const PaymentTerminal = () => {
         break;
       case OPSTATE.PIN_ERROR:
         if (token) {
-          rejectTransaction(token, transactionState.transactionId, 'FAIL');
+          stopTransaction(token, 'DECLINED');
           setMessageContent({ ...initialMessage, subline: ts('pinError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         }
         waitTime = 4500;
         break;
       case OPSTATE.AMOUNT_ERROR:
         if (token) {
-          rejectTransaction(token, transactionState.transactionId, 'DECLINE');
+          stopTransaction(token, 'DECLINED');
           setMessageContent({ ...initialMessage, subline: ts('amountError', state.language), checkOrCrossIcon: ShowIcon.CROSS });
         }
         waitTime = 4500;
@@ -213,7 +277,29 @@ const PaymentTerminal = () => {
       case OPSTATE.STOPPED:
         setOperationalState(OPSTATE.DEVICE_OUT_OF_ORDER);
         break;
+      case OPSTATE.SERVER_ERROR:
+        if (updateTransactionStatusCode === 409) {
+          setMessageContent({
+            ...initialMessage,
+            mainline: ts('serverError409', state.language),
+            subline: ts('serverError409', state.language, 1),
+            checkOrCrossIcon: ShowIcon.CROSS,
+          });
+        } else { // if response status code is not 409, set message with a regular serverError;
+          setMessageContent({
+            ...initialMessage,
+            mainline: ts('serverError', state.language),
+            subline: ts('serverError', state.language, 1),
+            checkOrCrossIcon: ShowIcon.CROSS,
+          });
+        }
+        waitTime = 4500;
+        break;
+      case OPSTATE.DEVICE_OUT_OF_ORDER:
+        setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+        break;
       default:
+        setOperationalState(OPSTATE.UNKNOWN);
         break;
     }
     // when in the designated state, execute ↓ this ↓ AFTER the spicified waittime
@@ -221,46 +307,44 @@ const PaymentTerminal = () => {
       intervalId = setInterval(async () => {
         switch (operationalState) {
           case OPSTATE.DEVICE_START_UP:
-            if (!token) getToken();
-            else setOperationalState(OPSTATE.IDLE);
-            break;
-          case OPSTATE.IDLE:
-            if (token) {
-              acceptTransactionStatusCode = await acceptTransaction(token, setTransactionState);
-              if (acceptTransactionStatusCode === 200) setOperationalState(OPSTATE.CHOOSE_METHOD);
+            if (init === false) {
+              setOperationalState(OPSTATE.SERVER_ERROR);
+            } else {
+              setOperationalState(OPSTATE.DEVICE_CONNECT);
             }
+            // if (!token) getToken();
+            // else setOperationalState(OPSTATE.DEVICE_IDLE);
             break;
-          case OPSTATE.CHOOSE_METHOD:
-            setOperationalState(OPSTATE.TIMED_OUT);
+          case OPSTATE.DEVICE_IDLE:
+            // connect again to avoid server TIMEOUT
+            setOperationalState(OPSTATE.DEVICE_CONNECT);
+            break;
+          // case OPSTATE.DEVICE_DISCONNECT:
+          //   changeStatus(DEVICESTATUSOPTIONS.DISCONNECTED);
+          //   break;
+          case OPSTATE.DEVICE_COULD_NOT_CONNECT:
+          // case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
+            setOperationalState(OPSTATE.SERVER_ERROR);
             break;
           case OPSTATE.ACTIVE_METHOD:
-            if ((activePayMethod === PayMethod.CONTACTLESS && transactionState.amountToPay <= cardlessSecurityPoint)
+            if ((activePayMethod === PayMethod.CONTACTLESS && amountToPay <= cardlessSecurityPoint)
              || activePayMethod === PayMethod.SMARTPHONE) {
               setOperationalState(OPSTATE.CHECK_AMOUNT);
             } else {
               setOperationalState(OPSTATE.PIN_ENTRY);
             }
             break;
-          case OPSTATE.STOP_TRANSACTION:
-            stopTransaction();
-            setOperationalState(OPSTATE.IDLE); // hier ook misschien nog samenvoegen.
-            break;
-          case OPSTATE.SERVER_ERROR:
-            stopTransaction();
-            setOperationalState(OPSTATE.IDLE);
-            break;
           case OPSTATE.PIN_CONFIRM:
-            setOperationalState(OPSTATE.TIMED_OUT);
-            break;
           case OPSTATE.PIN_ENTRY:
-            setOperationalState(OPSTATE.TIMED_OUT);
-            break;
-          case OPSTATE.TIMED_OUT:
-            stopTransaction();
-            setOperationalState(OPSTATE.IDLE);
-            break;
+          case OPSTATE.CHOOSE_METHOD:
           case OPSTATE.WRONG_PIN:
-            setOperationalState(OPSTATE.TIMED_OUT);
+            setOperationalState(OPSTATE.API_TIMED_OUT);
+            break;
+          case OPSTATE.API_TIMED_OUT:
+          case OPSTATE.STOP_TRANSACTION:
+          case OPSTATE.SERVER_ERROR:
+            if (token) stopTransaction(token, 'STOPPED');
+            setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
           case OPSTATE.CHECK_PIN:
             if ((pincode !== correctPin && pincode !== negBalancePin) && pinAttempts === 3) {
@@ -284,21 +368,23 @@ const PaymentTerminal = () => {
             }
             break;
           case OPSTATE.UPDATE_TRANSACTION:
-            if (token) {
-              updateTransactionStatusCode = await
-              updateTransaction(token, transactionState.transactionId, transactionState.amountToPay, setOperationalState);
-              if (updateTransactionStatusCode === 200) setOperationalState(OPSTATE.SUCCESS);
-              else setOperationalState(OPSTATE.SERVER_ERROR);
+            if (token && amountToPay) {
+              const res = await updateTransaction(token, amountToPay, state.schemeInUse);
+              console.log(res);
+              if (res) {
+                if (res.status === 'FINISHED') {
+                  setOperationalState(OPSTATE.SUCCESS);
+                } else {
+                  console.log(res);
+                  setOperationalState(OPSTATE.SERVER_ERROR);
+                }
+              }
             }
             break;
-          case OPSTATE.PIN_ERROR || OPSTATE.AMOUNT_ERROR:
-            setOperationalState(OPSTATE.IDLE);
-            break;
+          case OPSTATE.PIN_ERROR:
           case OPSTATE.AMOUNT_ERROR:
-            setOperationalState(OPSTATE.IDLE);
-            break;
           case OPSTATE.SUCCESS:
-            setOperationalState(OPSTATE.IDLE);
+            setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
           default:
             break;
@@ -312,34 +398,23 @@ const PaymentTerminal = () => {
       }
     };
   }, [activePayMethod,
-    getToken,
+    amountToPay,
+    changeStatus,
+    deviceState,
+    init,
     operationalState,
     pinAttempts,
     pincode,
     state.language,
-    stopTransaction,
-    token,
-    transactionState.amountToPay,
-    transactionState.transactionId]);
-// ]
-  
-//   [activePayMethod,
-//     getToken,
-//     operationalState,
-//     pinAttempts,
-//     pincode,
-//     state.language,
-//     stopTransaction,
-//     token,
-//     transactionState.amountToPay,
-//     transactionState.transactionId]);
+    state.schemeInUse,
+    token]);
 
   const showMessage = useMemo(() => {
     if (operationalState === OPSTATE.DEVICE_OUT_OF_ORDER
-      || operationalState === OPSTATE.IDLE
+      || operationalState === OPSTATE.DEVICE_IDLE
       || operationalState === OPSTATE.SERVER_ERROR
       || operationalState === OPSTATE.STOP_TRANSACTION
-      || operationalState === OPSTATE.TIMED_OUT
+      || operationalState === OPSTATE.API_TIMED_OUT
       || operationalState === OPSTATE.CHECK_AMOUNT
       || operationalState === OPSTATE.PIN_ERROR
       || operationalState === OPSTATE.AMOUNT_ERROR
@@ -349,6 +424,37 @@ const PaymentTerminal = () => {
     }
     return false;
   }, [operationalState]);
+
+  /* Repeatedly Get Session Based on operationalState */
+  useEffect(() => {
+    // while WAITING, send a new "long" poll for a new session (1st request)
+    if ((operationalState === OPSTATE.DEVICE_IDLE
+          || operationalState === OPSTATE.CHOOSE_METHOD)
+          && initialSessionRequest.current) {
+      initialSessionRequest.current = false;
+      console.log('initiate getPaymentSession');
+      if (operationalState === OPSTATE.CHOOSE_METHOD) {
+        setTimeout(async () => {
+          await getPaymentSession();
+        }, 1000);
+      } else {
+        getPaymentSession();
+      }
+      // any subsequent request
+    } else if ((operationalState === OPSTATE.DEVICE_IDLE
+          || operationalState === OPSTATE.CHOOSE_METHOD)
+          && nextPoll && !initialSessionRequest.current) {
+      console.log('next getPaymentSession');
+      setNextPoll(false);
+      if (operationalState === OPSTATE.CHOOSE_METHOD) {
+        setTimeout(async () => {
+          await getPaymentSession();
+        }, 1000);
+      } else {
+        getPaymentSession();
+      }
+    }
+  }, [getPaymentSession, nextPoll, operationalState, token]);
 
   return (
 
@@ -372,12 +478,12 @@ const PaymentTerminal = () => {
                 activePayMethod={activePayMethod}
                 handlePincodeSetter={handlePincodeSetter}
                 handleCorrectionEvent={handleCorrectionEvent}
-                handleStopEvent={stopTransaction}
+                handleStopEvent={stopTransactionHandler}
                 handleConfirmEvent={handleConfirmEvent}
                 currentState={operationalState}
                 pincode={pincode}
-                amount={transactionState.amountToPay}
-                init={token !== undefined } />
+                amount={amountToPay}
+                init={init} />
           }
         </Content>
         <StyledFooter>
@@ -393,4 +499,4 @@ const PaymentTerminal = () => {
   );
 };
 
-export default PaymentTerminal;
+export const PaymentTerminal = memo(PaymentTerminalComponent);

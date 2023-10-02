@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as CloseIcon } from '../../../../assets/svgs/fail.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svgs/arrow_back.svg';
@@ -27,17 +27,12 @@ export const SettingsWrapper = styled.div<HideProp>`
   overflow: hidden;
 `;
 
-export const SettingHeader = styled(SharedStyledHeader)`  
-  padding: 0 8px 0 9px;
-  justify-content: space-between;
-`;
-
 type Props = {
   hide: boolean;
   onHide: () => void;
 };
 
-const AppSettings = ({ hide, onHide }: Props) => {
+const AppSettingsComponent = ({ hide, onHide }: Props) => {
   const { state } = useContext(AppContext);
   const [list, setList] = useState(<></>);
   const [settingMode, setSettingMode] = useState(SettingModes.SETTINGS);
@@ -80,14 +75,17 @@ const AppSettings = ({ hide, onHide }: Props) => {
 
 <SettingsWrapper $hide={hide}>
 <SharedStyledContainer>
-<SettingHeader>
-  <div>
-  { settingMode !== SettingModes.SETTINGS
-  && <Arrow width={12} height={12} onClick={() => menuToggler(SettingModes.SETTINGS)} style={{ top: '2px' }}/> }
-  </div>
-  { heading }
-  <CloseIcon width={11} height={11} onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide(); }} />
-</SettingHeader>
+<SharedStyledHeader>
+
+  <button disabled={settingMode === SettingModes.SETTINGS} onClick={() => menuToggler(SettingModes.SETTINGS)}>
+    { settingMode !== SettingModes.SETTINGS && <Arrow width={12} height={12}/> }
+  </button>
+    { heading }
+  <button type="button" onClick={() => { setSettingMode(SettingModes.SETTINGS); onHide(); }}>
+    <CloseIcon width={11} height={11} />
+  </button>
+
+  </SharedStyledHeader>
   { list }
   </SharedStyledContainer>
 </SettingsWrapper>
@@ -95,4 +93,4 @@ const AppSettings = ({ hide, onHide }: Props) => {
   );
 };
 
-export default AppSettings;
+export const DeviceSettings = memo(AppSettingsComponent);

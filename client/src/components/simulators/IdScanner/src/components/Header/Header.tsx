@@ -1,34 +1,12 @@
 import { memo, useCallback, useContext } from 'react';
 // styled components
-import styled from 'styled-components';
+import { SharedStyledHeader } from '../../../local_shared/DraggableModal/ModalTemplate';
 // context
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
 import { ReactComponent as ArrowBack } from '../../../local_assets/arrow_back.svg';
 import { ReactComponent as CloseIcon } from '../../../local_assets/close.svg';
 import ActionType from '../../enums/ActionTypes';
-
-export const StyledHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  padding: '0 8px 0 9px',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  fontWeight: '500',
-  borderTopLeftRadius: '5px',
-  borderTopRightRadius: '5px',
-  backgroundColor: 'white',
-  color: theme.colors.text.secondary,
-  '& > button': {
-    cursor: 'pointer',
-    width: '13px',
-    height: '13px',
-    display: 'grid',
-    alignItems: 'flex-end',
-    '& > svg': {
-      fill: theme.colors.text.primary,
-    },
-  },
-}));
 
 type Props = {
   showBack: boolean,
@@ -54,7 +32,7 @@ const HeaderComponent = ({
   }, [appDispatch]);
 
   return (
-    <StyledHeader>
+    <SharedStyledHeader>
       <button disabled={!showBack} type="button" onClick={handleClickBack}>
         {showBack && <ArrowBack width={12} height={12} />}
       </button>
@@ -62,7 +40,7 @@ const HeaderComponent = ({
       <button disabled={!showCross} type="button" onClick={handleClickCross}>
         {showCross && <CloseIcon width={11} height={11} />}
       </button>
-    </StyledHeader>
+    </SharedStyledHeader>
   );
 };
 

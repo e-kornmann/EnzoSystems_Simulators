@@ -4,8 +4,13 @@ import ShowIcon from '../../QR-Scanner/local_types/ShowIcon';
 
 export enum OPSTATE {
   DEVICE_START_UP,
+  DEVICE_CONNECT,
+  DEVICE_DISCONNECT,
+  DEVICE_COULD_NOT_CONNECT,
+  DEVICE_DISCONNECTED,
+  DEVICE_COULD_NOT_DISCONNECT,
   DEVICE_OUT_OF_ORDER,
-  IDLE,
+  DEVICE_IDLE,
   UPDATE_TRANSACTION,
   SERVER_ERROR,
   CHOOSE_METHOD,
@@ -16,7 +21,8 @@ export enum OPSTATE {
   STOP_TRANSACTION,
   WRONG_PIN,
   CHECK_AMOUNT,
-  TIMED_OUT,
+  API_TIMED_OUT,
+  API_CANCEL,
   PIN_ERROR,
   AMOUNT_ERROR,
   SUCCESS,
@@ -30,11 +36,6 @@ export enum PayMethod {
   CONTACTLESS,
   CARD,
 }
-
-export type AcceptTransactionStateType = {
-  transactionId: string;
-  amountToPay: number;
-};
 
 export type UpdatePostTransaction = {
   action: string;

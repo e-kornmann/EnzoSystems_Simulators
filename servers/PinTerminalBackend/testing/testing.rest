@@ -6,8 +6,8 @@ GET http://localhost:9020/api/simulator/payment-terminal/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IjEyMy00NTYtNzg5IiwiaWF0IjoxNjk1NzI3NTA2LCJleHAiOjE2OTU4MTM5MDYsImlzcyI6IkVuem9zeXN0ZW1zIn0.y7DPJ-9VgP5CDQfJPoVddqS3KRL6c5URMzgtUquw79E
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1NzI3NTE5LCJleHAiOjE2OTU4MTM5MTksImlzcyI6IkVuem9zeXN0ZW1zIn0.KWCYh2m--ez6N3RaaD5FvCo1U4SRP8XNYeoI1tSFiLg
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IlBheW1lbnRUZXJtaW5hbCIsImlhdCI6MTY5NjI0MTkwMSwiZXhwIjoxNjk2MzI4MzAxLCJpc3MiOiJFbnpvc3lzdGVtcyJ9.RDBvEKeEfC7K0xs2hVVVtbtvoGqt5br-VFNNFDe3b20
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2MjM5ODQ1LCJleHAiOjE2OTYzMjYyNDUsImlzcyI6IkVuem9zeXN0ZW1zIn0.FVzBIULzyQ0SWeCkOP719lFVUnXAyZYXnHbCzJ6SuLY
 ### DEVICE
 POST http://localhost:9020/api/simulator/payment-terminal/v1/auth
 Content-type: application/json
@@ -68,7 +68,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
   "command": "PAYMENT",
   "data": {
     "deviceId": "PaymentTerminal",
-    "amount": 1000,
+    "amount": 60000,
     "currency": "EUR",
     "locale": "nl-NL",
     "merchantId": "Enzosystems",
@@ -84,7 +84,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 ####################################################################################
 
 ### HOST
-GET http://localhost:9020/api/simulator/payment-terminal/v1/session/c495366d-056f-4ba9-b05d-ebad5bfd914c
+GET http://localhost:9020/api/simulator/payment-terminal/v1/session/e5de5330-c7ac-4fbf-a4ee-c9b00ab31955
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -121,7 +121,7 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
   "data": {
-    "amountPaid": 1000,
+    "amountPaid": 60000,
     "scheme": "VISA",
     "status": "APPROVED",
     "pan": "1234 5678 9012 3456"

@@ -16,11 +16,12 @@ type ShowProp = {
 
 const ActiveTransactionContainer = styled.div` 
   display: grid;
-  grid-template-rows: 35% 15% 40% 10%;
+  grid-template-rows: 35% 15% 50%;
   width: 95%;
   max-width: 400px;
   margin: auto;
   height: 100%;
+  padding-bottom: 3%;
 `;
 const AmountBox = styled.div<ShowProp>`
   display: ${props => (props.$show ? 'grid' : 'none')};
@@ -87,6 +88,9 @@ const LoadingDotsContainer = styled.div`
   grid-row: 3;
 `;
 const StyledContent = styled.div`
+  display: grid;
+  grid-template-rows: 4fr 1fr;
+  row-gap: 5%;
   height: 100%;
 `;
 const StyledNumpad = styled.div<ShowProp>`
@@ -112,7 +116,7 @@ const ZeroButton = styled(NumPadButton)`
 const StyledFooter = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  height: 100%;
+  height: 96%;
   max-height: 78px;
   column-gap: 5%;
 `;
@@ -272,8 +276,6 @@ const ActiveTransaction = ({
             )
           }
 
-        </StyledContent>
-
         <StyledFooter>
           <StopButton $showBottomButtons={transactionIsActive} onClick={handleStopEvent}>Stop</StopButton>
           <CorrectButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} onClick={handleCorrectionEvent}>
@@ -281,6 +283,7 @@ const ActiveTransaction = ({
           <OkButton $showBottomButtons={transactionIsActive} $hideButtons={hideCorrectAndOkButton} type="button" onClick={handleConfirmEvent}>
             OK</OkButton>
         </StyledFooter>
+        </StyledContent>
 
       </ActiveTransactionContainer>
     </>

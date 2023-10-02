@@ -13,11 +13,12 @@ export const MessageContainer = styled.div`
     height: 100%;
     width: 100%;
     z-index: 100;
+    padding-bottom: 20%;
   `;
 
 export const Subline = styled.div`
     font-family: 'Inter', sans-serif;
-    font-size: 1.0em;
+    font-size: 0.9em;
     font-weight: 500;
     text-align: center; 
     white-space: pre-line; 
@@ -27,7 +28,7 @@ export const Subline = styled.div`
 export const Mainline = styled.div`
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 1.5em;
+    font-size: 1.3em;
     line-height: 1.3em;
     color: ${Sv.enzoOrange};
     text-align: center; 
@@ -35,7 +36,7 @@ export const Mainline = styled.div`
 
 export const WelcomeLine = styled(Mainline)`
     font-weight: 500;
-    font-size: 1.8em;
+    font-size: 1.5em;
 `;
 
 export const IconContainer = styled.div`
@@ -43,7 +44,7 @@ export const IconContainer = styled.div`
     align-items: center;
     justify-content: center;
     width: 60px;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
 `;
 
 type Props = {
@@ -61,18 +62,9 @@ const MessageBlock = ({ content, operationalState }: Props) => {
       <MessageContainer>
 
       <IconContainer>
-      <SharedSuccesOrFailIcon checkOrCrossIcon={checkOrCrossIcon} width={53} height={53} />
+      <SharedSuccesOrFailIcon checkOrCrossIcon={checkOrCrossIcon} width={38} height={38} />
       </IconContainer>
-        {/* {successicon
-          && <IconContainer>
-            <SharedSuccesOrFailIcon CheckOrCrossIcon={CheckOrCrossIcon} width={53} height={53} />
-          </IconContainer>}
-        {failicon
-          && <IconContainer>
-            <SharedSuccesOrFailIcon isFailed={true} width={53} height={53} />
-          </IconContainer>} */}
-
-        {(operationalState === OPSTATE.IDLE) ? <WelcomeLine>{mainline}</WelcomeLine>
+        {(operationalState === OPSTATE.DEVICE_IDLE) ? <WelcomeLine>{mainline}</WelcomeLine>
           : <><Mainline>{mainline}</Mainline><Subline>{subline}</Subline> </>
 
         }

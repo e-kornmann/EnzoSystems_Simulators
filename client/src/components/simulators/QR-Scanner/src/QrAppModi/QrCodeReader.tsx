@@ -162,7 +162,7 @@ export enum OPSTATE {
   DEVICE_START_UP,
   DEVICE_CONNECT,
   DEVICE_DISCONNECT,
-  DEVICE_CONNECTED,
+  DEVICE_IDLE,
   DEVICE_DISCONNECTED,
   DEVICE_COULD_NOT_CONNECT,
   DEVICE_COULD_NOT_DISCONNECT,
@@ -223,7 +223,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         setNextPoll(false);
         initialSessionRequest.current = true;
       } else {
-        // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
+        // only do next poll if status is IDLE or WAITING_FOR_ID otherwhise you will get conflicts.
         if (operationalState === OPSTATE.DEVICE_WAITING_FOR_BARCODE) {
           // remove this if when TIMED OUT works
           if (res === 'NO_ACTIVE_SESSION') {
@@ -244,7 +244,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             setNextPoll(true);
           }
         }
-        if (operationalState === OPSTATE.DEVICE_CONNECTED) {
+        if (operationalState === OPSTATE.DEVICE_IDLE) {
           if (res.command === 'SCAN_BARCODE' && res.status === 'ACTIVE') {
             setNextPoll(false);
             initialSessionRequest.current = true;
@@ -260,21 +260,24 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
 
   const changeStatus = useCallback(async (changeToThisState: DEVICESTATUSOPTIONS) => {
     if (token) {
-      if (OPSTATE.DEVICE_CONNECT) {
-        const res = await changeDeviceStatus(token, changeToThisState);
-        if (res) {
-          if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
-            setOperationalState(OPSTATE.DEVICE_CONNECTED);
-          }
-          if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
-            setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
-          }
-        // if there is no res.data.metadata
-        } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
-          setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
-        } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
-          setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
+      const res = await changeDeviceStatus(token, changeToThisState);
+      if (res) {
+        if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_IDLE);
         }
+        if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
+        }
+        if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+        }
+        // if there is no res.data.metadata
+      } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
+      } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
       }
     }
   }, [token]);
@@ -287,10 +290,6 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
       case OPSTATE.DEVICE_START_UP:
         setInstructionText('');
         waitTime = 1500;
-        break;
-      case OPSTATE.SERVER_ERROR:
-        setInstructionText('SERVER ERROR');
-        waitTime = 15000;
         break;
       case OPSTATE.DEVICE_CONNECT:
         setInstructionText('');
@@ -310,14 +309,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
           dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
         }
         break;
-      case OPSTATE.DEVICE_OUT_OF_ORDER:
-        setInstructionText(ts('outOfOrder', state.language));
-        if (state.statusOption !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
-          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
-        }
-        waitTime = 15000;
-        break;
-      case OPSTATE.DEVICE_CONNECTED:
+      case OPSTATE.DEVICE_IDLE:
         setInstructionText('');
         waitTime = 50000;
         // when in this state getSession is initiated
@@ -355,6 +347,17 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         setInstructionText('SUCCESS');
         waitTime = 2500;
         break;
+      case OPSTATE.SERVER_ERROR:
+        setInstructionText('SERVER ERROR');
+        waitTime = 15000;
+        break;
+      case OPSTATE.DEVICE_OUT_OF_ORDER:
+        setInstructionText(ts('outOfOrder', state.language));
+        if (state.statusOption !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          dispatch({ type: SettingModes.OPERATIONAL_MODE, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
+        }
+        waitTime = 15000;
+        break;
       default:
         break;
     }
@@ -366,10 +369,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             if (!token) getToken();
             else setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
-          case OPSTATE.SERVER_ERROR:
-            setOperationalState(OPSTATE.DEVICE_START_UP);
-            break;
-          case OPSTATE.DEVICE_CONNECTED:
+          case OPSTATE.DEVICE_IDLE:
             // connect again to avoid server TIMEOUT
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
@@ -412,7 +412,9 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
             // now try again to connect:
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
-            // initial state:
+          case OPSTATE.SERVER_ERROR:
+            setOperationalState(OPSTATE.DEVICE_START_UP);
+            break;
           case OPSTATE.DEVICE_OUT_OF_ORDER:
             if (token) {
               // try to change device status on the backend, but stay in this state regardless
@@ -441,7 +443,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
   /* Repeatedly Get Session Based on operationalState */
   useEffect(() => {
     // while WAITING, send a new "long" poll for a new session (1st request)
-    if ((operationalState === OPSTATE.DEVICE_CONNECTED
+    if ((operationalState === OPSTATE.DEVICE_IDLE
         || operationalState === OPSTATE.DEVICE_WAITING_FOR_BARCODE)
         && initialSessionRequest.current) {
       initialSessionRequest.current = false;
@@ -454,7 +456,7 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
         getScanSession();
       }
       // any subsequent request
-    } else if ((operationalState === OPSTATE.DEVICE_CONNECTED
+    } else if ((operationalState === OPSTATE.DEVICE_IDLE
         || operationalState === OPSTATE.DEVICE_WAITING_FOR_BARCODE)
         && nextPoll && !initialSessionRequest.current) {
       console.log('next getScanSession');
@@ -477,9 +479,9 @@ const QrCodeReader = ({ modusSetterHandler, currentQrCode }: Props) => {
          {(
            operationalState === OPSTATE.DEVICE_START_UP
           || operationalState === OPSTATE.DEVICE_CONNECT
-          || operationalState === OPSTATE.DEVICE_CONNECTED
+          || operationalState === OPSTATE.DEVICE_IDLE
          )
-          && <SharedLoading $isConnected={ operationalState === OPSTATE.DEVICE_CONNECTED } />}
+          && <SharedLoading $isConnected={ operationalState === OPSTATE.DEVICE_IDLE } />}
         <span> {instructionText}</span>
       </InstructionBox>
       <IconBox>

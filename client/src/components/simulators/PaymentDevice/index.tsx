@@ -1,4 +1,4 @@
-import PaymentTerminal from './PaymentTerminal';
+import { PaymentTerminal } from './PaymentTerminal';
 import { AppContextProvider } from './utils/settingsReducer';
 
 const PaymentTerminalSimulator = () => (

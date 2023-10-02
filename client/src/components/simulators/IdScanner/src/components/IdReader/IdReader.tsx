@@ -235,10 +235,21 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
         setNextPoll(false);
         initialSessionRequest.current = true;
       } else {
-        // only do next poll if in CONNECTED MODE or WAITING_FOR_ID otherwhise you will get conflicts.
+        // only do next poll if status is IDLE or WAITING_FOR_ID otherwhise you will get conflicts.
+        if (operationalState === OPSTATE.DEVICE_IDLE) {
+          if (res.command === 'SCAN_ID' && res.status === 'ACTIVE') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OPSTATE.DEVICE_WAITING_FOR_ID);
+          } else {
+            console.log(res);
+            setNextPoll(true);
+          }
+        }
         if (operationalState === OPSTATE.DEVICE_WAITING_FOR_ID) {
-          // remove this if when
+          // but don't do a next poll when these situations occur.
           if (res === 'NO_ACTIVE_SESSION') {
+            // this one can be deleted when timed_out works
             setNextPoll(false);
             initialSessionRequest.current = true;
             setOperationalState(OPSTATE.API_TIMED_OUT);
@@ -250,16 +261,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
             setNextPoll(false);
             initialSessionRequest.current = true;
             setOperationalState(OPSTATE.API_CANCEL);
-          } else {
-            console.log(res);
-            setNextPoll(true);
-          }
-        }
-        if (operationalState === OPSTATE.DEVICE_CONNECTED) {
-          if (res.command === 'SCAN_ID' && res.status === 'ACTIVE') {
-            setNextPoll(false);
-            initialSessionRequest.current = true;
-            setOperationalState(OPSTATE.DEVICE_WAITING_FOR_ID);
+            // no timeout? en no cancelling? get another session.
           } else {
             console.log(res);
             setNextPoll(true);
@@ -271,21 +273,24 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
 
   const changeStatus = useCallback(async (changeToThisState: DEVICESTATUSOPTIONS) => {
     if (token) {
-      if (OPSTATE.DEVICE_CONNECT) {
-        const res = await changeDeviceStatus(token, changeToThisState);
-        if (res) {
-          if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
-            setOperationalState(OPSTATE.DEVICE_CONNECTED);
-          }
-          if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
-            setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
-          }
-        // if there is no res.data.metadata
-        } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
-          setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
-        } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
-          setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
+      const res = await changeDeviceStatus(token, changeToThisState);
+      if (res) {
+        if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_IDLE);
         }
+        if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+          setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
+        }
+        if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          console.log(`Device succesfully updated device state: ${res.status}`);
+        }
+        // if there is no res.data.metadata
+      } else if (changeToThisState === DEVICESTATUSOPTIONS.CONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_CONNECT);
+      } else if (changeToThisState === DEVICESTATUSOPTIONS.DISCONNECTED) {
+        setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
       }
     }
   }, [token]);
@@ -328,7 +333,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
         }
         waitTime = 15000;
         break;
-      case OPSTATE.DEVICE_CONNECTED:
+      case OPSTATE.DEVICE_IDLE:
         setInstructionText('');
         waitTime = 50000;
         // when in this state getSession is initiated
@@ -380,7 +385,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
           case OPSTATE.SERVER_ERROR:
             setOperationalState(OPSTATE.DEVICE_START_UP);
             break;
-          case OPSTATE.DEVICE_CONNECTED:
+          case OPSTATE.DEVICE_IDLE:
             // connect again to avoid server TIMEOUT
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
@@ -452,7 +457,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
   /* Repeatedly Get Session Based on operationalState */
   useEffect(() => {
     // while WAITING, send a new "long" poll for a new session (1st request)
-    if ((operationalState === OPSTATE.DEVICE_CONNECTED
+    if ((operationalState === OPSTATE.DEVICE_IDLE
         || operationalState === OPSTATE.DEVICE_WAITING_FOR_ID)
         && initialSessionRequest.current) {
       initialSessionRequest.current = false;
@@ -465,7 +470,7 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
         getScanSession();
       }
       // any subsequent request
-    } else if ((operationalState === OPSTATE.DEVICE_CONNECTED
+    } else if ((operationalState === OPSTATE.DEVICE_IDLE
         || operationalState === OPSTATE.DEVICE_WAITING_FOR_ID)
         && nextPoll && !initialSessionRequest.current) {
       console.log('next getScanSession');
@@ -527,9 +532,9 @@ const IdReaderComponent = ({ deviceStatus, currentId, statusSettingIsClicked, ap
           {(
             operationalState === OPSTATE.DEVICE_START_UP
           || operationalState === OPSTATE.DEVICE_CONNECT
-          || operationalState === OPSTATE.DEVICE_CONNECTED
+          || operationalState === OPSTATE.DEVICE_IDLE
           )
-          && <SharedLoading $isConnected={ operationalState === OPSTATE.DEVICE_CONNECTED } />}
+          && <SharedLoading $isConnected={ operationalState === OPSTATE.DEVICE_IDLE } />}
           <span> {instructionText}</span>
         </InstructionBox>
         <IconBox>

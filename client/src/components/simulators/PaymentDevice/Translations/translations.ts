@@ -284,6 +284,10 @@ const translations: Translations = {
 // Use indexed if you need a second line in a different element, i.e., a subline.
 const ts = (id: string, language: Lang, indexed?: number): string => {
   const translation = translations[id];
+  if (!translation) {
+    console.log(`Translation needed for ${id}`);
+    return id; // Return the id if no translation found
+  }
 
   // If 'indexed' is valid use it, otherwise use the first index '[0]' as default if no index or invalid idex is given.
   const selectedTranslationIndex = (indexed && indexed >= 0 && indexed < translation.length) ? indexed : 0;
