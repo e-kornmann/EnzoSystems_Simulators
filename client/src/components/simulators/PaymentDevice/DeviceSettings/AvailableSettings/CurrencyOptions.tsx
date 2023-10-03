@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import CurrencyCode from '../../../../../types/CurrencyTypes';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../../assets/svgs/check-mark.svg';
 
 const CurrencyOptions = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -24,7 +24,7 @@ const CurrencyOptions = () => {
       {currencies.map(currency => (
         <S.SharedStyledListButton key={currency} onClick={() => onChangeEventHandler(currency)}>
           {currency}
-          <SharedCheckMark isDisplayed={state.currency === currency } width={14} height={11} />
+          {state.currency === currency && <CheckMarkIcon width={14} height={11} />}
         </S.SharedStyledListButton>
       ))}
     </S.SharedStyledList>

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // svg images
 import { ReactComponent as ArrowIcon } from '../../../../local_assets/arrow_up-down.svg';
 // types
-import { Sex, TypeOfDocument } from '../../../types/KeyType';
+import { Sex, TypeOfDocument } from '../../../types/CardType';
 // enums
 import CountriesAlpha3 from '../../../enums/CountryCodesISO3166Alpha3';
 import { MonthEnum } from '../../../enums/MonthEnum';

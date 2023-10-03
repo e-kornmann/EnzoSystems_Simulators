@@ -28,7 +28,7 @@ export const SharedStyledHeader = styled('div')(({ theme }) => ({
     display: 'grid',
     alignItems: 'flex-end',
     '& > svg': {
-      fill: theme.colors.text.secondary,
+      fill: theme.colors.text.primary,
     },
   },
 }));

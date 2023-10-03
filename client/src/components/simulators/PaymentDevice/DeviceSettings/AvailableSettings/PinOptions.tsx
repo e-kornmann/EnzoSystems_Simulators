@@ -3,7 +3,7 @@ import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 
 import ts from '../../Translations/translations';
-import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../../assets/svgs/checkmark.svg';
 
 const PinOptions = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -16,11 +16,11 @@ const PinOptions = () => {
     <S.SharedStyledList>
       <S.SharedStyledListButton key={'PinYes'} onClick={() => onChangeEventHandler(true)}>
       {ts('yes', state.language)}
-        <SharedCheckMark isDisplayed={ state.askForPin === true } width={14} height={11} />
+      { state.askForPin === true && <CheckMarkIcon width={14} height={11} /> }
       </S.SharedStyledListButton>
       <S.SharedStyledListButton key={'PinNo'} onClick={() => onChangeEventHandler(false)}>
       {ts('no', state.language)}
-        <SharedCheckMark isDisplayed={ state.askForPin === false } width={14} height={11} />
+      { state.askForPin === false && <CheckMarkIcon width={14} height={11} /> }
       </S.SharedStyledListButton>
     </S.SharedStyledList>
   );

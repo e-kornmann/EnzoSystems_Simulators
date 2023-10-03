@@ -1,31 +1,35 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 // styled components
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
+// date-fns
+import { format, parseISO } from 'date-fns';
 // api
 import useLogOn from '../../../local_hooks/useLogOn';
-import { scannerCredentials, reqBody, axiosUrl } from '../../config';
+import { scannerCredentials, reqBody, axiosUrl, failureSequenceNr } from '../../config';
 // utils
-import { changeDeviceStatus, getSession, putScannedData, stopSession } from '../../utils/iDscanApiRequests';
+import { changeDeviceStatus, getSession, putSession } from '../../utils/iDscanApiRequests';
 // components
-import { AnimatedCrossHair } from './AnimatedCrossHair';
 import { SharedLoading } from '../../../local_shared/Loading';
 import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon';
+import { SharedLoadingDots } from '../../../local_shared/LoadingDots';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import { SettingContext } from '../../contexts/dispatch/SettingContext';
 // svg images
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
 // enums
+import APPSETTINGS from '../../enums/AppSettings';
 import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import OPSTATE from '../../enums/OperationalState';
 import Lang from '../../enums/Lang';
 import ActionType from '../../enums/ActionTypes';
 import ShowIcon from '../../../local_types/ShowIcon';
 // types
-import KeyType from '../../types/KeyType';
+import CardType from '../../types/CardType';
 import { DeviceStateType } from '../../types/DeviceStateType';
+import FAILPROCESS from '../../enums/FailProcess';
+import SESSIONSTATUS from '../../enums/SessionStatus';
 // translations
-import APPSETTINGS from '../../enums/AppSettings';
 
 const QrScannerWrapper = styled('div')({
   width: '100%',
@@ -35,6 +39,7 @@ const QrScannerWrapper = styled('div')({
   rowGap: '2%',
   padding: '8px 0',
 });
+
 const InstructionBox = styled('div')({
   width: '100%',
   height: '100%',
@@ -100,90 +105,133 @@ const ScanActionButton = styled('button')(({ theme }) => ({
   },
 }));
 
-const slideAnimation = keyframes`
-    0% {
-      opacity: 0.5;
-      transform: translateX(-200vw);
+const slideIn = keyframes`
+  0% {
+    transform: translateX(-80%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+`;
+
+const slideOut = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+`;
+
+const initialSlide = keyframes`
+0% {
+  transform: translateX(-200%);
+}
+100% {
+  transform: translateX(-80%);
+}
+`;
+
+const StyledCardBox = styled('div')({
+  position: 'fixed',
+  alignItems: 'center',
+  display: 'flex',
+  justifyContent: 'center',
+  top: '20%',
+  width: '100%',
+  height: '60%',
+  zIndex: 300,
+  overflowY: 'hidden',
+  overflowX: 'hidden',
+});
+
+const StyledCard = styled.div<{ $slideIn: boolean, $slideOut: boolean, $isFaulsy: boolean }>`
+  display: grid;
+  grid-template-rows: 30% 25% 20% 25%;
+  background-color: ${props => props.theme.colors.background.primary};
+  border-radius: 12px;
+  min-height: 100px;
+  max-height: 400px;
+  max-width: 600px;
+  height: 46%;
+  width: 88%;
+  box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+  color: ${props => props.theme.colors.text.primary};
+  animation: ${props => {
+    let animation;
+    if (props.$slideIn) {
+      animation = slideIn;
+    } else if (props.$slideOut) {
+      animation = slideOut;
+    } else {
+      animation = initialSlide;
     }
-    10%, 80% {
-      opacity: 1;
-      transform: translateX(0px);
-    }
-    40%, 60% {
-      animation-timing-function: ease-out;
-      transform: scale(1);
-      transform-origin: center center;
-    }
-    45%, 55% {
-      animation-timing-function: ease-in-out;
-      transform: scale(0.91);
-    }
-    50% {
-      animation-timing-function: ease-in-out;
-      transform: scale(0.98);
-    }
-    100% {
+    return css`${animation} 1s ease 0s 1 normal forwards`;
+  }};
+    border-radius: 7px;
+    & > div {
       opacity: 0;
-      transform: translateX(200vw);
+      text-decoration: ${props => (props.$isFaulsy ? 'wavy line-through white 2px' : 'none')};
     }
   `;
-const AnimatedId = styled.div<{ $animate: boolean }>`
-  position: absolute;
-  display: ${props => (props.$animate ? 'flex' : 'none')};
-  align-items: center;
-  justify-content: center;
-  top: 25%;
-  width: 100%;
-  height: 45%;
-  overflow: hidden;
-  z-index: 300;
-  & > div {
+
+const textFadeInAnimation = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const StyledRoomNumber = styled('div')`
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;  
+    animation: ${textFadeInAnimation} 0.2s ease 0.75s 1 normal forwards;
+    font-size: 1.5em;
+    font-weight: 600;
+  `;
+const StyledAdditionalAccess = styled(StyledRoomNumber)`
+    align-items: center;
+    animation: ${textFadeInAnimation} 0.2s ease 1.25s 1 normal forwards;
+    font-size: 0.75em;
+    font-weight: 500;
+    text-align: center;
+  `;
+const StyledStartDate = styled('div')`
+    flex: 1;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    flex-direction: column;
-    gap: 25px;
-    width: 93%;
-    height: 65%;
-    padding: 10% 2%;
-    line-height: 0.87em;
-    background-color: white;
-    animation: ${slideAnimation} 6s ease 0s 1 normal forwards;
-    border-radius: 7px;
+    justify-content: center;  
+    animation: ${textFadeInAnimation} 0.2s ease 1.50s 1 normal forwards;
+    font-size: 0.95em;
+    font-weight: 500;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
   `;
 
-const StyledIdHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '1.3em',
-  fontWeight: '500',
-  height: '80%',
-  color: theme.colors.text.tertiary,
-  '& > svg': {
-    fill: theme.colors.text.tertiary,
-    marginRight: '13px',
-    width: '35px',
-    height: '20px',
-    marginTop: '-3px',
-  },
-}));
+const StyledEndDate = styled(StyledStartDate)`
+    align-items: flex-start;
+    animation: ${textFadeInAnimation} 0.2s ease 1.75s 1 normal forwards;
+  `;
 
   type Props = {
-    cardData: KeyType | undefined;
+    cardData: CardType;
     appLanguage?: Lang;
   };
 
 const CardDispenserComponent = ({ cardData }: Props) => {
   const { settingState, settingDispatch } = useContext(SettingContext);
-  const { statusSettingIsClicked, ...rest } = settingState;
+  const { statusSettingIsClicked, failProcess, ...rest } = settingState;
   const appDispatch = useContext(AppDispatchContext);
   const { token, logOn } = useLogOn(scannerCredentials, reqBody, axiosUrl);
   const [nextPoll, setNextPoll] = useState(false);
   const initialSessionRequest = useRef(true);
   const [operationalState, setOperationalState] = useState<OPSTATE>(OPSTATE.DEVICE_START_UP);
   const [instructionText, setInstructionText] = useState('');
-
+  const isoParser = useCallback((isostring: string): string | null => format(parseISO(isostring), 'yyyy-MM-dd | HH:mm'), []);
   // This useEffect 'listens' to clicked device settings.
   useEffect(() => {
     if (settingState.statusSettingIsClicked) {
@@ -261,6 +309,27 @@ const CardDispenserComponent = ({ cardData }: Props) => {
     }
   }, [appDispatch, operationalState, token]);
 
+  const endSession = useCallback(async (command: SESSIONSTATUS) => {
+    if (token && cardData) {
+      const res = await putSession(token, command);
+      if (res) {
+        if (res.status === 'FINISHED') {
+          if (operationalState === OPSTATE.TAKING_THE_KEY) setOperationalState(OPSTATE.KEY_SUCCESSFULLY_TAKEN);
+          else setOperationalState(OPSTATE.KEY_SLIDEOUT);
+        }
+        if (res.status === 'STOPPED') {
+          // stop session is succesfull, now try again to connect;
+          setOperationalState(OPSTATE.DEVICE_CONNECT);
+        }
+      } else if (operationalState === OPSTATE.TAKING_THE_KEY) {
+        setOperationalState(OPSTATE.KEY_UNSUCCESSFULLY_TAKEN);
+      } else {
+        console.log(res);
+        setOperationalState(OPSTATE.SERVER_ERROR);
+      }
+    }
+  }, [cardData, operationalState, token]);
+
   const changeStatus = useCallback(async (changeToThisState: DeviceStateType) => {
     if (token) {
       const res = await changeDeviceStatus(token, changeToThisState);
@@ -333,9 +402,13 @@ const CardDispenserComponent = ({ cardData }: Props) => {
       case OPSTATE.DEVICE_KEY_IS_READY:
         setInstructionText('Key is ready');
         break;
+      case OPSTATE.DEVICE_KEY_IS_FAULTY:
+        setInstructionText('Key creation failed');
+        waitTime = 2500;
+        break;
       // not working.. check getSession and Backend.
       case OPSTATE.API_CANCEL:
-        setInstructionText('Scanning cancelled');
+        setInstructionText('Cancelling');
         waitTime = 2500;
         break;
       // not working.. check getSession and Backend.
@@ -343,19 +416,19 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setInstructionText('TIMED OUT');
         waitTime = 2500;
         break;
-      case OPSTATE.DEVICE_IS_SCANNING:
+      case OPSTATE.TAKING_THE_KEY:
         setNextPoll(false);
         initialSessionRequest.current = true;
-        setInstructionText('Scanning...');
-        waitTime = 3500;
+        waitTime = 1500;
         break;
-      case OPSTATE.API_SCAN_FAILED:
-        setInstructionText('Scan failed');
-        waitTime = 2500;
+      case OPSTATE.KEY_SLIDEOUT:
+      case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
+        setInstructionText('Key has been taken');
+        waitTime = 1000;
         break;
-      case OPSTATE.API_SCAN_SUCCESS:
-        setInstructionText('SUCCESS');
-        waitTime = 2500;
+      case OPSTATE.KEY_UNSUCCESSFULLY_TAKEN:
+        setInstructionText('ERROR');
+        waitTime = 1500;
         break;
       case OPSTATE.SERVER_ERROR:
         setInstructionText('SERVER ERROR');
@@ -391,7 +464,17 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
           case OPSTATE.DEVICE_CREATING_A_KEY:
-            setOperationalState(OPSTATE.DEVICE_KEY_IS_READY);
+            if (settingState.failProcess === FAILPROCESS.SOMETIMES) {
+              const randomNr = Math.floor(Math.random() * failureSequenceNr) + 1;
+              console.log(`randomnummer: ${randomNr}, ${failureSequenceNr}`);
+              if (randomNr === failureSequenceNr) {
+                setOperationalState(OPSTATE.DEVICE_KEY_IS_FAULTY);
+              } else {
+                setOperationalState(OPSTATE.DEVICE_KEY_IS_READY);
+              }
+            } else if (settingState.failProcess === FAILPROCESS.NEVER) {
+              setOperationalState(OPSTATE.DEVICE_KEY_IS_READY);
+            }
             break;
           case OPSTATE.DEVICE_DISCONNECT:
             changeStatus(deviceState);
@@ -400,37 +483,23 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
             setOperationalState(OPSTATE.SERVER_ERROR);
             break;
-          case OPSTATE.DEVICE_IS_SCANNING:
-            if (token && cardData) {
-              const res = await putScannedData(token);
-              console.log(res);
-              if (res) {
-                if (res.status === 'FINISHED') {
-                  setOperationalState(OPSTATE.API_SCAN_SUCCESS);
-                } else {
-                  console.log(res);
-                  setOperationalState(OPSTATE.API_SCAN_FAILED);
-                }
-              }
-            }
+          case OPSTATE.DEVICE_KEY_IS_FAULTY:
+          case OPSTATE.TAKING_THE_KEY:
+            endSession(SESSIONSTATUS.FINISHED);
             break;
           case OPSTATE.API_CANCEL:
-            if (token) {
-              const res = await stopSession(token);
-              if (res.status === 'STOPPED') {
-                // stop session is succesfull, now try again to connect;
-                setOperationalState(OPSTATE.DEVICE_CONNECT);
-              } else {
-                console.log(res);
-                setOperationalState(OPSTATE.SERVER_ERROR);
-              }
-            }
+            endSession(SESSIONSTATUS.STOPPED);
             break;
           case OPSTATE.API_TIMED_OUT:
-          case OPSTATE.API_SCAN_SUCCESS:
-          case OPSTATE.API_SCAN_FAILED:
+          case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
+          case OPSTATE.KEY_UNSUCCESSFULLY_TAKEN:
+          case OPSTATE.KEY_SLIDEOUT:
+            appDispatch({ type: ActionType.RECEIVE_KEY_DATA, payload: undefined });
             // now try again to connect:
             setOperationalState(OPSTATE.DEVICE_CONNECT);
+            break;
+          case OPSTATE.SERVER_ERROR:
+            setOperationalState(OPSTATE.DEVICE_START_UP);
             break;
           default:
             break;
@@ -442,10 +511,10 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         clearInterval(Number(intervalId));
       }
     };
-  }, [changeStatus, cardData, getToken, operationalState, rest, settingDispatch, settingState, token]);
+  }, [changeStatus, cardData, getToken, operationalState, rest, settingDispatch, settingState, token, appDispatch, endSession]);
 
   const scanIdButtonHandler = async () => {
-    setOperationalState(OPSTATE.DEVICE_IS_SCANNING);
+    setOperationalState(OPSTATE.TAKING_THE_KEY);
   };
 
   /* Repeatedly Get Session Based on operationalState */
@@ -492,33 +561,50 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           <span> {instructionText}</span>
         </InstructionBox>
         <IconBox>
-          { operationalState === OPSTATE.API_SCAN_SUCCESS
+          { operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
           && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CHECK} width={30} height={30} /> }
-          { operationalState === OPSTATE.API_SCAN_FAILED
+          {(operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN || operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY)
           && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CROSS} width={30} height={30} /> }
+          { operationalState === OPSTATE.DEVICE_CREATING_A_KEY && <SharedLoadingDots />}
         </IconBox>
         <ScannerBox>
+            <StyledCardBox>
+            <StyledCard
+              $slideIn={ operationalState === OPSTATE.DEVICE_CREATING_A_KEY
+                || operationalState === OPSTATE.DEVICE_KEY_IS_READY
+                || operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY}
+              $slideOut={ operationalState === OPSTATE.TAKING_THE_KEY
+              || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
+              || operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN
+              || operationalState === OPSTATE.KEY_SLIDEOUT
+              }
+              $isFaulsy={operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY || operationalState === OPSTATE.KEY_SLIDEOUT} >
+            { (operationalState === OPSTATE.DEVICE_CREATING_A_KEY
+            || operationalState === OPSTATE.DEVICE_KEY_IS_READY
+            || operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY
+            || operationalState === OPSTATE.TAKING_THE_KEY
+            || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
+            || operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN
+            || operationalState === OPSTATE.KEY_SLIDEOUT)
+            && <>
+            <StyledRoomNumber>
+               {cardData?.roomAccess.join(', ')}
+            </StyledRoomNumber>
 
-            <AnimatedId $animate={
-              operationalState === OPSTATE.DEVICE_IS_SCANNING
-              || operationalState === OPSTATE.API_SCAN_SUCCESS
-              || operationalState === OPSTATE.API_SCAN_FAILED
-              }>
+            <StyledAdditionalAccess>
+               {`Access to: \n ${cardData?.additionalAccess.join(', ')}`}
+            </StyledAdditionalAccess>
 
-              <div>
-                <StyledIdHeader>
-                  <QrCodeIconNoCanvas />
-                  {cardData?.roomAccess}
-                </StyledIdHeader>
+            <StyledStartDate >
+               {`${(cardData && isoParser(cardData.startDateTime))}`}
+            </StyledStartDate>
+            <StyledEndDate>
+               {`${(cardData && isoParser(cardData.endDateTime))}`}
+            </StyledEndDate>
 
-              </div>
-            </AnimatedId>
-
-          <AnimatedCrossHair
-            animate={
-              operationalState === OPSTATE.DEVICE_KEY_IS_READY
-              || operationalState === OPSTATE.DEVICE_IS_SCANNING}
-          />
+            </>}
+            </StyledCard>
+            </StyledCardBox>
         </ScannerBox>
         <ButtonBox>
           <ScanActionButton

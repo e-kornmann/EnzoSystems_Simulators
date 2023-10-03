@@ -6,7 +6,7 @@ import { SettingsWrapper } from '../DeviceSettings';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
 import { Wrap } from './SchemeOptions';
 import ts from '../../Translations/translations';
-import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../../assets/svgs/checkmark.svg';
 import { SharedStyledHeader } from '../../../../shared/DraggableModal/ModalTemplate';
 
 type Props = {
@@ -34,7 +34,7 @@ const SelectScheme = ({ hide, onHide }: Props) => {
           {state.selectedSchemes.map(scheme => (
             <S.SharedStyledListButton key={scheme} onClick={() => onChangeEventHandler(scheme)}>
               <Wrap><PayProvider width={30} height={22} provider={scheme} border={false} />{scheme}</Wrap>
-              <SharedCheckMark isDisplayed={ state.schemeInUse === scheme } width={14} height={11} />
+              { state.schemeInUse === scheme && <CheckMarkIcon width={14} height={11} /> }
             </S.SharedStyledListButton>
           ))}
         </S.SharedStyledList>

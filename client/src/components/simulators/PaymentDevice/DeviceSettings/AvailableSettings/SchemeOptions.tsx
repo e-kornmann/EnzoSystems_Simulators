@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import PayProvider, { SupportedSchemesType } from '../../../../shared/PayProvider';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../../assets/svgs/checkmark.svg';
 
 const StyledFooter = styled(S.SharedStyledFooter)({
   position: 'absolute',
@@ -101,7 +101,7 @@ const SchemeOptionsScreen = ({ onHide }: Props) => {
           <S.SharedStyledListButton key={scheme} onClick={() => toggleScheme(scheme)}>
             <Wrap>
             <S.SharedStyledCheckBox $isSelected={isSchemeSelected(scheme)}>
-            <SharedCheckMark width={9} height={6} />
+            <CheckMarkIcon width={9} height={6} />
             </S.SharedStyledCheckBox>
               <PayProvider width={30} height={22} provider={scheme} border={false} />
               {scheme}

@@ -14,6 +14,8 @@ export const scannerCredentials: CredentialType = {
   passWord: import.meta.env.VITE_CARD_DISPENSER_PASSWORD,
 };
 
+export const failureSequenceNr = Number(import.meta.env.VITE_CARD_DISPENSER_FAILURE_THRESHOLD);
+
 export const reqBody: ReqLogOnType = {
   deviceId: import.meta.env.VITE_CARD_DISPENSER_DEVICE_ID,
 };

@@ -1,9 +1,8 @@
-type KeyType = {
+type CardType = {
   additionalAccess: string[],
   endDateTime: string,
-  keyId: string,
   roomAccess: string[],
   startDateTime: string
-};
+} | undefined;
 
-export default KeyType;
+export default CardType;

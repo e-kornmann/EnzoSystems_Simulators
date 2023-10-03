@@ -5,8 +5,9 @@ import APPSETTINGS from '../enums/AppSettings';
 import STACKSTATUSES from '../enums/StackStatus';
 import CARDPOSITIONS from '../enums/CardPosition';
 import BINSTATUSES from '../enums/BinStatus';
+import FAILPROCESS from '../enums/FailProcess';
 
-export type AllOptions = DEVICESTATUSOPTIONS | STACKSTATUSES | CARDPOSITIONS | BINSTATUSES;
+export type AllOptions = DEVICESTATUSOPTIONS | STACKSTATUSES | CARDPOSITIONS | BINSTATUSES | FAILPROCESS;
 
 export type SettingsActionType = {
   type: APPSETTINGS;
@@ -28,6 +29,7 @@ const settingsReducer: Reducer<SettingStateType, SettingsAction> = (state, actio
     case APPSETTINGS.CARD_STACK:
     case APPSETTINGS.BIN:
     case APPSETTINGS.CARD_POSITION:
+    case APPSETTINGS.FAIL_PROCESS:
       return {
         ...state,
         [action.type]: action.payload,

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import * as Sv from '../../../styles/stylevariables';
-import { SharedCross } from '../CheckAndCrossIcon';
+import { ReactComponent as CrossIcon } from '../../../assets/svgs/fail.svg';
 
 export const Wrapper = styled.div`
   position: fixed;
@@ -115,7 +115,7 @@ export const DraggableModal: FunctionComponent<ModalProps> = ({
         <Draggable>
           <StyledModal $grabbing={isGrabbing}>
             <CloseButton onClick={hide}>
-              <SharedCross width={8} height={8} />
+              <CrossIcon width={8} height={8} />
             </CloseButton>
             <Content $width={modalWidth} $height={modalHeight}>{modalContent}</Content>
           </StyledModal>

@@ -1,0 +1,5 @@
+enum FAILPROCESS {
+  NEVER = 'NEVER',
+  SOMETIMES = 'SOMETIMES',
+}
+export default FAILPROCESS;

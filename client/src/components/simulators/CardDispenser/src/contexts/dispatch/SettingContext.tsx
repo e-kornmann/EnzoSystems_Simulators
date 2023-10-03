@@ -6,6 +6,7 @@ import BINSTATUSES from '../../enums/BinStatus';
 import CARDPOSITIONS from '../../enums/CardPosition';
 import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import STACKSTATUSES from '../../enums/StackStatus';
+import FAILPROCESS from '../../enums/FailProcess';
 
 type SettingContextProviderProps = {
   children: ReactNode;
@@ -20,6 +21,7 @@ const intitialSettingState: SettingStateType = {
   [APPSETTINGS.CARD_STACK]: STACKSTATUSES.FULL,
   [APPSETTINGS.BIN]: BINSTATUSES.FULL,
   [APPSETTINGS.CARD_POSITION]: CARDPOSITIONS.BEZEL,
+  [APPSETTINGS.FAIL_PROCESS]: FAILPROCESS.SOMETIMES,
   statusSettingIsClicked: false,
 };
 

@@ -4,7 +4,6 @@ import { ReactComponent as SettingsIcon } from '../../../assets/svgs/settings.sv
 import ExpandIcon from '../../shared/Expand';
 import useLogOn from '../../../hooks/useLogOn';
 import { axiosUrl, cardlessSecurityPoint, correctPin, negBalancePin, pinTerminalCredentials, reqBody } from './Config';
-// import updateTransaction from './utils/updateTransaction';
 import { MessageContentType, PayMethod, OPSTATE } from './types';
 import { changeDeviceStatus, getSession, stopTransaction, updateTransaction } from './utils/acceptTransaction';
 import PayProvider from '../../shared/PayProvider';
@@ -177,7 +176,6 @@ const PaymentTerminalComponent = () => {
   useEffect(() => {
     let waitTime: number | undefined;
     let intervalId: NodeJS.Timer | null = null;
-    let updateTransactionStatusCode: number | undefined;
 
     switch (operationalState) {
       case OPSTATE.DEVICE_START_UP:
@@ -277,26 +275,17 @@ const PaymentTerminalComponent = () => {
       case OPSTATE.STOPPED:
         setOperationalState(OPSTATE.DEVICE_OUT_OF_ORDER);
         break;
-      case OPSTATE.SERVER_ERROR:
-        if (updateTransactionStatusCode === 409) {
-          setMessageContent({
-            ...initialMessage,
-            mainline: ts('serverError409', state.language),
-            subline: ts('serverError409', state.language, 1),
-            checkOrCrossIcon: ShowIcon.CROSS,
-          });
-        } else { // if response status code is not 409, set message with a regular serverError;
-          setMessageContent({
-            ...initialMessage,
-            mainline: ts('serverError', state.language),
-            subline: ts('serverError', state.language, 1),
-            checkOrCrossIcon: ShowIcon.CROSS,
-          });
-        }
-        waitTime = 4500;
-        break;
       case OPSTATE.DEVICE_OUT_OF_ORDER:
         setMessageContent({ ...initialMessage, subline: ts('outOfOrder', state.language), checkOrCrossIcon: ShowIcon.CROSS });
+        break;
+      case OPSTATE.SERVER_ERROR:
+        setMessageContent({
+          ...initialMessage,
+          mainline: ts('serverError', state.language),
+          subline: ts('serverError', state.language, 1),
+          checkOrCrossIcon: ShowIcon.CROSS,
+        });
+        waitTime = 6000;
         break;
       default:
         setOperationalState(OPSTATE.UNKNOWN);
@@ -344,7 +333,7 @@ const PaymentTerminalComponent = () => {
           case OPSTATE.STOP_TRANSACTION:
           case OPSTATE.SERVER_ERROR:
             if (token) stopTransaction(token, 'STOPPED');
-            setOperationalState(OPSTATE.DEVICE_CONNECT);
+            setOperationalState(OPSTATE.DEVICE_START_UP);
             break;
           case OPSTATE.CHECK_PIN:
             if ((pincode !== correctPin && pincode !== negBalancePin) && pinAttempts === 3) {
@@ -370,14 +359,10 @@ const PaymentTerminalComponent = () => {
           case OPSTATE.UPDATE_TRANSACTION:
             if (token && amountToPay) {
               const res = await updateTransaction(token, amountToPay, state.schemeInUse);
-              console.log(res);
-              if (res) {
-                if (res.status === 'FINISHED') {
-                  setOperationalState(OPSTATE.SUCCESS);
-                } else {
-                  console.log(res);
-                  setOperationalState(OPSTATE.SERVER_ERROR);
-                }
+              if (res.status === 'FINISHED') {
+                setOperationalState(OPSTATE.SUCCESS);
+              } else {
+                setOperationalState(OPSTATE.SERVER_ERROR);
               }
             }
             break;

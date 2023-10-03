@@ -9,7 +9,7 @@ import { ReactComponent as CheckmarkIcon } from '../../../local_assets/checkmark
 
 import ActionType from '../../enums/ActionTypes';
 
-import KeyType from '../../types/KeyType';
+import CardType from '../../types/CardType';
 import ShowKeyType from '../../types/ShowKeyType';
 import InputFields from '../../enums/InputFields';
 
@@ -136,17 +136,17 @@ const StyledSharedCheckBox = styled('div')<{
 );
 
 type ViewIdsProps = {
-  iDs: KeyType[] | null,
-  cardData: KeyType | undefined,
+  iDs: CardType[] | null,
+  cardData: CardType | undefined,
   showIds: ShowKeyType,
 };
 
 const ViewIdsComponent = ({ iDs, cardData, showIds }: ViewIdsProps) => {
   const { deleteIdClicked, selectAllIdsClicked, deselectAllIdsClicked, editMode, deleteMode } = showIds;
-  const [cardDatasForDeletion, setSelectedIDsForDeletion] = useState<KeyType[]>([]);
+  const [cardDatasForDeletion, setSelectedIDsForDeletion] = useState<CardType[]>([]);
   const appDispatch = useContext(AppDispatchContext);
 
-  const toggleSelectedIDForDeletion = useCallback((id: KeyType) => {
+  const toggleSelectedIDForDeletion = useCallback((id: CardType) => {
     if (cardDatasForDeletion) {
       if (cardDatasForDeletion.includes(id)) {
         setSelectedIDsForDeletion(cardDatasForDeletion.filter(k => k !== id));
@@ -156,7 +156,7 @@ const ViewIdsComponent = ({ iDs, cardData, showIds }: ViewIdsProps) => {
     }
   }, [cardDatasForDeletion]);
 
-  const handleKeySelect = useCallback((key: KeyType) => {
+  const handleKeySelect = useCallback((key: CardType) => {
     appDispatch({ type: ActionType.SELECT_ID, payload: key });
     if (editMode) {
       appDispatch({ type: ActionType.EDIT_ID, payload: true });

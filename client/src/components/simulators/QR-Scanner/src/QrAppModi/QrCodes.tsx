@@ -4,8 +4,8 @@ import * as S from '../../local_shared/DraggableModal/ModalTemplate';
 import { QrAppModi, QrCode } from '../App';
 import DeleteDialog from './DeleteDialog';
 import { AppContext } from '../utils/settingsReducer';
+import { ReactComponent as CheckMarkIcon } from '../../local_assets/checkmark.svg';
 import ts from '../Translations/translations';
-import { SharedCheckMark } from '../../local_shared/CheckAndCrossIcon';
 
 const QrCodesWrapper = styled('div')(({ theme }) => ({
   position: 'absolute',
@@ -117,16 +117,13 @@ const QrCodesComponent = ({
             <Wrap>
               {currentModus === QrAppModi.DEL_QR && (
                 <S.SharedStyledCheckBox $isSelected={selectedQrCodesForDeletion.includes(qr)}>
-                  <SharedCheckMark
-                    isDisplayed={selectedQrCodesForDeletion.includes(qr)}
-                    width={9} height={6}
-                  />
+                  { selectedQrCodesForDeletion.includes(qr) && <CheckMarkIcon width={9} height={6}/> }
                 </S.SharedStyledCheckBox>
               )}
               <span>{qr.name}</span>
             </Wrap>
-            { currentModus !== QrAppModi.EDIT_LIST && currentModus !== QrAppModi.DEL_QR
-            && <SharedCheckMark isDisplayed={currentQrCode === qr } width={14} height={11} /> }
+            { currentModus !== QrAppModi.EDIT_LIST && currentModus !== QrAppModi.DEL_QR && currentQrCode === qr
+            && <CheckMarkIcon width={14} height={11} /> }
           </S.SharedStyledListButton>
         ))}
       </S.SharedStyledList>

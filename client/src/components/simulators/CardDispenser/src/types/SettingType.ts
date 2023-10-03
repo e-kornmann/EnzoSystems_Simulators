@@ -2,6 +2,7 @@ import APPSETTINGS from '../enums/AppSettings';
 import BINSTATUSES from '../enums/BinStatus';
 import CARDPOSITIONS from '../enums/CardPosition';
 import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
+import FAILPROCESS from '../enums/FailProcess';
 import STACKSTATUSES from '../enums/StackStatus';
 
 type SettingType = {
@@ -16,6 +17,9 @@ type SettingType = {
 } | {
   options: CARDPOSITIONS[],
   type: APPSETTINGS.CARD_POSITION,
+} | {
+  options: FAILPROCESS[],
+  type: APPSETTINGS.FAIL_PROCESS,
 };
 
 export default SettingType;

@@ -7,7 +7,7 @@ GET http://localhost:9010/api/simulator/card-dispenser/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkNhcmREaXNwZW5zZXIiLCJpYXQiOjE2OTU5OTMyNjIsImV4cCI6MTY5NjA3OTY2MiwiaXNzIjoiRW56b3N5c3RlbXMifQ.sy0PeU_WW-3j13NTBc8ep9tGkaYblJKUD-UR5-4prwA
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2MDAwMjg5LCJleHAiOjE2OTYwODY2ODksImlzcyI6IkVuem9zeXN0ZW1zIn0.5nR6fBjdJ4wRHxx3G5lJggHWeI-ElN3Ep3cvAU9vhGM
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2MzIxOTAwLCJleHAiOjE2OTY0MDgzMDAsImlzcyI6IkVuem9zeXN0ZW1zIn0.lWaR-vyWPMhrvPLJ-Ob8sJCRpoYqUvOUHK_M-eM6lR8
 
 ### DEVICE
 POST http://localhost:9010/api/simulator/card-dispenser/v1/auth

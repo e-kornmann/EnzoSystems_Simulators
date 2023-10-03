@@ -20,6 +20,7 @@ import CARDPOSITIONS from '../../enums/CardPosition';
 import { AllOptions } from '../../utils/settingReducer';
 import translate from '../../Translations/translate';
 import Lang from '../../enums/Lang';
+import FAILPROCESS from '../../enums/FailProcess';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -52,6 +53,7 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
     { options: Object.values(STACKSTATUSES), type: APPSETTINGS.CARD_STACK },
     { options: Object.values(BINSTATUSES), type: APPSETTINGS.BIN },
     { options: Object.values(CARDPOSITIONS), type: APPSETTINGS.CARD_POSITION },
+    { options: Object.values(FAILPROCESS), type: APPSETTINGS.FAIL_PROCESS },
   ], []);
 
   // toggle displaying options for this setting

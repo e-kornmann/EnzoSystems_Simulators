@@ -5,7 +5,7 @@ import { ReactComponent as Arrow } from '../../../../local_assets/arrow_back.svg
 import { ArrowWrapper } from '../DeviceSettings';
 import ts from '../../../Translations/translations';
 import { QrAppModi } from '../../../App';
-import { SharedCheckMark } from '../../../../local_shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../local_assets/check-mark.svg';
 
 enum LangEnum {
   DUTCH = 'dutch',
@@ -34,7 +34,8 @@ const LanguageOptions = ({ arrowBackButtonHandler, modusSetterHandler }: Props) 
       {Object.values(LangEnum).map(language => (
         <S.SharedStyledListButton key={language} onClick={() => onChangeEventHandler(language)}>
           { ts(language, state.language) }
-          <SharedCheckMark isDisplayed={state.language === language } width={14} height={11} />
+          { state.language === language && <CheckMarkIcon width={14} height={11} /> }
+
         </S.SharedStyledListButton>
       ))}
     </S.SharedStyledList>

@@ -16,7 +16,7 @@ import theme from './theme/theme.json';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
 import ActionType from './enums/ActionTypes';
-import KeyType from './types/KeyType';
+import CardType from './types/CardType';
 import { SettingContextProvider } from './contexts/dispatch/SettingContext';
 import Lang from './enums/Lang';
 
@@ -78,7 +78,7 @@ const StyledContentWrapper = styled('div')({
 type AppStateType = {
   appLanguage: Lang,
   headerTitle: string,
-  cardData: KeyType | undefined,
+  cardData: CardType | undefined,
   // --
   showBack: boolean,
   showCross: boolean,

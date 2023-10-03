@@ -4,7 +4,7 @@ import * as S from '../../../../local_shared/DraggableModal/ModalTemplate';
 import { ReactComponent as Arrow } from '../../../../local_assets/arrow_back.svg';
 import { ArrowWrapper } from '../DeviceSettings';
 import { QrAppModi } from '../../../App';
-import { SharedCheckMark } from '../../../../local_shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../local_assets/checkmark.svg';
 
 enum DEVICESTATUSOPTIONS {
   CONNECTED = 'CONNECTED',
@@ -34,7 +34,7 @@ const StatusOptionsComponent = ({ arrowBackButtonHandler, modusSetterHandler }: 
       {Object.values(DEVICESTATUSOPTIONS).map(mode => (
         <S.SharedStyledListButton key={mode} onClick={() => { onChangeEventHandler(mode); }}>
           {mode}
-          <SharedCheckMark isDisplayed={state.statusOption === mode } width={14} height={11} />
+          { state.statusOption === mode && <CheckMarkIcon width={14} height={11} /> }
         </S.SharedStyledListButton>
       ))}
     </S.SharedStyledList>

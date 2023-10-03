@@ -1,5 +1,5 @@
 import ActionType from '../../enums/ActionTypes';
-import KeyType from '../KeyType';
+import CardType from '../CardType';
 
 // All BooleanActions
 type BooleanAction = {
@@ -28,7 +28,7 @@ type NoPayLoadAction = {
 };
 
 // KeyActions
-type KeyAction = { type: ActionType.RECEIVE_KEY_DATA, payload: KeyType };
+type KeyAction = { type: ActionType.RECEIVE_KEY_DATA, payload: CardType };
 
 type AppDispatchActions =
   BooleanAction

@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { AppContext, SettingModes } from '../../utils/settingsReducer';
 import * as S from '../../../../shared/DraggableModal/ModalTemplate';
-import { SharedCheckMark } from '../../../../shared/CheckAndCrossIcon';
+import { ReactComponent as CheckMarkIcon } from '../../../../../assets/svgs/check-mark.svg';
 import ts from '../../Translations/translations';
 
 export enum OperationalModeOptionsType {
@@ -24,8 +24,7 @@ const OperationalModeOptions = () => {
         <S.SharedStyledListButton key={mode} onClick={() => onChangeEventHandler(mode)}>
 
           {ts(mode, state.language)}
-
-          <SharedCheckMark isDisplayed={state.operationalModeOption === mode } width={14} height={11} />
+          { state.operationalModeOption === mode && <CheckMarkIcon width={14} height={11} />}
         </S.SharedStyledListButton>
       ))}
     </S.SharedStyledList>

@@ -8,7 +8,7 @@ import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import AddIdDispatchActions from '../../types/reducerActions/AddIdDispatchActions';
 // types
 import InputActionType from '../../enums/InputActionTypes';
-import KeyType from '../../types/KeyType';
+import CardType from '../../types/CardType';
 
 // enums
 import Lang from '../../enums/Lang';
@@ -124,10 +124,10 @@ const StyledDateFieldsWrapper = styled('div')(({ theme }) => ({
 
 type AddIdStateType = {
   initialized: boolean;
-  iD: KeyType;
+  iD: CardType;
 };
 
-const examplePassPort: KeyType = {
+const examplePassPort: CardType = {
   [InputFields.ISSUER_CODE]: undefined,
   [InputFields.DOCUMENT_NR]: '',
   [InputFields.DOCUMENT_TYPE]: undefined,
@@ -160,7 +160,7 @@ const reducer: Reducer<AddIdStateType, AddIdDispatchActions> = (state, action): 
 
 type Props = {
   saveKeyClicked: boolean,
-  cardData: KeyType | undefined,
+  cardData: CardType | undefined,
   editMode: boolean,
   appLanguage: Lang;
 };
