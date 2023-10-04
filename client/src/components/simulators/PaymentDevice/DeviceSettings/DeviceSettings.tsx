@@ -1,6 +1,6 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ReactComponent as CloseIcon } from '../../../../assets/svgs/fail.svg';
+import { ReactComponent as CloseIcon } from '../../../../assets/svgs/close.svg';
 import { ReactComponent as Arrow } from '../../../../assets/svgs/arrow_back.svg';
 import OperationalModeOptions from './AvailableSettings/OperationalModeOptions';
 import Settings from './AvailableSettings/Settings';

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { ReactComponent as CrossHairIcon } from '../../../local_assets/present_id.svg';
+import { ReactComponent as CrossHairIcon } from '../../assets/svgs/present_id.svg';
 
 const popAnimation = keyframes`
   0%, 100% {

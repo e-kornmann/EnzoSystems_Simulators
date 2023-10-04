@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const SharedStyledContainer = styled('div')<{ $isDraggable: boolean }>(({ theme, $isDraggable }) => ({
+export const SharedStyledContainer = styled('div')<{ $isDraggable?: boolean }>(({ theme, $isDraggable }) => ({
   display: 'grid',
   gridTemplateRows: '35px 1fr',
   fontSize: '13px',

@@ -1,16 +1,20 @@
-import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { memo, useCallback, useEffect, useState } from 'react';
+// styled components
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
+// svg images
 import { ReactComponent as CloseIcon } from '../local_assets/close.svg';
 import { ReactComponent as Arrow } from '../local_assets/arrow_back.svg';
+// contexts
+import { AppContextProvider } from './utils/settingsReducer';
+// components
 import { SharedStyledContainer, SharedStyledHeader } from '../local_shared/DraggableModal/ModalTemplate';
+import DeviceSettings from './QrAppModi/DeviceSettings/DeviceSettings';
 import QrForm from './QrAppModi/QrForm';
 import QrCodeReader from './QrAppModi/QrCodeReader';
+import QrCodesComponent from './QrAppModi/QrCodes';
+import HeaderText from './HeaderText';
 // theme
 import theme from './theme/theme.json';
-import QrCodesComponent from './QrAppModi/QrCodes';
-import { AppContextProvider } from './utils/settingsReducer';
-import DeviceSettings from './QrAppModi/DeviceSettings/DeviceSettings';
-import HeaderText from './HeaderText';
 
 const GlobalStyle = createGlobalStyle({
   '*': {

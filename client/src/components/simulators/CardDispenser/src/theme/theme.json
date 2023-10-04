@@ -4,7 +4,7 @@
       "primary": "#FFF",
       "secondary": "#EBEBEB",
       "tertiary": "#333",
-      "special": "#FA8A00",
+      "quaternary": "#d6d6d6",
       "transparent": "#0000004D"
     },
     "border": {
@@ -33,14 +33,11 @@
     "text": {
       "black": "#141414",
       "primary": "#3a3a3d",
-      "secondary": "#FA8A00"
+      "secondary": "#FA8A00",
+      "tertiary": "#7A7A7A"
+    },
+    "brandColors": {
+      "enzoDarkOrange": "#CE6100"
     }
   }
 }
-
-
-
-
-
-
-

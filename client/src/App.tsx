@@ -6,7 +6,7 @@ import theme from './theme/theme.json';
 import { DraggableModal } from './components/shared/DraggableModal/Modal';
 import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner/src/App';
-import PaymentTerminalSimulator from './components/simulators/PaymentDevice';
+import PaymentTerminalSimulator from './components/simulators/PinTerminal/src/App';
 import IdScanner from './components/simulators/IdScanner/src/App';
 import KeyEncoder from './components/simulators/KeyEncoder/src/App';
 import CardDispenser from './components/simulators/CardDispenser/src/App';

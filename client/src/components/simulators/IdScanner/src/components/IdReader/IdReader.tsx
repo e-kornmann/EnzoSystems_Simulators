@@ -15,7 +15,7 @@ import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon'
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
-import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
+import { ReactComponent as QrCodeIconNoCanvas } from '../../assets/svgs/id_nocanvas.svg';
 // enums
 import { OPSTATE } from '../../enums/OperationalState';
 import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';

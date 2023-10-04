@@ -4,8 +4,8 @@ import styled from 'styled-components';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 // svg images
-import { ReactComponent as AddIdIcon } from '../../../local_assets/add_id.svg';
-import { ReactComponent as IdsIcon } from '../../../local_assets/ids.svg';
+import { ReactComponent as AddIdIcon } from '../../assets/svgs/add_id.svg';
+import { ReactComponent as IdsIcon } from '../../assets/svgs/ids.svg';
 import { ReactComponent as SettingsIcon } from '../../../local_assets/settings.svg';
 // types
 import ShowAddIdType from '../../types/ShowAddIdType';
