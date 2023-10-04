@@ -7,7 +7,7 @@ import { SharedStyledHeader } from '../../../local_shared/DraggableModal/ModalTe
 import { ReactComponent as ArrowBack } from '../../../local_assets/arrow_back.svg';
 import { ReactComponent as CloseIcon } from '../../../local_assets/close.svg';
 // types
-import ActionType from '../../enums/ActionTypes';
+import AppActions from '../../enums/AppActions';
 
 type Props = {
   showBack: boolean,
@@ -19,11 +19,11 @@ const HeaderComponent = ({ showBack, showCross, title }: Props) => {
   const appDispatch = useContext(AppDispatchContext);
 
   const handleClickBack = useCallback(() => {
-    appDispatch({ type: ActionType.CLICKED_BACK, payload: true });
+    appDispatch({ type: AppActions.CLICKED_BACK, payload: true });
   }, [appDispatch]);
 
   const handleClickCross = useCallback(() => {
-    appDispatch({ type: ActionType.CLICKED_CROSS });
+    appDispatch({ type: AppActions.CLICKED_CROSS });
   }, [appDispatch]);
 
   return (

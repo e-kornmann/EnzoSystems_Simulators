@@ -1,9 +1,4 @@
-import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
-import APPSETTINGS from '../enums/AppSettings';
-import STACKSTATUSES from '../enums/StackStatus';
-import CARDPOSITIONS from '../enums/CardPosition';
-import BINSTATUSES from '../enums/BinStatus';
-import FAILPROCESS from '../enums/FailProcess';
+import { APPSETTINGS, DEVICESTATUSOPTIONS, STACKSTATUSES, BINSTATUSES, CARDPOSITIONS, FAILPROCESS } from '../enums/SettingEnums';
 
 export type SettingStateType = {
   [APPSETTINGS.DEVICE_STATUS]: DEVICESTATUSOPTIONS,

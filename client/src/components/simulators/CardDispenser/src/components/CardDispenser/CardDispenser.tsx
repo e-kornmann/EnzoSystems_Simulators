@@ -7,7 +7,7 @@ import { format, parseISO } from 'date-fns';
 import useLogOn from '../../../local_hooks/useLogOn';
 import { scannerCredentials, reqBody, axiosUrl, failureSequenceNr } from '../../config';
 // utils
-import { changeDeviceStatus, getSession, putSession } from '../../utils/iDscanApiRequests';
+import { changeDeviceStatus, getSession, putSession } from '../../utils/requests';
 // components
 import { SharedLoading } from '../../../local_shared/Loading';
 import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon';
@@ -18,19 +18,16 @@ import { SettingContext } from '../../contexts/dispatch/SettingContext';
 // svg images
 import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
 // enums
-import APPSETTINGS from '../../enums/AppSettings';
-import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
 import OPSTATE from '../../enums/OperationalState';
-import Lang from '../../enums/Lang';
-import ActionType from '../../enums/ActionTypes';
+import { Lang, APPSETTINGS, DEVICESTATUSOPTIONS, FAILPROCESS } from '../../enums/SettingEnums';
+import AppActions from '../../enums/AppActions';
 import ShowIcon from '../../../local_types/ShowIcon';
+import SESSIONSTATUS from '../../enums/SessionStatus';
 // types
 import CardType from '../../types/CardType';
 import { DeviceStateType } from '../../types/DeviceStateType';
-import FAILPROCESS from '../../enums/FailProcess';
-import SESSIONSTATUS from '../../enums/SessionStatus';
-// translations
 
+// translations
 const QrScannerWrapper = styled('div')({
   width: '100%',
   height: '100%',
@@ -39,7 +36,6 @@ const QrScannerWrapper = styled('div')({
   rowGap: '2%',
   padding: '8px 0',
 });
-
 const InstructionBox = styled('div')({
   width: '100%',
   height: '100%',
@@ -114,6 +110,14 @@ const slideIn = keyframes`
   }
 `;
 
+const slideBack = keyframes`
+0% {
+  transform: translateX(0%);
+}
+100% {
+  transform: translateX(-120%);
+}
+`;
 const slideOut = keyframes`
   0% {
     transform: translateX(0);
@@ -145,7 +149,7 @@ const StyledCardBox = styled('div')({
   overflowX: 'hidden',
 });
 
-const StyledCard = styled.div<{ $slideIn: boolean, $slideOut: boolean, $isFaulsy: boolean }>`
+const StyledCard = styled.div<{ $slideIn: boolean, $slideOut: boolean, $slideBack: boolean, $isFaulsy: boolean }>`
   display: grid;
   grid-template-rows: 30% 25% 20% 25%;
   background-color: ${props => props.theme.colors.background.primary};
@@ -159,7 +163,9 @@ const StyledCard = styled.div<{ $slideIn: boolean, $slideOut: boolean, $isFaulsy
   color: ${props => props.theme.colors.text.primary};
   animation: ${props => {
     let animation;
-    if (props.$slideIn) {
+    if (props.$slideBack) {
+      animation = slideBack;
+    } else if (props.$slideIn) {
       animation = slideIn;
     } else if (props.$slideOut) {
       animation = slideOut;
@@ -255,7 +261,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           break;
       }
       settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: false });
-      appDispatch({ type: ActionType.CLICKED_CROSS });
+      appDispatch({ type: AppActions.CLICKED_CROSS });
     }
   }, [appDispatch, settingDispatch, settingState]);
 
@@ -273,15 +279,11 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setNextPoll(false);
         initialSessionRequest.current = true;
       } else {
-        // only do next poll if status is IDLE or WAITING_FOR_ID otherwhise you will get conflicts.
-        if (operationalState === OPSTATE.DEVICE_KEY_IS_READY) {
-          // remove this if when TIMED OUT WORKS
+        // only do next poll if status is IDLE or CREATING A KEY / DEVICE_KEY_IS_READY otherwhise you will get conflicts.
+        if (operationalState === OPSTATE.DEVICE_KEY_IS_READY
+          || operationalState === OPSTATE.DEVICE_CREATING_A_KEY) {
+          // if you get an NO_ACTIVE_SESSION, session has been TIMED_OUT, reset poll
           if (res.result === 'NO_ACTIVE_SESSION') {
-            setNextPoll(false);
-            console.log('DEVICE TIMED OUT');
-            initialSessionRequest.current = true;
-            setOperationalState(OPSTATE.API_TIMED_OUT);
-          } else if (res.metadata?.status === 'TIMED_OUT') {
             setNextPoll(false);
             initialSessionRequest.current = true;
             setOperationalState(OPSTATE.API_TIMED_OUT);
@@ -298,7 +300,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           if (res.metadata?.command === 'CREATE_CARD' && res.metadata?.status === 'ACTIVE') {
             setNextPoll(false);
             initialSessionRequest.current = true;
-            appDispatch({ type: ActionType.RECEIVE_KEY_DATA, payload: res.cardData });
+            appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: res.cardData });
             setOperationalState(OPSTATE.DEVICE_CREATING_A_KEY);
           } else {
             console.log(res);
@@ -319,7 +321,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         }
         if (res.status === 'STOPPED') {
           // stop session is succesfull, now try again to connect;
-          setOperationalState(OPSTATE.DEVICE_CONNECT);
+          setOperationalState(OPSTATE.KEY_SLIDEOUT);
         }
       } else if (operationalState === OPSTATE.TAKING_THE_KEY) {
         setOperationalState(OPSTATE.KEY_UNSUCCESSFULLY_TAKEN);
@@ -404,12 +406,11 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         break;
       case OPSTATE.DEVICE_KEY_IS_FAULTY:
         setInstructionText('Key creation failed');
-        waitTime = 2500;
+        waitTime = 1000;
         break;
-      // not working.. check getSession and Backend.
       case OPSTATE.API_CANCEL:
         setInstructionText('Cancelling');
-        waitTime = 2500;
+        waitTime = 3500;
         break;
       // not working.. check getSession and Backend.
       case OPSTATE.API_TIMED_OUT:
@@ -417,14 +418,12 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         waitTime = 2500;
         break;
       case OPSTATE.TAKING_THE_KEY:
-        setNextPoll(false);
-        initialSessionRequest.current = true;
-        waitTime = 1500;
-        break;
       case OPSTATE.KEY_SLIDEOUT:
+        waitTime = 900;
+        break;
       case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
         setInstructionText('Key has been taken');
-        waitTime = 1000;
+        waitTime = 2000;
         break;
       case OPSTATE.KEY_UNSUCCESSFULLY_TAKEN:
         setInstructionText('ERROR');
@@ -464,7 +463,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
           case OPSTATE.DEVICE_CREATING_A_KEY:
-            if (settingState.failProcess === FAILPROCESS.SOMETIMES) {
+            if (settingState.failProcess === FAILPROCESS.SPORADICALLY) {
               const randomNr = Math.floor(Math.random() * failureSequenceNr) + 1;
               console.log(`randomnummer: ${randomNr}, ${failureSequenceNr}`);
               if (randomNr === failureSequenceNr) {
@@ -494,7 +493,9 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
           case OPSTATE.KEY_UNSUCCESSFULLY_TAKEN:
           case OPSTATE.KEY_SLIDEOUT:
-            appDispatch({ type: ActionType.RECEIVE_KEY_DATA, payload: undefined });
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: undefined });
             // now try again to connect:
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
@@ -576,8 +577,10 @@ const CardDispenserComponent = ({ cardData }: Props) => {
               $slideOut={ operationalState === OPSTATE.TAKING_THE_KEY
               || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
               || operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN
-              || operationalState === OPSTATE.KEY_SLIDEOUT
               }
+              $slideBack={operationalState === OPSTATE.API_CANCEL
+                || operationalState === OPSTATE.API_TIMED_OUT
+                || operationalState === OPSTATE.KEY_SLIDEOUT}
               $isFaulsy={operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY || operationalState === OPSTATE.KEY_SLIDEOUT} >
             { (operationalState === OPSTATE.DEVICE_CREATING_A_KEY
             || operationalState === OPSTATE.DEVICE_KEY_IS_READY
@@ -585,7 +588,8 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             || operationalState === OPSTATE.TAKING_THE_KEY
             || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
             || operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN
-            || operationalState === OPSTATE.KEY_SLIDEOUT)
+            || operationalState === OPSTATE.KEY_SLIDEOUT
+            || operationalState === OPSTATE.API_TIMED_OUT)
             && <>
             <StyledRoomNumber>
                {cardData?.roomAccess.join(', ')}

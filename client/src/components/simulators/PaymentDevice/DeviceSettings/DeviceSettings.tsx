@@ -74,7 +74,7 @@ const AppSettingsComponent = ({ hide, onHide }: Props) => {
 <>
 
 <SettingsWrapper $hide={hide}>
-<SharedStyledContainer>
+<SharedStyledContainer $isDraggable={true}>
 <SharedStyledHeader>
 
   <button disabled={settingMode === SettingModes.SETTINGS} onClick={() => menuToggler(SettingModes.SETTINGS)}>

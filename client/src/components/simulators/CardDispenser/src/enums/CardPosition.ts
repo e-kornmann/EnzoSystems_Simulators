@@ -1,6 +1,0 @@
-enum CARDPOSITIONS {
-  STACK = 'STACK',
-  ENCODER = 'ENCODER',
-  BEZEL = 'BEZEL',
-}
-export default CARDPOSITIONS;

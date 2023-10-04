@@ -7,20 +7,13 @@ import { ReactComponent as Arrow } from '../../../local_assets/arrow.svg';
 import { ReactComponent as CheckmarkIcon } from '../../../local_assets/success.svg';
 // contexts
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
-// enums
-import DEVICESTATUSOPTIONS from '../../enums/DeviceStatusOptions';
-import ActionType from '../../enums/ActionTypes';
-// types
-import SettingType from '../../types/SettingType';
-import APPSETTINGS from '../../enums/AppSettings';
 import { SettingContext } from '../../contexts/dispatch/SettingContext';
-import STACKSTATUSES from '../../enums/StackStatus';
-import BINSTATUSES from '../../enums/BinStatus';
-import CARDPOSITIONS from '../../enums/CardPosition';
-import { AllOptions } from '../../utils/settingReducer';
+// enums
+import { APPSETTINGS, BINSTATUSES, CARDPOSITIONS, DEVICESTATUSOPTIONS, FAILPROCESS, Lang, STACKSTATUSES } from '../../enums/SettingEnums';
+import AppActions from '../../enums/AppActions';
+// types
 import translate from '../../Translations/translate';
-import Lang from '../../enums/Lang';
-import FAILPROCESS from '../../enums/FailProcess';
+import { SettingType, AllOptions } from '../../types/SettingType';
 
 const StyledWrapper = styled('div')(({ theme }) => ({
   backgroundColor: theme.colors.background.secondary,
@@ -59,8 +52,8 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
   // toggle displaying options for this setting
   const handleSettingClicked = useCallback((appsetting: SettingType) => {
     setSettingIsClicked(appsetting);
-    appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: appsetting.type });
-    appDispatch({ type: ActionType.SHOW_BACK, payload: true });
+    appDispatch({ type: AppActions.SET_HEADER_TITLE, payload: appsetting.type });
+    appDispatch({ type: AppActions.SHOW_BACK, payload: true });
   }, [appDispatch]);
 
   // show designated settings if someone clicks on footer buttons
@@ -81,18 +74,19 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
         settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
       }
     }
-  }, [settingDispatch]);
+    appDispatch({ type: AppActions.CLICKED_CROSS });
+  }, [appDispatch, settingDispatch]);
 
   useEffect(() => { // Return to Settings menu from an Options list
     if (clickedBack && settingIsClicked) {
       setSettingIsClicked(null);
-      appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: 'Settings' });
-      appDispatch({ type: ActionType.CLICKED_BACK, payload: false });
+      appDispatch({ type: AppActions.SET_HEADER_TITLE, payload: 'Settings' });
+      appDispatch({ type: AppActions.CLICKED_BACK, payload: false });
     }
   }, [appDispatch, clickedBack, settingDispatch, settingIsClicked]);
 
   useEffect(() => { // On load, set header to display 'Settings' as title
-    appDispatch({ type: ActionType.SET_HEADER_TITLE, payload: 'Settings' });
+    appDispatch({ type: AppActions.SET_HEADER_TITLE, payload: 'Settings' });
   }, [appDispatch]);
 
   return (

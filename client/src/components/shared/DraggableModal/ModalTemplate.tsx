@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const SharedStyledContainer = styled('div')<{ $isDraggable?: boolean }>(({ theme, $isDraggable }) => ({
+export const SharedStyledContainer = styled('div')<{ $isDraggable: boolean }>(({ theme, $isDraggable }) => ({
   display: 'grid',
   gridTemplateRows: '35px 1fr',
   fontSize: '13px',
@@ -9,6 +9,7 @@ export const SharedStyledContainer = styled('div')<{ $isDraggable?: boolean }>((
   minHeight: '420px',
   backgroundColor: theme.colors.background.secondary,
   borderRadius: '5px',
+  overflowX: 'hidden',
 }));
 
 export const SharedStyledHeader = styled('div')(({ theme }) => ({
@@ -79,6 +80,7 @@ export const SharedStyledFooter = styled('footer')(({ theme }) => ({
     margin: '2px',
   },
   '& > div': {
+    position: 'relative',
     cursor: 'pointer',
     width: '100%',
     height: '100%',
@@ -98,7 +100,6 @@ export const SharedStyledFooter = styled('footer')(({ theme }) => ({
     },
   },
 }));
-
 export const SharedStyledList = styled('div')({
   padding: '2px 0',
   display: 'flex',

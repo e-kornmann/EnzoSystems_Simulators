@@ -1,11 +1,8 @@
-import APPSETTINGS from '../enums/AppSettings';
-import BINSTATUSES from '../enums/BinStatus';
-import CARDPOSITIONS from '../enums/CardPosition';
-import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
-import FAILPROCESS from '../enums/FailProcess';
-import STACKSTATUSES from '../enums/StackStatus';
+import { DEVICESTATUSOPTIONS, APPSETTINGS, STACKSTATUSES, BINSTATUSES, CARDPOSITIONS, FAILPROCESS } from '../enums/SettingEnums';
 
-type SettingType = {
+export type AllOptions = DEVICESTATUSOPTIONS | STACKSTATUSES | CARDPOSITIONS | BINSTATUSES | FAILPROCESS;
+
+export type SettingType = {
   options: DEVICESTATUSOPTIONS[],
   type: APPSETTINGS.DEVICE_STATUS,
 } | {
@@ -21,5 +18,3 @@ type SettingType = {
   options: FAILPROCESS[],
   type: APPSETTINGS.FAIL_PROCESS,
 };
-
-export default SettingType;

@@ -1,15 +1,9 @@
 // enums
 import CountriesAlpha3 from '../enums/CountryCodesISO3166Alpha3';
-import APPSETTINGS from '../enums/AppSettings';
-import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
-import Lang from '../enums/Lang';
-import InputFields from '../enums/InputFields';
+import { Lang, APPSETTINGS, DEVICESTATUSOPTIONS, BINSTATUSES, STACKSTATUSES, CARDPOSITIONS, FAILPROCESS } from '../enums/SettingEnums';
 
 type Translations = {
-  [key: InputFields | APPSETTINGS | DEVICESTATUSOPTIONS | string ]
-  : {
-    [key in Lang]: string;
-  }[];
+  [key: string]: { [key in Lang]: string; }[];
 };
 
 const translations: Translations = {
@@ -45,6 +39,14 @@ const translations: Translations = {
       [Lang.GERMAN]: '..',
     },
   ],
+  [APPSETTINGS.FAIL_PROCESS]: [
+    {
+      [Lang.DUTCH]: 'Fail processing',
+      [Lang.ENGLISH]: 'Fail processing',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
   [DEVICESTATUSOPTIONS.CONNECTED]: [
     {
       [Lang.DUTCH]: 'Connected',
@@ -69,84 +71,70 @@ const translations: Translations = {
       [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.DATE_OF_BIRTH]: [
+  // [STACKSTATUSES.EMPTY] === [BINSTATUSES.EMPTY]
+  [BINSTATUSES.EMPTY]: [
     {
-      [Lang.DUTCH]: 'Geboortedatum',
-      [Lang.ENGLISH]: 'Date of Birth',
-      [Lang.FRENCH]: 'Date de naissance',
-      [Lang.GERMAN]: 'Geburtsdatum',
+      [Lang.DUTCH]: 'Leeg',
+      [Lang.ENGLISH]: 'Empty',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.DATE_OF_EXPIRY]: [
+  // [STACKSTATUSES.FULL]
+  [BINSTATUSES.FULL]: [
     {
-      [Lang.DUTCH]: 'Verloopdatum',
-      [Lang.ENGLISH]: 'Date of Expiry',
-      [Lang.FRENCH]: 'Date d\'expiration',
-      [Lang.GERMAN]: 'Ablaufdatum',
+      [Lang.DUTCH]: 'Vol',
+      [Lang.ENGLISH]: 'Full',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.DOCUMENT_NR]: [
+  [STACKSTATUSES.LOW]: [
     {
-      [Lang.DUTCH]: 'Documentnummer',
-      [Lang.ENGLISH]: 'Document Number',
-      [Lang.FRENCH]: 'Numéro de document',
-      [Lang.GERMAN]: 'Dokumentennummer',
+      [Lang.DUTCH]: 'Laag',
+      [Lang.ENGLISH]: 'Low',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.DOCUMENT_TYPE]: [
+  [CARDPOSITIONS.BEZEL]: [
     {
-      [Lang.DUTCH]: 'Soort document',
-      [Lang.ENGLISH]: 'Document Type',
-      [Lang.FRENCH]: 'Type de document',
-      [Lang.GERMAN]: 'Dokumenttyp',
+      [Lang.DUTCH]: 'Bezel',
+      [Lang.ENGLISH]: 'Bezel',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.ISSUER_CODE]: [
+  [CARDPOSITIONS.ENCODER]: [
     {
-      [Lang.DUTCH]: 'Uitgevercode',
-      [Lang.ENGLISH]: 'Issuer Code',
-      [Lang.FRENCH]: 'Code émetteur',
-      [Lang.GERMAN]: 'Herausgebercode',
+      [Lang.DUTCH]: 'Encoder',
+      [Lang.ENGLISH]: 'Encoder',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.NAME_PRIMARY]: [
+  [CARDPOSITIONS.STACK]: [
     {
-      [Lang.DUTCH]: 'Achternaam',
-      [Lang.ENGLISH]: 'Surname',
-      [Lang.FRENCH]: 'Nom principal',
-      [Lang.GERMAN]: 'Hauptname',
+      [Lang.DUTCH]: 'Stack',
+      [Lang.ENGLISH]: 'Stack',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.NAME_SECONDARY]: [
+  [FAILPROCESS.NEVER]: [
     {
-      [Lang.DUTCH]: 'Voornaam',
-      [Lang.ENGLISH]: 'Given names',
-      [Lang.FRENCH]: 'Nom secondaire',
-      [Lang.GERMAN]: 'Sekundärname',
+      [Lang.DUTCH]: 'Nooit',
+      [Lang.ENGLISH]: 'Never',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
-  [InputFields.NATIONALITY]: [
+  [FAILPROCESS.SPORADICALLY]: [
     {
-      [Lang.DUTCH]: 'Nationaliteit',
-      [Lang.ENGLISH]: 'Nationality',
-      [Lang.FRENCH]: 'Nationalité',
-      [Lang.GERMAN]: 'Nationalität',
-    },
-  ],
-  [InputFields.SEX]: [
-    {
-      [Lang.DUTCH]: 'Geslacht',
-      [Lang.ENGLISH]: 'Sex',
-      [Lang.FRENCH]: 'Sexe',
-      [Lang.GERMAN]: 'Geschlecht',
-    },
-  ],
-  defaultLanguage: [
-    {
-      [Lang.DUTCH]: 'Standaardtaal',
-      [Lang.ENGLISH]: 'Default Language',
-      [Lang.FRENCH]: 'Langue par défaut',
-      [Lang.GERMAN]: 'Standardsprache',
+      [Lang.DUTCH]: 'Sporadisch ',
+      [Lang.ENGLISH]: 'Sporadically',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
     },
   ],
   [CountriesAlpha3.Netherlands]: [
@@ -181,52 +169,12 @@ const translations: Translations = {
       [Lang.GERMAN]: 'Französisch',
     },
   ],
-  P: [
+  defaultLanguage: [
     {
-      [Lang.DUTCH]: 'Paspoort',
-      [Lang.ENGLISH]: 'Passport',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
-    },
-  ],
-  year: [
-    {
-      [Lang.DUTCH]: 'jjjj',
-      [Lang.ENGLISH]: 'yyyy',
-      [Lang.FRENCH]: '..',
-      [Lang.GERMAN]: '..',
-    },
-  ],
-  month: [
-    {
-      [Lang.DUTCH]: 'mm',
-      [Lang.ENGLISH]: 'mm',
-      [Lang.FRENCH]: 'NON',
-      [Lang.GERMAN]: 'NEIN',
-    },
-  ],
-  day: [
-    {
-      [Lang.DUTCH]: 'dd',
-      [Lang.ENGLISH]: 'dd',
-      [Lang.FRENCH]: 'NON',
-      [Lang.GERMAN]: 'NEIN',
-    },
-  ],
-  yes: [
-    {
-      [Lang.DUTCH]: 'JA',
-      [Lang.ENGLISH]: 'YES',
-      [Lang.FRENCH]: 'OUI',
-      [Lang.GERMAN]: 'JA',
-    },
-  ],
-  no: [
-    {
-      [Lang.DUTCH]: 'NEE',
-      [Lang.ENGLISH]: 'NO',
-      [Lang.FRENCH]: 'NON',
-      [Lang.GERMAN]: 'NEIN',
+      [Lang.DUTCH]: 'Standaardtaal',
+      [Lang.ENGLISH]: 'Default Language',
+      [Lang.FRENCH]: 'Langue par défaut',
+      [Lang.GERMAN]: 'Standardsprache',
     },
   ],
 };
@@ -234,7 +182,7 @@ const translations: Translations = {
 const translate = (id: string, language: Lang, indexed?: number): string => {
   const translation = translations[id];
   if (!translation) {
-    return id; // Return the id if no translation found
+    return id; // Return the id if no translation has been found
   }
 
   // If 'indexed' is valid use it, otherwise use the first index '[0]' as default if no index or invalid index is given.

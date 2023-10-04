@@ -11,14 +11,15 @@ import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 // contexts
 import AppDispatchContext from './contexts/dispatch/AppDispatchContext';
+import { SettingContextProvider } from './contexts/dispatch/SettingContext';
 // theme
 import theme from './theme/theme.json';
+// enums
+import { Lang } from './enums/SettingEnums';
+import AppActions from './enums/AppActions';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
-import ActionType from './enums/ActionTypes';
 import CardType from './types/CardType';
-import { SettingContextProvider } from './contexts/dispatch/SettingContext';
-import Lang from './enums/Lang';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -104,37 +105,37 @@ const initialState: AppStateType = {
 
 const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType => {
   switch (action.type) {
-    case ActionType.CLICKED_BACK: {
+    case AppActions.CLICKED_BACK: {
       return { ...state, clickedBack: action.payload, showBack: false };
     }
-    case ActionType.CLICKED_CROSS: { // close window and return to main screen
+    case AppActions.CLICKED_CROSS: { // close window and return to main screen
       return {
         ...initialState,
         cardData: state.cardData,
       };
     }
-    case ActionType.RECEIVE_KEY_DATA: {
+    case AppActions.RECEIVE_CARD_DATA: {
       return {
         ...state,
         cardData: action.payload,
       };
     }
-    case ActionType.SET_HEADER_TITLE: {
+    case AppActions.SET_HEADER_TITLE: {
       return { ...state, headerTitle: action.payload };
     }
-    case ActionType.SHOW_BIN_SETTINGS: {
+    case AppActions.SHOW_BIN_SETTINGS: {
       return { ...state, showSettings: true, showBinSettings: true, showCross: true, showBack: true };
     }
-    case ActionType.SHOW_STACK_SETTINGS: {
+    case AppActions.SHOW_STACK_SETTINGS: {
       return { ...state, showSettings: true, showStackSettings: true, showCross: true, showBack: true };
     }
-    case ActionType.SHOW_BACK: {
+    case AppActions.SHOW_BACK: {
       return { ...state, showBack: action.payload };
     }
-    case ActionType.SHOW_CROSS: {
+    case AppActions.SHOW_CROSS: {
       return { ...state, showCross: action.payload };
     }
-    case ActionType.TOGGLE_SETTINGS: {
+    case AppActions.TOGGLE_SETTINGS: {
       return {
         ...state,
         headerTitle: state.showSettings ? 'ID Scanner' : state.headerTitle,

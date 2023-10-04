@@ -1,39 +1,39 @@
-import ActionType from '../../enums/ActionTypes';
+import AppActions from '../../enums/AppActions';
 import CardType from '../CardType';
 
 // All BooleanActions
 type BooleanAction = {
   type:
-  ActionType.CLICKED_BACK
-  | ActionType.CLICKED_CROSS
-  | ActionType.SHOW_BACK
-  | ActionType.SHOW_CROSS
+  AppActions.CLICKED_BACK
+  | AppActions.CLICKED_CROSS
+  | AppActions.SHOW_BACK
+  | AppActions.SHOW_CROSS
   payload: boolean
 };
 
 // All string Actions
 type StringAction = {
   type:
-  ActionType.SET_HEADER_TITLE,
+  AppActions.SET_HEADER_TITLE,
   payload: string
 };
 
 // Without Payload
 type NoPayLoadAction = {
   type:
-  ActionType.TOGGLE_SETTINGS
-  | ActionType.SHOW_BIN_SETTINGS
-  | ActionType.SHOW_STACK_SETTINGS
-  | ActionType.CLICKED_CROSS
+  AppActions.TOGGLE_SETTINGS
+  | AppActions.SHOW_BIN_SETTINGS
+  | AppActions.SHOW_STACK_SETTINGS
+  | AppActions.CLICKED_CROSS
 };
 
-// KeyActions
-type KeyAction = { type: ActionType.RECEIVE_KEY_DATA, payload: CardType };
+// CardActions
+type CardAction = { type: AppActions.RECEIVE_CARD_DATA, payload: CardType };
 
 type AppDispatchActions =
   BooleanAction
   | NoPayLoadAction
   | StringAction
-  | KeyAction;
+  | CardAction;
 
 export default AppDispatchActions;

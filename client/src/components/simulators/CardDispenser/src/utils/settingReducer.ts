@@ -1,13 +1,7 @@
 import { Reducer } from 'react';
 import { SettingStateType } from '../types/SettingStateType';
-import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
-import APPSETTINGS from '../enums/AppSettings';
-import STACKSTATUSES from '../enums/StackStatus';
-import CARDPOSITIONS from '../enums/CardPosition';
-import BINSTATUSES from '../enums/BinStatus';
-import FAILPROCESS from '../enums/FailProcess';
-
-export type AllOptions = DEVICESTATUSOPTIONS | STACKSTATUSES | CARDPOSITIONS | BINSTATUSES | FAILPROCESS;
+import { APPSETTINGS } from '../enums/SettingEnums';
+import { AllOptions } from '../types/SettingType';
 
 export type SettingsActionType = {
   type: APPSETTINGS;
