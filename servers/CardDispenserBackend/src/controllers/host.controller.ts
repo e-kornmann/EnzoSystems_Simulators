@@ -45,26 +45,20 @@ const getDeviceStatus = async (req: Request, res: Response) => {
       let pollingMS = 0;
 
       // if mode has already changed, return immediately
-      if (req.query.referenceDeviceStatus !== req.app.locals.deviceStatus) {
-        const metaData = { binStatus: req.app.locals.binStatus, cardPosition: req.app.locals.cardPosition, referenceDeviceStatus: req.query.referenceDeviceStatus, stackStatus: req.app.locals.stackStatus };
-        res.status(httpStatus.OK).json({ deviceStatus: req.app.locals.deviceStatus, metadata: metaData });
-        console.log(`(${req.authenticationType} :"${req.authenticationUser} - get status) {${JSON.stringify({ deviceStatus: req.app.locals.deviceStatus, metadata: metaData })}}`);
-      } else { // use long polling
-        const timer = setInterval(() => {
-          try {
-            pollingMS += parseInt(process.env.LONG_POLLING_INTERVAL_MS as string);
-            if ((req.query.referenceDeviceStatus !== req.app.locals.deviceStatus) || pollingMS >= longPollingMS) {
-              clearInterval(timer);
-              const metadata = { binStatus: req.app.locals.binStatus, cardPosition: req.app.locals.cardPosition, longPollingMS: longPollingMS, pollingMS: pollingMS, referenceDeviceStatus: req.query.referenceDeviceStatus, stackStatus: req.app.locals.stackStatus };
-              res.status(httpStatus.OK).json({ deviceStatus: req.app.locals.deviceStatus, metadata: metadata });
-              console.log(`(${req.authenticationType}: ${req.authenticationUser} - get status) {${JSON.stringify({ deviceStatus: req.app.locals.deviceStatus, metadata: metadata })}}`);
-            }
-          } catch (error) {
-            console.error(`(${req.authenticationType}: ${req.authenticationUser} - get status) ${error}`);
-            res.json({ error: error });
+      const timer = setInterval(() => {
+        try {
+          pollingMS += Number(process.env.LONG_POLLING_INTERVAL_MS as string);
+          if ((req.query.referenceDeviceStatus !== req.app.locals.deviceStatus) || pollingMS >= longPollingMS) {
+            clearInterval(timer);
+            const metadata = { binStatus: req.app.locals.binStatus, cardPosition: req.app.locals.cardPosition, longPollingMS: longPollingMS, pollingMS: pollingMS, referenceDeviceStatus: req.query.referenceDeviceStatus, stackStatus: req.app.locals.stackStatus };
+            res.status(httpStatus.OK).json({ deviceStatus: req.app.locals.deviceStatus, metadata: metadata });
+            console.log(`(${req.authenticationType}: ${req.authenticationUser} - get status) {${JSON.stringify({ deviceStatus: req.app.locals.deviceStatus, metadata: metadata })}}`);
           }
-        }, parseInt(process.env.LONG_POLLING_INTERVAL_MS as string));
-      }
+        } catch (error) {
+          console.error(`(${req.authenticationType}: ${req.authenticationUser} - get status) ${error}`);
+          res.json({ error: error });
+        }
+      }, Number(process.env.LONG_POLLING_INTERVAL_MS as string));
     } else { // return directly
       res.status(httpStatus.OK).json({ binStatus: req.app.locals.binStatus, cardPosition: req.app.locals.cardPosition, deviceStatus: req.app.locals.deviceStatus, stackStatus: req.app.locals.stackStatus });
       console.log(`(${req.authenticationType}: ${req.authenticationUser} - get status) {${JSON.stringify({ binStatus: req.app.locals.binStatus, cardPosition: req.app.locals.cardPosition, deviceStatus: req.app.locals.deviceStatus, stackStatus: req.app.locals.stackStatus })}}`);
@@ -102,36 +96,31 @@ const getSession = async (req: Request, res: Response) => {
       throw new Error('Device is in an unknown state');
     }
 
-    const session = req.app.locals.sessions.get(req.params.id);
-    if (!session) {
-      res.status(httpStatus.NOT_FOUND);
-      throw new Error(`Session not found, id: ${req.params.id}`);
-    }
-
     const longPollingMS = req.app.locals.longPollingMS;
     let pollingMS = 0;
 
     // If there is data, return it immediately, otherwise use long poll
-    if (session.status !== SESSION_STATUS.ACTIVE) {
-      const metadata = { command: session.command, status: session.status, sessionId: req.params.id };
-      res.status(httpStatus.OK).json({ metadata: metadata, ...(session.status === SESSION_STATUS.FINISHED && { cardData: session.cardData }) });
-      console.log(`(${req.authenticationType}: ${req.authenticationUser} - set session) }${JSON.stringify({ metadata: metadata, ...(session.status === SESSION_STATUS.FINISHED && { cardData: session.cardData }) })}`);
-    } else {
-      const timer = setInterval(() => {
-        try {
-          pollingMS += parseInt(process.env.LONG_POLLING_INTERVAL_MS as string);
-          if (session.status !== SESSION_STATUS.ACTIVE || pollingMS >= 0) {
-            clearInterval(timer);
-            const metadata = { command: session.command, longPollingMS: longPollingMS, pollingMS: pollingMS, sessionId: req.params.id, status: session.status };
-            res.status(httpStatus.OK).json({ metadata: metadata, ...(session.status === SESSION_STATUS.FINISHED && { cardData: session.cardData }) });
-            console.log(`(${req.authenticationType}: ${req.authenticationUser} - get session) {${JSON.stringify({ metadata: metadata, ...(session.status === SESSION_STATUS.FINISHED && { cardData: session.cardData }) })}}`);
-          }
-        } catch (error) {
-          console.error(`(${req.authenticationType}: ${req.authenticationUser} - get session) ${error}`);
-          res.json({ error: error });
+    const timer = setInterval(() => {
+      try {
+        pollingMS += Number(process.env.LONG_POLLING_INTERVAL_MS as string);
+        const session = req.app.locals.sessions.get(req.params.id);
+
+        if (!session) {
+          res.status(httpStatus.NOT_FOUND);
+          throw new Error(`Session not found, id: ${req.params.id}`);
         }
-      }, parseInt(process.env.LONG_POLLING_INTERVAL_MS as string));
-    }
+
+        if (session.status !== SESSION_STATUS.ACTIVE || pollingMS >= 0) {
+          clearInterval(timer);
+          const metadata = { command: session.command, longPollingMS: longPollingMS, pollingMS: pollingMS, sessionId: req.params.id, status: session.status };
+          res.status(httpStatus.OK).json({ metadata: metadata, ...(session.status === SESSION_STATUS.FINISHED && { cardData: session.cardData }) });
+          console.log(`(${req.authenticationType}: ${req.authenticationUser} - get session) {${JSON.stringify({ metadata: metadata, ...(session.status === SESSION_STATUS.FINISHED && { cardData: session.cardData }) })}}`);
+        }
+      } catch (error) {
+        console.error(`(${req.authenticationType}: ${req.authenticationUser} - get session) ${error}`);
+        res.json({ error: error });
+      }
+    }, Number(process.env.LONG_POLLING_INTERVAL_MS as string));
   } catch (error) {
     console.error(`(${req.authenticationType}: ${req.authenticationUser} - get session) ${error}`);
     res.json({ error: error });
@@ -191,6 +180,8 @@ const newSession = (req: Request, res: Response) => {
     if (req.body.command === SESSION_COMMAND.CREATE_CARD) {
       createCard(req, res);
     } else if (
+      req.body.command === SESSION_COMMAND.PRESENT_CARD ||
+      req.body.command === SESSION_COMMAND.READ_CARD ||
       req.body.command === SESSION_COMMAND.RETRACT_CARD_NOT_TAKEN ||
       req.body.command === SESSION_COMMAND.SEND_FAULTY_CARD_TO_BIN
     ) {
@@ -270,7 +261,7 @@ const createCard = (req: Request, res: Response) => {
 
     // Set session timeout
     if (process.env.SESSION_TIMEOUT_SEC) {
-      req.app.locals.activeSessionTimeoutMS = parseInt(process.env.SESSION_TIMEOUT_SEC as string, 10) * 1000;
+      req.app.locals.activeSessionTimeoutMS = Number(process.env.SESSION_TIMEOUT_SEC) * 1000;
     } else {
       req.app.locals.activeSessionTimeoutMS = 60 * 1000;
     }
@@ -306,7 +297,7 @@ const genericCommand = (req: Request, res: Response) => {
   try {
     // Set session timeout
     if (process.env.SESSION_TIMEOUT_SEC) {
-      req.app.locals.activeSessionTimeoutMS = parseInt(process.env.SESSION_TIMEOUT_SEC as string, 10) * 1000;
+      req.app.locals.activeSessionTimeoutMS = Number(process.env.SESSION_TIMEOUT_SEC) * 1000;
     } else {
       req.app.locals.activeSessionTimeoutMS = 60 * 1000;
     }
@@ -358,7 +349,8 @@ const updateSession = (req: Request, res: Response) => {
     }
 
     // Check command
-    if (req.body?.command || typeof req.body?.command !== 'string') {
+    if (!req.body?.command || typeof req.body?.command !== 'string') {
+      console.dir(req.body);
       res.status(httpStatus.BAD_REQUEST);
       throw new Error('Body should contain a \'command\' property of type string');
     }
@@ -386,7 +378,7 @@ const updateSession = (req: Request, res: Response) => {
       throw new Error(`Session timed out, id: ${req.app.locals.activeSessionId}`);
     }
 
-    session.status === SESSION_STATUS.CANCELLING;
+    session.status = SESSION_STATUS.CANCELLING;
     req.app.locals.sessions.set(req.params.id, session);
 
     const metadata = { command: session.command, sessionId: req.params.id, status: session.status };

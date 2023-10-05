@@ -15,11 +15,13 @@ import { SettingContextProvider } from './contexts/dispatch/SettingContext';
 // theme
 import theme from './theme/theme.json';
 // enums
-import { Lang } from './enums/SettingEnums';
+import { APPSETTINGS, Lang } from './enums/SettingEnums';
 import AppActions from './enums/AppActions';
 // types
 import AppDispatchActions from './types/reducerActions/AppDispatchActions';
 import CardType from './types/CardType';
+// translate
+import ts from './Translations/translate';
 
 const GlobalStyle = createGlobalStyle({
   '*': {
@@ -124,7 +126,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return { ...state, headerTitle: action.payload };
     }
     case AppActions.SHOW_BIN_SETTINGS: {
-      return { ...state, showSettings: true, showBinSettings: true, showCross: true, showBack: true };
+      return { ...state, showSettings: true, showBinSettings: true, showCross: true, showBack: true, headerTitle: APPSETTINGS.BIN };
     }
     case AppActions.SHOW_STACK_SETTINGS: {
       return { ...state, showSettings: true, showStackSettings: true, showCross: true, showBack: true };
@@ -138,7 +140,7 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
     case AppActions.TOGGLE_SETTINGS: {
       return {
         ...state,
-        headerTitle: state.showSettings ? 'ID Scanner' : state.headerTitle,
+        headerTitle: state.showSettings ? 'ID Scanner' : 'Settings',
         showCross: !state.showSettings,
         showSettings: !state.showSettings,
       };
@@ -161,7 +163,7 @@ const App = () => {
             <Header
               showBack={state.showBack}
               showCross={state.showCross}
-              title={state.headerTitle} />
+              title={ts(state.headerTitle, state.appLanguage)} />
           <StyledContentWrapper>
 
               <CardDispenser

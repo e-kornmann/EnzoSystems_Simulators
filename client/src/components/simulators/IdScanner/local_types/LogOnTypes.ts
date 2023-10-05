@@ -5,7 +5,5 @@ export type CredentialType = {
 
 export type ReqLogOnType = {
   hostId?: string,
-  merchantId?: string,
-  terminalId?: string,
   deviceId?: string
 };

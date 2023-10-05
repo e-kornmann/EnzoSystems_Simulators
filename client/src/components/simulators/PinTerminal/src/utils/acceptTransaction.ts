@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { axiosUrl } from '../Config';
 import DEVICESTATUSOPTIONS from '../enums/DeviceStatusOptions';
-import { SupportedSchemesType } from '../../../shared/PayProvider';
+import { SupportedSchemesType } from '../enums/SupportedSchemes';
 
 const changeDeviceStatus = async (token: string, changeToThisState: DEVICESTATUSOPTIONS) => {
   try {

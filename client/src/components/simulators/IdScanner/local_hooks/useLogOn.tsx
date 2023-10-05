@@ -6,7 +6,7 @@ const useLogOn = (credentials: CredentialType, reqBody: ReqLogOnType, axiosUrl: 
   const [token, setToken] = useState(undefined);
 
   // take the name of the issuer for the console.log
-  const issuer = reqBody.deviceId || reqBody.terminalId || reqBody.hostId || 'Device';
+  const issuer = reqBody.deviceId || reqBody.hostId || 'Device';
 
   const logOn = async () => {
     try {

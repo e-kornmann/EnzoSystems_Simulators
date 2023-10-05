@@ -1,72 +1,38 @@
-import { ReactComponent as AliPay } from '../../assets/svgs/PayProviders/alipay.svg';
-import { ReactComponent as Amex } from '../../assets/svgs/PayProviders/amex.svg';
-import { ReactComponent as ApplePay } from '../../assets/svgs/PayProviders/applepay.svg';
-import { ReactComponent as Bancontact } from '../../assets/svgs/PayProviders/bancontact.svg';
+import { memo } from 'react';
+import { ReactComponent as AliPay } from '../../assets/PayProviders/alipay.svg';
+import { ReactComponent as Amex } from '../../assets/PayProviders/amex.svg';
+import { ReactComponent as ApplePay } from '../../assets/PayProviders/applepay.svg';
+import { ReactComponent as Bancontact } from '../../assets/PayProviders/bancontact.svg';
 
-import { ReactComponent as CartesBancaires } from '../../assets/svgs/PayProviders/cartesbancaires.svg';
-import { ReactComponent as Diners } from '../../assets/svgs/PayProviders/dinersclub.svg';
-import { ReactComponent as Discover } from '../../assets/svgs/PayProviders/discover.svg';
-import { ReactComponent as GiroCard } from '../../assets/svgs/PayProviders/girocard.svg';
+import { ReactComponent as CartesBancaires } from '../../assets/PayProviders/cartesbancaires.svg';
+import { ReactComponent as Diners } from '../../assets/PayProviders/dinersclub.svg';
+import { ReactComponent as Discover } from '../../assets/PayProviders/discover.svg';
+import { ReactComponent as GiroCard } from '../../assets/PayProviders/girocard.svg';
 
-import { ReactComponent as Giropay } from '../../assets/svgs/PayProviders/giropay.svg';
-import { ReactComponent as GooglePay } from '../../assets/svgs/PayProviders/googlepay-oldlogo.svg';
-import { ReactComponent as IDeal } from '../../assets/svgs/PayProviders/ideal.svg';
-import { ReactComponent as Interac } from '../../assets/svgs/PayProviders/interac.svg';
+import { ReactComponent as Giropay } from '../../assets/PayProviders/giropay.svg';
+import { ReactComponent as GooglePay } from '../../assets/PayProviders/googlepay-oldlogo.svg';
+import { ReactComponent as IDeal } from '../../assets/PayProviders/ideal.svg';
+import { ReactComponent as Interac } from '../../assets/PayProviders/interac.svg';
 
-import { ReactComponent as JcbBank } from '../../assets/svgs/PayProviders/jcb.svg';
-import { ReactComponent as Maestro } from '../../assets/svgs/PayProviders/meastro.svg';
-import { ReactComponent as Mastercard } from '../../assets/svgs/PayProviders/mastercard.svg';
-import { ReactComponent as MastercardDebit } from '../../assets/svgs/PayProviders/mastercard-debit.svg';
+import { ReactComponent as JcbBank } from '../../assets/PayProviders/jcb.svg';
+import { ReactComponent as Maestro } from '../../assets/PayProviders/meastro.svg';
+import { ReactComponent as Mastercard } from '../../assets/PayProviders/mastercard.svg';
+import { ReactComponent as MastercardDebit } from '../../assets/PayProviders/mastercard-debit.svg';
 
-import { ReactComponent as MasterPass } from '../../assets/svgs/PayProviders/masterpass.svg';
-import { ReactComponent as PayPal } from '../../assets/svgs/PayProviders/paypal.svg';
-import { ReactComponent as SwissPost } from '../../assets/svgs/PayProviders/swisspost.svg';
-import { ReactComponent as SwissReka } from '../../assets/svgs/PayProviders/swissreka.svg';
+import { ReactComponent as MasterPass } from '../../assets/PayProviders/masterpass.svg';
+import { ReactComponent as PayPal } from '../../assets/PayProviders/paypal.svg';
+import { ReactComponent as SwissPost } from '../../assets/PayProviders/swisspost.svg';
+import { ReactComponent as SwissReka } from '../../assets/PayProviders/swissreka.svg';
 
-import { ReactComponent as Twint } from '../../assets/svgs/PayProviders/twint.svg';
-import { ReactComponent as Unionpay } from '../../assets/svgs/PayProviders/unionpay.svg';
-import { ReactComponent as Visa } from '../../assets/svgs/PayProviders/visa.svg';
-import { ReactComponent as VisaElectron } from '../../assets/svgs/PayProviders/visa-electron.svg';
+import { ReactComponent as Twint } from '../../assets/PayProviders/twint.svg';
+import { ReactComponent as Unionpay } from '../../assets/PayProviders/unionpay.svg';
+import { ReactComponent as Visa } from '../../assets/PayProviders/visa.svg';
+import { ReactComponent as VisaElectron } from '../../assets/PayProviders/visa-electron.svg';
 
-import { ReactComponent as VisaDebit } from '../../assets/svgs/PayProviders/visa-debit.svg';
-import { ReactComponent as VPay } from '../../assets/svgs/PayProviders/vpay.svg';
-import { ReactComponent as Wechat } from '../../assets/svgs/PayProviders/wechatpay.svg';
-
-export enum SupportedSchemesType {
-  ALIPAY = 'Alipay',
-  AMEX = 'AMEX',
-  APPLEPAY = 'ApplePay',
-  BANCONTACT = 'Bancontact',
-
-  CARTESBANCAIRES = 'Cartes Bancaires',
-  DINERS = 'Diners Club',
-  DISCOVER = 'Discover',
-  GIROCARD = 'Girocard',
-
-  GIROPAY = 'Giropay',
-  GOOGLEPAY = 'Google Pay',
-  IDEAL = 'iDEAL',
-  INTERAC = 'Interac',
-
-  JCB_BANK = 'JCB',
-  MAESTRO = 'Maestro',
-  MASTERCARD = 'Mastercard',
-  MASTERCARDDEBIT = 'Mastercard Debit',
-
-  MASTERPASS = 'Masterpass',
-  PAYPAL = 'PayPal',
-  SWISSPOST = 'Swiss Post',
-  SWISSREKA = 'Swiss Reka',
-
-  TWINT = 'Twint',
-  UNIONPAY = 'UnionPay',
-  VISA = 'Visa',
-  VISAELECTRON = 'Visa Electron',
-
-  VISADEBIT = 'Visa Debit',
-  VPAY = 'V PAY',
-  WECHATPAY = 'WeChat Pay',
-}
+import { ReactComponent as VisaDebit } from '../../assets/PayProviders/visa-debit.svg';
+import { ReactComponent as VPay } from '../../assets/PayProviders/vpay.svg';
+import { ReactComponent as Wechat } from '../../assets/PayProviders/wechatpay.svg';
+import { SupportedSchemesType } from '../../enums/SupportedSchemes';
 
 type Props = {
   width: number;
@@ -75,7 +41,7 @@ type Props = {
   border: boolean;
 };
 
-const PayProvider = ({
+const PayProviderComponent = ({
   width, height, provider, border,
 }: Props) => {
   const PayProviderStyle: React.CSSProperties = {
@@ -149,4 +115,4 @@ const PayProvider = ({
   }
 };
 
-export default PayProvider;
+export const PayProvider = memo(PayProviderComponent);

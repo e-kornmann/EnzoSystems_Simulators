@@ -1,9 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
 // create GlobalStyle
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
+// draggable lib
 import { DndContext } from '@dnd-kit/core';
+// component
+import { DraggableModal } from './components/DraggableModal/Modal';
+// theme
 import theme from './theme/theme.json';
-import { DraggableModal } from './components/shared/DraggableModal/Modal';
+
 import DemoApp from './components/simulators/DemoApp/DemoApp';
 import QrScanner from './components/simulators/QR-Scanner/src/App';
 import PaymentTerminalSimulator from './components/simulators/PinTerminal/src/App';

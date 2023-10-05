@@ -27,6 +27,7 @@ const FooterComponent = ({ showSettings }: Props) => {
   }, [appDispatch]);
 
   const handleCardHolderKey = useCallback(() => {
+    appDispatch({ type: AppActions.SHOW_BACK, payload: true });
     appDispatch({ type: AppActions.SHOW_STACK_SETTINGS });
   }, [appDispatch]);
 

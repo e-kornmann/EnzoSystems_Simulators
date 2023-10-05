@@ -1,18 +1,17 @@
 import styled, { keyframes } from 'styled-components';
 import { useState, useEffect, useCallback } from 'react';
-import * as Sv from '../../../styles/stylevariables';
-import { axiosUrl, hostCredentials, reqBody } from './config';
-import InputAmount from './input/InputAmount';
-import createTransaction from './utils/createTransaction';
-import useLogOn from '../../../hooks/useLogOn';
-import options from './settings/settings';
-import useGetTransaction from '../../../hooks/useGetTransaction';
-import { SharedStyledContainer, SharedStyledHeader } from '../../shared/DraggableModal/ModalTemplate';
-import TransactionDetails from './TransactionDetails/TransactionDetails';
-import { IntlConfigType } from '../../../types/IntlConfigType';
-import TurnOnDevice from '../../shared/TurnOnDevice';
-import useStopTransaction from '../../../hooks/useStopTransaction';
-import ScanQr from './host/ScanQr';
+import { axiosUrl, hostCredentials, reqBody } from './src/config';
+import InputAmount from './src/input/InputAmount';
+import createTransaction from './src/utils/createTransaction';
+import useLogOn from './local_hooks/useLogOn';
+import options from './src/settings/settings';
+import useGetTransaction from './local_hooks/useGetTransaction';
+import { SharedStyledContainer, SharedStyledHeader } from './local_shared/DraggableModal/ModalTemplate';
+import TransactionDetails from './src/TransactionDetails/TransactionDetails';
+import { IntlConfigType } from './src/types/IntlConfigType';
+import TurnOnDevice from './local_shared/TurnOnDevice';
+import useStopTransaction from './local_hooks/useStopTransaction';
+import ScanQr from './src/host/ScanQr';
 
 const DemoAppContainer = styled.div`
   display: grid;
@@ -42,28 +41,28 @@ const ButtonContainer = styled.div`
 `;
 const OkButton = styled.button`
   cursor: pointer;
-  color: ${Sv.black};
+  color: ${props => props.theme.colors.text.black};
   width: 60px;
   height: 30px;
   font-size: 1.0em;
   font-weight: 600;
   min-width: 0;
-  background-color: ${Sv.green}; 
+  background-color: ${props => props.theme.colors.buttons.green};
   border-radius: 40px;
   padding: 3px;
   &:active {
-    background-color: ${Sv.darkgreen};
+    background-color: ${props => props.theme.colors.buttons.darkgreen};
   }
   &:disabled {
     cursor: inherit;
-    background-color: ${Sv.gray};
+    background-color: ${props => props.theme.colors.buttons.gray};
     color: gray;
   }
 `;
 const StopButton = styled(OkButton)`
-  background-color: ${Sv.red}; 
+  background-color: ${props => props.theme.colors.buttons.red};
   &:active {
-    background-color: ${Sv.darkred};
+    background-color: ${props => props.theme.colors.buttons.darkred};
   }
 `;
 const TransactionDetailsHeader = styled.div`
@@ -72,8 +71,8 @@ const TransactionDetailsHeader = styled.div`
   height: 100%;
   padding: 4px 6px;
   font-size: 0.82em;
-  background-color: ${Sv.asphalt}; 
-  border-bottom: 1px solid  ${Sv.appBackground};
+  background-color: ${props => props.theme.colors.text.primary}; 
+  border-bottom: 1px solid  ${props => props.theme.colors.background.secondary}; 
   border-radius: 3px 3px 0 0;
   
 `;
@@ -83,7 +82,7 @@ const TransactionDetailsContent = styled.div`
   height: 100%;
   padding: 4px 6px;
   font-size: 0.82em;
-  background-color: ${Sv.asphalt}; 
+  background-color: ${props => props.theme.colors.text.primary}; 
 `;
 const TransactionDetailsFooter = styled.div`
   display: flex;
@@ -91,8 +90,8 @@ const TransactionDetailsFooter = styled.div`
   height: 100%;
   font-size: 0.82em;
   align-items: baseline;
-  background-color: ${Sv.asphalt}; 
-  border-top: 1px solid ${Sv.appBackground};
+  background-color:${props => props.theme.colors.text.primary}; 
+  border-top: 1px solid ${props => props.theme.colors.background.secondary}; 
   border-radius: 0 0 3px 3px;
 `;
 const blinkAnimation = keyframes`
@@ -103,13 +102,13 @@ const blinkAnimation = keyframes`
     opacity: 0;
   }
 `;
-const StatusText = styled.div<{ $isActive: boolean }>`
-  color: ${props => (props.$isActive ? Sv.green : Sv.red)};
-`;
+const StatusText = styled.div<{ $isActive: boolean }>(({ theme, $isActive }) => ({
+  color: $isActive ? theme.colors.buttons.green : theme.colors.buttons.red,
+}));
 const BlinkingDot = styled(StatusText)`
   width: 6px;
   height: 6px;
-  background-color: ${props => (props.$isActive ? Sv.green : Sv.red)};
+  background-color: ${props => (props.$isActive ? props.theme.colors.buttons.green : props.theme.colors.buttons.red)};
   border-radius: 100px;
   margin: 10px 7px;
   animation-name: ${blinkAnimation};

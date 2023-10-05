@@ -1,4 +1,5 @@
 type CardType = {
+  cardId: string,
   additionalAccess: string[],
   endDateTime: string,
   roomAccess: string[],

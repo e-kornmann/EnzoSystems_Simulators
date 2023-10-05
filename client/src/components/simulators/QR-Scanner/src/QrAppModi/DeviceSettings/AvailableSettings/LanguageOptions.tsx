@@ -5,7 +5,7 @@ import { ReactComponent as Arrow } from '../../../../local_assets/arrow_back.svg
 import { ArrowWrapper } from '../DeviceSettings';
 import ts from '../../../Translations/translations';
 import { QrAppModi } from '../../../App';
-import { ReactComponent as CheckMarkIcon } from '../../../../local_assets/check-mark.svg';
+import { ReactComponent as CheckMarkIcon } from '../../../../local_assets/checkmark.svg';
 
 enum LangEnum {
   DUTCH = 'dutch',

@@ -1,6 +1,6 @@
 // import { memo } from 'react';
 // import styled from 'styled-components';
-// import { ReactComponent as CheckMarkIcon } from '../../assets/svgs/check-mark.svg';
+// import { ReactComponent as CheckMarkIcon } from '../../assets/svgs/checkmark.svg';
 // import { ReactComponent as CrossIcon } from '../../assets/svgs/fail.svg';
 // import ShowIcon from '../local_types/ShowIcon';
 

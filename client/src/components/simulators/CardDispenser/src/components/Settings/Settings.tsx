@@ -74,8 +74,7 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
         settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
       }
     }
-    appDispatch({ type: AppActions.CLICKED_CROSS });
-  }, [appDispatch, settingDispatch]);
+  }, [settingDispatch]);
 
   useEffect(() => { // Return to Settings menu from an Options list
     if (clickedBack && settingIsClicked) {
@@ -84,10 +83,6 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
       appDispatch({ type: AppActions.CLICKED_BACK, payload: false });
     }
   }, [appDispatch, clickedBack, settingDispatch, settingIsClicked]);
-
-  useEffect(() => { // On load, set header to display 'Settings' as title
-    appDispatch({ type: AppActions.SET_HEADER_TITLE, payload: 'Settings' });
-  }, [appDispatch]);
 
   return (
     <StyledWrapper>

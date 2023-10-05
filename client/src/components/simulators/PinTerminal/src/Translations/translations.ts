@@ -1,4 +1,4 @@
-import { Lang } from '../DeviceSettings/AvailableSettings/LanguageOptions';
+import { Lang } from '../components/DeviceSettings/AvailableSettings/LanguageOptions';
 
 type Translations = {
   [key: string]: { [key in Lang]: string; }[];

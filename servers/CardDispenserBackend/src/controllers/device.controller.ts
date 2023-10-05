@@ -7,6 +7,7 @@ import SESSION_COMMAND from '../enums/SessionCommand';
 import SESSION_STATUS from '../enums/SessionStatus';
 import SessionData from '../types/SessionData';
 import CARD_POSITION from '../enums/CardPosition';
+import CardData from '../types/CardData';
 
 /* //////////////////////////////////////////////////////////////////////////////
 //
@@ -106,18 +107,15 @@ const getActiveSession = (req: Request, res: Response) => {
       throw new Error('Device is in an unknown state');
     }
 
-    const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
-
     // If there is card data, return it directly, otherwise start long polling
-    if (session) {
-      const metadata = { command: session.command, sessionId: session.sessionId, status: session.status };
-      res.status(httpStatus.OK).json({ cardData: session.cardData, metadata: metadata });
-      console.log(`(${req.authenticationType}: ${req.authenticationUser} - get active session) {${JSON.stringify({ cardData: session.cardData, metadata: metadata })}}`);
-    } else {
-      const longPollingMS = req.app.locals.longPollingMS;
-      let pollingMS = 0;
+    const longPollingMS = req.app.locals.longPollingMS;
+    let pollingMS = 0;
 
-      const timer = setInterval(() => {
+    const timer = setInterval(() => {
+      pollingMS += Number(process.env.LONG_POLLING_INTERVAL_MS);
+      const session = req.app.locals.sessions.get(req.app.locals.activeSessionId);
+
+      if (session || pollingMS >= longPollingMS) {
         clearInterval(timer);
 
         if (session) {
@@ -128,8 +126,8 @@ const getActiveSession = (req: Request, res: Response) => {
           res.status(httpStatus.OK).json({ result: 'NO_ACTIVE_SESSION' });
           console.log(`(${req.authenticationType}: ${req.authenticationUser} - get active session) { result: 'NO_ACTIVE_SESSION }`);
         }
-      }, parseInt(process.env.LONG_POLLING_INTERVAL_MS as string));
-    }
+      }
+    }, Number(process.env.LONG_POLLING_INTERVAL_MS as string));
   } catch (error) {
     console.error(`(${req.authenticationType}: ${req.authenticationUser} - get active session) ${error}`);
     res.json({ error: error });
@@ -192,11 +190,13 @@ const updateActiveSession = (req: Request, res: Response) => {
     }
 
     if (req.body.data.status === SESSION_STATUS.STOPPED) {
-      session.status === SESSION_STATUS.STOPPED;
+      session.status = SESSION_STATUS.STOPPED;
     } else if (session.command === SESSION_COMMAND.CREATE_CARD) {
       updateCreate(req, res, session);
-    } else if (session.command === SESSION_COMMAND.RETRACT_CARD_NOT_TAKEN || session.command === SESSION_COMMAND.SEND_FAULTY_CARD_TO_BIN) {
+    } else if (session.command === SESSION_COMMAND.PRESENT_CARD || session.command === SESSION_COMMAND.RETRACT_CARD_NOT_TAKEN || session.command === SESSION_COMMAND.SEND_FAULTY_CARD_TO_BIN) {
       updateGeneric(req, res, session);
+    } else if (session.command === SESSION_COMMAND.READ_CARD) {
+      updateRead(req, res, session);
     } else {
       res.status(httpStatus.INTERNAL_SERVER_ERROR);
       throw new Error(`Session contains an unsupported command: ${session.command}`);
@@ -247,6 +247,85 @@ const updateCreate = (req: Request, res: Response, session: SessionData) => {
 
 const updateGeneric = (req: Request, res: Response, session: SessionData) => {
   session.status = SESSION_STATUS.FINISHED;
+};
+
+const updateRead = (req: Request, res: Response, session: SessionData) => {
+  // Check whether body contains a data object
+  if (!req.body?.data || typeof req.body?.data !== 'object') {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body should contain a \'data\' property of type object');
+  }
+
+  // Check whether cardId is valid
+  if (!req.body.data.cardId || typeof req.body.data.cardId !== 'string') {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body should have a \'data.cardId\' property of type string');
+  }
+
+  // Check whether roomAccess is valid
+  if (!req.body.data.roomAccess) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('The body should have a \'data.roomAccess\' property of type array of strings');
+  } else if (!Array.isArray(req.body.data.roomAccess)) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('The body \'data.roomAccess\' property should be of type array of strings');
+  } else if (!req.body.data.roomAccess.length) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body \'data.roomAccess\' property should have at least one string item');
+  } else {
+    for (const access of req.body.data.roomAccess) {
+      if (typeof access !== 'string') {
+        res.status(httpStatus.BAD_REQUEST);
+        throw new Error('Body \'data.roomAccess\' property contains one or more items not being of type string');
+      } else if (!access.length) {
+        res.status(httpStatus.BAD_REQUEST);
+        throw new Error('Body \'data.roomAccess\' property contains one or more items with an empty string value');
+      }
+    }
+  }
+
+  // optional: Check whether additionalAccess is valid
+  if (!req.body.data.additionalAccess) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('The body should have a \'data.roomAccess\' property of type array of strings');
+  } else if (!Array.isArray(req.body.data.additionalAccess)) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('The body \'data.additionalAccess\' property should be of type array of strings');
+  } else {
+    for (const access of req.body.data.additionalAccess) {
+      if (typeof access !== 'string') {
+        res.status(httpStatus.BAD_REQUEST);
+        throw new Error('Body \'data.additionalAccess\' property contains one or more items not being of type string');
+      } else if (!access.length) {
+        res.status(httpStatus.BAD_REQUEST);
+        throw new Error('Body \'data.additionalAccess\' property contains one or more items with an empty string value');
+      }
+    }
+  }
+
+  // Check whether startDateTime is valid
+  if (!req.body.data.startDateTime || typeof req.body.data.startDateTime !== 'string') {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body should have a \'data.startDateTime\' property of type string');
+  } else if (isNaN(Date.parse(req.body.data.startDateTime))) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body \'data.startDateTime\' property is not a valid date and time');
+  }
+
+  // Check whether endDateTime is valid
+  if (!req.body.data.endDateTime || typeof req.body.data.endDateTime !== 'string') {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body should have a \'data.endDateTime\' property of type string');
+  } else if (isNaN(Date.parse(req.body.data.endDateTime))) {
+    res.status(httpStatus.BAD_REQUEST);
+    throw new Error('Body \'data.endDateTime\' property is not a valid date and time');
+  }
+
+  const cardData: CardData = req.body.data;
+
+  session.cardData = { ...session.cardData, ...cardData };
+  session.status = SESSION_STATUS.FINISHED;
+  console.dir(session);
 };
 
 export { getActiveSession, setStatus, updateActiveSession };

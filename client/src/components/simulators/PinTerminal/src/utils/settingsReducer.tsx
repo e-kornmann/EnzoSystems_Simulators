@@ -1,8 +1,8 @@
 import React, { ReactNode, Reducer, createContext, useReducer } from 'react';
-import CurrencyCode from '../../../../types/CurrencyTypes';
-import { OperationalModeOptionsType } from '../DeviceSettings/AvailableSettings/OperationalModeOptions';
-import { SupportedSchemesType } from '../../../shared/PayProvider';
-import { Lang } from '../DeviceSettings/AvailableSettings/LanguageOptions';
+import { OperationalModeOptionsType } from '../components/DeviceSettings/AvailableSettings/OperationalModeOptions';
+import { Lang } from '../components/DeviceSettings/AvailableSettings/LanguageOptions';
+import CurrencyCode from '../enums/Currency';
+import { SupportedSchemesType } from '../enums/SupportedSchemes';
 
 export enum SettingModes {
   SETTINGS,
