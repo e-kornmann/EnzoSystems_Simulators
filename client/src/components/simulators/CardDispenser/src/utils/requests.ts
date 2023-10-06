@@ -2,6 +2,7 @@ import axios from 'axios';
 import { axiosUrl } from '../config';
 import { DeviceStateType } from '../types/DeviceStateType';
 import SESSIONSTATUS from '../enums/SessionStatus';
+import CardType from '../types/CardType';
 
 const changeDeviceStatus = async (token: string, deviceState: DeviceStateType) => {
   try {
@@ -45,7 +46,7 @@ const getSession = async (token: string) => {
   }
 };
 
-const putSession = async (token: string, command: SESSIONSTATUS) => {
+const endTheSession = async (token: string, command: SESSIONSTATUS) => {
   try {
     const config = {
       headers: {
@@ -62,7 +63,7 @@ const putSession = async (token: string, command: SESSIONSTATUS) => {
       },
       config,
     );
-    return response.data.metadata ? response.data.metadata : response.data;
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return error.response?.status;
@@ -72,4 +73,23 @@ const putSession = async (token: string, command: SESSIONSTATUS) => {
   }
 };
 
-export { putSession, getSession, changeDeviceStatus };
+const putSession = async (token: string, data: CardType) => {
+  try {
+    const config = {
+      headers: {
+        contentType: 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await axiosUrl.put('/active-session', { data }, config);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return error.response?.status;
+    }
+    console.error('Error:', error);
+    return error;
+  }
+};
+
+export { putSession, getSession, changeDeviceStatus, endTheSession };
