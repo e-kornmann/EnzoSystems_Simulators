@@ -150,17 +150,14 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
   "data": {
-    "cardId": "0",
-    "roomAccess": [
-      "4353q%#$%"
-    ],
-    "additionalAccess": [
-      "POOL"
-    ],
-    "startDateTime": "2023-10-10",
-    "endDateTime": "2023-10-11"
+    "cardId": "9453",
+    "roomAccess": ["123"],
+    "additionalAccess": ["SPA"],
+    "startDateTime": "2023-12-31T15:00Z",
+    "endDateTime": "2023-08-16T11:00:00"
   }
 }
+
 
 ### DEVICE finish creation of new card
 PUT http://localhost:9010/api/simulator/card-dispenser/v1/active-session

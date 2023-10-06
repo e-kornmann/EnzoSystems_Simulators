@@ -7,7 +7,7 @@ import { format, parseISO } from 'date-fns';
 import useLogOn from '../../../local_hooks/useLogOn';
 import { scannerCredentials, reqBody, axiosUrl, failureSequenceNr } from '../../config';
 // utils
-import { changeDeviceStatus, getSession, putSession } from '../../utils/requests';
+import { changeDeviceStatus, endTheSession, getSession, putSession } from '../../utils/requests';
 // components
 import { SharedLoading } from '../../../local_shared/Loading';
 import { SharedSuccesOrFailIcon } from '../../../local_shared/CheckAndCrossIcon';
@@ -128,12 +128,21 @@ const slideOut = keyframes`
   }
 `;
 
+const waiting = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+`;
+
 const initialSlide = keyframes`
 0% {
   transform: translateX(-200%);
 }
 100% {
-  transform: translateX(-80%);
+  transform: translateX(-100%);
 }
 `;
 
@@ -150,7 +159,15 @@ const StyledCardBox = styled('div')({
   overflowX: 'hidden',
 });
 
-const StyledCard = styled.div<{ $slideIn: boolean, $slideOut: boolean, $slideBack: boolean, $isFaulsy: boolean }>`
+type StyledCardProps = {
+  $slideIn: boolean;
+  $waiting: boolean;
+  $slideOut: boolean;
+  $slideBack: boolean;
+  $isFaulsy: boolean;
+};
+
+const StyledCard = styled.div<StyledCardProps>`
   display: grid;
   grid-template-rows: 30% 25% 20% 25%;
   background-color: ${props => props.theme.colors.background.primary};
@@ -168,6 +185,8 @@ const StyledCard = styled.div<{ $slideIn: boolean, $slideOut: boolean, $slideBac
       animation = slideBack;
     } else if (props.$slideIn) {
       animation = slideIn;
+    } else if (props.$waiting) {
+      animation = waiting;
     } else if (props.$slideOut) {
       animation = slideOut;
     } else {
@@ -301,17 +320,16 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setNextPoll(false);
         initialSessionRequest.current = true;
       } else {
-        // only do next poll if status is IDLE or CREATING A KEY / DEVICE_KEY_IS_READY otherwhise you will get conflicts.
-        if (operationalState === OPSTATE.DEVICE_KEY_IS_READY) {
+        if (operationalState === OPSTATE.DEVICE_KEY_IS_READY
+          || operationalState === OPSTATE.DEVICE_CREATING_A_KEY) {
           // if you get an NO_ACTIVE_SESSION, session has been TIMED_OUT, reset poll
           if (res.result === 'NO_ACTIVE_SESSION') {
             setNextPoll(false);
             initialSessionRequest.current = true;
             setOperationalState(OPSTATE.API_TIMED_OUT);
-          } else if (res.metadata?.status === 'CANCELLING') {
-            setNextPoll(false);
-            initialSessionRequest.current = true;
-            setOperationalState(OPSTATE.API_CANCEL);
+          } else {
+            console.log(res);
+            setNextPoll(true);
           }
         }
         if (operationalState === OPSTATE.WAITING_FOR_CREATE_COMMAND
@@ -327,7 +345,13 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             initialSessionRequest.current = true;
             setOperationalState(OPSTATE.DEVICE_READING_A_KEY);
           }
+          if (res.metadata?.status === 'CANCELLING') {
+            setNextPoll(false);
+            initialSessionRequest.current = true;
+            setOperationalState(OPSTATE.API_CANCEL);
+          }
         }
+        // Didn't catch any thing of the above? Set next poll.
         console.log(res);
         setNextPoll(true);
       }
@@ -336,29 +360,25 @@ const CardDispenserComponent = ({ cardData }: Props) => {
 
   const endSession = useCallback(async (command: SESSIONSTATUS) => {
     if (token && cardData) {
-      const res = await putSession(token, command);
+      const res = await endTheSession(token, command);
       if (res) {
-        if (res.status === 'FINISHED') {
+        if (res.metadata.status === 'FINISHED') {
           switch (operationalState) {
             case OPSTATE.DEVICE_CREATING_A_KEY:
+              setNextPoll(false);
+              initialSessionRequest.current = true;
               setOperationalState(OPSTATE.WAITING_FOR_READ_COMMAND);
-              break;
-            case OPSTATE.TAKING_THE_KEY:
-              setOperationalState(OPSTATE.KEY_SUCCESSFULLY_TAKEN);
               break;
             default:
               setOperationalState(OPSTATE.KEY_SLIDEOUT);
               break;
           }
         }
-
-        if (res.status === 'STOPPED') {
+        if (res.metadata.status === 'STOPPED') {
           // stop session is succesfull, now try again to connect;
           setOperationalState(OPSTATE.KEY_SLIDEOUT);
         }
         console.log(res);
-      } else if (operationalState === OPSTATE.TAKING_THE_KEY) {
-        setOperationalState(OPSTATE.KEY_UNSUCCESSFULLY_TAKEN);
       } else {
         console.log(res);
         setOperationalState(OPSTATE.SERVER_ERROR);
@@ -366,13 +386,29 @@ const CardDispenserComponent = ({ cardData }: Props) => {
     }
   }, [cardData, operationalState, token]);
 
+  const putData = useCallback(async () => {
+    if (token && cardData) {
+      const res = await putSession(token, cardData);
+      if (res) {
+        if (res.metadata.status === 'FINISHED') {
+          setOperationalState(OPSTATE.DEVICE_KEY_IS_READY);
+        }
+        console.log(res);
+      } else {
+        console.log(res);
+        setOperationalState(OPSTATE.SERVER_ERROR);
+      }
+    }
+  }, [cardData, token]);
+
   const changeStatus = useCallback(async (changeToThisState: DeviceStateType) => {
     if (token) {
       const res = await changeDeviceStatus(token, changeToThisState);
       if (res) {
         if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
           console.log(`Device succesfully updated device state: ${res.status}`);
-          setOperationalState(OPSTATE.WAITING_FOR_CREATE_COMMAND);
+          if (cardData !== undefined) setOperationalState(OPSTATE.WAITING_FOR_READ_COMMAND);
+          else setOperationalState(OPSTATE.WAITING_FOR_CREATE_COMMAND);
         }
         if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
           console.log(`Device succesfully updated device state: ${res.status}`);
@@ -388,7 +424,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
       }
     }
-  }, [token]);
+  }, [cardData, token]);
 
   useEffect(() => {
     let waitTime: number | undefined;
@@ -413,9 +449,20 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setInstructionText('');
         // when in this state getSession is initiated
         break;
+      case OPSTATE.DEVICE_CREATING_A_KEY:
+        setInstructionText('Creating a key...');
+        waitTime = 2000;
+        break;
       case OPSTATE.WAITING_FOR_READ_COMMAND:
-        setInstructionText('waiting for read command');
+        setInstructionText('');
         // when in this state getSession is initiated
+        break;
+      case OPSTATE.DEVICE_READING_A_KEY:
+        setInstructionText('put data...');
+        waitTime = 2000;
+        break;
+      case OPSTATE.DEVICE_KEY_IS_READY:
+        setInstructionText('Key is ready');
         break;
       case OPSTATE.DEVICE_COULD_NOT_CONNECT:
         setInstructionText('Could not connect');
@@ -435,16 +482,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setInstructionText('Could not disconnect');
         waitTime = 3500;
         break;
-      case OPSTATE.DEVICE_CREATING_A_KEY:
-        setInstructionText('Creating a key...');
-        waitTime = 2000;
-        break;
-      // case OPSTATE.DEVICE_KEY_IS_READY:
-      //   setInstructionText('Key is ready');
-      //   break;
-      // case OPSTATE.DEVICE_KEY_IS_FAULTY:
-      //   setInstructionText('Key creation failed');
-      //   break;
+
       case OPSTATE.API_CANCEL:
         setInstructionText('Cancelling');
         waitTime = 3500;
@@ -461,10 +499,6 @@ const CardDispenserComponent = ({ cardData }: Props) => {
       case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
         setInstructionText('Key has been taken');
         waitTime = 2000;
-        break;
-      case OPSTATE.KEY_UNSUCCESSFULLY_TAKEN:
-        setInstructionText('ERROR');
-        waitTime = 1500;
         break;
       case OPSTATE.SERVER_ERROR:
         setInstructionText('SERVER ERROR');
@@ -505,6 +539,9 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             }
             endSession(SESSIONSTATUS.FINISHED);
             break;
+          case OPSTATE.DEVICE_READING_A_KEY:
+            putData();
+            break;
           case OPSTATE.DEVICE_DISCONNECT:
             changeStatus(deviceState);
             break;
@@ -512,16 +549,14 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
             setOperationalState(OPSTATE.SERVER_ERROR);
             break;
-          case OPSTATE.DEVICE_KEY_IS_FAULTY:
           case OPSTATE.TAKING_THE_KEY:
-            endSession(SESSIONSTATUS.FINISHED);
+            setOperationalState(OPSTATE.KEY_SUCCESSFULLY_TAKEN);
             break;
           case OPSTATE.API_CANCEL:
             endSession(SESSIONSTATUS.STOPPED);
             break;
           case OPSTATE.API_TIMED_OUT:
           case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
-          case OPSTATE.KEY_UNSUCCESSFULLY_TAKEN:
           case OPSTATE.KEY_SLIDEOUT:
             setNextPoll(false);
             initialSessionRequest.current = true;
@@ -542,7 +577,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         clearInterval(Number(intervalId));
       }
     };
-  }, [changeStatus, cardData, getToken, operationalState, rest, settingDispatch, settingState, token, appDispatch, endSession]);
+  }, [changeStatus, cardData, getToken, operationalState, rest, settingDispatch, settingState, token, appDispatch, endSession, putData]);
 
   const scanIdButtonHandler = async () => {
     setOperationalState(OPSTATE.TAKING_THE_KEY);
@@ -552,6 +587,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
   useEffect(() => {
     // while WAITING, send a new "long" poll for a new session (1st request)
     if ((operationalState === OPSTATE.WAITING_FOR_CREATE_COMMAND
+        || operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
         || operationalState === OPSTATE.DEVICE_KEY_IS_READY)
         && initialSessionRequest.current) {
       initialSessionRequest.current = false;
@@ -565,6 +601,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
       }
       // any subsequent request
     } else if ((operationalState === OPSTATE.WAITING_FOR_CREATE_COMMAND
+        || operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
         || operationalState === OPSTATE.DEVICE_KEY_IS_READY)
         && nextPoll && !initialSessionRequest.current) {
       console.log('next getScanSession');
@@ -594,46 +631,40 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         <IconBox>
           { operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
           && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CHECK} width={30} height={30} /> }
-          {(operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN || operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY)
+          { operationalState === OPSTATE.SERVER_ERROR
           && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CROSS} width={30} height={30} /> }
-          { operationalState === OPSTATE.DEVICE_CREATING_A_KEY && <SharedLoadingDots />}
+          { (operationalState === OPSTATE.DEVICE_CREATING_A_KEY || operationalState === OPSTATE.DEVICE_READING_A_KEY) && <SharedLoadingDots />}
         </IconBox>
         <ScannerBox>
             <StyledCardBox>
             <StyledCard
               $slideIn={ operationalState === OPSTATE.DEVICE_CREATING_A_KEY
-                || operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
                 }
               $slideOut={ operationalState === OPSTATE.TAKING_THE_KEY
               || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
-              || operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN
               }
+              $waiting={operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
+              || operationalState === OPSTATE.DEVICE_READING_A_KEY
+              || operationalState === OPSTATE.DEVICE_KEY_IS_READY }
               $slideBack={operationalState === OPSTATE.API_CANCEL
                 || operationalState === OPSTATE.API_TIMED_OUT
                 || operationalState === OPSTATE.KEY_SLIDEOUT}
               $isFaulsy={cardData === faultyCard}>
-            { (operationalState === OPSTATE.DEVICE_CREATING_A_KEY
-            || operationalState === OPSTATE.DEVICE_KEY_IS_READY
-            || operationalState === OPSTATE.DEVICE_KEY_IS_FAULTY
-            || operationalState === OPSTATE.TAKING_THE_KEY
-            || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
-            || operationalState === OPSTATE.KEY_UNSUCCESSFULLY_TAKEN
-            || operationalState === OPSTATE.KEY_SLIDEOUT
-            || operationalState === OPSTATE.API_TIMED_OUT)
+            { cardData !== undefined
             && <>
             <StyledRoomNumber>
-               {cardData?.roomAccess.join(', ')}
+               {cardData.roomAccess.join(', ')}
             </StyledRoomNumber>
 
             <StyledAdditionalAccess>
-               {`Access to: \n ${cardData?.additionalAccess.join(', ')}`}
+               {`Access to: \n ${cardData.additionalAccess.join(', ')}`}
             </StyledAdditionalAccess>
 
             <StyledStartDate >
-               {`${(cardData && isoParser(cardData.startDateTime))}`}
+               {`${(isoParser(cardData.startDateTime))}`}
             </StyledStartDate>
             <StyledEndDate>
-               {`${(cardData && isoParser(cardData.endDateTime))}`}
+               {`${(isoParser(cardData.endDateTime))}`}
             </StyledEndDate>
 
             </>}
