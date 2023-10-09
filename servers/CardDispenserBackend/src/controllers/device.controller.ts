@@ -172,7 +172,7 @@ const updateActiveSession = (req: Request, res: Response) => {
       throw new Error(`Active session not found, activeSessionId: ${req.app.locals.activeSessionId}`);
     }
 
-    if (session.status !== SESSION_STATUS.ACTIVE && session.status !== SESSION_STATUS.CANCELLING) {
+    if (session.status !== SESSION_STATUS.ACTIVE && session.status !== SESSION_STATUS.CANCELLING && session.status !== SESSION_STATUS.CREATED && session.status !== SESSION_STATUS.SCANNED) {
       res.status(httpStatus.CONFLICT);
 
       if (session.status === SESSION_STATUS.TIMED_OUT) {
@@ -189,7 +189,7 @@ const updateActiveSession = (req: Request, res: Response) => {
       throw new Error(`Session timeout, id: ${req.app.locals.activeSessionId}`);
     }
 
-    if (req.body.data.status === SESSION_STATUS.STOPPED) {
+    if (req?.body?.data?.status === SESSION_STATUS.STOPPED) {
       session.status = SESSION_STATUS.STOPPED;
     } else if (session.command === SESSION_COMMAND.CREATE_CARD) {
       updateCreate(req, res, session);
@@ -215,9 +215,9 @@ const updateActiveSession = (req: Request, res: Response) => {
     req.app.locals.activeSessionTimeoutMS = sessionTimeout * 1000;
 
     // Update sessions with active session
-    req.app.locals.sessions.set(req.app.locals.activeSessionId, session);
-    const sessionId = req.app.locals.activeSessionId;
-    req.app.locals.activeSessionId = '';
+    if (session.status !== SESSION_STATUS.FINISHED) {
+      req.app.locals.sessions.set(req.app.locals.activeSessionId, session);
+    }
 
     // Send response
     const metadata = { cardData: session.cardData, command: session.command, sessionId: session.sessionId, status: session.status };
@@ -242,11 +242,7 @@ const updateCreate = (req: Request, res: Response, session: SessionData) => {
     throw new Error('There is no active card session');
   }
 
-  session.status = SESSION_STATUS.FINISHED;
-};
-
-const updateGeneric = (req: Request, res: Response, session: SessionData) => {
-  session.status = SESSION_STATUS.FINISHED;
+  session.status = SESSION_STATUS.CREATED;
 };
 
 const updateRead = (req: Request, res: Response, session: SessionData) => {
@@ -324,8 +320,14 @@ const updateRead = (req: Request, res: Response, session: SessionData) => {
   const cardData: CardData = req.body.data;
 
   session.cardData = { ...session.cardData, ...cardData };
+  session.status = SESSION_STATUS.SCANNED;
+};
+
+const updateGeneric = (req: Request, res: Response, session: SessionData) => { // finalize session
   session.status = SESSION_STATUS.FINISHED;
-  console.dir(session);
+  req.app.locals.sessions.set(req.app.locals.activeSessionId, session);
+  const sessionId = req.app.locals.activeSessionId;
+  req.app.locals.activeSessionId = '';
 };
 
 export { getActiveSession, setStatus, updateActiveSession };

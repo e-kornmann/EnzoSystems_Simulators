@@ -179,13 +179,6 @@ const newSession = (req: Request, res: Response) => {
 
     if (req.body.command === SESSION_COMMAND.CREATE_CARD) {
       createCard(req, res);
-    } else if (
-      req.body.command === SESSION_COMMAND.PRESENT_CARD ||
-      req.body.command === SESSION_COMMAND.READ_CARD ||
-      req.body.command === SESSION_COMMAND.RETRACT_CARD_NOT_TAKEN ||
-      req.body.command === SESSION_COMMAND.SEND_FAULTY_CARD_TO_BIN
-    ) {
-      genericCommand(req, res);
     } else {
       res.status(httpStatus.BAD_REQUEST);
       throw new Error(`Body '' command property should be one of: ${Object.values(SESSION_COMMAND)}`);
@@ -355,11 +348,6 @@ const updateSession = (req: Request, res: Response) => {
       throw new Error('Body should contain a \'command\' property of type string');
     }
 
-    if (req.body.command !== SESSION_COMMAND.CANCEL) {
-      res.status(httpStatus.BAD_REQUEST);
-      throw new Error(`Body 'command' property should have a value of: ${SESSION_COMMAND.CANCEL}`);
-    }
-
     // Check session
     const session = req.app.locals.sessions.get(req.params.id);
     if (!session) {
@@ -378,7 +366,16 @@ const updateSession = (req: Request, res: Response) => {
       throw new Error(`Session timed out, id: ${req.app.locals.activeSessionId}`);
     }
 
-    session.status = SESSION_STATUS.CANCELLING;
+    if (req.body.command === SESSION_COMMAND.CANCEL) {
+      session.status = SESSION_STATUS.CANCELLING;
+    } else if (req.body.command === SESSION_COMMAND.READ_CARD || req.body.command === SESSION_COMMAND.PRESENT_CARD || req.body.command === SESSION_COMMAND.RETRACT_CARD_NOT_TAKEN || req.body.command === SESSION_COMMAND.SEND_FAULTY_CARD_TO_BIN) {
+      session.status = SESSION_STATUS.ACTIVE;
+    } else {
+      res.status(httpStatus.BAD_REQUEST);
+      throw new Error(`Body 'command' property should have a value of: ${SESSION_COMMAND.CANCEL} | ${SESSION_COMMAND.PRESENT_CARD} | ${SESSION_COMMAND.RETRACT_CARD_NOT_TAKEN} | ${SESSION_COMMAND.SEND_FAULTY_CARD_TO_BIN}`);
+    }
+
+    session.command = req.body.command;
     req.app.locals.sessions.set(req.params.id, session);
 
     const metadata = { command: session.command, sessionId: req.params.id, status: session.status };

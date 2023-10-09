@@ -1,0 +1,403 @@
+openapi: 3.0.0
+info:
+  title: Payment Terminal Simulator API
+  description:  Service to simulate payment terminals.
+    <br>
+    <br> 
+  version: '1'
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/enzosystems/api/1
+  - url: http://localhost:{port}/api/simulator/payment_terminal/v1
+    variables:
+      port: 
+        enum:
+          - '9001'
+        default: '9001' 
+tags:
+  - name: Health check
+    description: Check if this service is available
+  - name: Transactions
+    description: Start, update and retrieve payment transactions
+  
+paths:
+  /health:
+    get:
+      summary: Check if service is available
+      tags:
+        - Health check      
+      responses:
+        "200":
+           description: Service is available
+           content:
+            application/json:
+              schema:
+                type: object
+                required: ["info"]
+                properties:
+                  info:
+                    type: string
+              examples:
+                success:
+                  summary: Healthy
+                  value: {"info": "The SimulatorPaymentTerminal server is healthy!"}
+          
+  /:merchantId/:terminalId/transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Start a new transaction
+      requestBody:
+        description: Start a new payment transaction. Only a sinlge transaction can be active at a time. Amounts are in cents.
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/start-payment'
+            examples:
+              start payment in EUR with local nl-NL:
+                summary: Start payment for EUR 75,00 in locale nl-NL
+                value: {"amountToPay": 7500, "currency": "EUR", "locale": "nl-NL", "reference": "Booking 567612394"} 
+              start payment in USD with local en-US:
+                summary: Start payment for USD 1,100.50 in locale en-US
+                value: {"amountToPay": 110050, "currency": "USD", "locale": "en-US", "reference": "Booking 897435243"}   
+      responses:
+        "200":
+          description: Log entry is stored successfully
+        "400":
+          description: Bad request, body is invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                error_amount:
+                  summary: Missing amount element
+                  value: {"error": "Body is missing 'amountToPay' element"}
+                error_currency:
+                  summary: Missing currency element
+                  value: {"error": "Body is missing 'currency' element"}
+                error_locale:
+                  summary: Missing locale element
+                  value: {"error": "Body is missing 'locale' element"}
+                reference:
+                  summary: Missing reference element
+                  value: {"error": "Body is missing 'reference' element"}    
+        "409":
+          description: Conflict, service is not able to accept a new payment
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                busy:
+                  summary: There is already a transaction started that has not finished
+                  value: {"error": "Busy with processing a transaction, id: e4f2d586-fc87-4b7a-b6c7-517f38cabfc6"}
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                error_connection:
+                  summary: Internal server error
+                  value: {"error": "An internal server error occured"}
+    
+    put:
+      tags:
+        - Transactions
+      summary: Update an active transaction. A transaction can only be updated by the payment terminal and only as long as the transaction has not finished.   
+      requestBody:
+        description: Update an active transaction. A transaction can only be updated by the payment terminal and only as long as the transaction has not finished.
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update-payment'
+            examples:
+              finish payment by paying the full amount:
+                summary: Update payment for EUR 75,00 in locale nl-NL
+                value: {"amountPaid": 7500, "scheme": "MASTERCARD", "status": FINISHED", "pan": "1234123412341234"} 
+              stop the payment by pressing the STOP button on the terminal:
+                summary: Stop payment 
+                value: {"amountToPay": 0, "status": "STOPPED"} 
+              fail the payment by entering special PINCODE to force a failure:
+                summary: Fail payment 
+                value: {"amountToPay": 0, "status": "FAILED"} 
+              time-out the payment by doing nothing:
+                summary: Time-out payment 
+                value: {"amountToPay": 0, "status": "TIMEDOUT"}    
+      responses:
+        "200":
+          description: Log entry is stored successfully
+        "400":
+          description: Bad request, body is invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                error_amount:
+                  summary: Missing amount element
+                  value: {"error": "Body is missing 'amountToPay' element"}
+                error_currency:
+                  summary: Missing currency element
+                  value: {"error": "Body is missing 'currency' element"}
+                error_locale:
+                  summary: Missing locale element
+                  value: {"error": "Body is missing 'locale' element"}
+                reference:
+                  summary: Missing reference element
+                  value: {"error": "Body is missing 'reference' element"}    
+        "409":
+          description: Conflict, service is not able to accept a new payment
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                busy:
+                  summary: There is already a transaction started that has not finished
+                  value: {"error": "Busy with processing a transaction, id: e4f2d586-fc87-4b7a-b6c7-517f38cabfc6"}
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                error_connection:
+                  summary: Internal server error
+                  value: {"error": "An internal server error occured"}
+    get:
+      tags:
+        - Transactions      
+      summary: Get all transactions
+      parameters:
+        - in: query
+          name: begin
+          schema:
+            type: string
+          description: Date and time in ISO format (yyyy-mm-ddThh:mm:ss.sss) with time zone or Zulu. If omitted, the date 1970-01-01 is used
+        - in: query
+          name: end
+          schema:
+            type: string
+          description: Date and time in ISO format (yyyy-mm-ddThh:mm:ss.sss) with time zone or Zulu. If omitted, the current date and time is used. 
+        - in: query
+          name: limit
+          schema:
+            type: number
+          description: Limits the number of results returned. If omitted, a default of 50 will be used.
+        - in: query
+          name: offset
+          schema:
+            type: number
+          description: Combined with limit, the offset to start returning results. If omitted, a default of 0 will be used. 
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+          description: Order the results. Value should be 'asc' or 'desc'. If omitted, default 'asc' will be used. 
+        - in: query
+          name: api
+          schema:
+            type: string
+          description: Optionally filter the results by api. 
+        - in: query
+          name: client
+          schema:
+            type: string
+          description: Optionally filter the results by client. 
+               
+      responses:
+        "200":
+          description: Array of log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: ["api", "client", "details", "created"]
+                  properties:
+                    api:
+                      type: string
+                    client:
+                      type: string
+                    details:
+                      type: object
+                      required: ["type", "message"]
+                      properties:
+                        type:
+                          type: string
+                          enum: ["info", "warning", "error"]
+                        message:
+                          type: string
+                        data:
+                          type: object
+                          default: null
+                    created:
+                      type: string
+              examples:
+                success:
+                  summary: Array of log entries
+                  value: [
+                    {
+                      "api": "authapi",
+                      "client": "erik@enzosystems.com",
+                      "details": {
+                        "type": "Info",
+                        "message": "This is an example log message",
+                        "data": null
+                      },
+                      "created": "2022-09-07T15:16:18.255Z"
+                    },
+                    {
+                      "api": "smsapi",
+                      "client": "test",
+                      "details": {},
+                      "created": "2022-09-09T23:15:00.000Z"
+                    },
+                    {
+                      "api": "emailapi",
+                      "client": "test",
+                      "details": {},
+                      "created": "2022-09-10T23:15:00.000Z"
+                    },
+                    {
+                      "api": "authapi",
+                      "client": "test",
+                      "details": {},
+                      "created": "2022-09-12T23:15:00.000Z"
+                    },
+                    {
+                      "api": "emailapi",
+                      "client": "erik@enzosystems.com",
+                      "details": {
+                        "type": "Info",
+                        "message": "This is an example log message",
+                        "data": null
+                      },
+                      "created": "2022-09-16T14:36:21.542Z"
+                    }
+                  ] 
+                success_filtered:
+                  summary: Array of log entries filter by api
+                  value: [
+                    {
+                      "api": "authapi",
+                      "client": "test",
+                      "details": {},
+                      "created": "2022-09-09T23:15:00.000Z"
+                    },
+                    {
+                      "api": "authapi",
+                      "client": "test",
+                      "details": {},
+                      "created": "2022-09-10T23:15:00.000Z"
+                    },
+                    {
+                      "api": "authapi",
+                      "client": "test",
+                      "details": {},
+                      "created": "2022-09-12T23:15:00.000Z"
+                    }
+                  ]      
+        "400":
+          description: Bad request, invalid query param(s)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                error_unsupported:
+                  summary: Not supported query parameter
+                  value: {"error": "Query parameter 'whatever'is not supported."}
+                error_invalid:
+                  summary: Invalid parameter value
+                  value: {"error": "Query parameter 'begin' is invalid, should be in ISO format 'yyyy-mm-ddThh:mm:ss', should contain a timezone or expressed in UTC and optionally add milliseconds"}
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ["error"]
+                properties:
+                  error:
+                    type: string
+              examples:
+                error_connection:
+                  summary: Database connection error
+                  value: {"error": "connect ECONNREFUSED 127.0.0.1:54320"}                                 
+      
+components:
+  schemas:
+    start-payment:
+      type: object
+      required: ["amountToPay", "locale", "currency", "reference"]
+      properties:
+        amountToPay:
+          type: number
+        locale:
+          type: string
+          enum: ["nl-NL", "en-US"]
+        currency:
+          type: string
+          enum: ["EUR", "USD", "DKK"]
+        reference:
+          type: string  
+    update-payment:
+      type: object
+      required: ["amountPaid", "status"]
+      properties:
+        amountPaid:
+          type: number
+        status:
+          type: string
+          enum: ["RUNNING", "FINISHED", "STOPPED", "FAILED", "DECLINED", "TIMEDOUT"]
+        scheme:
+          type: string
+        pan:
+          type: string        
+  responses:
+    "200":
+      description: Operation succeeded
+    "400":
+      description: Bad request
+    "404":
+      description: Not found
+    "409":
+      description: Conflict
+    "500":
+      description: Internal server error
