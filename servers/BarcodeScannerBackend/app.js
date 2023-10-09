@@ -1,37 +1,34 @@
-import cors from 'cors';
-import express from 'express';
-import helmet from 'helmet';
-import httpStatus from 'http-status-codes';
-// Enums
-import DEVICE_STATUS from './enums/DeviceStatus';
-import SESSION_STATUS from './enums/SessionStatus';
-// Middleware
-import { verifyAuthenticationHeader } from './middleware/auth.middleware';
-import expressLogging from './middleware/express-logging.middleware.js';
-// Routes
-import deviceRoute from './routes/device.route';
-import hostRoute from './routes/host.route';
-import logonRoute from './routes/logon.route';
-// Utilities
-import enzoUtility from './utilities/enzo.utility';
-
 try {
+  const enzoUtility = require('./utilities/enzo.utility');
   enzoUtility.initialize();
-  process.env.TZ = 'Etc/UTC'; // force timezone to UTC regardless of where we are, this means all Date calls result in UTC datetimes!
+
+  const express = require('express');
+  const cors = require('cors');
+  const helmet = require('helmet');
+  const httpStatus = require('http-status-codes');
+
+  const auth = require('./middleware/auth.middleware');
+  const logonRoute = require('./routes/logon.route');
+  const deviceRoute = require('./routes/device.route');
+  const hostRoute = require('./routes/host.route');
+  const { DEVICE_STATUS, SESSION_STATUS } = require('./constants/constants');
+
+  const expressLogging = require('./middleware/express-logging.middleware');
 
   const app = express();
 
-  app.use(cors());
+  app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+  }));
   app.use(helmet());
-  app.use(enzoUtility.validateRequestContentTypeJson);
   app.use(express.json({ limit: process.env.EXPRESS_JSON_LIMIT }));
 
-  if (enzoUtility.isDevelopmentEnvironment()) {
-    app.use(expressLogging.expressTrackResponseJsonBody);
-    app.use(expressLogging.expressLogging);
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    app.use(expressLogging.trackResponseJsonBody);
+    app.use(expressLogging.extendedLogging);
   }
 
-  // Check .env
+  // check .env
   if (!process.env.SESSION_TIMEOUT_SEC) {
     throw new Error('.env is missing \'SESSION_TIMEOUT_SEC\' setting');
   }
@@ -44,13 +41,13 @@ try {
 
   // Health status check route
   app.get(`/${process.env.API_BASE_PATH}/v${process.env.API_VERSION}/health`, function (req, res) {
-    res.status(httpStatus.OK).json({ info: 'The Card Dispenser back-end server is healthy!' });
+    res.status(httpStatus.StatusCodes.OK).json({ info: 'The BarcodeScanner back-end server is healthy!' });
   });
 
-  // Initialize local properties
+  // initialize local properties
   app.locals.deviceStatus = DEVICE_STATUS.NOT_FOUND;
   app.locals.deviceId = '';
-  app.locals.connectionTimeoutMS = 0;
+  app.locals.connectionTimeoutMS = 0; // 0;
   app.locals.sessions = new Map();
   app.locals.activeSessionId = '';
   app.locals.activeSessionTimeoutMS = -1;
@@ -60,7 +57,7 @@ try {
     app.locals.longPollingMS = Number(process.env.LONG_POLLING_SEC) * 1000;
   }
 
-  // Set timer to check each second if React simulator is CONNECTED
+  // set timer to check each second if React simulator is connected
   setInterval(() => {
     if (app.locals.connectionTimeoutMS) {
       app.locals.connectionTimeoutMS -= 1000;
@@ -90,19 +87,21 @@ try {
   app.use(`/${process.env.API_BASE_PATH}/v${process.env.API_VERSION}/auth/`, logonRoute);
 
   // Verify token to allow access to endpoints
-  app.use('', verifyAuthenticationHeader);
+  app.use('', auth.verifyAuthenticationHeader);
   app.use(`/${process.env.API_BASE_PATH}/v${process.env.API_VERSION}/`, deviceRoute);
   app.use(`/${process.env.API_BASE_PATH}/v${process.env.API_VERSION}/`, hostRoute);
 
   // Catch all unmapped routes
   app.all('*', function (req, res) {
-    res.status(httpStatus.NOT_FOUND).json({});
+    res.status(httpStatus.StatusCodes.NOT_FOUND).json({});
   });
 
   app.listen(process.env.PORT);
-  console.info(`The card dispenser back-end server started and is listening on port: ${process.env.PORT}`);
+  console.info(`The BarcodeScanner back-end server started and is listening on port: ${process.env.PORT}`);
 } catch (error) {
   console.error(`Uncaught application error. ${error}`);
-  console.trace('Stacktrace: ');
+  if (error?.stack) {
+    console.error(`Stacktrace: ${error.stack}`);
+  }
   process.exit(1);
 }

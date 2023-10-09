@@ -1,0 +1,123 @@
+### Get Health info
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/health
+
+
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkJhcmNvZGVTY2FubmVyIiwiaWF0IjoxNjk1ODA4MTQ0LCJleHAiOjE2OTU4OTQ1NDQsImlzcyI6IkVuem9zeXN0ZW1zIn0.cHCPKm_5IGk9TSkFx779CWlzOfDgeuYwh0xkk2OoVSI
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2MDAxODQ5LCJleHAiOjE2OTYwODgyNDksImlzcyI6IkVuem9zeXN0ZW1zIn0.bQVmd81oc_dgJhDpGKmohIpFp3zLm6qj7vlml3V3hIE
+
+####################################################################################
+### Log-on host/device with username/password and exchange for access token (24 hours valid)
+####################################################################################
+
+### DEVICE
+POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth
+Content-type: application/json
+Authorization: Basic device:device
+
+{
+  "deviceId": "BarcodeScanner"
+}
+
+### HOST
+POST http://localhost:9001/api/simulator/barcode-scanner/v1/auth
+      http://localhost:9001/api/barcode-scanner/v1/auth 
+Content-type: application/json
+Authorization: Basic host:host
+
+{
+  "hostId": "DEMOAPP"
+}
+
+
+####################################################################################
+### Set device status and connect it to the back-end (DEVICE only, call on regular base, check .env for setting the time-out)
+####################################################################################
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/barcode-scanner/v1/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "status": "CONNECTED"
+}
+
+####################################################################################
+### Get device status (HOST)
+####################################################################################
+
+### HOST
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/BarcodeScanner/status
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+
+### HOST
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/BarcodeScanner/status?referenceDeviceStatus=DISCONNECTED
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+####################################################################################
+### Start scanning by creating a new session (HOST)
+####################################################################################
+
+### HOST 
+POST http://localhost:9001/api/simulator/barcode-scanner/v1/session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "SCAN_BARCODE"
+}
+
+####################################################################################
+### Stop scanning by stopping a running session (HOST)
+####################################################################################
+
+### HOST 
+PUT http://localhost:9001/api/simulator/barcode-scanner/v1/session/f5457721-1acb-478f-9b3a-30e8dabbb28e
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "CANCEL"
+}
+
+####################################################################################
+### Get a scan session by sessionId, optionally with long polling (HOST)
+####################################################################################
+
+### HOST 
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/session/f5457721-1acb-478f-9b3a-30e8dabbb28e
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+### HOST 
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/session/f5457721-1acb-478f-9b3a-30e8dabbb28e?currentStatus=ACTIVE
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+####################################################################################
+### Get active session (DEVICE)
+####################################################################################
+
+### DEVICE 
+GET http://localhost:9001/api/simulator/barcode-scanner/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+####################################################################################
+### Update active session with scanned barcodeData (DEVICE)
+####################################################################################
+
+### DEVICE
+PUT http://localhost:9001/api/simulator/barcode-scanner/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "barcodeData": "Whatever data stored in the QR-code",
+    "status": "FINISHED"
+  }
+}

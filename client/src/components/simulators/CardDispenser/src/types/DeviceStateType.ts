@@ -1,4 +1,4 @@
-import APPSETTINGS from '../enums/AppSettings';
+import { APPSETTINGS } from '../enums/SettingEnums';
 import { SettingStateType } from './SettingStateType';
 
 export type DeviceStateType = Pick<SettingStateType,

@@ -6,16 +6,18 @@ GET http://localhost:9010/api/simulator/card-dispenser/v1/health
 ### Log-on host/device with username/password and exchange for access token (24 hours valid)
 ####################################################################################
 
-@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkNhcmREaXNwZW5zZXIiLCJpYXQiOjE2OTY1MTY2NjgsImV4cCI6MTY5NjYwMzA2OCwiaXNzIjoiRW56b3N5c3RlbXMifQ.eCCCRk6Zy12YOjG4C63kDDci4pqNna7FleRrJ8B1_FE
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2NDk4MjkyLCJleHAiOjE2OTY1ODQ2OTIsImlzcyI6IkVuem9zeXN0ZW1zIn0.Q163lpk_XXMAXVPMC07AOx7KqEyBdaY7H6WW34JZn5Y
-@SESSION_ID=0afb435b-6ed8-4d0b-82c3-20d3fa92b7f8
+@ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IkNhcmREaXNwZW5zZXIiLCJpYXQiOjE2OTY4Mzg3NTgsImV4cCI6MTY5NjkyNTE1OCwiaXNzIjoiRW56b3N5c3RlbXMifQ.u0j7xCwgwn_6TiRKj6cJKUTVU6GEy5cRWTWmhviGmq0
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2ODM2NDAzLCJleHAiOjE2OTY5MjI4MDMsImlzcyI6IkVuem9zeXN0ZW1zIn0.AL0l2CIRI2gibX4NX0V3L8IRgLJ3Gu3Nq7h_5Mlvo5U
+@DEVICE_ID=CardDispenser
+@SESSION_ID=f78fc637-3e9c-4d8f-b444-5393b78fc64e
+
 ### DEVICE
 POST http://localhost:9010/api/simulator/card-dispenser/v1/auth
 Content-type: application/json
 Authorization: Basic device:device
 
 {
-  "deviceId": "CardDispenser"
+  "deviceId": "{{DEVICE_ID}}"
 }
 
 ### HOST
@@ -50,12 +52,12 @@ Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 ####################################################################################
 
 ### HOST
-GET http://localhost:9010/api/simulator/card-dispenser/v1/CardDispenser/status
+GET http://localhost:9010/api/simulator/card-dispenser/v1/{{DEVICE_ID}}/status
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 ### HOST
-GET http://localhost:9010/api/simulator/card-dispenser/v1/CardDispenser/status?referenceDeviceStatus=DISCONNECTED
+GET http://localhost:9010/api/simulator/card-dispenser/v1/{{DEVICE_ID}}/status?referenceDeviceStatus=DISCONNECTED
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -64,13 +66,18 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 ### POST request for creating new cards and requesting statuses etc (HOST)
 ####################################################################################
 
+### HOST get session by id
+GET http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
 ### HOST create new key
 POST http://localhost:9010/api/simulator/card-dispenser/v1/session
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "deviceId": "CardDispenser",
+  "deviceId": "{{DEVICE_ID}}",
   "command": "CREATE_CARD",
   "data": {
     "roomAccess": ["123"],
@@ -80,43 +87,44 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
   }
 }
 
-### HOST retract card
-POST http://localhost:9010/api/simulator/card-dispenser/v1/session
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-{
-  "command": "RETRACT_CARD_NOT_TAKEN",
-  "deviceId": "CardDispenser"
-}
-
-### HOST send faulty card to bin
-POST http://localhost:9010/api/simulator/card-dispenser/v1/session
-Content-Type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-{
-  "command": "SEND_FAULTY_CARD_TO_BIN",
-  "deviceId": "CardDispenser"
-}
-
-### HOST request to read card
-POST http://localhost:9010/api/simulator/card-dispenser/v1/session
+### HOST request to read card by id
+PUT http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
   "command": "READ_CARD",
-  "deviceId": "CardDispenser"
+  "deviceId": "{{DEVICE_ID}}"
 }
 
-### HOST request to cancel session by id
-PATCH http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
+### HOST present card by id
+PUT http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
 {
-  "command": "CANCEL"
+  "command": "PRESENT_CARD",
+  "deviceId": "{{DEVICE_ID}}"
+}
+
+### HOST retract card by id
+PUT http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "RETRACT_CARD_NOT_TAKEN",
+  "deviceId": "{{DEVICE_ID}}"
+}
+
+### HOST send faulty card to bin by id
+PUT http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
+Content-Type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_HOST}}
+
+{
+  "command": "SEND_FAULTY_CARD_TO_BIN",
+  "deviceId": "{{DEVICE_ID}}"
 }
 
 ### HOST request to cancel session by id
@@ -128,12 +136,6 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
   "command": "CANCEL"
 }
 
-### HOST get session by id
-GET http://localhost:9010/api/simulator/card-dispenser/v1/session/{{SESSION_ID}}
-Content-type: application/json
-Authorization: Bearer {{ACCESS_TOKEN_HOST}}
-
-
 ####################################################################################
 ### Receive new card data from backend to write to new card (DEVICE only)
 ####################################################################################
@@ -143,25 +145,39 @@ GET http://localhost:9010/api/simulator/card-dispenser/v1/active-session
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
-### DEVICE read card
+### DEVICE finish creation of new card (host auto sets status = CREATED)
+PUT http://localhost:9010/api/simulator/card-dispenser/v1/active-session
+Content-type: application/json
+Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
+
+{
+  "data": {
+    "status": "CREATED"
+  }
+}
+
+### DEVICE read card (host auto sets status = READ)
 PUT http://localhost:9010/api/simulator/card-dispenser/v1/active-session
 Content-Type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {
   "data": {
-    "cardId": "9453",
-    "roomAccess": ["123"],
-    "additionalAccess": ["SPA"],
-    "startDateTime": "2023-12-31T15:00Z",
-    "endDateTime": "2023-08-16T11:00:00"
+    "cardId": "0",
+    "roomAccess": [
+      "100"
+    ],
+    "additionalAccess": [
+      "POOL"
+    ],
+    "startDateTime": "2023-10-10",
+    "endDateTime": "2023-10-11"
   }
 }
 
-
-### DEVICE finish creation of new card
+### DEVICE presented card taken (not sure if data necessary)
 PUT http://localhost:9010/api/simulator/card-dispenser/v1/active-session
-Content-type: application/json
+Content-Type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_DEVICE}}
 
 {

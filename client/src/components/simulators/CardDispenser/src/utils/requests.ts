@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { axiosUrl } from '../config';
-import { DeviceStateType } from '../types/DeviceStateType';
 import SESSIONSTATUS from '../enums/SessionStatus';
 import CardType from '../types/CardType';
+import { APPSETTINGS, DEVICESTATUSOPTIONS } from '../enums/SettingEnums';
+import { DeviceStateType } from '../types/DeviceStateType';
 
 const changeDeviceStatus = async (token: string, deviceState: DeviceStateType) => {
   try {
@@ -19,7 +20,7 @@ const changeDeviceStatus = async (token: string, deviceState: DeviceStateType) =
     );
     return response.data.metadata;
   } catch (error) {
-    console.error('Unable to connect:', error);
+    console.error(deviceState[APPSETTINGS.DEVICE_STATUS] === DEVICESTATUSOPTIONS.CONNECTED ? `Unable to connect: ${error}` : `Error: ${error} error`);
     return undefined;
   }
 };
@@ -46,7 +47,7 @@ const getSession = async (token: string) => {
   }
 };
 
-const endTheSession = async (token: string, command: SESSIONSTATUS) => {
+const putSessionStatus = async (token: string, command: SESSIONSTATUS) => {
   try {
     const config = {
       headers: {
@@ -73,7 +74,7 @@ const endTheSession = async (token: string, command: SESSIONSTATUS) => {
   }
 };
 
-const putSession = async (token: string, data: CardType) => {
+const putSessionData = async (token: string, data: CardType) => {
   try {
     const config = {
       headers: {
@@ -92,4 +93,4 @@ const putSession = async (token: string, data: CardType) => {
   }
 };
 
-export { putSession, getSession, changeDeviceStatus, endTheSession };
+export { putSessionData, getSession, changeDeviceStatus, putSessionStatus };
