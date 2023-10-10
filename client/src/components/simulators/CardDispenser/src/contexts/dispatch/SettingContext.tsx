@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useReducer } from 'react';
 import settingsReducer, { SettingsAction } from '../../utils/settingReducer';
 import { SettingStateType } from '../../types/SettingStateType';
-import { APPSETTINGS, DEVICESTATUSOPTIONS, STACKSTATUSES, BINSTATUSES, CARDPOSITIONS, FAILPROCESS } from '../../enums/SettingEnums';
+import { APPSETTINGS, DEVICESTATUSOPTIONS, STACKSTATUSES, BINSTATUSES, CARDPOSITIONS, FAILPROCESS, BINPOLICY } from '../../enums/SettingEnums';
 
 type SettingContextProviderProps = {
   children: ReactNode;
@@ -14,10 +14,13 @@ type SettingContextValue = {
 const intitialSettingState: SettingStateType = {
   [APPSETTINGS.DEVICE_STATUS]: DEVICESTATUSOPTIONS.CONNECTED,
   [APPSETTINGS.CARD_STACK]: STACKSTATUSES.FULL,
-  [APPSETTINGS.BIN]: BINSTATUSES.FULL,
+  [APPSETTINGS.BIN]: BINSTATUSES.EMPTY,
   [APPSETTINGS.CARD_POSITION]: CARDPOSITIONS.BEZEL,
   [APPSETTINGS.FAIL_PROCESS]: FAILPROCESS.SPORADICALLY,
+  [APPSETTINGS.BIN_POLICY]: BINPOLICY.ONLYFAULSYCARDS,
   statusSettingIsClicked: false,
+  cardStackSettingIsClicked: false,
+  binStackSettingIsClicked: false,
 };
 
 export const SettingContext = createContext<SettingContextValue>({

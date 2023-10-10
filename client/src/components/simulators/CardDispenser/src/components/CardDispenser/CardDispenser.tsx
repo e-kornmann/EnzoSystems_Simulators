@@ -16,10 +16,10 @@ import { SharedLoadingDots } from '../../../local_shared/LoadingDots';
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import { SettingContext } from '../../contexts/dispatch/SettingContext';
 // svg images
-import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/id_nocanvas.svg';
+import { ReactComponent as QrCodeIconNoCanvas } from '../../../local_assets/card_nocanvas.svg';
 // enums
 import OPSTATE from '../../enums/OperationalState';
-import { Lang, APPSETTINGS, DEVICESTATUSOPTIONS, FAILPROCESS } from '../../enums/SettingEnums';
+import { Lang, APPSETTINGS, DEVICESTATUSOPTIONS, FAILPROCESS, BINPOLICY } from '../../enums/SettingEnums';
 import AppActions from '../../enums/AppActions';
 import ShowIcon from '../../../local_types/ShowIcon';
 import SESSIONSTATUS from '../../enums/SessionStatus';
@@ -247,11 +247,13 @@ const StyledEndDate = styled(StyledStartDate)`
   type Props = {
     cardData: CardType;
     appLanguage?: Lang;
+    cardStack: number;
+    binStack: number;
   };
 
-const CardDispenserComponent = ({ cardData }: Props) => {
+const CardDispenserComponent = ({ cardData, cardStack, binStack }: Props) => {
   const { settingState, settingDispatch } = useContext(SettingContext);
-  const { statusSettingIsClicked, failProcess, ...rest } = settingState;
+  const { statusSettingIsClicked, failProcess, binStackSettingIsClicked, cardStackSettingIsClicked, binPolicy, ...rest } = settingState;
   const appDispatch = useContext(AppDispatchContext);
   const { token, logOn } = useLogOn(scannerCredentials, reqBody, axiosUrl);
   const generatedId = crypto.randomUUID();
@@ -269,7 +271,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         case DEVICESTATUSOPTIONS.CONNECTED:
           setNextPoll(false);
           initialSessionRequest.current = true;
-          setOperationalState(OPSTATE.DEVICE_CONNECT);
+          setOperationalState(OPSTATE.DEVICE_START_UP);
           break;
         case DEVICESTATUSOPTIONS.DISCONNECTED:
           setNextPoll(false);
@@ -323,14 +325,15 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         initialSessionRequest.current = true;
         return;
       }
-      if ((operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
-          || operationalState === OPSTATE.WAITING_FOR_FINAL_COMMAND
-          || operationalState === OPSTATE.DEVICE_PRESENT_CARD) && res.result === 'NO_ACTIVE_SESSION') {
-        // session timed-out
-        setOperationalState(OPSTATE.DEVICE_PUT_IN_STACK);
-      } else if (res.metadata?.status === 'ACTIVE') {
+      if (res.metadata?.status === SESSIONSTATUS.CANCELLING && res.metadata?.command === SESSIONCOMMAND.CANCEL) {
+        setOperationalState(OPSTATE.API_CANCEL);
+        return;
+      }
+      if (res.metadata?.status === SESSIONSTATUS.ACTIVE) {
         switch (res.metadata?.command) {
           case SESSIONCOMMAND.CREATE_CARD:
+            setNextPoll(false);
+            initialSessionRequest.current = true;
             appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: { ...res.cardData, cardId: generatedId } });
             setOperationalState(OPSTATE.DEVICE_CREATING_A_KEY);
             break;
@@ -346,71 +349,52 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           case SESSIONCOMMAND.RETRACT_CARD_NOT_TAKEN:
             setOperationalState(OPSTATE.DEVICE_PUT_IN_STACK);
             break;
-          case SESSIONCOMMAND.CANCEL:
-            setOperationalState(OPSTATE.API_CANCEL);
-            break;
           default:
             break;
         }
+      } else if ((operationalState !== OPSTATE.DEVICE_IDLE) && res.result === 'NO_ACTIVE_SESSION') {
+        // session timed-out
+        setOperationalState(OPSTATE.DEVICE_PUT_IN_STACK);
+      } else {
+        console.log(JSON.stringify(res));
+        setNextPoll(true);
       }
-      console.log(JSON.stringify(res));
-      setNextPoll(true);
     }
   }, [appDispatch, generatedId, operationalState, token]);
 
-  // const getScanSession = useCallback(async () => {
-  //   if (token) {
-  //     const res = await getSession(token);
-  //     if (!res) {
-  //       setOperationalState(OPSTATE.SERVER_ERROR);
-  //       setNextPoll(false);
-  //       initialSessionRequest.current = true;
-  //     } else {
-  //       if ((operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
-  //         || operationalState === OPSTATE.WAITING_FOR_FINAL_COMMAND
-  //         || operationalState === OPSTATE.DEVICE_PRESENT_CARD) && res.result === 'NO_ACTIVE_SESSION') {
-  //         // session timed-out
-  //         setOperationalState(OPSTATE.DEVICE_PUT_IN_STACK);
-  //       }
-  //       if (res.metadata?.command === 'CREATE_CARD' && res.metadata?.status === 'ACTIVE') {
-  //         appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: { ...res.cardData, cardId: generatedId } });
-  //         setOperationalState(OPSTATE.DEVICE_CREATING_A_KEY);
-  //       }
-  //       if (res.metadata?.command === 'READ_CARD' && res.metadata?.status === 'ACTIVE') {
-  //         setOperationalState(OPSTATE.DEVICE_READING_A_KEY);
-  //       }
-  //       if (res.metadata?.command === 'PRESENT_CARD' && res.metadata?.status === 'ACTIVE') {
-  //         setOperationalState(OPSTATE.DEVICE_PRESENT_CARD);
-  //       }
-  //       if (res.metadata?.command === 'SEND_FAULTY_CARD_TO_BIN' && res.metadata?.status === 'ACTIVE') {
-  //         setOperationalState(OPSTATE.DEVICE_PUT_IN_BIN);
-  //       }
-  //       if (res.metadata?.command === 'RETRACT_CARD_NOT_TAKEN' && res.metadata?.status === 'ACTIVE') {
-  //         setOperationalState(OPSTATE.DEVICE_PUT_IN_STACK);
-  //       }
-  //       if (res.metadata?.status === 'CANCELLING') {
-  //         setOperationalState(OPSTATE.API_CANCEL);
-  //       }
-  //       // Didn't catch any thing of the above? Set next poll.
-  //       console.log(JSON.stringify(res));
-  //       setNextPoll(true);
-  //     }
-  //   }
-  // }, [appDispatch, generatedId, operationalState, token]);
-
   const putStatus = useCallback(async (command: SESSIONSTATUS) => {
-    if (token && cardData) {
+    if (token) {
       const res = await putSessionStatus(token, command);
       if (res) {
         switch (res.metadata.status) {
           case SESSIONSTATUS.CREATED:
+            if (settingState.failProcess === FAILPROCESS.SPORADICALLY) {
+              console.log(`FAILING_THRESHOLD = ${failureSequenceNr}`);
+              const randomNr = Math.floor(Math.random() * failureSequenceNr) + 1;
+              if (randomNr === failureSequenceNr && cardData && faultyCard) {
+                // if faultycard overwrite current card with falsy card
+                appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: { cardId: cardData.cardId, ...faultyCard } });
+              }
+            }
             setOperationalState(OPSTATE.WAITING_FOR_READ_COMMAND);
             break;
           case SESSIONSTATUS.STOPPED:
-            setOperationalState(OPSTATE.KEY_SLIDEOUT);
+            setOperationalState(OPSTATE.KEY_SUCCESFULLY_CANCELLED);
             break;
           case SESSIONSTATUS.FINISHED:
-            setOperationalState(OPSTATE.KEY_SUCCESSFULLY_TAKEN);
+            if (operationalState === OPSTATE.TAKING_THE_KEY) {
+              if (cardStack > 1) appDispatch({ type: AppActions.SET_CARDSTACK, payload: -1 });
+              setOperationalState(OPSTATE.KEY_SUCCESSFULLY_TAKEN);
+            }
+            if (operationalState === OPSTATE.DEVICE_PUT_IN_STACK) {
+              if (settingState.binPolicy === BINPOLICY.ALLUNTAKENCARDS && binStack < 8) appDispatch({ type: AppActions.SET_BINSTACK, payload: 1 });
+              if (settingState.binPolicy === BINPOLICY.ONLYFAULSYCARDS && cardStack < 8) appDispatch({ type: AppActions.SET_CARDSTACK, payload: 1 });
+              setOperationalState(OPSTATE.KEY_SUCCESSFULLY_PUT_TO_STACK);
+            }
+            if (operationalState === OPSTATE.DEVICE_PUT_IN_BIN) {
+              if (binStack < 8) appDispatch({ type: AppActions.SET_BINSTACK, payload: 1 });
+              setOperationalState(OPSTATE.KEY_SUCCESSFULLY_REJECTED);
+            }
             break;
           default:
             console.log(res);
@@ -418,13 +402,15 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         }
       }
     }
-  }, [cardData, token]);
+  }, [appDispatch, binStack, cardData, cardStack, operationalState, settingState.binPolicy, settingState.failProcess, token]);
 
   const putData = useCallback(async () => {
     if (token && cardData) {
       const res = await putSessionData(token, cardData);
       if (res) {
         if (res.metadata.status === 'SCANNED') {
+          setNextPoll(false);
+          initialSessionRequest.current = true;
           setOperationalState(OPSTATE.WAITING_FOR_FINAL_COMMAND);
         }
         console.log(res);
@@ -440,15 +426,23 @@ const CardDispenserComponent = ({ cardData }: Props) => {
       const res = await changeDeviceStatus(token, changeToThisState);
       if (res) {
         if (res.status === DEVICESTATUSOPTIONS.CONNECTED) {
+          if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.CONNECTED) {
+            settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.CONNECTED });
+          }
           console.log(`Device succesfully updated device state: ${res.status}`);
-          if (cardData !== undefined) setOperationalState(OPSTATE.WAITING_FOR_READ_COMMAND);
-          else setOperationalState(OPSTATE.DEVICE_IDLE);
+          setOperationalState(OPSTATE.DEVICE_IDLE);
         }
         if (res.status === DEVICESTATUSOPTIONS.DISCONNECTED) {
+          if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.DISCONNECTED) {
+            settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
+          }
           console.log(`Device succesfully updated device state: ${res.status}`);
           setOperationalState(OPSTATE.DEVICE_DISCONNECTED);
         }
         if (res.status === DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+          if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
+            settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
+          }
           console.log(`Device succesfully updated device state: ${res.status}`);
         }
         // if there is no res.data.metadata
@@ -458,7 +452,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         setOperationalState(OPSTATE.DEVICE_COULD_NOT_DISCONNECT);
       }
     }
-  }, [cardData, token]);
+  }, [settingDispatch, settingState, token]);
 
   useEffect(() => {
     let waitTime: number | undefined;
@@ -473,11 +467,8 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         break;
       case OPSTATE.DEVICE_CONNECT:
         setInstructionText('');
+        appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: undefined });
         changeStatus(deviceState);
-        // if setting isn't already connected, then set it.
-        if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.CONNECTED) {
-          settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.CONNECTED });
-        }
         break;
       case OPSTATE.DEVICE_IDLE:
         setInstructionText('');
@@ -492,12 +483,12 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         // when in this state getSession is initiated
         break;
       case OPSTATE.DEVICE_READING_A_KEY:
-        setInstructionText('put data...');
+        setInstructionText('READING');
         waitTime = 2000;
         break;
       case OPSTATE.WAITING_FOR_FINAL_COMMAND:
         // when in this state getSession is initiated
-        setInstructionText('Key is readed');
+        setInstructionText('');
         break;
       case OPSTATE.DEVICE_PRESENT_CARD:
         // when in this state getSession is initiated
@@ -513,28 +504,35 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         break;
       case OPSTATE.DEVICE_DISCONNECTED:
         setInstructionText('DISCONNECTED');
-        if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.DISCONNECTED) {
-          settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.DISCONNECTED });
-        }
         break;
       case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
         setInstructionText('Could not disconnect');
         waitTime = 3500;
         break;
-
       case OPSTATE.API_CANCEL:
         setInstructionText('Cancelling');
-        waitTime = 3500;
-        break;
-      case OPSTATE.DEVICE_PUT_IN_STACK:
-        setInstructionText('TIMED OUT');
-        waitTime = 2500;
-        break;
-      case OPSTATE.TAKING_THE_KEY:
-      case OPSTATE.KEY_SLIDEOUT:
         waitTime = 900;
         break;
+      case OPSTATE.DEVICE_PUT_IN_STACK:
+      case OPSTATE.DEVICE_PUT_IN_BIN:
+      case OPSTATE.TAKING_THE_KEY:
+        waitTime = 900;
+        break;
+      case OPSTATE.KEY_SUCCESFULLY_CANCELLED:
+        setInstructionText('IS CANCELED');
+        waitTime = 2500;
+        break;
+      case OPSTATE.KEY_SUCCESSFULLY_PUT_TO_STACK:
+        setInstructionText('TIMED_OUT');
+        waitTime = 2500;
+        break;
+      case OPSTATE.KEY_SUCCESSFULLY_REJECTED:
+        setInstructionText('Card Rejected');
+        waitTime = 2500;
+        break;
       case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
+        setNextPoll(false);
+        initialSessionRequest.current = true;
         setInstructionText('Key has been taken');
         waitTime = 2000;
         break;
@@ -544,9 +542,6 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         break;
       case OPSTATE.DEVICE_OUT_OF_ORDER:
         setInstructionText('OUT OF ORDER');
-        if (settingState[APPSETTINGS.DEVICE_STATUS] !== DEVICESTATUSOPTIONS.OUT_OF_ORDER) {
-          settingDispatch({ type: APPSETTINGS.DEVICE_STATUS, payload: DEVICESTATUSOPTIONS.OUT_OF_ORDER });
-        }
         if (token) {
           // try to change device status on the backend, but stay in this state regardless
           changeStatus(deviceState);
@@ -568,14 +563,6 @@ const CardDispenserComponent = ({ cardData }: Props) => {
             else setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
           case OPSTATE.DEVICE_CREATING_A_KEY:
-            if (settingState.failProcess === FAILPROCESS.SPORADICALLY) {
-              console.log(`FAILING_THRESHOLD = ${failureSequenceNr}`);
-              const randomNr = Math.floor(Math.random() * failureSequenceNr) + 1;
-              if (randomNr === failureSequenceNr && cardData && faultyCard) {
-                // if faultycard overwrite current card with falsy card
-                appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: { cardId: cardData.cardId, ...faultyCard } });
-              }
-            }
             putStatus(SESSIONSTATUS.CREATED);
             break;
           case OPSTATE.DEVICE_READING_A_KEY:
@@ -588,19 +575,25 @@ const CardDispenserComponent = ({ cardData }: Props) => {
           case OPSTATE.DEVICE_COULD_NOT_DISCONNECT:
             setOperationalState(OPSTATE.SERVER_ERROR);
             break;
-          case OPSTATE.TAKING_THE_KEY:
-            putStatus(SESSIONSTATUS.FINISHED);
-            break;
           case OPSTATE.API_CANCEL:
             putStatus(SESSIONSTATUS.STOPPED);
             break;
+          case OPSTATE.TAKING_THE_KEY:
+          case OPSTATE.DEVICE_PUT_IN_BIN:
           case OPSTATE.DEVICE_PUT_IN_STACK:
+            putStatus(SESSIONSTATUS.FINISHED);
+            break;
+          case OPSTATE.KEY_SUCCESSFULLY_REJECTED:
           case OPSTATE.KEY_SUCCESSFULLY_TAKEN:
-          case OPSTATE.KEY_SLIDEOUT:
             setNextPoll(false);
             initialSessionRequest.current = true;
-            appDispatch({ type: AppActions.RECEIVE_CARD_DATA, payload: undefined });
-            // now try again to connect:
+            setOperationalState(OPSTATE.DEVICE_CONNECT);
+            break;
+          // session is not stopped on the backend after succesful put STOPPED req.
+          case OPSTATE.KEY_SUCCESFULLY_CANCELLED:
+          case OPSTATE.KEY_SUCCESSFULLY_PUT_TO_STACK:
+            setNextPoll(false);
+            initialSessionRequest.current = true;
             setOperationalState(OPSTATE.DEVICE_CONNECT);
             break;
           case OPSTATE.SERVER_ERROR:
@@ -616,7 +609,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         clearInterval(Number(intervalId));
       }
     };
-  }, [changeStatus, cardData, getToken, operationalState, rest, settingDispatch, settingState, token, appDispatch, putStatus, putData]);
+  }, [appDispatch, changeStatus, getToken, operationalState, putData, putStatus, rest, token]);
 
   const scanIdButtonHandler = async () => {
     setOperationalState(OPSTATE.TAKING_THE_KEY);
@@ -637,7 +630,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         || operationalState === OPSTATE.DEVICE_PRESENT_CARD) {
         setTimeout(async () => {
           await getScanSession();
-        }, 1000);
+        }, 1500);
       } else {
         getScanSession();
       }
@@ -654,7 +647,7 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         || operationalState === OPSTATE.DEVICE_PRESENT_CARD) {
         setTimeout(async () => {
           await getScanSession();
-        }, 1000);
+        }, 1500);
       } else {
         getScanSession();
       }
@@ -676,27 +669,28 @@ const CardDispenserComponent = ({ cardData }: Props) => {
         <IconBox>
           { operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
           && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CHECK} width={30} height={30} /> }
-          { operationalState === OPSTATE.SERVER_ERROR
-          && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CROSS} width={30} height={30} /> }
-          { (operationalState === OPSTATE.DEVICE_CREATING_A_KEY || operationalState === OPSTATE.DEVICE_READING_A_KEY) && <SharedLoadingDots />}
+          { (operationalState === OPSTATE.SERVER_ERROR || operationalState === OPSTATE.KEY_SUCCESSFULLY_REJECTED)
+          && <SharedSuccesOrFailIcon checkOrCrossIcon={ShowIcon.CROSS} width={20} height={20} /> }
+          { (operationalState === OPSTATE.DEVICE_CREATING_A_KEY
+            || operationalState === OPSTATE.DEVICE_READING_A_KEY
+            || operationalState === OPSTATE.TAKING_THE_KEY
+            || operationalState === OPSTATE.DEVICE_PUT_IN_BIN
+            || operationalState === OPSTATE.DEVICE_PUT_IN_STACK) && <SharedLoadingDots />}
         </IconBox>
         <ScannerBox>
             <StyledCardBox>
             <StyledCard
               $slideIn={ operationalState === OPSTATE.DEVICE_CREATING_A_KEY
                 }
-              $slideOut={ operationalState === OPSTATE.TAKING_THE_KEY
-              || operationalState === OPSTATE.KEY_SUCCESSFULLY_TAKEN
-              }
-              $waiting={ operationalState === OPSTATE.DEVICE_CARD_CREATED
-                || operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
+              $slideOut={ operationalState === OPSTATE.TAKING_THE_KEY }
+              $waiting={ operationalState === OPSTATE.WAITING_FOR_READ_COMMAND
                 || operationalState === OPSTATE.DEVICE_READING_A_KEY
                 || operationalState === OPSTATE.DEVICE_PRESENT_CARD
                 || operationalState === OPSTATE.WAITING_FOR_FINAL_COMMAND
               }
               $slideBack={operationalState === OPSTATE.API_CANCEL
                 || operationalState === OPSTATE.DEVICE_PUT_IN_STACK
-                || operationalState === OPSTATE.KEY_SLIDEOUT}
+              }
               $isFaulsy={cardData?.roomAccess === faultyCard?.roomAccess}>
             { cardData !== undefined
             && <>

@@ -1,6 +1,6 @@
 // enums
 import CountriesAlpha3 from '../enums/CountryCodesISO3166Alpha3';
-import { Lang, APPSETTINGS, DEVICESTATUSOPTIONS, BINSTATUSES, STACKSTATUSES, CARDPOSITIONS, FAILPROCESS } from '../enums/SettingEnums';
+import { Lang, APPSETTINGS, DEVICESTATUSOPTIONS, BINSTATUSES, STACKSTATUSES, CARDPOSITIONS, FAILPROCESS, BINPOLICY } from '../enums/SettingEnums';
 
 type Translations = {
   [key: string]: { [key in Lang]: string; }[];
@@ -43,6 +43,14 @@ const translations: Translations = {
     {
       [Lang.DUTCH]: 'Fail processing',
       [Lang.ENGLISH]: 'Fail processing',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  [APPSETTINGS.BIN_POLICY]: [
+    {
+      [Lang.DUTCH]: 'Bin Policy',
+      [Lang.ENGLISH]: 'Bin Policy',
       [Lang.FRENCH]: '..',
       [Lang.GERMAN]: '..',
     },
@@ -133,6 +141,22 @@ const translations: Translations = {
     {
       [Lang.DUTCH]: 'Sporadisch ',
       [Lang.ENGLISH]: 'Sporadically',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  [BINPOLICY.ALLUNTAKENCARDS]: [
+    {
+      [Lang.DUTCH]: 'Put all untaken cards in bin',
+      [Lang.ENGLISH]: 'Put all untaken cards in bin',
+      [Lang.FRENCH]: '..',
+      [Lang.GERMAN]: '..',
+    },
+  ],
+  [BINPOLICY.ONLYFAULSYCARDS]: [
+    {
+      [Lang.DUTCH]: 'Put only faulsy cards in bin',
+      [Lang.ENGLISH]: 'Put only faulsy cards in bin',
       [Lang.FRENCH]: '..',
       [Lang.GERMAN]: '..',
     },

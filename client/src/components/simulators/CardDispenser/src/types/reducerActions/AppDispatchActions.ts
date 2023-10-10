@@ -18,6 +18,14 @@ type StringAction = {
   payload: string
 };
 
+// stack Actions
+type NumberActions = {
+  type:
+  AppActions.SET_CARDSTACK
+  | AppActions.SET_BINSTACK,
+  payload: number
+};
+
 // Without Payload
 type NoPayLoadAction = {
   type:
@@ -34,6 +42,7 @@ type AppDispatchActions =
   BooleanAction
   | NoPayLoadAction
   | StringAction
+  | NumberActions
   | CardAction;
 
 export default AppDispatchActions;

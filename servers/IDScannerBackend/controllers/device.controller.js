@@ -185,7 +185,7 @@ async function updateScanIDSession (session, req, res) {
   const { status, ...rest } = req.body.data;
 
   // format data for use by other services
-  const newData = { ...rest };c
+  const newData = { ...rest };
   // Document Type: are you sure you want this, anything hooked up to this now can't register document sub-types like AC (Air Crew) as that'll just be IDENTITY_CARD now
   let type = DocumentTypes.IDENTITY_CARD;
 

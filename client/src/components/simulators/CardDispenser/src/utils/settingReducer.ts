@@ -9,7 +9,7 @@ export type SettingsActionType = {
 };
 
 export type BooleanActionType = {
-  type: 'STATUS_OPTION_IS_CLICKED';
+  type: 'STATUS_OPTION_IS_CLICKED' | 'CARD_STACK_OPTION_IS_CLICKED' | 'BIN_STACK_OPTION_IS_CLICKED';
   payload: boolean;
 };
 
@@ -24,6 +24,7 @@ const settingsReducer: Reducer<SettingStateType, SettingsAction> = (state, actio
     case APPSETTINGS.BIN:
     case APPSETTINGS.CARD_POSITION:
     case APPSETTINGS.FAIL_PROCESS:
+    case APPSETTINGS.BIN_POLICY:
       return {
         ...state,
         [action.type]: action.payload,
@@ -32,6 +33,16 @@ const settingsReducer: Reducer<SettingStateType, SettingsAction> = (state, actio
       return {
         ...state,
         statusSettingIsClicked: action.payload,
+      };
+    case 'CARD_STACK_OPTION_IS_CLICKED':
+      return {
+        ...state,
+        cardStackSettingIsClicked: action.payload,
+      };
+    case 'BIN_STACK_OPTION_IS_CLICKED':
+      return {
+        ...state,
+        binStackSettingIsClicked: action.payload,
       };
     default:
       return state;

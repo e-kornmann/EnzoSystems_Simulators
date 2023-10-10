@@ -9,7 +9,7 @@ import { ReactComponent as CheckmarkIcon } from '../../../local_assets/success.s
 import AppDispatchContext from '../../contexts/dispatch/AppDispatchContext';
 import { SettingContext } from '../../contexts/dispatch/SettingContext';
 // enums
-import { APPSETTINGS, BINSTATUSES, CARDPOSITIONS, DEVICESTATUSOPTIONS, FAILPROCESS, Lang, STACKSTATUSES } from '../../enums/SettingEnums';
+import { APPSETTINGS, BINPOLICY, BINSTATUSES, CARDPOSITIONS, DEVICESTATUSOPTIONS, FAILPROCESS, Lang, STACKSTATUSES } from '../../enums/SettingEnums';
 import AppActions from '../../enums/AppActions';
 // types
 import translate from '../../Translations/translate';
@@ -47,6 +47,7 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
     { options: Object.values(BINSTATUSES), type: APPSETTINGS.BIN },
     { options: Object.values(CARDPOSITIONS), type: APPSETTINGS.CARD_POSITION },
     { options: Object.values(FAILPROCESS), type: APPSETTINGS.FAIL_PROCESS },
+    { options: Object.values(BINPOLICY), type: APPSETTINGS.BIN_POLICY },
   ], []);
 
   // toggle displaying options for this setting
@@ -70,9 +71,9 @@ const SettingsComponent = ({ clickedBack, appLanguage, showBinSettings, showStac
   const handleOptionClicked = useCallback((option: AllOptions, setting: SettingType) => {
     if (setting) {
       settingDispatch({ type: setting.type, payload: option });
-      if (setting.type === APPSETTINGS.DEVICE_STATUS) {
-        settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
-      }
+      if (setting.type === APPSETTINGS.DEVICE_STATUS) settingDispatch({ type: 'STATUS_OPTION_IS_CLICKED', payload: true });
+      if (setting.type === APPSETTINGS.CARD_STACK) settingDispatch({ type: 'CARD_STACK_OPTION_IS_CLICKED', payload: true });
+      if (setting.type === APPSETTINGS.BIN) settingDispatch({ type: 'BIN_STACK_OPTION_IS_CLICKED', payload: true });
     }
   }, [settingDispatch]);
 

@@ -7,7 +7,7 @@ GET http://localhost:9007/api/simulator/id-scanner/v1/health
 ####################################################################################
 
 @ACCESS_TOKEN_DEVICE=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiZGV2aWNlIiwidXNlciI6IktleUVuY29kZXJ0ZXN0IiwiaWF0IjoxNjk1Mjk1Nzk2LCJleHAiOjE2OTUzODIxOTYsImlzcyI6IkVuem9zeXN0ZW1zIn0.oF5o9IShy4N-r0Kdol2q5Xj6o6cIASDWd9-JIHifwC0
-@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk1NjM0MjM5LCJleHAiOjE2OTU3MjA2MzksImlzcyI6IkVuem9zeXN0ZW1zIn0.E95p76DqyBobsBgz9uBJq4vc3dHEUasoGOiGVzGHe1w
+@ACCESS_TOKEN_HOST=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiaG9zdCIsInVzZXIiOiJERU1PQVBQIiwiaWF0IjoxNjk2OTI2OTgyLCJleHAiOjE2OTcwMTMzODIsImlzcyI6IkVuem9zeXN0ZW1zIn0.RPv8HFmbsWxDSQhhy1AF6zEdnFP-CYPC64BYyb9LepM
 
 
 
@@ -70,7 +70,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/4d99db59-c0a6-404c-af03-87ca834369a6
+PATCH http://localhost:9007/api/simulator/id-scanner/v1/session/aa12e6fa-b71f-4f25-bf77-f41a259fd89f
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 
@@ -79,7 +79,7 @@ Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 }
 
 ### HOST request to cancel session by id
-PUT http://localhost:9007/api/simulator/id-scanner/v1/session/d4cea207-2143-4558-975a-9e2fa01ba2f5
+PUT http://localhost:9007/api/simulator/id-scanner/v1/session/2bdeecfb-a1ed-4280-98b5-802309d6a653
 Content-type: application/json
 Authorization: Bearer {{ACCESS_TOKEN_HOST}}
 

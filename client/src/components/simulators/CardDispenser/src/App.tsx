@@ -83,6 +83,8 @@ type AppStateType = {
   headerTitle: string,
   cardData: CardType | undefined,
   // --
+  cardStack: number,
+  binStack: number,
   showBack: boolean,
   showCross: boolean,
   clickedBack: boolean,
@@ -96,6 +98,8 @@ const initialState: AppStateType = {
   appLanguage: Lang.ENGLISH,
   headerTitle: 'Room Key Dispenser',
   cardData: undefined,
+  cardStack: 0,
+  binStack: 0,
   showBack: false,
   showCross: false,
   clickedBack: false,
@@ -114,6 +118,8 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
       return {
         ...initialState,
         cardData: state.cardData,
+        cardStack: state.cardStack,
+        binStack: state.binStack,
       };
     }
     case AppActions.RECEIVE_CARD_DATA: {
@@ -121,6 +127,28 @@ const reducer = (state: AppStateType, action: AppDispatchActions): AppStateType 
         ...state,
         cardData: action.payload,
       };
+    }
+    case AppActions.SET_CARDSTACK: {
+      let newCardStack: number;
+      if (action.payload === -1 || action.payload === 1) {
+        newCardStack = state.cardStack + action.payload;
+      } else if (action.payload >= 8) {
+        newCardStack = 8;
+      } else {
+        newCardStack = action.payload;
+      }
+      return { ...state, cardStack: newCardStack };
+    }
+    case AppActions.SET_BINSTACK: {
+      let newBinStack: number;
+      if (action.payload === -1 || action.payload === 1) {
+        newBinStack = state.binStack + action.payload;
+      } else if (action.payload >= 8) {
+        newBinStack = 8;
+      } else {
+        newBinStack = action.payload;
+      }
+      return { ...state, binStack: newBinStack };
     }
     case AppActions.SET_HEADER_TITLE: {
       return { ...state, headerTitle: action.payload };
@@ -168,7 +196,9 @@ const App = () => {
 
               <CardDispenser
                 cardData={state.cardData}
-                appLanguage={state.appLanguage} />
+                appLanguage={state.appLanguage}
+                cardStack={state.cardStack}
+                binStack={state.binStack} />
 
               {state.showSettings
                 && <Settings
@@ -179,7 +209,9 @@ const App = () => {
                 />}
             </StyledContentWrapper>
             <Footer
-              showSettings={state.showSettings} />
+              showSettings={state.showSettings}
+              cardStack={state.cardStack}
+              binStack={state.binStack} />
           </StyledApp>
         </AppDispatchContext.Provider>
       </ThemeProvider>
